@@ -1,0 +1,488 @@
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Send,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Sparkles,
+  Bot,
+  User,
+  Droplets,
+  Wind,
+  Sun,
+  ShieldAlert,
+  Thermometer,
+  CloudRain,
+  Eye,
+  RefreshCw,
+  Copy,
+  Check,
+  Compass,
+  ArrowRight,
+  Wheat,
+  Plane,
+  Anchor,
+  Radio
+} from 'lucide-react';
+import { weatherAI } from '../services/aiService';
+import { speechEngine } from '../services/speechService';
+import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
+import { getWeatherDescription } from '../services/weatherService';
+
+export default function ChatInterface({
+  activeLanguage = 'en',
+  currentLocation,
+  onLocationFound,
+  initialQuery = '',
+  onClearInitialQuery,
+  weatherData,
+  aqiData,
+  messages: externalMessages,
+  setMessages: externalSetMessages,
+  onOpenRadar,
+  onOpenDecision
+}) {
+  const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
+  const activeLangObj = SUPPORTED_LANGUAGES.find((l) => l.code === activeLanguage) || SUPPORTED_LANGUAGES[0];
+
+  const [inputQuery, setInputQuery] = useState('');
+  const [internalMessages, setInternalMessages] = useState([]);
+  const messages = externalMessages || internalMessages;
+  const setMessages = externalSetMessages || setInternalMessages;
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speakingMsgId, setSpeakingMsgId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const messagesEndRef = useRef(null);
+
+  // Initial welcome greeting - only if no messages exist yet
+  useEffect(() => {
+    if (messages.length === 0) {
+      const welcomeTexts = {
+        en: `👋 Hello! I am **WeatherGPT**, your meteorological AI platform.\n\nAsk me about live forecasts, rainfall probability, cyclone/flood early warnings, crop-soil advisories, aviation METAR, and marine high-seas reports in natural language.`,
+        ta: `👋 வணக்கம்! நான் **வெதர் ஜிபிடி (WeatherGPT)**.\n\nநேரலை வானிலை முன்னறிவிப்பு, மழை வாய்ப்பு, புயல் எச்சரிக்கைகள், விவசாய பயிர் மற்றும் மண் ஆலோசனைகள், விமானம் மற்றும் மீனவர் வழிகாட்டல்களை என்னிடம் கேட்கலாம்.`,
+        hi: `👋 नमस्ते! मैं **वेदर जीपीटी (WeatherGPT)** हूँ।\n\nलाइव मौसम पूर्वानुमान, वर्षा की संभावना, आपदा अलर्ट, कृषि सलाह और समुद्री सुरक्षा के बारे में कुछ भी पूछें।`,
+      };
+
+      const initialGreeting = welcomeTexts[activeLanguage] || welcomeTexts.en;
+
+      setMessages([
+        {
+          id: 'welcome-1',
+          sender: 'ai',
+          text: initialGreeting,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
+    }
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (initialQuery) {
+      handleSendMessage(initialQuery);
+      if (onClearInitialQuery) onClearInitialQuery();
+    }
+  }, [initialQuery]);
+
+  const handleSendMessage = async (queryText = inputQuery) => {
+    const q = queryText.trim();
+    if (!q || isLoading) return;
+
+    const userMsg = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      text: q,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInputQuery('');
+    setIsLoading(true);
+
+    try {
+      const response = await weatherAI.processQuery({
+        query: q,
+        currentLocation,
+        activeLanguage,
+      });
+
+      if (response.location && onLocationFound) {
+        onLocationFound(response.location);
+      }
+
+      const aiMsg = {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        text: response.text,
+        weatherData: response.weatherData,
+        aqiData: response.aqiData,
+        alerts: response.alerts,
+        domain: response.domain,
+        timeframe: response.timeframe,
+        sources: response.sources,
+        locationName: response.location ? `${response.location.name}, ${response.location.country || 'India'}` : null,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `ai-err-${Date.now()}`,
+          sender: 'ai',
+          text: `⚠️ Meteorological query error: ${err.message}. Please try again.`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleVoice = () => {
+    if (isListening) {
+      speechEngine.stopListening();
+      setIsListening(false);
+    } else {
+      const success = speechEngine.startListening({
+        langCode: activeLangObj.voiceCode || 'en-US',
+        onResult: (transcript) => {
+          setInputQuery(transcript);
+          handleSendMessage(transcript);
+        },
+        onError: (err) => {
+          console.warn(err);
+          setIsListening(false);
+        },
+        onEnd: () => {
+          setIsListening(false);
+        },
+      });
+      if (success) setIsListening(true);
+    }
+  };
+
+  const handleSpeak = (msgId, text) => {
+    if (speakingMsgId === msgId) {
+      speechEngine.stopSpeaking();
+      setSpeakingMsgId(null);
+    } else {
+      setSpeakingMsgId(msgId);
+      speechEngine.speak(text, activeLangObj.voiceCode || 'en-US', () => {
+        setSpeakingMsgId(null);
+      });
+    }
+  };
+
+  const handleCopy = (id, text) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }
+  };
+
+  return (
+    <div className="flex-1 flex flex-col h-full overflow-hidden">
+      {/* Messages Scroll Area */}
+      <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 space-y-5">
+        {/* Welcome Cards for Empty/New Conversations */}
+        {messages.length <= 1 && (
+          <div className="max-w-2xl mx-auto my-6 space-y-6 text-center">
+            <div className="inline-flex p-3 rounded-2xl bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 shadow-xl shadow-cyan-500/10">
+              <Sparkles className="w-7 h-7 animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                WeatherGPT Conversational Intelligence
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-md mx-auto">
+                Multilingual weather predictions, NWP model integrations (GFS/ECMWF), and disaster early warnings.
+              </p>
+            </div>
+
+            {/* 4 Feature Suggestion Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+              <button
+                onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'சென்னையில் அடுத்த 48 மணி நேரத்தில் மழை பெய்யுமா?' : 'Will it rain in Chennai over the next 48 hours?')}
+                className="p-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-500/40 transition-all group shadow-md"
+              >
+                <div className="flex items-center space-x-2 text-cyan-400 font-bold text-xs">
+                  <CloudRain className="w-4 h-4" />
+                  <span>Rain & Forecast</span>
+                </div>
+                <p className="text-xs text-slate-300 mt-1 font-medium">
+                  {activeLanguage === 'ta' ? 'சென்னையில் அடுத்த 48 மணி நேரத்தில் மழை பெய்யுமா?' : 'Will it rain in Chennai over the next 48 hours?'}
+                </p>
+              </button>
+
+              <button
+                onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'விவசாயிகளுக்கான பயிர் பாதுகாப்பு மற்றும் மண் ஈரப்பதம் ஆலோசனை' : 'Agricultural crop advisory for paddy and soil moisture status')}
+                className="p-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-500/40 transition-all group shadow-md"
+              >
+                <div className="flex items-center space-x-2 text-emerald-400 font-bold text-xs">
+                  <Wheat className="w-4 h-4" />
+                  <span>Farmer Advisory</span>
+                </div>
+                <p className="text-xs text-slate-300 mt-1 font-medium">
+                  {activeLanguage === 'ta' ? 'பயிர் பாதுகாப்பு மற்றும் மண் ஈரப்பதம் ஆலோசனை' : 'Agricultural crop advisory and soil moisture status'}
+                </p>
+              </button>
+
+              <button
+                onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'விமான வானிலை தகவல்: பார்வை தூரம் மற்றும் மேக மூட்டம்' : 'Aviation weather briefing: METAR, cloud ceiling and crosswinds')}
+                className="p-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-500/40 transition-all group shadow-md"
+              >
+                <div className="flex items-center space-x-2 text-blue-400 font-bold text-xs">
+                  <Plane className="w-4 h-4" />
+                  <span>Aviation METAR</span>
+                </div>
+                <p className="text-xs text-slate-300 mt-1 font-medium">
+                  {activeLanguage === 'ta' ? 'விமான வானிலை தகவல்: பார்வை தூரம் மற்றும் மேக மூட்டம்' : 'Aviation METAR, cloud ceiling & crosswinds'}
+                </p>
+              </button>
+
+              <button
+                onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'மீனவர்களுக்கான கடல் அலை உயரம் மற்றும் காற்று எச்சரிக்கை' : 'Marine high-seas advisory and wave height for fishermen')}
+                className="p-3.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-500/40 transition-all group shadow-md"
+              >
+                <div className="flex items-center space-x-2 text-amber-400 font-bold text-xs">
+                  <Anchor className="w-4 h-4" />
+                  <span>Marine & Fishermen</span>
+                </div>
+                <p className="text-xs text-slate-300 mt-1 font-medium">
+                  {activeLanguage === 'ta' ? 'மீனவர்களுக்கான கடல் அலை உயரம் மற்றும் காற்று எச்சரிக்கை' : 'Marine wave height and fishing safety status'}
+                </p>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Message Thread */}
+        {messages.map((msg) => {
+          const isAi = msg.sender === 'ai';
+          const isSpeakingThis = speakingMsgId === msg.id;
+
+          return (
+            <div
+              key={msg.id}
+              className={`flex items-start space-x-3 max-w-3xl mx-auto ${
+                isAi ? 'justify-start' : 'justify-end flex-row-reverse space-x-reverse'
+              }`}
+            >
+              {/* Avatar */}
+              <div
+                className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-bold text-xs shadow-md ${
+                  isAi
+                    ? 'bg-gradient-to-tr from-cyan-600 to-blue-600 shadow-cyan-500/20'
+                    : 'bg-slate-700'
+                }`}
+              >
+                {isAi ? '⚡' : '👤'}
+              </div>
+
+              {/* Bubble */}
+              <div
+                className={`rounded-2xl p-4 shadow-xl text-xs sm:text-sm leading-relaxed max-w-[88%] ${
+                  isAi
+                    ? 'bg-[#0d162e] border border-slate-800/90 text-slate-200'
+                    : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-medium shadow-cyan-500/10'
+                }`}
+              >
+                {/* Text Content */}
+                <div className="whitespace-pre-line space-y-1">
+                  {msg.text.split('\n').map((line, idx) => {
+                    if (line.startsWith('•')) {
+                      return (
+                        <div key={idx} className="pl-2 border-l-2 border-cyan-500/50 text-slate-200 my-0.5">
+                          {line}
+                        </div>
+                      );
+                    }
+                    return <div key={idx}>{line}</div>;
+                  })}
+                </div>
+
+                {/* Compact Weather Metrics Strip (if AI message has telemetry) */}
+                {isAi && msg.weatherData?.current && (
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-cyan-400">
+                      <span>Live Telemetry ({msg.locationName || 'Location'})</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
+                      <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center space-x-2">
+                        <Thermometer className="w-4 h-4 text-amber-400" />
+                        <div>
+                          <span className="text-[10px] text-slate-400 block">Temp</span>
+                          <span className="font-bold text-white">{msg.weatherData.current.temperature_2m}°C</span>
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center space-x-2">
+                        <Droplets className="w-4 h-4 text-cyan-400" />
+                        <div>
+                          <span className="text-[10px] text-slate-400 block">Humidity</span>
+                          <span className="font-bold text-white">{msg.weatherData.current.relative_humidity_2m}%</span>
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center space-x-2">
+                        <Wind className="w-4 h-4 text-blue-400" />
+                        <div>
+                          <span className="text-[10px] text-slate-400 block">Wind</span>
+                          <span className="font-bold text-white">{msg.weatherData.current.wind_speed_10m} km/h</span>
+                        </div>
+                      </div>
+
+                      <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center space-x-2">
+                        <Eye className="w-4 h-4 text-emerald-400" />
+                        <div>
+                          <span className="text-[10px] text-slate-400 block">Air Quality</span>
+                          <span className="font-bold text-emerald-400">{msg.aqiData?.current?.us_aqi || 50} AQI</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick navigation to interactive maps */}
+                    <div className="flex items-center space-x-2 pt-1">
+                      <button
+                        onClick={onOpenRadar}
+                        className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 border border-slate-800 flex items-center space-x-1 transition-all"
+                      >
+                        <Radio className="w-3 h-3" />
+                        <span>View Live Radar Map →</span>
+                      </button>
+                      <button
+                        onClick={() => onOpenDecision(msg.domain || 'agriculture')}
+                        className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 flex items-center space-x-1 transition-all"
+                      >
+                        <span>Open Decision Suite →</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Footer Buttons */}
+                {isAi && (
+                  <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="font-mono text-[10px] text-slate-500">{msg.timestamp}</span>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleSpeak(msg.id, msg.text)}
+                        title={isSpeakingThis ? t.voiceStop : t.voiceSpeak}
+                        className={`p-1 rounded-lg hover:bg-slate-800 flex items-center space-x-1 transition-colors ${
+                          isSpeakingThis ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                        <span className="text-[10px]">{isSpeakingThis ? 'Stop' : 'Listen'}</span>
+                      </button>
+                      <button
+                        onClick={() => handleCopy(msg.id, msg.text)}
+                        title="Copy text"
+                        className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
+                      >
+                        {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Loading Bubble */}
+        {isLoading && (
+          <div className="flex items-start space-x-3 max-w-3xl mx-auto">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-xs">
+              ⚡
+            </div>
+            <div className="p-3.5 rounded-2xl bg-[#0d162e] border border-slate-800 text-xs text-slate-300 flex items-center space-x-2 shadow-lg">
+              <RefreshCw className="w-4 h-4 text-cyan-400 animate-spin" />
+              <span>Analyzing 3 meteorological feeds & forecasting models...</span>
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Floating Bottom Input Bar */}
+      <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pb-3 pt-2">
+        {/* Quick prompt chip bar */}
+        <div className="flex items-center space-x-1.5 overflow-x-auto pb-2 mb-1 text-xs">
+          {(t.prompts || []).slice(0, 3).map((prompt, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSendMessage(prompt)}
+              className="flex-shrink-0 px-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 text-[11px] transition-all truncate max-w-[240px]"
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+
+        {/* Input box */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSendMessage();
+          }}
+          className="relative flex items-center bg-[#0d162e] border border-slate-700/80 rounded-2xl shadow-2xl p-1.5 focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-500/50 transition-all"
+        >
+          {/* Voice Input Mic */}
+          <button
+            type="button"
+            onClick={handleToggleVoice}
+            title={isListening ? t.voiceListening : 'Speak with Voice (10 Languages)'}
+            className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 ${
+              isListening
+                ? 'bg-rose-600 text-white animate-pulse shadow-lg shadow-rose-500/40'
+                : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-800'
+            }`}
+          >
+            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </button>
+
+          {/* Text Input */}
+          <input
+            type="text"
+            value={inputQuery}
+            onChange={(e) => setInputQuery(e.target.value)}
+            placeholder={isListening ? t.voiceListening : t.searchPlaceholder}
+            className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none"
+          />
+
+          {/* Language Flag Badge */}
+          <span className="text-xs px-2 text-slate-500 hidden sm:inline">
+            {activeLangObj.flag} {activeLangObj.nativeName}
+          </span>
+
+          {/* Send Button */}
+          <button
+            type="submit"
+            disabled={!inputQuery.trim() || isLoading}
+            className={`p-2.5 rounded-xl font-bold flex items-center justify-center transition-all flex-shrink-0 ${
+              inputQuery.trim() && !isLoading
+                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-500 hover:to-blue-500 shadow-md shadow-cyan-500/20'
+                : 'bg-slate-800 text-slate-600 cursor-not-allowed'
+            }`}
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
