@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldAlert, AlertTriangle, Info, CheckCircle2, ChevronDown, ChevronUp, BellRing, Share2 } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, Info, CheckCircle2, ChevronDown, ChevronUp, BellRing, Bell, Share2, X } from 'lucide-react';
 
 export const ALERT_STYLES = {
   red: {
@@ -36,14 +36,18 @@ export const ALERT_STYLES = {
   },
 };
 
-export default function WeatherAlertBanner({ alerts = [] }) {
+export default function WeatherAlertBanner({ alerts = [], notificationsEnabled, onToggleNotifications }) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
 
-  if (!alerts || alerts.length === 0) return null;
+  if (!alerts || alerts.length === 0 || dismissed) return null;
 
   const topAlert = alerts[0];
-  const style = ALERT_STYLES[topAlert.level] || ALERT_STYLES.green;
+  // If nominal green and not severe, don't overwhelm the main view unless user opens it
+  if (topAlert.level === 'green') return null;
+
+  const style = ALERT_STYLES[topAlert.level] || ALERT_STYLES.yellow;
   const IconComponent = style.icon;
 
   const handleShare = () => {
@@ -81,6 +85,16 @@ export default function WeatherAlertBanner({ alerts = [] }) {
         </div>
 
         <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+          {!notificationsEnabled && onToggleNotifications && (
+            <button
+              onClick={onToggleNotifications}
+              title="Turn ON Alert Notifications"
+              className="p-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-sky-700 transition-all text-xs flex items-center space-x-1 shadow-sm font-medium"
+            >
+              <BellRing className="w-3.5 h-3.5 text-sky-600" />
+              <span className="hidden md:inline text-[11px]">Notify Me</span>
+            </button>
+          )}
           <button
             onClick={handleShare}
             title="Copy / Broadcast Alert Directive"
@@ -97,6 +111,13 @@ export default function WeatherAlertBanner({ alerts = [] }) {
               {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           )}
+          <button
+            onClick={() => setDismissed(true)}
+            title="Dismiss Banner"
+            className="p-1.5 rounded-lg bg-white/70 hover:bg-white text-slate-400 hover:text-slate-700 transition-all"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       </div>
 

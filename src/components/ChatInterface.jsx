@@ -464,9 +464,9 @@ export default function ChatInterface({
             className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
           />
 
-          {/* Language Flag Badge */}
+          {/* Language Badge */}
           <span className="text-xs px-2 text-slate-500 hidden sm:inline font-medium">
-            {activeLangObj.flag} {activeLangObj.nativeName}
+            {activeLangObj.nativeName}
           </span>
 
           {/* Send Button */}

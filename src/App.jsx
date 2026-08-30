@@ -38,8 +38,12 @@ import {
   Settings,
   Download,
   PlusCircle,
-  ChevronLeft
+  ChevronLeft,
+  Globe,
+  Bell,
+  BellRing
 } from 'lucide-react';
+import { notificationService } from './services/notificationService';
 
 export default function App() {
   const [activeLanguage, setActiveLanguage] = useState('en');
@@ -63,6 +67,32 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [initialChatQuery, setInitialChatQuery] = useState('');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => notificationService.isEnabled());
+
+  const handleToggleNotifications = async () => {
+    if (!notificationsEnabled) {
+      const perm = await notificationService.requestPermission();
+      if (perm === 'granted') {
+        setNotificationsEnabled(true);
+        notificationService.sendTestAlert(currentLocation.name || 'Your Location');
+      } else {
+        alert('Please allow notification permissions in your browser to receive instant weather alert popups.');
+      }
+    } else {
+      notificationService.setEnabled(false);
+      setNotificationsEnabled(false);
+    }
+  };
+
+  // Dispatch browser push notification whenever severe alert is detected
+  useEffect(() => {
+    if (alerts && alerts.length > 0 && notificationsEnabled) {
+      const severeAlert = alerts.find((a) => a.level === 'red' || a.level === 'orange');
+      if (severeAlert) {
+        notificationService.sendAlert(severeAlert, currentLocation.name || 'Your Location');
+      }
+    }
+  }, [alerts, notificationsEnabled, currentLocation]);
 
   const getInitialWelcome = (lang) => {
     const welcomeTexts = {
@@ -299,17 +329,17 @@ export default function App() {
 
         {/* Sidebar Footer Controls */}
         <div className="p-3 border-t border-slate-200 space-y-2 bg-slate-50">
-          {/* 10 Languages Selector */}
+          {/* 10 Languages Selector - Clean single symbol */}
           <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-sm">
-            <span className="text-xs">🌐</span>
+            <Globe className="w-4 h-4 text-sky-600 flex-shrink-0" />
             <select
               value={activeLanguage}
               onChange={(e) => setActiveLanguage(e.target.value)}
-              className="w-full bg-transparent text-xs text-slate-700 focus:outline-none cursor-pointer"
+              className="w-full bg-transparent text-xs font-medium text-slate-700 focus:outline-none cursor-pointer"
             >
               {SUPPORTED_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code} className="bg-white text-slate-800">
-                  {l.flag} {l.nativeName} ({l.name})
+                  {l.nativeName} ({l.name})
                 </option>
               ))}
             </select>
@@ -347,10 +377,19 @@ export default function App() {
           topAlert={topAlert}
           onDetectLocation={detectUserLocation}
           onOpenSidebar={() => setSidebarOpen(true)}
+          notificationsEnabled={notificationsEnabled}
+          onToggleNotifications={handleToggleNotifications}
+          onTestNotification={() => notificationService.sendTestAlert(currentLocation.name)}
         />
 
         {/* View Content Area */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-5 flex flex-col max-w-6xl w-full mx-auto">
+          {/* Active Hazard Early Warning Banner */}
+          <WeatherAlertBanner
+            alerts={alerts}
+            notificationsEnabled={notificationsEnabled}
+            onToggleNotifications={handleToggleNotifications}
+          />
           {/* Main View: Clean AI Chat (Preserved across view transitions) */}
           <div className={activeView === 'chat' ? 'flex-1 flex flex-col min-h-0' : 'hidden'}>
             <ChatInterface

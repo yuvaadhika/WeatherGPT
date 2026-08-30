@@ -1,15 +1,15 @@
 // WeatherGPT Multilingual Localization Engine (10 Languages)
 export const SUPPORTED_LANGUAGES = [
-  { code: 'en', name: 'English', nativeName: 'English', voiceCode: 'en-US', flag: '🌐' },
-  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்', voiceCode: 'ta-IN', flag: '🇮🇳' },
-  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी', voiceCode: 'hi-IN', flag: '🇮🇳' },
-  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు', voiceCode: 'te-IN', flag: '🇮🇳' },
-  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা', voiceCode: 'bn-IN', flag: '🇮🇳' },
-  { code: 'mr', name: 'Marathi', nativeName: 'मराठी', voiceCode: 'mr-IN', flag: '🇮🇳' },
-  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી', voiceCode: 'gu-IN', flag: '🇮🇳' },
-  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ', voiceCode: 'kn-IN', flag: '🇮🇳' },
-  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം', voiceCode: 'ml-IN', flag: '🇮🇳' },
-  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', voiceCode: 'pa-IN', flag: '🇮🇳' },
+  { code: 'en', name: 'English', nativeName: 'English', voiceCode: 'en-US' },
+  { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்', voiceCode: 'ta-IN' },
+  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी', voiceCode: 'hi-IN' },
+  { code: 'te', name: 'Telugu', nativeName: 'తెలుగు', voiceCode: 'te-IN' },
+  { code: 'bn', name: 'Bengali', nativeName: 'বাংলা', voiceCode: 'bn-IN' },
+  { code: 'mr', name: 'Marathi', nativeName: 'मराठी', voiceCode: 'mr-IN' },
+  { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી', voiceCode: 'gu-IN' },
+  { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ', voiceCode: 'kn-IN' },
+  { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം', voiceCode: 'ml-IN' },
+  { code: 'pa', name: 'Punjabi', nativeName: 'ਪੰਜਾਬੀ', voiceCode: 'pa-IN' },
 ];
 
 export const TRANSLATIONS = {

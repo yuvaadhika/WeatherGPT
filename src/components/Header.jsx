@@ -7,7 +7,10 @@ import {
   Settings,
   Download,
   CheckCircle2,
-  Compass
+  Compass,
+  Bell,
+  BellRing,
+  BellOff
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 
@@ -20,7 +23,10 @@ export default function Header({
   onOpenExport,
   topAlert,
   onDetectLocation,
-  onOpenSidebar
+  onOpenSidebar,
+  notificationsEnabled,
+  onToggleNotifications,
+  onTestNotification
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -117,6 +123,26 @@ export default function Header({
 
       {/* Right Controls */}
       <div className="flex items-center space-x-2">
+        {/* Weather Alert Push Notification Bell */}
+        <button
+          onClick={onToggleNotifications}
+          title={notificationsEnabled ? 'Weather Alert Push Notifications Active (Click to toggle / test)' : 'Click to enable Live Weather Alert Notifications'}
+          className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1.5 transition-all shadow-sm ${
+            notificationsEnabled
+              ? 'bg-sky-50 border-sky-300 text-sky-700 hover:bg-sky-100'
+              : 'bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          {notificationsEnabled ? (
+            <BellRing className="w-3.5 h-3.5 text-sky-600 animate-pulse" />
+          ) : (
+            <Bell className="w-3.5 h-3.5 text-slate-400" />
+          )}
+          <span className="text-[11px] font-semibold hidden md:inline">
+            {notificationsEnabled ? 'Alerts ON' : 'Alerts OFF'}
+          </span>
+        </button>
+
         {/* Early Warning Status Pill */}
         {topAlert && (
           <div className={`px-2.5 py-1 rounded-xl text-[11px] font-medium border flex items-center space-x-1.5 ${
