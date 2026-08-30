@@ -377,12 +377,12 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-sky-400 hover:text-sky-300 font-medium"
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Back to Forecast</span>
                 </button>
-                <span className="text-xs text-slate-400">Live Satellite & Radar Stream</span>
+                <span className="text-xs text-slate-500">Live Satellite & Radar Stream</span>
               </div>
               <WeatherRadarMap
                 currentLocation={currentLocation}
@@ -398,12 +398,12 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-sky-400 hover:text-sky-300 font-medium"
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Back to Forecast</span>
                 </button>
-                <span className="text-xs text-slate-400">Decision Support Advisory</span>
+                <span className="text-xs text-slate-500">Decision Support Advisory</span>
               </div>
               <DecisionSupportModes
                 currentLocation={currentLocation}
@@ -422,12 +422,12 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-sky-400 hover:text-sky-300 font-medium"
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Back to Forecast</span>
                 </button>
-                <span className="text-xs text-slate-400">7-Day & Historical Weather Analytics</span>
+                <span className="text-xs text-slate-500">7-Day & Historical Weather Analytics</span>
               </div>
               <ClimateAnalyticsChart
                 weatherData={weatherData}

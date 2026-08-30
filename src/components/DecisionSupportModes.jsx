@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Wheat,
   Plane,
@@ -29,6 +29,12 @@ export default function DecisionSupportModes({
   onPromptChat
 }) {
   const [activeTab, setActiveTab] = useState(activeSector || 'agriculture');
+
+  useEffect(() => {
+    if (activeSector) {
+      setActiveTab(activeSector);
+    }
+  }, [activeSector]);
 
   const locName = currentLocation?.name || 'Current Location';
   const current = weatherData?.current || {};
