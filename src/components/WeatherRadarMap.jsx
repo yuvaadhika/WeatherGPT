@@ -143,25 +143,24 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
     : 'Live Stream';
 
   return (
-    <div className="w-full h-full flex flex-col rounded-2xl overflow-hidden glass-panel border border-slate-700/80 shadow-2xl">
+    <div className="w-full h-full flex flex-col rounded-2xl overflow-hidden glass-panel border border-slate-800 shadow-xl">
       {/* Radar GIS Controls Header */}
       <div className="p-3.5 bg-slate-900/90 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center space-x-2.5">
-          <div className="p-1.5 rounded-lg bg-cyan-950/80 border border-cyan-500/40 text-cyan-400">
+          <div className="p-1.5 rounded-lg bg-sky-950/60 border border-sky-500/30 text-sky-400">
             <CloudRain className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <h3 className="text-sm font-bold text-white flex items-center space-x-1.5">
-                <span>RainViewer Live Precipitation Doppler Radar</span>
+                <span>RainViewer Live Precipitation Radar</span>
                 <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                 </span>
               </h3>
             </div>
             <p className="text-[11px] text-slate-400">
-              Source 3: Real-time Weather Radar Tiles & Infrared Satellite GIS Stream
+              Live Weather Radar & Satellite Precipitation Map
             </p>
           </div>
         </div>
@@ -173,7 +172,7 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
             onClick={() => setIsPlaying(!isPlaying)}
             className={`px-3 py-1.5 rounded-xl font-medium flex items-center space-x-1.5 transition-all ${
               isPlaying
-                ? 'bg-cyan-600/90 text-white hover:bg-cyan-500'
+                ? 'bg-sky-600 text-white hover:bg-sky-500'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
             }`}
           >
@@ -182,7 +181,7 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
           </button>
 
           {/* Timestamp Indicator */}
-          <div className="px-2.5 py-1 rounded-xl bg-slate-800/90 border border-slate-700 font-mono text-cyan-300 text-xs">
+          <div className="px-2.5 py-1 rounded-xl bg-slate-800/90 border border-slate-700 font-mono text-sky-300 text-xs">
             🕒 {activeTimestamp}
           </div>
 

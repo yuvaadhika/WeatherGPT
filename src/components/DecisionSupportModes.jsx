@@ -51,10 +51,10 @@ export default function DecisionSupportModes({
       <div className="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-slate-800">
         {[
           { id: 'agriculture', label: '🌾 Agriculture & Farmers', icon: Wheat },
-          { id: 'aviation', label: '✈️ Aviation METAR/TAF', icon: Plane },
+          { id: 'aviation', label: '✈️ Aviation METAR / TAF', icon: Plane },
           { id: 'marine', label: '🌊 Marine & Fishermen', icon: Anchor },
           { id: 'smartCity', label: '🏙️ Smart City & Disaster', icon: Building2 },
-          { id: 'climate', label: '🔬 Climate Trend Analytics', icon: TrendingUp },
+          { id: 'climate', label: '📊 Climate Trend Analytics', icon: TrendingUp },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -65,10 +65,10 @@ export default function DecisionSupportModes({
                 setActiveTab(tab.id);
                 if (onSelectSector) onSelectSector(tab.id);
               }}
-              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
+              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                 isActive
-                  ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-500/20 border border-cyan-400/40'
-                  : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 border border-slate-800'
+                  ? 'bg-sky-600 text-white shadow-sm'
+                  : 'bg-slate-850 text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-slate-800'
               }`}
             >
               <span>{tab.label}</span>
@@ -94,9 +94,9 @@ export default function DecisionSupportModes({
             </div>
             <button
               onClick={() => onPromptChat && onPromptChat(`Provide detailed crop advisory and irrigation plan for ${locName}`)}
-              className="text-xs px-3 py-1.5 rounded-xl bg-cyan-950 border border-cyan-500/50 text-cyan-300 hover:bg-cyan-900/60 transition-all"
+              className="text-xs px-3 py-1.5 rounded-xl bg-sky-950/60 border border-sky-500/40 text-sky-300 hover:bg-sky-900/60 transition-all"
             >
-              Ask AI Farm Expert →
+              Ask Farm Forecast →
             </button>
           </div>
 

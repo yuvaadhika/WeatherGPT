@@ -155,10 +155,10 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen w-screen flex bg-[#070b19] text-slate-100 overflow-hidden font-sans">
+    <div className="h-screen w-screen flex bg-[#0b1120] text-slate-100 overflow-hidden font-sans">
       {/* 1. Sleek Left Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#0b1329] border-r border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#0f172a] border-r border-slate-800/80 flex flex-col justify-between transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -166,15 +166,15 @@ export default function App() {
         <div className="p-4 border-b border-slate-800/80">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20 font-bold">
-                ⚡
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-sky-500/10">
+                <Sun className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="font-extrabold text-base tracking-tight bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">
+                <h1 className="font-bold text-base tracking-tight text-white">
                   WeatherGPT
                 </h1>
-                <span className="text-[10px] text-cyan-400 font-semibold tracking-wider uppercase">
-                  Meteorological AI
+                <span className="text-[10px] text-sky-400 font-medium tracking-wide">
+                  Live Weather & Forecasts
                 </span>
               </div>
             </div>
@@ -189,10 +189,10 @@ export default function App() {
           {/* New Query / Clear Chat Button */}
           <button
             onClick={handleNewChat}
-            className="w-full mt-4 py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-cyan-500/15 transition-all"
+            className="w-full mt-4 py-2.5 px-3 rounded-xl bg-sky-600/90 hover:bg-sky-600 text-white font-medium text-xs flex items-center justify-center space-x-2 transition-all shadow-sm"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>New Weather Query</span>
+            <span>New Weather Search</span>
           </button>
         </div>
 
@@ -200,22 +200,22 @@ export default function App() {
         <div className="flex-1 overflow-y-auto p-3 space-y-4">
           {/* Main Views */}
           <div className="space-y-1">
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2.5 mb-1.5">
-              Core Platform
+            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
+              Weather Studio
             </div>
             <button
               onClick={() => {
                 setActiveView('chat');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                 activeView === 'chat'
-                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
+                  ? 'bg-sky-500/10 text-sky-300 border border-sky-500/20'
                   : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
               }`}
             >
-              <MessageSquare className="w-4 h-4 text-cyan-400" />
-              <span>AI Weather Chat</span>
+              <MessageSquare className="w-4 h-4 text-sky-400" />
+              <span>Forecast & Assistant</span>
             </button>
 
             <button
@@ -223,14 +223,14 @@ export default function App() {
                 setActiveView('radar');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                 activeView === 'radar'
-                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
+                  ? 'bg-sky-500/10 text-sky-300 border border-sky-500/20'
                   : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
               }`}
             >
               <Radio className="w-4 h-4 text-emerald-400" />
-              <span>Live GIS Doppler Radar</span>
+              <span>Live Doppler Radar Map</span>
             </button>
 
             <button
@@ -238,25 +238,25 @@ export default function App() {
                 setActiveView('climate');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                 activeView === 'climate'
-                  ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
+                  ? 'bg-sky-500/10 text-sky-300 border border-sky-500/20'
                   : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
               }`}
             >
-              <TrendingUp className="w-4 h-4 text-purple-400" />
-              <span>Climate & NWP Trends</span>
+              <TrendingUp className="w-4 h-4 text-indigo-400" />
+              <span>Climate & 7-Day Trends</span>
             </button>
           </div>
 
           {/* Decision Support Suites */}
           <div className="space-y-1">
-            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2.5 mb-1.5">
-              Decision Support Suites
+            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
+              Sector Advisories
             </div>
             {[
               { id: 'agriculture', label: '🌾 Farmers & Agriculture', icon: Wheat },
-              { id: 'aviation', label: '✈️ Aviation METAR/TAF', icon: Plane },
+              { id: 'aviation', label: '✈️ Aviation METAR / TAF', icon: Plane },
               { id: 'marine', label: '🌊 Marine & Fishermen', icon: Anchor },
               { id: 'smartCity', label: '🏙️ Smart City & Disaster', icon: Building2 },
             ].map((s) => {
@@ -272,7 +272,7 @@ export default function App() {
                   }}
                   className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                     isSelected
-                      ? 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
+                      ? 'bg-sky-500/10 text-sky-300 border border-sky-500/20'
                       : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
                   }`}
                 >
@@ -284,15 +284,15 @@ export default function App() {
           </div>
 
           {/* 3 Active Feeds Info Box */}
-          <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] space-y-1.5">
-            <div className="font-bold text-slate-200 flex items-center justify-between">
-              <span>3 Data Feeds Active</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div className="p-3 rounded-xl bg-slate-800/50 border border-slate-800 text-[11px] space-y-1.5">
+            <div className="font-medium text-slate-300 flex items-center justify-between">
+              <span>Live Data Integrations</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
             </div>
-            <p className="text-slate-400 text-[10px]">
+            <p className="text-slate-400 text-[10px] leading-relaxed">
               • Open-Meteo GFS / ECMWF<br />
-              • WAQI Air Quality PM2.5<br />
-              • RainViewer Live Radar GIS
+              • Air Quality WAQI PM2.5<br />
+              • RainViewer Radar GIS
             </p>
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function App() {
       </aside>
 
       {/* 2. Main Content Canvas */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#070b19]">
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#0b1120]">
         {/* Top Navbar */}
         <Header
           activeLanguage={activeLanguage}
@@ -377,10 +377,10 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-semibold"
+                  className="flex items-center space-x-1.5 text-xs text-sky-400 hover:text-sky-300 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Back to WeatherGPT Chat</span>
+                  <span>Back to Forecast</span>
                 </button>
                 <span className="text-xs text-slate-400">Live Satellite & Radar Stream</span>
               </div>
@@ -398,12 +398,12 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-semibold"
+                  className="flex items-center space-x-1.5 text-xs text-sky-400 hover:text-sky-300 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Back to WeatherGPT Chat</span>
+                  <span>Back to Forecast</span>
                 </button>
-                <span className="text-xs text-slate-400">Decision Support System</span>
+                <span className="text-xs text-slate-400">Decision Support Advisory</span>
               </div>
               <DecisionSupportModes
                 currentLocation={currentLocation}
@@ -422,12 +422,12 @@ export default function App() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-semibold"
+                  className="flex items-center space-x-1.5 text-xs text-sky-400 hover:text-sky-300 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Back to WeatherGPT Chat</span>
+                  <span>Back to Forecast</span>
                 </button>
-                <span className="text-xs text-slate-400">Decadal Climate Intelligence</span>
+                <span className="text-xs text-slate-400">7-Day & Historical Weather Analytics</span>
               </div>
               <ClimateAnalyticsChart
                 weatherData={weatherData}

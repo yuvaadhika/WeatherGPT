@@ -9,119 +9,102 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #070b19;
+  background-color: #0b1120;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.04) 0px, transparent 50%);
   background-attachment: fixed;
   color: #f1f5f9;
-  font-family: 'Outfit', 'Inter', sans-serif;
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Glassmorphism Classes */
+/* Glassmorphism & Soft Card Classes */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.6);
+  background: rgba(30, 41, 59, 0.5);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .glass-card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s ease;
 }
 .glass-card-hover:hover {
-  background: rgba(30, 41, 59, 0.85);
-  border-color: rgba(6, 182, 212, 0.3);
+  background: rgba(30, 41, 59, 0.75);
+  border-color: rgba(56, 189, 248, 0.25);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
 }
 
 .glass-input {
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Custom Glows */
+/* Mild Ambient Shadows */
 .glow-cyan {
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+  box-shadow: 0 4px 20px -2px rgba(14, 165, 233, 0.15);
 }
 
 .glow-blue {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.15);
 }
 
 .glow-red {
-  box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+  box-shadow: 0 4px 20px -2px rgba(244, 63, 94, 0.2);
 }
 
 .glow-amber {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 20px -2px rgba(245, 158, 11, 0.2);
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(15, 23, 42, 0.3);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.6);
+  background: rgba(71, 85, 105, 0.4);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.6);
+  background: rgba(100, 116, 139, 0.7);
 }
 
 /* Animated Weather Background Pulses */
 .weather-gradient-sunny {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(234, 88, 12, 0.05));
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(234, 88, 12, 0.03));
 }
 .weather-gradient-rainy {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(59, 130, 246, 0.1));
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(59, 130, 246, 0.05));
 }
 .weather-gradient-storm {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(244, 63, 94, 0.1));
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(244, 63, 94, 0.05));
 }
 
 /* Leaflet Map Customization */
 .leaflet-container {
   font-family: inherit;
   border-radius: 1rem;
-  background: #0f172a !important;
+  background: #0b1120 !important;
 }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
   background: rgba(15, 23, 42, 0.95) !important;
   color: #f1f5f9 !important;
-  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+  border: 1px solid rgba(56, 189, 248, 0.2) !important;
   backdrop-filter: blur(10px);
   border-radius: 0.75rem !important;
-}
-
-/* Radar scanner simulation */
-.radar-sweep-effect {
-  position: relative;
-  overflow: hidden;
-}
-.radar-sweep-effect::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(from 0deg, transparent 0deg, transparent 300deg, rgba(6, 182, 212, 0.2) 360deg);
-  animation: radarSweep 4s linear infinite;
-  pointer-events: none;
 }

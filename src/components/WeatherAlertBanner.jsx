@@ -3,23 +3,23 @@ import { ShieldAlert, AlertTriangle, Info, CheckCircle2, ChevronDown, ChevronUp,
 
 export const ALERT_STYLES = {
   red: {
-    bg: 'bg-rose-950/70 border-rose-600/70 text-rose-100',
+    bg: 'bg-rose-950/40 border-rose-600/40 text-rose-100',
     badge: 'bg-rose-600 text-white',
     icon: ShieldAlert,
-    glow: 'glow-red',
+    glow: '',
     accent: 'text-rose-400',
     title: 'RED ALERT: Severe Meteorological Hazard',
   },
   orange: {
-    bg: 'bg-amber-950/70 border-amber-600/70 text-amber-100',
+    bg: 'bg-amber-950/40 border-amber-600/40 text-amber-100',
     badge: 'bg-amber-600 text-slate-950',
     icon: AlertTriangle,
-    glow: 'glow-amber',
+    glow: '',
     accent: 'text-amber-400',
     title: 'ORANGE ALERT: Be Prepared & Alert',
   },
   yellow: {
-    bg: 'bg-yellow-950/60 border-yellow-600/60 text-yellow-100',
+    bg: 'bg-yellow-950/30 border-yellow-600/30 text-yellow-100',
     badge: 'bg-yellow-500 text-slate-950',
     icon: Info,
     glow: '',
@@ -27,7 +27,7 @@ export const ALERT_STYLES = {
     title: 'YELLOW ALERT: Watch Weather Conditions',
   },
   green: {
-    bg: 'bg-emerald-950/50 border-emerald-600/50 text-emerald-100',
+    bg: 'bg-emerald-950/30 border-emerald-600/30 text-emerald-100',
     badge: 'bg-emerald-600 text-white',
     icon: CheckCircle2,
     glow: '',
