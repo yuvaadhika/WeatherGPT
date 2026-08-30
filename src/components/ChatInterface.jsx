@@ -198,15 +198,15 @@ export default function ChatInterface({
         {/* Welcome Cards for Empty/New Conversations */}
         {messages.length <= 1 && (
           <div className="max-w-2xl mx-auto my-6 space-y-6 text-center">
-            <div className="inline-flex p-3 rounded-2xl bg-sky-950/40 border border-sky-500/20 text-sky-400 shadow-lg shadow-sky-500/5">
+            <div className="inline-flex p-3 rounded-2xl bg-sky-50 border border-sky-200 text-sky-600 shadow-sm">
               <Sun className="w-7 h-7" />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                WeatherGPT Forecast Studio
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                Weather Forecast & Live Studio
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-md mx-auto">
-                Real-time weather forecasts, rainfall probability, air quality, and sector-specific advisories.
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+                Real-time weather reports, hourly rain forecasts, atmospheric telemetry, and sector advisories.
               </p>
             </div>
 
@@ -214,52 +214,52 @@ export default function ChatInterface({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
               <button
                 onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'சென்னையில் அடுத்த 48 மணி நேரத்தில் மழை பெய்யுமா?' : 'Will it rain in Chennai over the next 48 hours?')}
-                className="p-3.5 rounded-2xl bg-slate-800/50 hover:bg-slate-800/90 border border-slate-700/60 hover:border-sky-500/40 transition-all group shadow-sm"
+                className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-sky-300 transition-all group shadow-sm"
               >
-                <div className="flex items-center space-x-2 text-sky-400 font-semibold text-xs">
+                <div className="flex items-center space-x-2 text-sky-600 font-semibold text-xs">
                   <CloudRain className="w-4 h-4" />
                   <span>Rain & 48h Forecast</span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1 font-normal">
+                <p className="text-xs text-slate-600 mt-1 font-normal">
                   {activeLanguage === 'ta' ? 'சென்னையில் அடுத்த 48 மணி நேரத்தில் மழை பெய்யுமா?' : 'Will it rain in Chennai over the next 48 hours?'}
                 </p>
               </button>
 
               <button
                 onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'விவசாயிகளுக்கான பயிர் பாதுகாப்பு மற்றும் மண் ஈரப்பதம் ஆலோசனை' : 'Agricultural crop advisory for paddy and soil moisture status')}
-                className="p-3.5 rounded-2xl bg-slate-800/50 hover:bg-slate-800/90 border border-slate-700/60 hover:border-sky-500/40 transition-all group shadow-sm"
+                className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-emerald-300 transition-all group shadow-sm"
               >
-                <div className="flex items-center space-x-2 text-emerald-400 font-semibold text-xs">
+                <div className="flex items-center space-x-2 text-emerald-600 font-semibold text-xs">
                   <Wheat className="w-4 h-4" />
                   <span>Farmer Advisory</span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1 font-normal">
+                <p className="text-xs text-slate-600 mt-1 font-normal">
                   {activeLanguage === 'ta' ? 'பயிர் பாதுகாப்பு மற்றும் மண் ஈரப்பதம் ஆலோசனை' : 'Agricultural crop advisory and soil moisture status'}
                 </p>
               </button>
 
               <button
                 onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'விமான வானிலை தகவல்: பார்வை தூரம் மற்றும் மேக மூட்டம்' : 'Aviation weather briefing: METAR, cloud ceiling and crosswinds')}
-                className="p-3.5 rounded-2xl bg-slate-800/50 hover:bg-slate-800/90 border border-slate-700/60 hover:border-sky-500/40 transition-all group shadow-sm"
+                className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-blue-300 transition-all group shadow-sm"
               >
-                <div className="flex items-center space-x-2 text-blue-400 font-semibold text-xs">
+                <div className="flex items-center space-x-2 text-blue-600 font-semibold text-xs">
                   <Plane className="w-4 h-4" />
                   <span>Aviation METAR</span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1 font-normal">
+                <p className="text-xs text-slate-600 mt-1 font-normal">
                   {activeLanguage === 'ta' ? 'விமான வானிலை தகவல்: பார்வை தூரம் மற்றும் மேக மூட்டம்' : 'Aviation METAR, cloud ceiling & crosswinds'}
                 </p>
               </button>
 
               <button
                 onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'மீனவர்களுக்கான கடல் அலை உயரம் மற்றும் காற்று எச்சரிக்கை' : 'Marine high-seas advisory and wave height for fishermen')}
-                className="p-3.5 rounded-2xl bg-slate-800/50 hover:bg-slate-800/90 border border-slate-700/60 hover:border-sky-500/40 transition-all group shadow-sm"
+                className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-amber-300 transition-all group shadow-sm"
               >
-                <div className="flex items-center space-x-2 text-amber-400 font-semibold text-xs">
+                <div className="flex items-center space-x-2 text-amber-600 font-semibold text-xs">
                   <Anchor className="w-4 h-4" />
                   <span>Marine & Fishermen</span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1 font-normal">
+                <p className="text-xs text-slate-600 mt-1 font-normal">
                   {activeLanguage === 'ta' ? 'மீனவர்களுக்கான கடல் அலை உயரம் மற்றும் காற்று எச்சரிக்கை' : 'Marine wave height and fishing safety status'}
                 </p>
               </button>
@@ -281,10 +281,10 @@ export default function ChatInterface({
             >
               {/* Avatar */}
               <div
-                className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-medium text-xs shadow-sm ${
+                className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 font-medium text-xs shadow-sm ${
                   isAi
-                    ? 'bg-sky-600 text-white'
-                    : 'bg-slate-700 text-slate-200'
+                    ? 'bg-sky-500 text-white'
+                    : 'bg-slate-600 text-white'
                 }`}
               >
                 {isAi ? <Sun className="w-4 h-4" /> : <User className="w-4 h-4" />}
@@ -292,9 +292,9 @@ export default function ChatInterface({
 
               {/* Bubble */}
               <div
-                className={`rounded-2xl p-4 shadow-md text-xs sm:text-sm leading-relaxed max-w-[88%] ${
+                className={`rounded-2xl p-4 shadow-sm text-xs sm:text-sm leading-relaxed max-w-[88%] ${
                   isAi
-                    ? 'bg-[#131c31] border border-slate-800 text-slate-200'
+                    ? 'bg-white border border-slate-200 text-slate-800'
                     : 'bg-sky-600 text-white font-normal'
                 }`}
               >
@@ -303,7 +303,7 @@ export default function ChatInterface({
                   {msg.text.split('\n').map((line, idx) => {
                     if (line.startsWith('•')) {
                       return (
-                        <div key={idx} className="pl-2 border-l-2 border-sky-500/60 text-slate-200 my-0.5">
+                        <div key={idx} className="pl-2 border-l-2 border-sky-400 text-slate-700 my-0.5 font-medium">
                           {line}
                         </div>
                       );
@@ -314,41 +314,41 @@ export default function ChatInterface({
 
                 {/* Compact Weather Metrics Strip (if AI message has telemetry) */}
                 {isAi && msg.weatherData?.current && (
-                  <div className="mt-3 pt-2.5 border-t border-slate-800 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-medium text-sky-400">
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-sky-700">
                       <span>Live Telemetry ({msg.locationName || 'Location'})</span>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
-                      <div className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center space-x-2">
-                        <Thermometer className="w-4 h-4 text-amber-400" />
+                      <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
+                        <Thermometer className="w-4 h-4 text-amber-500" />
                         <div>
-                          <span className="text-[10px] text-slate-400 block">Temp</span>
-                          <span className="font-semibold text-white">{msg.weatherData.current.temperature_2m}°C</span>
+                          <span className="text-[10px] text-slate-500 block">Temp</span>
+                          <span className="font-bold text-slate-800">{msg.weatherData.current.temperature_2m}°C</span>
                         </div>
                       </div>
 
-                      <div className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center space-x-2">
-                        <Droplets className="w-4 h-4 text-sky-400" />
+                      <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
+                        <Droplets className="w-4 h-4 text-sky-500" />
                         <div>
-                          <span className="text-[10px] text-slate-400 block">Humidity</span>
-                          <span className="font-semibold text-white">{msg.weatherData.current.relative_humidity_2m}%</span>
+                          <span className="text-[10px] text-slate-500 block">Humidity</span>
+                          <span className="font-bold text-slate-800">{msg.weatherData.current.relative_humidity_2m}%</span>
                         </div>
                       </div>
 
-                      <div className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center space-x-2">
-                        <Wind className="w-4 h-4 text-blue-400" />
+                      <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
+                        <Wind className="w-4 h-4 text-blue-500" />
                         <div>
-                          <span className="text-[10px] text-slate-400 block">Wind</span>
-                          <span className="font-semibold text-white">{msg.weatherData.current.wind_speed_10m} km/h</span>
+                          <span className="text-[10px] text-slate-500 block">Wind</span>
+                          <span className="font-bold text-slate-800">{msg.weatherData.current.wind_speed_10m} km/h</span>
                         </div>
                       </div>
 
-                      <div className="p-2 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center space-x-2">
-                        <Eye className="w-4 h-4 text-emerald-400" />
+                      <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
+                        <Eye className="w-4 h-4 text-emerald-500" />
                         <div>
-                          <span className="text-[10px] text-slate-400 block">Air Quality</span>
-                          <span className="font-semibold text-emerald-400">{msg.aqiData?.current?.us_aqi || 50} AQI</span>
+                          <span className="text-[10px] text-slate-500 block">Air Quality</span>
+                          <span className="font-bold text-emerald-600">{msg.aqiData?.current?.us_aqi || 50} AQI</span>
                         </div>
                       </div>
                     </div>
@@ -357,14 +357,14 @@ export default function ChatInterface({
                     <div className="flex items-center space-x-2 pt-1">
                       <button
                         onClick={onOpenRadar}
-                        className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-sky-400 hover:text-sky-300 border border-slate-700/60 flex items-center space-x-1 transition-all"
+                        className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-sky-700 border border-slate-200 flex items-center space-x-1 transition-all"
                       >
                         <Radio className="w-3 h-3" />
                         <span>View Live Radar Map →</span>
                       </button>
                       <button
                         onClick={() => onOpenDecision(msg.domain || 'agriculture')}
-                        className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white border border-slate-700/60 flex items-center space-x-1 transition-all"
+                        className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center space-x-1 transition-all"
                       >
                         <span>Open Sector Advisory →</span>
                       </button>
@@ -374,14 +374,14 @@ export default function ChatInterface({
 
                 {/* AI Footer Buttons */}
                 {isAi && (
-                  <div className="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                    <span className="font-mono text-[10px] text-slate-500">{msg.timestamp}</span>
+                  <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                    <span className="font-mono text-[10px] text-slate-400">{msg.timestamp}</span>
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleSpeak(msg.id, msg.text)}
                         title={isSpeakingThis ? t.voiceStop : t.voiceSpeak}
-                        className={`p-1 rounded-lg hover:bg-slate-800 flex items-center space-x-1 transition-colors ${
-                          isSpeakingThis ? 'text-sky-400 font-medium' : 'text-slate-400 hover:text-slate-200'
+                        className={`p-1 rounded-lg hover:bg-slate-100 flex items-center space-x-1 transition-colors ${
+                          isSpeakingThis ? 'text-sky-600 font-semibold' : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
                         {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
@@ -390,9 +390,9 @@ export default function ChatInterface({
                       <button
                         onClick={() => handleCopy(msg.id, msg.text)}
                         title="Copy text"
-                        className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
+                        className="p-1 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
                       >
-                        {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
                     </div>
                   </div>
@@ -405,11 +405,11 @@ export default function ChatInterface({
         {/* Loading Bubble */}
         {isLoading && (
           <div className="flex items-start space-x-3 max-w-3xl mx-auto">
-            <div className="w-8 h-8 rounded-xl bg-sky-600 flex items-center justify-center text-white text-xs">
+            <div className="w-8 h-8 rounded-xl bg-sky-500 flex items-center justify-center text-white text-xs">
               <Sun className="w-4 h-4" />
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#131c31] border border-slate-800 text-xs text-slate-300 flex items-center space-x-2 shadow-sm">
-              <RefreshCw className="w-4 h-4 text-sky-400 animate-spin" />
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200 text-xs text-slate-600 flex items-center space-x-2 shadow-sm">
+              <RefreshCw className="w-4 h-4 text-sky-600 animate-spin" />
               <span>Fetching live meteorological data & forecasts...</span>
             </div>
           </div>
@@ -426,7 +426,7 @@ export default function ChatInterface({
             <button
               key={idx}
               onClick={() => handleSendMessage(prompt)}
-              className="flex-shrink-0 px-2.5 py-1 rounded-full bg-slate-800/80 hover:bg-slate-700/80 text-slate-400 hover:text-white border border-slate-700/60 text-[11px] transition-all truncate max-w-[240px]"
+              className="flex-shrink-0 px-2.5 py-1 rounded-full bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] transition-all truncate max-w-[240px] shadow-sm"
             >
               {prompt}
             </button>
@@ -439,7 +439,7 @@ export default function ChatInterface({
             e.preventDefault();
             handleSendMessage();
           }}
-          className="relative flex items-center bg-[#131c31] border border-slate-700/80 rounded-2xl shadow-xl p-1.5 focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500/30 transition-all"
+          className="relative flex items-center bg-white border border-slate-300 rounded-2xl shadow-md p-1.5 focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100 transition-all"
         >
           {/* Voice Input Mic */}
           <button
@@ -448,8 +448,8 @@ export default function ChatInterface({
             title={isListening ? t.voiceListening : 'Speak with Voice (10 Languages)'}
             className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 ${
               isListening
-                ? 'bg-rose-600 text-white animate-pulse shadow-md shadow-rose-500/30'
-                : 'text-slate-400 hover:text-sky-400 hover:bg-slate-800'
+                ? 'bg-rose-600 text-white animate-pulse shadow-md'
+                : 'text-slate-500 hover:text-sky-600 hover:bg-slate-100'
             }`}
           >
             {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -461,11 +461,11 @@ export default function ChatInterface({
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
             placeholder={isListening ? t.voiceListening : t.searchPlaceholder}
-            className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-400 focus:outline-none"
+            className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
           />
 
           {/* Language Flag Badge */}
-          <span className="text-xs px-2 text-slate-400 hidden sm:inline">
+          <span className="text-xs px-2 text-slate-500 hidden sm:inline font-medium">
             {activeLangObj.flag} {activeLangObj.nativeName}
           </span>
 
@@ -475,8 +475,8 @@ export default function ChatInterface({
             disabled={!inputQuery.trim() || isLoading}
             className={`p-2.5 rounded-xl font-medium flex items-center justify-center transition-all flex-shrink-0 ${
               inputQuery.trim() && !isLoading
-                ? 'bg-sky-600 text-white hover:bg-sky-500 shadow-sm'
-                : 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                ? 'bg-sky-600 text-white hover:bg-sky-700 shadow-sm'
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
             }`}
           >
             <Send className="w-4 h-4" />

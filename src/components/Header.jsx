@@ -50,12 +50,12 @@ export default function Header({
   };
 
   return (
-    <header className="w-full border-b border-slate-800/80 bg-[#0f172a]/95 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0 z-30">
+    <header className="w-full border-b border-slate-200 bg-white/90 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0 z-30 shadow-sm">
       {/* Left: Mobile Menu & Location */}
       <div className="flex items-center space-x-3">
         <button
           onClick={onOpenSidebar}
-          className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white md:hidden"
+          className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 md:hidden"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -64,13 +64,13 @@ export default function Header({
         <button
           onClick={onDetectLocation}
           title="Auto-detect GPS Location"
-          className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-800/60 border border-slate-700/70 hover:border-sky-500/50 text-xs font-medium text-slate-200 transition-all shadow-sm"
+          className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100/90 border border-slate-200 hover:border-sky-500/50 text-xs font-medium text-slate-800 transition-all shadow-sm"
         >
-          <MapPin className="w-3.5 h-3.5 text-sky-400" />
-          <span className="truncate max-w-[120px] sm:max-w-[180px]">
+          <MapPin className="w-3.5 h-3.5 text-sky-600" />
+          <span className="truncate max-w-[120px] sm:max-w-[180px] font-semibold">
             {currentLocation ? `${currentLocation.name}` : 'Detecting...'}
           </span>
-          <span className="text-[10px] text-sky-400 font-normal hidden sm:inline">(GPS)</span>
+          <span className="text-[10px] text-sky-600 font-normal hidden sm:inline">(GPS)</span>
         </button>
       </div>
 
@@ -82,7 +82,7 @@ export default function Header({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search any city, village..."
-            className="w-full pl-8 pr-16 py-1.5 text-xs bg-slate-800/60 border border-slate-700/70 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all"
+            className="w-full pl-8 pr-16 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all shadow-sm"
           />
           <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-400" />
           <button
@@ -95,17 +95,17 @@ export default function Header({
 
         {/* Search Results Dropdown */}
         {searchResults.length > 0 && (
-          <div className="absolute top-full mt-1.5 w-full bg-slate-800 border border-slate-700 rounded-xl shadow-2xl overflow-hidden z-50 divide-y divide-slate-700">
+          <div className="absolute top-full mt-1.5 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 divide-y divide-slate-100">
             {searchResults.map((item) => (
               <button
                 key={`${item.id}-${item.latitude}`}
                 onClick={() => handleSelectCity(item)}
-                className="w-full px-3 py-2 text-left hover:bg-slate-700/70 text-xs flex items-center justify-between text-slate-200 transition-colors"
+                className="w-full px-3 py-2 text-left hover:bg-slate-50 text-xs flex items-center justify-between text-slate-700 transition-colors"
               >
                 <div className="flex items-center space-x-1.5 truncate">
-                  <MapPin className="w-3.5 h-3.5 text-sky-400 flex-shrink-0" />
-                  <span className="font-semibold text-white">{item.name}</span>
-                  <span className="text-[10px] text-slate-400 truncate">
+                  <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
+                  <span className="font-semibold text-slate-900">{item.name}</span>
+                  <span className="text-[10px] text-slate-500 truncate">
                     {item.admin1 ? `${item.admin1}, ` : ''}{item.country}
                   </span>
                 </div>
@@ -121,12 +121,12 @@ export default function Header({
         {topAlert && (
           <div className={`px-2.5 py-1 rounded-xl text-[11px] font-medium border flex items-center space-x-1.5 ${
             topAlert.level === 'red'
-              ? 'bg-rose-950/60 border-rose-600/50 text-rose-200'
+              ? 'bg-rose-50 border-rose-200 text-rose-700'
               : topAlert.level === 'orange'
-              ? 'bg-amber-950/60 border-amber-600/50 text-amber-200'
+              ? 'bg-amber-50 border-amber-200 text-amber-700'
               : topAlert.level === 'yellow'
-              ? 'bg-yellow-950/50 border-yellow-600/50 text-yellow-200'
-              : 'bg-emerald-950/50 border-emerald-600/50 text-emerald-200'
+              ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
+              : 'bg-emerald-50 border-emerald-200 text-emerald-700'
           }`}>
             <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
             <span className="text-[10px] font-semibold">{topAlert.level.toUpperCase()} Alert</span>

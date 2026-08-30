@@ -32,8 +32,8 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
         attributionControl: false,
       });
 
-      // Dark theme base map tile layer
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // Light theme base map tile layer (CartoDB Voyager)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         maxZoom: 18,
         subdomains: 'abcd',
       }).addTo(map);
@@ -56,22 +56,21 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
         className: 'custom-weather-marker',
         html: `
           <div class="relative flex items-center justify-center">
-            <div class="absolute w-8 h-8 rounded-full bg-cyan-500/30 animate-ping"></div>
-            <div class="w-6 h-6 rounded-full bg-cyan-500 border-2 border-white shadow-lg flex items-center justify-center text-[10px] font-bold text-slate-900">
+            <div class="w-7 h-7 rounded-full bg-sky-600 border-2 border-white shadow-md flex items-center justify-center text-[11px] font-bold text-white">
               ${Math.round(temp)}°
             </div>
           </div>
         `,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
       });
 
       const marker = L.marker([lat, lon], { icon: customIcon }).addTo(leafletMap.current);
       marker.bindPopup(`
         <div class="p-1 text-xs">
-          <strong class="text-cyan-400 font-bold">${currentLocation?.name || 'Selected Location'}</strong>
-          <div class="mt-1 text-slate-200">Temp: <b>${temp}°C</b> | Wind: <b>${wind} km/h</b></div>
-          <div class="text-[10px] text-slate-400 mt-0.5">Live Meteorological Station</div>
+          <strong class="text-sky-700 font-bold">${currentLocation?.name || 'Selected Location'}</strong>
+          <div class="mt-1 text-slate-700">Temp: <b>${temp}°C</b> | Wind: <b>${wind} km/h</b></div>
+          <div class="text-[10px] text-slate-500 mt-0.5">Live Weather Observation</div>
         </div>
       `);
       markerRef.current = marker;
@@ -143,23 +142,23 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
     : 'Live Stream';
 
   return (
-    <div className="w-full h-full flex flex-col rounded-2xl overflow-hidden glass-panel border border-slate-800 shadow-xl">
+    <div className="w-full h-full flex flex-col rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm">
       {/* Radar GIS Controls Header */}
-      <div className="p-3.5 bg-slate-900/90 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
+      <div className="p-3.5 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center space-x-2.5">
-          <div className="p-1.5 rounded-lg bg-sky-950/60 border border-sky-500/30 text-sky-400">
+          <div className="p-1.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-600">
             <CloudRain className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="text-sm font-bold text-white flex items-center space-x-1.5">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-1.5">
                 <span>RainViewer Live Precipitation Radar</span>
                 <span className="flex h-2 w-2 relative">
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
                 </span>
               </h3>
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               Live Weather Radar & Satellite Precipitation Map
             </p>
           </div>
@@ -170,10 +169,10 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
           {/* Play/Pause Button */}
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className={`px-3 py-1.5 rounded-xl font-medium flex items-center space-x-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-xl font-medium flex items-center space-x-1.5 transition-all shadow-sm ${
               isPlaying
-                ? 'bg-sky-600 text-white hover:bg-sky-500'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                ? 'bg-sky-600 text-white hover:bg-sky-700'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
@@ -181,7 +180,7 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
           </button>
 
           {/* Timestamp Indicator */}
-          <div className="px-2.5 py-1 rounded-xl bg-slate-800/90 border border-slate-700 font-mono text-sky-300 text-xs">
+          <div className="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 font-mono text-slate-700 text-xs">
             🕒 {activeTimestamp}
           </div>
 
@@ -189,7 +188,7 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
           <select
             value={colorScheme}
             onChange={(e) => setColorScheme(Number(e.target.value))}
-            className="px-2 py-1 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-xs focus:outline-none"
+            className="px-2 py-1 bg-white border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none shadow-sm"
           >
             <option value={2}>Doppler Standard</option>
             <option value={1}>RainViewer HD</option>
@@ -204,16 +203,16 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
         <div ref={mapRef} className="w-full h-full" style={{ minHeight: '420px' }}></div>
 
         {/* Legend Overlay */}
-        <div className="absolute bottom-4 left-4 z-[1000] p-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 backdrop-blur-md text-[10px] text-slate-300 shadow-xl space-y-1.5">
-          <div className="font-semibold text-slate-100 flex items-center justify-between">
+        <div className="absolute bottom-4 left-4 z-[1000] p-2.5 rounded-xl bg-white/95 border border-slate-200 backdrop-blur-md text-[10px] text-slate-700 shadow-md space-y-1.5">
+          <div className="font-semibold text-slate-900 flex items-center justify-between">
             <span>Precipitation Intensity (dBZ)</span>
           </div>
           <div className="flex items-center space-x-1">
-            <span className="text-slate-400">Light</span>
-            <div className="h-2.5 w-32 rounded-full bg-gradient-to-r from-cyan-400 via-emerald-400 via-amber-400 to-rose-600 border border-black/30"></div>
-            <span className="text-rose-400 font-bold">Violent</span>
+            <span className="text-slate-500">Light</span>
+            <div className="h-2.5 w-32 rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-600 border border-slate-300"></div>
+            <span className="text-rose-600 font-bold">Heavy</span>
           </div>
-          <div className="text-[9px] text-slate-400 flex items-center justify-between">
+          <div className="text-[9px] text-slate-500 flex items-center justify-between">
             <span>Drizzle (10 dBZ)</span>
             <span>Heavy Hail (&gt;55 dBZ)</span>
           </div>
@@ -221,8 +220,8 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
 
         {/* Frame Timeline Scrubber Slider */}
         {radarFrames.length > 0 && (
-          <div className="absolute bottom-4 right-4 z-[1000] p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 backdrop-blur-md shadow-xl flex items-center space-x-2">
-            <span className="text-[10px] text-slate-400 font-mono">Frame {activeFrameIndex + 1}/{radarFrames.length}</span>
+          <div className="absolute bottom-4 right-4 z-[1000] p-2 rounded-xl bg-white/95 border border-slate-200 backdrop-blur-md shadow-md flex items-center space-x-2">
+            <span className="text-[10px] text-slate-600 font-mono">Frame {activeFrameIndex + 1}/{radarFrames.length}</span>
             <input
               type="range"
               min="0"
@@ -232,7 +231,7 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
                 setIsPlaying(false);
                 setActiveFrameIndex(Number(e.target.value));
               }}
-              className="w-28 sm:w-40 accent-cyan-500 cursor-pointer"
+              className="w-28 sm:w-40 accent-sky-600 cursor-pointer"
             />
           </div>
         )}
