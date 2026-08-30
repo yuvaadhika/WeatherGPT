@@ -12,7 +12,7 @@ import {
   getWeatherDescription
 } from './weatherService';
 
-// Advanced Rain Verdict & Timing Calculation Engine - Precision Hourly Windowing
+// Advanced Rain Verdict & Timing Calculation Engine - Precision Rain Arrival & Peak Window
 export function calculateRainVerdict(nwpData, timeframe = 'current') {
   const hourly = nwpData?.hourly;
   const current = nwpData?.current || {};
@@ -32,7 +32,7 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
       verdict: fallbackVerdict,
       maxProb: targetDailyProb,
       totalPrecip: targetDailySum.toFixed(1),
-      predictedTimingEn: fallbackVerdict === 'NO' ? 'No rain expected in next 24 hours' : 'Possible brief showers today around 3:00 PM – 5:00 PM',
+      predictedTimingEn: fallbackVerdict === 'NO' ? 'No rain expected in next 24 hours' : 'Possible showers today around 3:00 PM – 5:00 PM',
       predictedTimingTa: fallbackVerdict === 'NO' ? 'அடுத்த 24 மணி நேரத்தில் மழை வாய்ப்பு இல்லை' : 'இன்று மாலை சுமார் 3:00 PM – 5:00 PM வேளையில் மழைக்கு வாய்ப்பு',
       peakHourEn: null,
       peakHourTa: null,
@@ -48,7 +48,8 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
     const found = hourly.time.findIndex(t => t.startsWith(tomorrowStr));
     startIndex = found !== -1 ? found : Math.min(hourly.time.length - 24, 24);
   } else {
-    const found = hourly.time.findIndex(t => new Date(t) >= now);
+    // Current / upcoming 24 hours: start from the current hour onwards
+    const found = hourly.time.findIndex(t => new Date(t).getTime() >= now.getTime() - 1800000);
     startIndex = found !== -1 ? found : 0;
   }
 
@@ -60,7 +61,8 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
 
   let maxProb = 0;
   let maxPrecip = 0;
-  let peakIndex = -1;
+  let firstRainIdx = -1;
+  let heaviestIdx = -1;
   let calculatedSum = 0;
 
   for (let i = 0; i < sliceTime.length; i++) {
@@ -74,18 +76,20 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
     }
     if (mm > maxPrecip) {
       maxPrecip = mm;
+      heaviestIdx = i;
     }
 
-    // Identify the absolute peak hour with strongest signal (prob, mm, or rain code)
-    if (p >= 30 || mm >= 0.1 || (code >= 51 && code <= 99)) {
-      if (
-        peakIndex === -1 ||
-        p > (sliceProb[peakIndex] ?? 0) ||
-        (p === (sliceProb[peakIndex] ?? 0) && mm > (slicePrecip[peakIndex] ?? 0))
-      ) {
-        peakIndex = i;
+    // Identify the first upcoming hour where rain arrives
+    if (p >= 35 || mm >= 0.2 || (code >= 51 && code <= 99)) {
+      if (firstRainIdx === -1) {
+        firstRainIdx = i;
       }
     }
+  }
+
+  // If no precipitation max index was explicitly set, use the highest probability index
+  if (heaviestIdx === -1 && maxProb >= 35) {
+    heaviestIdx = sliceProb.findIndex(p => p === maxProb);
   }
 
   const effectiveProb = Math.max(maxProb, targetDailyProb);
@@ -93,9 +97,9 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
 
   // Verdict decision: YES / MAYBE / NO
   let verdict = 'NO';
-  if (effectiveProb >= 50 || effectiveSum >= 1.0 || (current.precipitation || 0) >= 0.5) {
+  if (effectiveProb >= 50 || effectiveSum >= 0.8 || (current.precipitation || 0) >= 0.5) {
     verdict = 'YES';
-  } else if (effectiveProb >= 30 || effectiveSum >= 0.2 || peakIndex !== -1) {
+  } else if (effectiveProb >= 30 || effectiveSum >= 0.2 || firstRainIdx !== -1) {
     verdict = 'MAYBE';
   } else {
     verdict = 'NO';
@@ -141,27 +145,36 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
   let peakHourTa = '';
 
   if (verdict === 'YES' || verdict === 'MAYBE') {
-    if (peakIndex !== -1 && sliceTime[peakIndex]) {
-      const peakIso = sliceTime[peakIndex];
-      const peakDate = new Date(peakIso);
-      const peakProb = sliceProb[peakIndex] ?? effectiveProb;
+    const primaryIdx = firstRainIdx !== -1 ? firstRainIdx : heaviestIdx;
 
-      // Calculate a tight, realistic 1 to 2 hour forecast window around the peak
-      // e.g., if peak is at 15:00 (3 PM), window is 3:00 PM – 5:00 PM
-      const startWindowIso = peakIso;
-      const endWindowIso = new Date(peakDate.getTime() + 2 * 3600000).toISOString();
+    if (primaryIdx !== -1 && sliceTime[primaryIdx]) {
+      const onsetIso = sliceTime[primaryIdx];
+      const onsetDate = new Date(onsetIso);
+      const onsetProb = sliceProb[primaryIdx] ?? effectiveProb;
+      const heavyIso = (heaviestIdx !== -1 && sliceTime[heaviestIdx]) ? sliceTime[heaviestIdx] : onsetIso;
+      const heavyProb = sliceProb[heaviestIdx] ?? effectiveProb;
 
-      const dayTa = getDayPrefixTa(peakIso);
-      const dayEn = getDayPrefixEn(peakIso);
-      const startTimeStr = formatHour12(startWindowIso);
+      // Concentrated 2-hour window starting from rain arrival
+      const endWindowIso = new Date(onsetDate.getTime() + 2 * 3600000).toISOString();
+
+      const dayTa = getDayPrefixTa(onsetIso);
+      const dayEn = getDayPrefixEn(onsetIso);
+      const startTimeStr = formatHour12(onsetIso);
       const endTimeStr = formatHour12(endWindowIso);
+      const heavyTimeStr = formatHour12(heavyIso);
 
-      predictedTimingEn = `${dayEn} around ${startTimeStr} – ${endTimeStr} (${peakProb}% peak chance)`;
-      predictedTimingTa = `${dayTa} ${startTimeStr} – ${endTimeStr} (${peakProb}% உச்ச வாய்ப்பு)`;
+      if (primaryIdx === heaviestIdx || heavyTimeStr === startTimeStr) {
+        predictedTimingEn = `${dayEn} around ${startTimeStr} – ${endTimeStr} (${onsetProb}% chance)`;
+        predictedTimingTa = `${dayTa} ${startTimeStr} – ${endTimeStr} வேளையில் (${onsetProb}% வாய்ப்பு)`;
+      } else {
+        predictedTimingEn = `${dayEn} around ${startTimeStr} – ${endTimeStr} (Heaviest rain: ~${heavyTimeStr}, ${heavyProb}% chance)`;
+        predictedTimingTa = `${dayTa} ${startTimeStr} – ${endTimeStr} வேளையில் மழை தொடங்கும் (அதிக மழை: ${heavyTimeStr}, ${heavyProb}%)`;
+      }
+
       peakHourEn = `${dayEn} around ${startTimeStr}`;
       peakHourTa = `${dayTa} ${startTimeStr}`;
     } else {
-      predictedTimingEn = 'Today during afternoon / evening hours (isolated brief shower)';
+      predictedTimingEn = 'Today during afternoon / evening hours (brief isolated showers)';
       predictedTimingTa = 'இன்று பிற்பகல் / மாலை வேளையில் லேசான தூறல் வாய்ப்பு';
       peakHourEn = `Peak chance ~${effectiveProb}%`;
       peakHourTa = `வாய்ப்பு ~${effectiveProb}%`;
