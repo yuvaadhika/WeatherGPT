@@ -171,7 +171,7 @@ export default function App() {
               </div>
               <div>
                 <h1 className="font-bold text-base tracking-tight text-slate-900">
-                  WeatherStudio
+                  WeatherGPT
                 </h1>
                 <span className="text-[10px] text-sky-600 font-semibold tracking-wide">
                   Live Weather & Radar

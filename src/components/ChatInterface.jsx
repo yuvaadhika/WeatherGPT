@@ -203,7 +203,7 @@ export default function ChatInterface({
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                Weather Forecast & Live Studio
+                WeatherGPT Forecast & Live Studio
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
                 Real-time weather reports, hourly rain forecasts, atmospheric telemetry, and sector advisories.

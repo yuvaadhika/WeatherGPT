@@ -58,7 +58,7 @@ export default function ApiKeyModal({ isOpen, onClose }) {
         <div className="p-3 rounded-xl bg-sky-50 border border-sky-200 text-xs text-sky-800 flex items-start space-x-2">
           <Sparkles className="w-4 h-4 text-sky-600 flex-shrink-0 mt-0.5" />
           <span>
-            <b>Zero-Configuration Default:</b> WeatherStudio runs out-of-the-box using high-precision real-time NWP feeds (Open-Meteo, RainViewer & WAQI). Providing custom API keys below is completely optional!
+            <b>Zero-Configuration Default:</b> WeatherGPT runs out-of-the-box using high-precision real-time NWP feeds (Open-Meteo, RainViewer & WAQI). Providing custom API keys below is completely optional!
           </span>
         </div>
 
