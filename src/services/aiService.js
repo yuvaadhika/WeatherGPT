@@ -12,7 +12,7 @@ import {
   getWeatherDescription
 } from './weatherService';
 
-// Advanced Rain Verdict & Timing Calculation Engine
+// Advanced Rain Verdict & Timing Calculation Engine - Precision Hourly Windowing
 export function calculateRainVerdict(nwpData, timeframe = 'current') {
   const hourly = nwpData?.hourly;
   const current = nwpData?.current || {};
@@ -27,13 +27,13 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
   const targetDailySum = timeframe === 'tomorrow' ? dailySumTomorrow : dailySumToday;
 
   if (!hourly || !hourly.time || hourly.time.length === 0) {
-    let fallbackVerdict = targetDailyProb >= 55 ? 'YES' : (targetDailyProb >= 30 ? 'MAYBE' : 'NO');
+    const fallbackVerdict = targetDailyProb >= 50 ? 'YES' : (targetDailyProb >= 30 ? 'MAYBE' : 'NO');
     return {
       verdict: fallbackVerdict,
       maxProb: targetDailyProb,
       totalPrecip: targetDailySum.toFixed(1),
-      predictedTimingEn: fallbackVerdict === 'NO' ? 'No rain expected in next 24 hours' : 'Scattered showers expected during the day',
-      predictedTimingTa: fallbackVerdict === 'NO' ? 'அடுத்த 24 மணி நேரத்தில் மழைக்கான வாய்ப்பு இல்லை' : 'பிற்பகல் / மாலை வேளையில் ஆங்காங்கே மழைக்கு வாய்ப்பு',
+      predictedTimingEn: fallbackVerdict === 'NO' ? 'No rain expected in next 24 hours' : 'Possible brief showers today around 3:00 PM – 5:00 PM',
+      predictedTimingTa: fallbackVerdict === 'NO' ? 'அடுத்த 24 மணி நேரத்தில் மழை வாய்ப்பு இல்லை' : 'இன்று மாலை சுமார் 3:00 PM – 5:00 PM வேளையில் மழைக்கு வாய்ப்பு',
       peakHourEn: null,
       peakHourTa: null,
     };
@@ -61,7 +61,6 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
   let maxProb = 0;
   let maxPrecip = 0;
   let peakIndex = -1;
-  let rainHours = [];
   let calculatedSum = 0;
 
   for (let i = 0; i < sliceTime.length; i++) {
@@ -77,16 +76,13 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
       maxPrecip = mm;
     }
 
-    // A rain slot is identified if probability >= 30% or mm >= 0.1 or WMO code represents rain (51-99)
+    // Identify the absolute peak hour with strongest signal (prob, mm, or rain code)
     if (p >= 30 || mm >= 0.1 || (code >= 51 && code <= 99)) {
-      rainHours.push({
-        index: i,
-        timeStr: sliceTime[i],
-        prob: p,
-        mm: mm,
-        code: code,
-      });
-      if (peakIndex === -1 || p > (sliceProb[peakIndex] ?? 0) || mm > (slicePrecip[peakIndex] ?? 0)) {
+      if (
+        peakIndex === -1 ||
+        p > (sliceProb[peakIndex] ?? 0) ||
+        (p === (sliceProb[peakIndex] ?? 0) && mm > (slicePrecip[peakIndex] ?? 0))
+      ) {
         peakIndex = i;
       }
     }
@@ -97,9 +93,9 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
 
   // Verdict decision: YES / MAYBE / NO
   let verdict = 'NO';
-  if (effectiveProb >= 55 || effectiveSum >= 1.5 || (current.precipitation || 0) >= 0.5) {
+  if (effectiveProb >= 50 || effectiveSum >= 1.0 || (current.precipitation || 0) >= 0.5) {
     verdict = 'YES';
-  } else if (effectiveProb >= 30 || effectiveSum >= 0.2 || rainHours.length > 0) {
+  } else if (effectiveProb >= 30 || effectiveSum >= 0.2 || peakIndex !== -1) {
     verdict = 'MAYBE';
   } else {
     verdict = 'NO';
@@ -110,44 +106,33 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
     return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
   };
 
-  const getDayLabelEn = (isoStr) => {
+  const getTimePeriodTa = (hour) => {
+    if (hour >= 4 && hour < 12) return 'காலை';
+    if (hour >= 12 && hour < 16) return 'பிற்பகல்';
+    if (hour >= 16 && hour < 20) return 'மாலை';
+    if (hour >= 20 || hour < 4) return 'இரவு';
+    return '';
+  };
+
+  const getDayPrefixTa = (isoStr) => {
     const d = new Date(isoStr);
-    const isSameDay = d.toDateString() === now.toDateString();
+    const isToday = d.toDateString() === now.toDateString();
     const tomorrowDate = new Date(now.getTime() + 86400000);
     const isTomorrow = d.toDateString() === tomorrowDate.toDateString();
-    const hour = d.getHours();
-    if (isSameDay) {
-      return hour >= 19 || hour < 4 ? 'Tonight' : 'Today';
-    } else if (isTomorrow) {
-      return hour >= 19 || hour < 4 ? 'Tomorrow Night' : 'Tomorrow';
-    }
+    const period = getTimePeriodTa(d.getHours());
+    if (isToday) return `இன்று ${period}`;
+    if (isTomorrow) return `நாளை ${period}`;
+    return `${d.toLocaleDateString([], { weekday: 'short' })} ${period}`;
+  };
+
+  const getDayPrefixEn = (isoStr) => {
+    const d = new Date(isoStr);
+    const isToday = d.toDateString() === now.toDateString();
+    const tomorrowDate = new Date(now.getTime() + 86400000);
+    const isTomorrow = d.toDateString() === tomorrowDate.toDateString();
+    if (isToday) return 'Today';
+    if (isTomorrow) return 'Tomorrow';
     return d.toLocaleDateString([], { weekday: 'short' });
-  };
-
-  const getDayLabelTa = (isoStr) => {
-    const d = new Date(isoStr);
-    const isSameDay = d.toDateString() === now.toDateString();
-    const tomorrowDate = new Date(now.getTime() + 86400000);
-    const isTomorrow = d.toDateString() === tomorrowDate.toDateString();
-    const hour = d.getHours();
-    if (isSameDay) {
-      return hour >= 19 || hour < 4 ? 'இன்று இரவு' : 'இன்று';
-    } else if (isTomorrow) {
-      return hour >= 19 || hour < 4 ? 'நாளை இரவு' : 'நாளை';
-    }
-    return 'அடுத்த நாள்';
-  };
-
-  const formatWithDayEn = (isoStr) => {
-    const day = getDayLabelEn(isoStr);
-    const time = formatHour12(isoStr);
-    return `${day} ${time}`;
-  };
-
-  const formatWithDayTa = (isoStr) => {
-    const day = getDayLabelTa(isoStr);
-    const time = formatHour12(isoStr);
-    return `${day} ${time}`;
   };
 
   let predictedTimingEn = '';
@@ -156,59 +141,30 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
   let peakHourTa = '';
 
   if (verdict === 'YES' || verdict === 'MAYBE') {
-    if (rainHours.length > 0) {
-      // Group rain hours into contiguous blocks (gap <= 2 hours)
-      const clusters = [];
-      let currentCluster = [rainHours[0]];
-      for (let i = 1; i < rainHours.length; i++) {
-        const prev = rainHours[i - 1];
-        const curr = rainHours[i];
-        if (curr.index - prev.index <= 2) {
-          currentCluster.push(curr);
-        } else {
-          clusters.push(currentCluster);
-          currentCluster = [curr];
-        }
-      }
-      clusters.push(currentCluster);
+    if (peakIndex !== -1 && sliceTime[peakIndex]) {
+      const peakIso = sliceTime[peakIndex];
+      const peakDate = new Date(peakIso);
+      const peakProb = sliceProb[peakIndex] ?? effectiveProb;
 
-      // Pick cluster with peak probability / highest rain
-      let bestCluster = clusters[0];
-      let bestClusterMaxProb = 0;
-      for (const c of clusters) {
-        const clusterPeak = Math.max(...c.map(h => h.prob));
-        if (clusterPeak > bestClusterMaxProb) {
-          bestClusterMaxProb = clusterPeak;
-          bestCluster = c;
-        }
-      }
+      // Calculate a tight, realistic 1 to 2 hour forecast window around the peak
+      // e.g., if peak is at 15:00 (3 PM), window is 3:00 PM – 5:00 PM
+      const startWindowIso = peakIso;
+      const endWindowIso = new Date(peakDate.getTime() + 2 * 3600000).toISOString();
 
-      const startIso = bestCluster[0].timeStr;
-      const lastItemIso = bestCluster[bestCluster.length - 1].timeStr;
-      // Add 1 hour to the end to represent the completion of the hourly slot
-      const endIso = new Date(new Date(lastItemIso).getTime() + 3600000).toISOString();
-      const peakIso = (peakIndex !== -1 && sliceTime[peakIndex]) ? sliceTime[peakIndex] : startIso;
+      const dayTa = getDayPrefixTa(peakIso);
+      const dayEn = getDayPrefixEn(peakIso);
+      const startTimeStr = formatHour12(startWindowIso);
+      const endTimeStr = formatHour12(endWindowIso);
 
-      if (bestCluster.length === 1) {
-        predictedTimingEn = `${formatWithDayEn(startIso)} – ${formatHour12(endIso)}`;
-        predictedTimingTa = `${formatWithDayTa(startIso)} முதல் ${formatHour12(endIso)} வரை`;
-      } else {
-        const startDayEn = getDayLabelEn(startIso);
-        const endDayEn = getDayLabelEn(endIso);
-        const startDayTa = getDayLabelTa(startIso);
-        const endDayTa = getDayLabelTa(endIso);
-
-        predictedTimingEn = `${formatWithDayEn(startIso)} – ${startDayEn === endDayEn ? formatHour12(endIso) : formatWithDayEn(endIso)}`;
-        predictedTimingTa = `${formatWithDayTa(startIso)} முதல் ${startDayTa === endDayTa ? formatHour12(endIso) : formatWithDayTa(endIso)} வரை`;
-      }
-
-      peakHourEn = `${formatWithDayEn(peakIso)} (${effectiveProb}% peak chance)`;
-      peakHourTa = `${formatWithDayTa(peakIso)} (${effectiveProb}% அதிக வாய்ப்பு)`;
+      predictedTimingEn = `${dayEn} around ${startTimeStr} – ${endTimeStr} (${peakProb}% peak chance)`;
+      predictedTimingTa = `${dayTa} ${startTimeStr} – ${endTimeStr} (${peakProb}% உச்ச வாய்ப்பு)`;
+      peakHourEn = `${dayEn} around ${startTimeStr}`;
+      peakHourTa = `${dayTa} ${startTimeStr}`;
     } else {
-      predictedTimingEn = 'Scattered showers possible during afternoon / evening';
-      predictedTimingTa = 'பிற்பகல் / மாலை வேளையில் ஆங்காங்கே மழைக்கு வாய்ப்பு';
+      predictedTimingEn = 'Today during afternoon / evening hours (isolated brief shower)';
+      predictedTimingTa = 'இன்று பிற்பகல் / மாலை வேளையில் லேசான தூறல் வாய்ப்பு';
       peakHourEn = `Peak chance ~${effectiveProb}%`;
-      peakHourTa = `அதிகபட்ச வாய்ப்பு ~${effectiveProb}%`;
+      peakHourTa = `வாய்ப்பு ~${effectiveProb}%`;
     }
   } else {
     predictedTimingEn = 'No rain expected in the next 24 hours';
@@ -223,7 +179,6 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
     predictedTimingTa,
     peakHourEn,
     peakHourTa,
-    rainHoursCount: rainHours.length,
   };
 }
 
@@ -556,7 +511,7 @@ export class WeatherAIAgent {
         if (rainCalc.verdict === 'YES') {
           return (
             `🌧️ **மழை வாய்ப்பு தீர்ப்பு: ஆம் (YES - மழை பெய்யும்! 🌧️)**\n\n` +
-            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Timing):** ${rainCalc.predictedTimingTa}${rainCalc.peakHourTa ? ` (உச்சகட்ட நேரம்: ${rainCalc.peakHourTa})` : ''}\n` +
+            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
             `• 📊 **மழை வாய்ப்பு (Probability):** ${rainCalc.maxProb}% | **எதிர்பார்க்கப்படும் அளவு:** ~${rainCalc.totalPrecip} மி.மீ\n` +
             `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
             `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
@@ -565,7 +520,7 @@ export class WeatherAIAgent {
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
             `🌦️ **மழை வாய்ப்பு தீர்ப்பு: வாய்ப்பு உள்ளது (MAYBE - லேசான தூறல் / மேகமூட்டம் 🌦️)**\n\n` +
-            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Timing):** ${rainCalc.predictedTimingTa}${rainCalc.peakHourTa ? ` (சாத்தியமான நேரம்: ${rainCalc.peakHourTa})` : ''}\n` +
+            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
             `• 📊 **மழை வாய்ப்பு (Probability):** ${rainCalc.maxProb}% | **எதிர்பார்க்கப்படும் அளவு:** ~${rainCalc.totalPrecip} மி.மீ\n` +
             `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
             `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
@@ -574,7 +529,7 @@ export class WeatherAIAgent {
         } else {
           return (
             `☀️ **மழை வாய்ப்பு தீர்ப்பு: இல்லை (NO - மழை பெய்யாது! ☀️)**\n\n` +
-            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Timing):** அடுத்த 24 மணி நேரத்தில் மழைக்கான வாய்ப்பு இல்லை (No Rain Predicted)\n` +
+            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Time):** அடுத்த 24 மணி நேரத்தில் மழைக்கான வாய்ப்பு இல்லை\n` +
             `• 📊 **மழை வாய்ப்பு (Probability):** ${rainCalc.maxProb}% (மிகக் குறைவு) | **மழை அளவு:** 0 மி.மீ\n` +
             `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
             `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
@@ -721,16 +676,16 @@ export class WeatherAIAgent {
       if (rainCalc.verdict === 'YES') {
         return (
           `🌧️ **Rain Forecast Verdict: YES (Rain Predicted! 🌧️)**\n\n` +
-          `• ⏰ **Predicted Timing:** ${rainCalc.predictedTimingEn}${rainCalc.peakHourEn ? ` (Peak Intensity: ${rainCalc.peakHourEn})` : ''}\n` +
+          `• ⏰ **Predicted Time:** ${rainCalc.predictedTimingEn}\n` +
           `• 📊 **Rain Probability:** ${rainCalc.maxProb}% | **Estimated Accumulation:** ~${rainCalc.totalPrecip} mm\n` +
           `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)\n` +
           `• 💧 **Humidity:** ${humidity}% | **Wind:** ${wind} km/h\n` +
-          `• 💡 **Advisory:** Carry an umbrella / rain gear. Plan travel to avoid peak downpour hours.`
+          `• 💡 **Advisory:** Carry an umbrella / rain gear. Plan outdoor tasks accordingly.`
         );
       } else if (rainCalc.verdict === 'MAYBE') {
         return (
           `🌦️ **Rain Forecast Verdict: MAYBE (Passing Showers / Drizzle Possible 🌦️)**\n\n` +
-          `• ⏰ **Predicted Timing:** ${rainCalc.predictedTimingEn}${rainCalc.peakHourEn ? ` (Possible Window: ${rainCalc.peakHourEn})` : ''}\n` +
+          `• ⏰ **Predicted Time:** ${rainCalc.predictedTimingEn}\n` +
           `• 📊 **Rain Probability:** ${rainCalc.maxProb}% | **Estimated Accumulation:** ~${rainCalc.totalPrecip} mm\n` +
           `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)\n` +
           `• 💧 **Humidity:** ${humidity}% | **Wind:** ${wind} km/h\n` +
@@ -739,7 +694,7 @@ export class WeatherAIAgent {
       } else {
         return (
           `☀️ **Rain Forecast Verdict: NO (No Rain Expected! ☀️)**\n\n` +
-          `• ⏰ **Predicted Timing:** No precipitation windows detected in the next 24 hours.\n` +
+          `• ⏰ **Predicted Time:** No rain expected in the next 24 hours.\n` +
           `• 📊 **Rain Probability:** ${rainCalc.maxProb}% (Very Low) | **Estimated Accumulation:** 0.0 mm\n` +
           `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)\n` +
           `• 💧 **Humidity:** ${humidity}% | **Wind:** ${wind} km/h\n` +
