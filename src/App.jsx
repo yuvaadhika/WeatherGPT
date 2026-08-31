@@ -12,7 +12,8 @@ import {
   fetchAirQuality,
   evaluateSevereWeatherAlerts,
   reverseGeocode,
-  getWeatherDescription
+  getWeatherDescription,
+  getLocalizedPlaceName
 } from './services/weatherService';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from './services/languages';
 import {
@@ -41,7 +42,9 @@ import {
   ChevronLeft,
   Globe,
   Bell,
-  BellRing
+  BellRing,
+  Activity,
+  Layers
 } from 'lucide-react';
 import { notificationService } from './services/notificationService';
 
@@ -53,8 +56,11 @@ export default function App() {
 
   const [currentLocation, setCurrentLocation] = useState({
     name: 'Chennai',
+    rawName: 'Chennai',
     admin1: 'Tamil Nadu',
+    rawAdmin1: 'Tamil Nadu',
     country: 'India',
+    rawCountry: 'India',
     latitude: 13.0827,
     longitude: 80.2707,
   });
@@ -117,14 +123,14 @@ export default function App() {
 
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
 
-  const detectUserLocation = () => {
+  const detectUserLocation = (lang = activeLanguage) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
           try {
-            const loc = await reverseGeocode(lat, lon);
+            const loc = await reverseGeocode(lat, lon, lang);
             setCurrentLocation(loc);
           } catch (e) {
             console.warn(e);
@@ -138,8 +144,46 @@ export default function App() {
   };
 
   useEffect(() => {
-    detectUserLocation();
+    detectUserLocation(activeLanguage);
   }, []);
+
+  // When active language switches, automatically update current location city & state names into that language
+  useEffect(() => {
+    if (currentLocation?.latitude && currentLocation?.longitude) {
+      const raw = currentLocation.rawName || currentLocation.name || 'Chennai';
+      const rawAdm = currentLocation.rawAdmin1 || currentLocation.admin1 || 'Tamil Nadu';
+      const rawCnt = currentLocation.rawCountry || currentLocation.country || 'India';
+      
+      const localName = getLocalizedPlaceName(raw, activeLanguage) || currentLocation.name;
+      const localState = getLocalizedPlaceName(rawAdm, activeLanguage) || currentLocation.admin1;
+      const localCountry = getLocalizedPlaceName(rawCnt, activeLanguage) || currentLocation.country;
+
+      setCurrentLocation(prev => ({
+        ...prev,
+        name: localName,
+        admin1: localState,
+        country: localCountry,
+        rawName: raw,
+        rawAdmin1: rawAdm,
+        rawCountry: rawCnt
+      }));
+
+      // In the background, fetch Nominatim localized name for smaller towns/villages
+      reverseGeocode(currentLocation.latitude, currentLocation.longitude, activeLanguage)
+        .then((loc) => {
+          if (loc && loc.name) {
+            setCurrentLocation(prev => ({
+              ...prev,
+              name: loc.name,
+              admin1: loc.admin1,
+              country: loc.country,
+              rawName: loc.rawName || prev.rawName
+            }));
+          }
+        })
+        .catch(console.warn);
+    }
+  }, [activeLanguage]);
 
   useEffect(() => {
     let isMounted = true;

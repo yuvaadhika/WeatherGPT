@@ -58,13 +58,108 @@ export const getWeatherDescription = (code, lang = 'en') => {
   return { ...base, label: localizedLabel };
 };
 
+// City & place name translation dictionary for Indian & Global cities
+export const CITY_TRANSLATIONS = {
+  Chennai: {
+    ta: 'சென்னை', hi: 'चेन्नई', te: 'చెన్నై', bn: 'চেন্নাই', mr: 'चेन्नई',
+    gu: 'ચેન્નાઈ', kn: 'ಚೆನ್ನೈ', ml: 'ചെന്നൈ', pa: 'ਚੇਨਈ', en: 'Chennai'
+  },
+  'Tamil Nadu': {
+    ta: 'தமிழ்நாடு', hi: 'तमिलनाडु', te: 'తమిళనాడు', bn: 'তামিলনাড়ু', mr: 'तमिळनाडू',
+    gu: 'તમિલનાડુ', kn: 'ತಮಿಳುನಾಡು', ml: 'തമിഴ്‌നാട്', pa: 'ਤਾਮਿਲਨਾਡੂ', en: 'Tamil Nadu'
+  },
+  Delhi: {
+    ta: 'தில்லி', hi: 'दिल्ली', te: 'ఢిల్లీ', bn: 'দিল্লি', mr: 'दिल्ली',
+    gu: 'દિલ્હી', kn: 'ದೆಹಲಿ', ml: 'ഡൽഹി', pa: 'ਦਿੱਲੀ', en: 'Delhi'
+  },
+  Mumbai: {
+    ta: 'மும்பை', hi: 'मुंबई', te: 'ముంబై', bn: 'মুম্বই', mr: 'मुंबई',
+    gu: 'મુંબઈ', kn: 'ಮುಂಬೈ', ml: 'മുംബൈ', pa: 'ਮੁੰਬਈ', en: 'Mumbai'
+  },
+  Bengaluru: {
+    ta: 'பெங்களூரு', hi: 'बेंगलुरु', te: 'బెంగళూరు', bn: 'বেঙ্গালুরু', mr: 'बंगळुरू',
+    gu: 'બેંગલુરુ', kn: 'ಬೆಂಗಳೂರು', ml: 'ബെംഗളൂരു', pa: 'ਬੰਗਲੌਰ', en: 'Bengaluru'
+  },
+  Bangalore: {
+    ta: 'பெங்களூரு', hi: 'बेंगलुरु', te: 'బెంగళూరు', bn: 'বেঙ্গালুরু', mr: 'बंगळुरू',
+    gu: 'બેંગલુરુ', kn: 'ಬೆಂಗಳೂರು', ml: 'ബെംഗളೂരു', pa: 'ਬੰਗਲੌਰ', en: 'Bengaluru'
+  },
+  Kolkata: {
+    ta: 'கொல்கத்தா', hi: 'कोलकाता', te: 'కోల్‌కతా', bn: 'কলকাতা', mr: 'कोलकाता',
+    gu: 'કોલકાતા', kn: 'ಕೋಲ್ಕತ್ತಾ', ml: 'കൊൽക്കത്ത', pa: 'ਕੋਲਕਾਤਾ', en: 'Kolkata'
+  },
+  Hyderabad: {
+    ta: 'ஹைதராபாத்', hi: 'हैदराबाद', te: 'హైదరాబాద్', bn: 'হায়দ্রাবাদ', mr: 'हैदराबाद',
+    gu: 'હૈદરાબાદ', kn: 'ಹೈದರಾಬಾದ್', ml: 'ഹൈദരാബാദ്', pa: 'ਹੈਦਰਾਬਾਦ', en: 'Hyderabad'
+  },
+  Kochi: {
+    ta: 'கொச்சி', hi: 'कोच्चि', te: 'కొచ్చి', bn: 'কোচি', mr: 'कोची',
+    gu: 'કોચી', kn: 'ಕೊಚ್ಚಿ', ml: 'കൊച്ചി', pa: 'ਕੋਚੀ', en: 'Kochi'
+  },
+  Amritsar: {
+    ta: 'அமிர்தசரஸ்', hi: 'अमृतसर', te: 'అమృతసర్', bn: 'অমৃতসর', mr: 'अमृतसर',
+    gu: 'અમૃતસર', kn: 'ಅಮೃತಸರ', ml: 'അമൃത്സർ', pa: 'ਅੰਮ੍ਰਿਤਸਰ', en: 'Amritsar'
+  },
+  Madurai: {
+    ta: 'மதுரை', hi: 'मदुरै', te: 'మదురై', bn: 'মাদুরাই', mr: 'मदुराई',
+    gu: 'મદુરાઈ', kn: 'ಮಧುರೈ', ml: 'മധുര', pa: 'ਮਦੁਰਾਈ', en: 'Madurai'
+  },
+  Coimbatore: {
+    ta: 'கோயம்புத்தூர்', hi: 'कोयंबटूर', te: 'కోయంబత్తూర్', bn: 'কোয়েম্বাটুর', mr: 'कोइम्बतूर',
+    gu: 'કોઈમ્બતૂર', kn: 'ಕೊಯಮತ್ತೂರು', ml: 'കോയമ്പത്തൂർ', pa: 'ਕੋਇੰਬਟੂਰ', en: 'Coimbatore'
+  },
+  Trichy: {
+    ta: 'திருச்சி', hi: 'त्रिची', te: 'తిరుచ్చి', bn: 'ত্রিশি', mr: 'त्रिची',
+    gu: 'ત્રિચી', kn: 'ತಿರುಚಿರಾಪಳ್ಳಿ', ml: 'തിരുച്ചിറപ്പള്ളി', pa: 'ਤ੍ਰਿਚੀ', en: 'Trichy'
+  },
+  Tiruchirappalli: {
+    ta: 'திருச்சிராப்பள்ளி', hi: 'तिरुचिरापल्ली', te: 'తిరుచిరాపల్లి', bn: 'তিরুচিরাপল্লী', mr: 'तिरुचिरापल्ली',
+    gu: 'તિરુચિરાપલ્લી', kn: 'ತಿರುಚಿರಾಪಳ್ಳಿ', ml: 'തിരുച്ചിറപ്പള്ളി', pa: 'ਤਿਰੂਚਿਰਾਪੱਲੀ', en: 'Tiruchirappalli'
+  },
+  Salem: {
+    ta: 'சேலம்', hi: 'सेलम', te: 'సేలం', bn: 'সালেম', mr: 'सेलम',
+    gu: 'સેલમ', kn: 'ಸೇಲಂ', ml: 'സേലം', pa: 'ਸਲੇਮ', en: 'Salem'
+  },
+  Tirunelveli: {
+    ta: 'திருநெல்வேலி', hi: 'तिरुनेलवेली', te: 'తిరునెల్వేలి', bn: 'তিরুনেলবেলি', mr: 'तिरुनेलवेली',
+    gu: 'તિરુનેલવેલી', kn: 'ತಿರುನೆಲ್ವೇಲಿ', ml: 'തിരുനെൽവേലി', pa: 'ਤਿਰੂਨੇਲਵੇਲੀ', en: 'Tirunelveli'
+  },
+  India: {
+    ta: 'இந்தியா', hi: 'भारत', te: 'భారతదేశం', bn: 'ভারত', mr: 'भारत',
+    gu: 'ભારત', kn: 'ಭಾರತ', ml: 'ഇന്ത്യ', pa: 'ਭਾਰਤ', en: 'India'
+  },
+  'Current Location': {
+    ta: 'தற்போதைய இடம்', hi: 'वर्तमान स्थान', te: 'ప్రస్తుత స్థానం', bn: 'বর্তমান অবস্থান', mr: 'सध्याचे स्थान',
+    gu: 'વર્તમાન સ્થળ', kn: 'ಪ್ರಸ್ತುತ ಸ್ಥಳ', ml: 'നിലവിലെ സ്ഥലം', pa: 'ਮੌਜੂਦਾ ਸਥਾਨ', en: 'Current Location'
+  },
+  'Detected Location': {
+    ta: 'கண்டறியப்பட்ட இடம்', hi: 'पहचाना गया स्थान', te: 'గుర్తించిన స్థానం', bn: 'চিহ্নিত অবস্থান', mr: 'शोधलेले स्थान',
+    gu: 'શોધાયેલ સ્થળ', kn: 'ಗುರುತಿಸಲಾದ ಸ್ಥಳ', ml: 'കണ്ടെത്തിയ സ്ഥലം', pa: 'ਲੱਭਿਆ ਗਿਆ ਸਥਾਨ', en: 'Detected Location'
+  }
+};
+
+export function getLocalizedPlaceName(englishName, lang = 'en') {
+  if (!englishName) return '';
+  if (CITY_TRANSLATIONS[englishName]?.[lang]) {
+    return CITY_TRANSLATIONS[englishName][lang];
+  }
+  // Case insensitive check
+  const matchedKey = Object.keys(CITY_TRANSLATIONS).find(
+    (k) => k.toLowerCase() === String(englishName).trim().toLowerCase()
+  );
+  if (matchedKey && CITY_TRANSLATIONS[matchedKey]?.[lang]) {
+    return CITY_TRANSLATIONS[matchedKey][lang];
+  }
+  return englishName;
+}
+
 // Geocoding: Search any location / village / city in India & Worldwide
-export async function searchLocation(query) {
+export async function searchLocation(query, lang = 'en') {
   try {
     const trimmed = query.trim();
     if (!trimmed) return [];
     
-    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(trimmed)}&count=6&language=en&format=json`);
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(trimmed)}&count=6&language=${lang}&format=json`);
     if (!res.ok) throw new Error('Geocoding search failed');
     const data = await res.json();
     return data.results || [];
@@ -75,30 +170,37 @@ export async function searchLocation(query) {
 }
 
 // Reverse Geocode from lat/long coordinates
-export async function reverseGeocode(lat, lon) {
+export async function reverseGeocode(lat, lon, lang = 'en') {
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`, {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1&accept-language=${lang}`, {
       headers: { 'User-Agent': 'WeatherGPT-App/1.0' }
     });
     if (!res.ok) throw new Error('Reverse geocoding failed');
     const data = await res.json();
-    const city = data.address?.city || data.address?.town || data.address?.village || data.address?.county || data.address?.state_district || 'Detected Location';
-    const state = data.address?.state || '';
-    const country = data.address?.country || '';
+    const rawCity = data.address?.city || data.address?.town || data.address?.village || data.address?.county || data.address?.state_district || 'Detected Location';
+    const rawState = data.address?.state || '';
+    const rawCountry = data.address?.country || 'India';
+
+    const city = getLocalizedPlaceName(rawCity, lang) || rawCity;
+    const state = getLocalizedPlaceName(rawState, lang) || rawState;
+    const country = getLocalizedPlaceName(rawCountry, lang) || rawCountry;
+
     return {
       name: city,
       admin1: state,
       country: country,
+      rawName: rawCity,
       latitude: lat,
       longitude: lon,
     };
   } catch (err) {
     console.warn('Fallback reverse geocode:', err);
     return {
-      name: 'Current Location',
+      name: getLocalizedPlaceName('Chennai', lang),
+      rawName: 'Chennai',
       latitude: lat,
       longitude: lon,
-      country: 'India',
+      country: getLocalizedPlaceName('India', lang),
     };
   }
 }

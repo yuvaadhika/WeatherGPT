@@ -13,6 +13,7 @@ import {
   BellOff
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
+import { getLocalizedPlaceName } from '../services/weatherService';
 
 export default function Header({
   activeLanguage,
@@ -39,7 +40,7 @@ export default function Header({
     if (!searchQuery.trim()) return;
     setIsSearching(true);
     try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=5&language=en&format=json`);
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=5&language=${activeLanguage}&format=json`);
       const data = await res.json();
       setSearchResults(data.results || []);
     } catch (err) {
@@ -50,10 +51,19 @@ export default function Header({
   };
 
   const handleSelectCity = (city) => {
-    onSelectLocation(city);
+    const localizedName = getLocalizedPlaceName(city.name, activeLanguage) || city.name;
+    onSelectLocation({
+      ...city,
+      rawName: city.name,
+      name: localizedName,
+    });
     setSearchQuery('');
     setSearchResults([]);
   };
+
+  const displayLocationName = currentLocation
+    ? (getLocalizedPlaceName(currentLocation.rawName || currentLocation.name, activeLanguage) || currentLocation.name)
+    : (t.header?.detecting || 'Detecting...');
 
   return (
     <header className="w-full border-b border-slate-200 bg-white/90 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0 z-30 shadow-sm">
@@ -74,7 +84,7 @@ export default function Header({
         >
           <MapPin className="w-3.5 h-3.5 text-sky-600" />
           <span className="truncate max-w-[120px] sm:max-w-[180px] font-semibold">
-            {currentLocation ? `${currentLocation.name}` : (t.header?.detecting || 'Detecting...')}
+            {displayLocationName}
           </span>
           <span className="text-[10px] text-sky-600 font-normal hidden sm:inline">(GPS)</span>
         </button>
@@ -102,21 +112,27 @@ export default function Header({
         {/* Search Results Dropdown */}
         {searchResults.length > 0 && (
           <div className="absolute top-full mt-1.5 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 divide-y divide-slate-100">
-            {searchResults.map((item) => (
-              <button
-                key={`${item.id}-${item.latitude}`}
-                onClick={() => handleSelectCity(item)}
-                className="w-full px-3 py-2 text-left hover:bg-slate-50 text-xs flex items-center justify-between text-slate-700 transition-colors"
-              >
-                <div className="flex items-center space-x-1.5 truncate">
-                  <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
-                  <span className="font-semibold text-slate-900">{item.name}</span>
-                  <span className="text-[10px] text-slate-500 truncate">
-                    {item.admin1 ? `${item.admin1}, ` : ''}{item.country}
-                  </span>
-                </div>
-              </button>
-            ))}
+            {searchResults.map((item) => {
+              const itemCity = getLocalizedPlaceName(item.name, activeLanguage) || item.name;
+              const itemCountry = getLocalizedPlaceName(item.country, activeLanguage) || item.country;
+              const itemAdmin = item.admin1 ? `${getLocalizedPlaceName(item.admin1, activeLanguage) || item.admin1}, ` : '';
+
+              return (
+                <button
+                  key={`${item.id}-${item.latitude}`}
+                  onClick={() => handleSelectCity(item)}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 text-xs flex items-center justify-between text-slate-700 transition-colors"
+                >
+                  <div className="flex items-center space-x-1.5 truncate">
+                    <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
+                    <span className="font-semibold text-slate-900">{itemCity}</span>
+                    <span className="text-[10px] text-slate-500 truncate">
+                      {itemAdmin}{itemCountry}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
