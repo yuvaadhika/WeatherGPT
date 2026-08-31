@@ -61,14 +61,7 @@ export default function ChatInterface({
   // Initial welcome greeting - only if no messages exist yet
   useEffect(() => {
     if (messages.length === 0) {
-      const welcomeTexts = {
-        en: `👋 Hello! I am **WeatherGPT**, your meteorological AI platform.\n\nAsk me about live forecasts, rainfall probability, cyclone/flood early warnings, crop-soil advisories, aviation METAR, and marine high-seas reports in natural language.`,
-        ta: `👋 வணக்கம்! நான் **வெதர் ஜிபிடி (WeatherGPT)**.\n\nநேரலை வானிலை முன்னறிவிப்பு, மழை வாய்ப்பு, புயல் எச்சரிக்கைகள், விவசாய பயிர் மற்றும் மண் ஆலோசனைகள், விமானம் மற்றும் மீனவர் வழிகாட்டல்களை என்னிடம் கேட்கலாம்.`,
-        hi: `👋 नमस्ते! मैं **वेदर जीपीटी (WeatherGPT)** हूँ।\n\nलाइव मौसम पूर्वानुमान, वर्षा की संभावना, आपदा अलर्ट, कृषि सलाह और समुद्री सुरक्षा के बारे में कुछ भी पूछें।`,
-      };
-
-      const initialGreeting = welcomeTexts[activeLanguage] || welcomeTexts.en;
-
+      const initialGreeting = t.chat?.welcomeGreeting || TRANSLATIONS.en.chat.welcomeGreeting;
       setMessages([
         {
           id: 'welcome-1',
@@ -78,7 +71,7 @@ export default function ChatInterface({
         },
       ]);
     }
-  }, []);
+  }, [activeLanguage]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -139,7 +132,7 @@ export default function ChatInterface({
         {
           id: `ai-err-${Date.now()}`,
           sender: 'ai',
-          text: `⚠️ Meteorological query error: ${err.message}. Please try again.`,
+          text: `⚠️ ${t.chat?.queryError || 'Meteorological query error'}: ${err.message}`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
@@ -203,64 +196,64 @@ export default function ChatInterface({
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                WeatherGPT Forecast & Live Studio
+                {t.chat?.welcomeTitle || 'WeatherGPT Forecast & Live Studio'}
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
-                Real-time weather reports, hourly rain forecasts, atmospheric telemetry, and sector advisories.
+                {t.chat?.welcomeSubtitle || 'Real-time weather reports, hourly rain forecasts, atmospheric telemetry, and sector advisories.'}
               </p>
             </div>
 
             {/* 4 Feature Suggestion Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
               <button
-                onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'சென்னையில் அடுத்த 48 மணி நேரத்தில் மழை பெய்யுமா?' : 'Will it rain in Chennai over the next 48 hours?')}
+                onClick={() => handleSendMessage(t.chat?.promptRainQuery || 'Will it rain in Chennai over the next 48 hours?')}
                 className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-sky-300 transition-all group shadow-sm"
               >
                 <div className="flex items-center space-x-2 text-sky-600 font-semibold text-xs">
                   <CloudRain className="w-4 h-4" />
-                  <span>Rain & 48h Forecast</span>
+                  <span>{t.chat?.promptRainTitle || 'Rain & 48h Forecast'}</span>
                 </div>
                 <p className="text-xs text-slate-600 mt-1 font-normal">
-                  {activeLanguage === 'ta' ? 'சென்னையில் அடுத்த 48 மணி நேரத்தில் மழை பெய்யுமா?' : 'Will it rain in Chennai over the next 48 hours?'}
+                  {t.chat?.promptRainQuery || 'Will it rain in Chennai over the next 48 hours?'}
                 </p>
               </button>
 
               <button
-                onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'விவசாயிகளுக்கான பயிர் பாதுகாப்பு மற்றும் மண் ஈரப்பதம் ஆலோசனை' : 'Agricultural crop advisory for paddy and soil moisture status')}
+                onClick={() => handleSendMessage(t.chat?.promptFarmerQuery || 'Agricultural crop advisory for paddy and soil moisture status')}
                 className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-emerald-300 transition-all group shadow-sm"
               >
                 <div className="flex items-center space-x-2 text-emerald-600 font-semibold text-xs">
                   <Wheat className="w-4 h-4" />
-                  <span>Farmer Advisory</span>
+                  <span>{t.chat?.promptFarmerTitle || 'Farmer Advisory'}</span>
                 </div>
                 <p className="text-xs text-slate-600 mt-1 font-normal">
-                  {activeLanguage === 'ta' ? 'பயிர் பாதுகாப்பு மற்றும் மண் ஈரப்பதம் ஆலோசனை' : 'Agricultural crop advisory and soil moisture status'}
+                  {t.chat?.promptFarmerQuery || 'Agricultural crop advisory for paddy and soil moisture status'}
                 </p>
               </button>
 
               <button
-                onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'விமான வானிலை தகவல்: பார்வை தூரம் மற்றும் மேக மூட்டம்' : 'Aviation weather briefing: METAR, cloud ceiling and crosswinds')}
+                onClick={() => handleSendMessage(t.chat?.promptAviationQuery || 'Aviation weather briefing: METAR, cloud ceiling and crosswinds')}
                 className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-blue-300 transition-all group shadow-sm"
               >
                 <div className="flex items-center space-x-2 text-blue-600 font-semibold text-xs">
                   <Plane className="w-4 h-4" />
-                  <span>Aviation METAR</span>
+                  <span>{t.chat?.promptAviationTitle || 'Aviation METAR'}</span>
                 </div>
                 <p className="text-xs text-slate-600 mt-1 font-normal">
-                  {activeLanguage === 'ta' ? 'விமான வானிலை தகவல்: பார்வை தூரம் மற்றும் மேக மூட்டம்' : 'Aviation METAR, cloud ceiling & crosswinds'}
+                  {t.chat?.promptAviationQuery || 'Aviation weather briefing: METAR, cloud ceiling and crosswinds'}
                 </p>
               </button>
 
               <button
-                onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'மீனவர்களுக்கான கடல் அலை உயரம் மற்றும் காற்று எச்சரிக்கை' : 'Marine high-seas advisory and wave height for fishermen')}
+                onClick={() => handleSendMessage(t.chat?.promptMarineQuery || 'Marine high-seas advisory and wave height for fishermen')}
                 className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-amber-300 transition-all group shadow-sm"
               >
                 <div className="flex items-center space-x-2 text-amber-600 font-semibold text-xs">
                   <Anchor className="w-4 h-4" />
-                  <span>Marine & Fishermen</span>
+                  <span>{t.chat?.promptMarineTitle || 'Marine & Fishermen'}</span>
                 </div>
                 <p className="text-xs text-slate-600 mt-1 font-normal">
-                  {activeLanguage === 'ta' ? 'மீனவர்களுக்கான கடல் அலை உயரம் மற்றும் காற்று எச்சரிக்கை' : 'Marine wave height and fishing safety status'}
+                  {t.chat?.promptMarineQuery || 'Marine high-seas advisory and wave height for fishermen'}
                 </p>
               </button>
             </div>
@@ -316,14 +309,14 @@ export default function ChatInterface({
                 {isAi && msg.weatherData?.current && (
                   <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2">
                     <div className="flex items-center justify-between text-[11px] font-semibold text-sky-700">
-                      <span>Live Telemetry ({msg.locationName || 'Location'})</span>
+                      <span>Live Telemetry ({msg.locationName || currentLocation?.name || 'Location'})</span>
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs">
                       <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
                         <Thermometer className="w-4 h-4 text-amber-500" />
                         <div>
-                          <span className="text-[10px] text-slate-500 block">Temp</span>
+                          <span className="text-[10px] text-slate-500 block">{t.sidebar?.temperature || 'Temp'}</span>
                           <span className="font-bold text-slate-800">{msg.weatherData.current.temperature_2m}°C</span>
                         </div>
                       </div>
@@ -331,7 +324,7 @@ export default function ChatInterface({
                       <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
                         <Droplets className="w-4 h-4 text-sky-500" />
                         <div>
-                          <span className="text-[10px] text-slate-500 block">Humidity</span>
+                          <span className="text-[10px] text-slate-500 block">{t.sidebar?.humidity || 'Humidity'}</span>
                           <span className="font-bold text-slate-800">{msg.weatherData.current.relative_humidity_2m}%</span>
                         </div>
                       </div>
@@ -339,7 +332,7 @@ export default function ChatInterface({
                       <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
                         <Wind className="w-4 h-4 text-blue-500" />
                         <div>
-                          <span className="text-[10px] text-slate-500 block">Wind</span>
+                          <span className="text-[10px] text-slate-500 block">{t.sidebar?.windSpeed || 'Wind'}</span>
                           <span className="font-bold text-slate-800">{msg.weatherData.current.wind_speed_10m} km/h</span>
                         </div>
                       </div>
@@ -347,7 +340,7 @@ export default function ChatInterface({
                       <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
                         <Eye className="w-4 h-4 text-emerald-500" />
                         <div>
-                          <span className="text-[10px] text-slate-500 block">Air Quality</span>
+                          <span className="text-[10px] text-slate-500 block">{t.sidebar?.airQuality || 'Air Quality'}</span>
                           <span className="font-bold text-emerald-600">{msg.aqiData?.current?.us_aqi || 50} AQI</span>
                         </div>
                       </div>
@@ -360,13 +353,13 @@ export default function ChatInterface({
                         className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-sky-700 border border-slate-200 flex items-center space-x-1 transition-all"
                       >
                         <Radio className="w-3 h-3" />
-                        <span>View Live Radar Map →</span>
+                        <span>{t.chat?.viewRadar || 'View Live Radar Map'} →</span>
                       </button>
                       <button
                         onClick={() => onOpenDecision(msg.domain || 'agriculture')}
                         className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center space-x-1 transition-all"
                       >
-                        <span>Open Sector Advisory →</span>
+                        <span>{t.chat?.agriAdvisory || 'Open Sector Advisory'} →</span>
                       </button>
                     </div>
                   </div>
@@ -379,13 +372,13 @@ export default function ChatInterface({
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleSpeak(msg.id, msg.text)}
-                        title={isSpeakingThis ? t.voiceStop : t.voiceSpeak}
+                        title={isSpeakingThis ? (t.chat?.voiceStop || 'Stop Voice') : (t.chat?.voiceSpeak || 'Read Aloud')}
                         className={`p-1 rounded-lg hover:bg-slate-100 flex items-center space-x-1 transition-colors ${
                           isSpeakingThis ? 'text-sky-600 font-semibold' : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
                         {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                        <span className="text-[10px]">{isSpeakingThis ? 'Stop' : 'Listen'}</span>
+                        <span className="text-[10px]">{isSpeakingThis ? (t.chat?.voiceStop || 'Stop') : (t.chat?.voiceSpeak || 'Listen')}</span>
                       </button>
                       <button
                         onClick={() => handleCopy(msg.id, msg.text)}
@@ -422,7 +415,12 @@ export default function ChatInterface({
       <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pb-3 pt-2">
         {/* Quick prompt chip bar */}
         <div className="flex items-center space-x-1.5 overflow-x-auto pb-2 mb-1 text-xs">
-          {(t.prompts || []).slice(0, 3).map((prompt, idx) => (
+          {[
+            t.chat?.promptRainQuery,
+            t.chat?.promptFarmerQuery,
+            t.chat?.promptAviationQuery,
+            t.chat?.promptMarineQuery,
+          ].filter(Boolean).slice(0, 4).map((prompt, idx) => (
             <button
               key={idx}
               onClick={() => handleSendMessage(prompt)}
@@ -445,7 +443,7 @@ export default function ChatInterface({
           <button
             type="button"
             onClick={handleToggleVoice}
-            title={isListening ? t.voiceListening : 'Speak with Voice (10 Languages)'}
+            title={isListening ? (t.chat?.voiceListening || 'Listening...') : 'Speak with Voice (10 Languages)'}
             className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 ${
               isListening
                 ? 'bg-rose-600 text-white animate-pulse shadow-md'
@@ -460,7 +458,7 @@ export default function ChatInterface({
             type="text"
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
-            placeholder={isListening ? t.voiceListening : t.searchPlaceholder}
+            placeholder={isListening ? (t.chat?.voiceListening || 'Listening...') : (t.chat?.inputPlaceholder || 'Ask WeatherGPT anything...')}
             className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
           />
 

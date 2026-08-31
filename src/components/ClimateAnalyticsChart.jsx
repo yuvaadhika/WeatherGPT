@@ -23,19 +23,23 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { getWeatherDescription } from '../services/weatherService';
+import { TRANSLATIONS } from '../services/languages';
 
 // Register all ChartJS controllers, elements, scales, and plugins safely
 ChartJS.register(...registerables);
 
-export default function ClimateAnalyticsChart({ weatherData, currentLocation }) {
+export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherData, currentLocation }) {
   const [chartMode, setChartMode] = useState('daily'); // 'daily' | 'hourly' | 'breakdown' | 'climateAnomaly'
+
+  const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
+  const c = t.climate || TRANSLATIONS.en.climate;
 
   if (!weatherData || !weatherData.daily) {
     return (
       <div className="w-full rounded-2xl bg-white border border-slate-200 p-8 shadow-sm text-center space-y-3">
         <div className="animate-spin w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full mx-auto"></div>
-        <p className="text-sm font-semibold text-slate-700">Loading Climate & 7-Day Forecast Data...</p>
-        <p className="text-xs text-slate-400">Fetching meteorological integration from ECMWF & NOAA GFS grids.</p>
+        <p className="text-sm font-semibold text-slate-700">{c.loading || 'Loading Climate & 7-Day Forecast Data...'}</p>
+        <p className="text-xs text-slate-400">{c.loadingSub || 'Fetching meteorological integration from ECMWF & NOAA GFS grids.'}</p>
       </div>
     );
   }
@@ -47,21 +51,20 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
 
   // 1. Hourly Chart Data (Next 24 Hours)
   const hourlyTimes = hourly.time?.slice(0, 24) || [];
-  const hourlyLabels = hourlyTimes.map((t) => {
-    const d = new Date(t);
+  const hourlyLabels = hourlyTimes.map((timeStr) => {
+    const d = new Date(timeStr);
     return d.toLocaleTimeString([], { hour: 'numeric', hour12: true });
   });
 
   const hourlyTemps = (hourly.temperature_2m?.slice(0, 24) || []).map((v) => Math.round(v * 10) / 10);
   const hourlyRainProb = hourly.precipitation_probability?.slice(0, 24) || [];
-  const hourlyPrecip = hourly.precipitation?.slice(0, 24) || [];
 
   const hourlyDataConfig = {
     labels: hourlyLabels.length > 0 ? hourlyLabels : ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
     datasets: [
       {
         type: 'line',
-        label: 'Temperature (°C)',
+        label: c.tempHourlyLabel || 'Temperature (°C)',
         data: hourlyTemps,
         borderColor: '#0284c7', // Sky-600
         backgroundColor: 'rgba(2, 132, 199, 0.12)',
@@ -74,7 +77,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
       },
       {
         type: 'bar',
-        label: 'Rain Probability (%)',
+        label: c.rainProbLabel || 'Rain Probability (%)',
         data: hourlyRainProb,
         backgroundColor: 'rgba(56, 189, 248, 0.55)',
         borderColor: '#0284c7',
@@ -88,10 +91,13 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
 
   // 2. Daily 7-Day Min/Max Trend Data
   const dailyTimes = daily.time?.slice(0, 7) || [];
-  const dailyLabels = dailyTimes.map((t, idx) => {
-    if (idx === 0) return 'Today';
-    const d = new Date(t);
-    return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+  const dailyLabels = dailyTimes.map((timeStr, idx) => {
+    if (idx === 0) return c.today || 'Today';
+    const d = new Date(timeStr);
+    const dayIdx = d.getDay();
+    const dayName = c.days?.[dayIdx] || d.toLocaleDateString([], { weekday: 'short' });
+    const dayNum = d.getDate();
+    return `${dayName} ${dayNum}`;
   });
 
   const dailyMaxTemps = (daily.temperature_2m_max?.slice(0, 7) || []).map((v) => Math.round(v * 10) / 10);
@@ -104,7 +110,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
     datasets: [
       {
         type: 'line',
-        label: 'Max Temp (°C)',
+        label: c.tempMaxLabel || 'Max Temp (°C)',
         data: dailyMaxTemps,
         borderColor: '#ea580c', // Orange-600
         backgroundColor: 'rgba(234, 88, 12, 0.1)',
@@ -116,7 +122,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
       },
       {
         type: 'line',
-        label: 'Min Temp (°C)',
+        label: c.tempMinLabel || 'Min Temp (°C)',
         data: dailyMinTemps,
         borderColor: '#0284c7', // Sky-600
         backgroundColor: 'rgba(2, 132, 199, 0.08)',
@@ -128,7 +134,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
       },
       {
         type: 'bar',
-        label: 'Precipitation Sum (mm)',
+        label: c.precipSumLabel || 'Precipitation Sum (mm)',
         data: dailyRainSum,
         backgroundColor: 'rgba(99, 102, 241, 0.45)',
         borderColor: '#6366f1',
@@ -150,7 +156,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
     datasets: [
       {
         type: 'line',
-        label: 'Temperature Anomaly (°C relative to 1991-2020 baseline)',
+        label: c.tempAnomalyLabel || 'Temperature Anomaly (°C)',
         data: meanTempAnomaly,
         borderColor: '#e11d48', // Rose-600
         backgroundColor: 'rgba(225, 29, 72, 0.12)',
@@ -163,7 +169,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
       },
       {
         type: 'bar',
-        label: 'Monsoon Precipitation Variance (%)',
+        label: c.rainfallVarianceLabel || 'Monsoon Precipitation Variance (%)',
         data: rainfallVariance,
         backgroundColor: (context) => {
           const val = context.raw;
@@ -244,7 +250,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-bold text-slate-900 flex items-center space-x-2">
-              <span>Climate & 7-Day Forecast Trends</span>
+              <span>{c.title || 'Climate & 7-Day Forecast Trends'}</span>
               <span className="text-[11px] px-2 py-0.5 rounded-full bg-sky-50 border border-sky-200 text-sky-700 font-medium">
                 NWP Ensemble
               </span>
@@ -265,7 +271,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
             }`}
           >
-            📅 7-Day NWP Curve
+            📅 {c.tabDaily || '7-Day NWP Curve'}
           </button>
           <button
             onClick={() => setChartMode('hourly')}
@@ -275,7 +281,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
             }`}
           >
-            🕒 24h Hourly Curve
+            🕒 {c.tabHourly || '24h Hourly Curve'}
           </button>
           <button
             onClick={() => setChartMode('breakdown')}
@@ -285,7 +291,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
             }`}
           >
-            📊 7-Day Day Cards
+            📊 {c.today || '7-Day Day Cards'}
           </button>
           <button
             onClick={() => setChartMode('climateAnomaly')}
@@ -295,7 +301,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
             }`}
           >
-            🔬 10-Yr Decadal Anomaly
+            🔬 {c.tabAnomaly || '10-Yr Decadal Anomaly'}
           </button>
         </div>
       </div>
@@ -307,7 +313,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
             <Thermometer className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 font-medium block">7-Day Temp Range</span>
+            <span className="text-[10px] text-slate-500 font-medium block">{c.maxTemp || '7-Day Temp Range'}</span>
             <span className="text-xs sm:text-sm font-bold text-slate-800">
               {lowestMinTemp}°C – {highestMaxTemp}°C
             </span>
@@ -319,7 +325,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
             <CloudRain className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 font-medium block">Total 7-Day Rain</span>
+            <span className="text-[10px] text-slate-500 font-medium block">{c.rainSum || 'Total 7-Day Rain'}</span>
             <span className="text-xs sm:text-sm font-bold text-slate-800">
               {total7DayRain.toFixed(1)} mm
             </span>
@@ -331,7 +337,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
             <Wind className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 font-medium block">Wind Speed</span>
+            <span className="text-[10px] text-slate-500 font-medium block">{t.sidebar?.windSpeed || 'Wind Speed'}</span>
             <span className="text-xs sm:text-sm font-bold text-slate-800">
               {current.wind_speed_10m || 12} km/h
             </span>
@@ -343,7 +349,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
             <Activity className="w-4 h-4" />
           </div>
           <div>
-            <span className="text-[10px] text-slate-500 font-medium block">Decadal Warming</span>
+            <span className="text-[10px] text-slate-500 font-medium block">{c.decadalTitle || 'Decadal Warming'}</span>
             <span className="text-xs sm:text-sm font-bold text-purple-700">
               +0.28°C / decade
             </span>
@@ -373,10 +379,11 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {dailyTimes.map((timeStr, idx) => {
               const d = new Date(timeStr);
-              const dayName = idx === 0 ? 'Today' : d.toLocaleDateString([], { weekday: 'long' });
+              const dayIdx = d.getDay();
+              const dayName = idx === 0 ? (c.today || 'Today') : (c.days?.[dayIdx] || d.toLocaleDateString([], { weekday: 'long' }));
               const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
               const weatherCode = daily.weather_code?.[idx] || 0;
-              const wmoDesc = getWeatherDescription(weatherCode);
+              const wmoDesc = getWeatherDescription(weatherCode, activeLanguage);
               const maxT = Math.round(dailyMaxTemps[idx] || 0);
               const minT = Math.round(dailyMinTemps[idx] || 0);
               const rainSum = dailyRainSum[idx] || 0;
@@ -408,7 +415,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
 
                   {/* Temp Bar */}
                   <div className="flex items-center justify-between text-xs py-1 border-t border-slate-100">
-                    <span className="text-slate-500">Temp</span>
+                    <span className="text-slate-500">{c.tempHourlyLabel ? c.tempHourlyLabel.split(' ')[0] : 'Temp'}</span>
                     <span className="font-bold text-slate-900">
                       <span className="text-orange-600">{maxT}°</span> / <span className="text-sky-600">{minT}°C</span>
                     </span>
@@ -416,7 +423,7 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
 
                   {/* Rain */}
                   <div className="flex items-center justify-between text-xs py-1 border-t border-slate-100">
-                    <span className="text-slate-500">Rainfall</span>
+                    <span className="text-slate-500">{c.rainSum || 'Rainfall'}</span>
                     <span className="font-medium text-slate-700">
                       {rainSum > 0 ? `${rainSum} mm (${rainProb}%)` : `${rainProb}%`}
                     </span>
@@ -438,11 +445,10 @@ export default function ClimateAnalyticsChart({ weatherData, currentLocation }) 
       <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
         <div className="font-bold text-slate-800 flex items-center space-x-1.5">
           <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-          <span>Regional Climate & Atmospheric Analysis</span>
+          <span>{c.decadalTitle || 'Regional Climate & Atmospheric Analysis'}</span>
         </div>
         <p className="text-slate-600 leading-relaxed text-[11px]">
-          Forecast values are produced by continuous multi-model NWP assimilation (ECMWF IFS, GFS, and ICON). 
-          Historical anomaly trends reflect decadal shifts relative to the World Meteorological Organization (WMO) 30-year climatological normals.
+          {c.decadalText || 'Forecast values are produced by continuous multi-model NWP assimilation (ECMWF IFS, GFS, and ICON). Historical anomaly trends reflect decadal shifts relative to WMO 30-year climatological normals.'}
         </p>
       </div>
     </div>

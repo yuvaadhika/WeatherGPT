@@ -69,12 +69,12 @@ export default function Header({
         {/* Current Location Pill */}
         <button
           onClick={onDetectLocation}
-          title="Auto-detect GPS Location"
+          title={t.header?.detectGps || 'Auto-detect GPS Location'}
           className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100/90 border border-slate-200 hover:border-sky-500/50 text-xs font-medium text-slate-800 transition-all shadow-sm"
         >
           <MapPin className="w-3.5 h-3.5 text-sky-600" />
           <span className="truncate max-w-[120px] sm:max-w-[180px] font-semibold">
-            {currentLocation ? `${currentLocation.name}` : 'Detecting...'}
+            {currentLocation ? `${currentLocation.name}` : (t.header?.detecting || 'Detecting...')}
           </span>
           <span className="text-[10px] text-sky-600 font-normal hidden sm:inline">(GPS)</span>
         </button>
@@ -87,7 +87,7 @@ export default function Header({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search any city, village..."
+            placeholder={t.header?.searchPlaceholder || 'Search any city, village...'}
             className="w-full pl-8 pr-16 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all shadow-sm"
           />
           <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-400" />
@@ -95,7 +95,7 @@ export default function Header({
             type="submit"
             className="absolute right-1 top-1 px-2.5 py-0.5 text-[10px] font-semibold bg-sky-600 hover:bg-sky-500 text-white rounded-lg transition-colors"
           >
-            {isSearching ? '...' : 'Search'}
+            {isSearching ? (t.header?.searching || '...') : (t.header?.searchBtn || 'Search')}
           </button>
         </form>
 
@@ -126,7 +126,7 @@ export default function Header({
         {/* Weather Alert Push Notification Bell */}
         <button
           onClick={onToggleNotifications}
-          title={notificationsEnabled ? 'Weather Alert Push Notifications Active (Click to toggle / test)' : 'Click to enable Live Weather Alert Notifications'}
+          title={notificationsEnabled ? (t.header?.alertsOnTooltip || 'Weather Alert Push Notifications Active') : (t.header?.alertsOffTooltip || 'Click to enable Live Weather Alert Notifications')}
           className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1.5 transition-all shadow-sm ${
             notificationsEnabled
               ? 'bg-sky-50 border-sky-300 text-sky-700 hover:bg-sky-100'
@@ -139,7 +139,7 @@ export default function Header({
             <Bell className="w-3.5 h-3.5 text-slate-400" />
           )}
           <span className="text-[11px] font-semibold hidden md:inline">
-            {notificationsEnabled ? 'Alerts ON' : 'Alerts OFF'}
+            {notificationsEnabled ? (t.header?.alertsOn || 'Alerts ON') : (t.header?.alertsOff || 'Alerts OFF')}
           </span>
         </button>
 
@@ -155,7 +155,9 @@ export default function Header({
               : 'bg-emerald-50 border-emerald-200 text-emerald-700'
           }`}>
             <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
-            <span className="text-[10px] font-semibold">{topAlert.level.toUpperCase()} Alert</span>
+            <span className="text-[10px] font-semibold">
+              {topAlert.level.toUpperCase()} {t.header?.alertWarningBadge || 'Alert'}
+            </span>
           </div>
         )}
       </div>

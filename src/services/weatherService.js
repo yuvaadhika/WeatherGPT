@@ -4,6 +4,8 @@
 // Source 2: Global Air Quality Telemetry (PM2.5, PM10, AQI, O3, NO2)
 // Source 3: RainViewer Live Radar & Satellite GIS Stream + Extreme Disaster Warning Engine
 
+import { TRANSLATIONS } from './languages';
+
 // WMO Weather Interpretation Codes (WW)
 export const WMO_WEATHER_CODES = {
   0: { label: 'Clear Sky', icon: 'Sun', color: 'text-amber-400' },
@@ -36,8 +38,24 @@ export const WMO_WEATHER_CODES = {
   99: { label: 'Severe Thunderstorm with Heavy Hail', icon: 'ZapOff', color: 'text-rose-500' },
 };
 
-export const getWeatherDescription = (code) => {
-  return WMO_WEATHER_CODES[code] || { label: 'Variable Weather', icon: 'Cloud', color: 'text-slate-300' };
+export const getWeatherDescription = (code, lang = 'en') => {
+  const base = WMO_WEATHER_CODES[code] || { label: 'Variable Weather', icon: 'Cloud', color: 'text-slate-300' };
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  let localizedLabel = base.label;
+  if (t?.conditions) {
+    if (code === 0) localizedLabel = t.conditions.clear || base.label;
+    else if (code === 1) localizedLabel = t.conditions.mainlyClear || base.label;
+    else if (code === 2) localizedLabel = t.conditions.partlyCloudy || base.label;
+    else if (code === 3) localizedLabel = t.conditions.overcast || base.label;
+    else if (code === 45 || code === 48) localizedLabel = t.conditions.foggy || base.label;
+    else if (code >= 51 && code <= 57) localizedLabel = t.conditions.drizzle || base.label;
+    else if (code === 61 || code === 80) localizedLabel = t.conditions.rain || base.label;
+    else if (code === 63 || code === 65 || code === 81 || code === 82) localizedLabel = t.conditions.heavyRain || base.label;
+    else if (code >= 71 && code <= 86) localizedLabel = t.conditions.snow || base.label;
+    else if (code === 95 || code === 96) localizedLabel = t.conditions.thunderstorm || base.label;
+    else if (code === 99) localizedLabel = t.conditions.hail || base.label;
+  }
+  return { ...base, label: localizedLabel };
 };
 
 // Geocoding: Search any location / village / city in India & Worldwide

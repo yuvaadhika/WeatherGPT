@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldAlert, AlertTriangle, Info, CheckCircle2, ChevronDown, ChevronUp, BellRing, Bell, Share2, X } from 'lucide-react';
+import { TRANSLATIONS } from '../services/languages';
 
 export const ALERT_STYLES = {
   red: {
@@ -36,10 +37,12 @@ export const ALERT_STYLES = {
   },
 };
 
-export default function WeatherAlertBanner({ alerts = [], notificationsEnabled, onToggleNotifications }) {
+export default function WeatherAlertBanner({ activeLanguage = 'en', alerts = [], notificationsEnabled, onToggleNotifications }) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+
+  const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
 
   if (!alerts || alerts.length === 0 || dismissed) return null;
 
@@ -69,10 +72,10 @@ export default function WeatherAlertBanner({ alerts = [], notificationsEnabled, 
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${style.badge}`}>
-                {topAlert.level.toUpperCase()} WARNING
+                {topAlert.level.toUpperCase()} {t.alerts?.warning || 'WARNING'}
               </span>
               <span className="text-xs font-semibold text-slate-700">
-                Category: {topAlert.category}
+                {t.alerts?.category || 'Category'}: {topAlert.category}
               </span>
             </div>
             <h3 className="text-sm sm:text-base font-bold mt-0.5 text-slate-900">
@@ -92,7 +95,7 @@ export default function WeatherAlertBanner({ alerts = [], notificationsEnabled, 
               className="p-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-sky-700 transition-all text-xs flex items-center space-x-1 shadow-sm font-medium"
             >
               <BellRing className="w-3.5 h-3.5 text-sky-600" />
-              <span className="hidden md:inline text-[11px]">Notify Me</span>
+              <span className="hidden md:inline text-[11px]">{t.alerts?.notifyMe || 'Notify Me'}</span>
             </button>
           )}
           <button
@@ -101,7 +104,9 @@ export default function WeatherAlertBanner({ alerts = [], notificationsEnabled, 
             className="p-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 transition-all text-xs flex items-center space-x-1 shadow-sm"
           >
             <Share2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline text-[11px]">{copied ? 'Copied!' : 'Share'}</span>
+            <span className="hidden sm:inline text-[11px]">
+              {copied ? (t.alerts?.copied || 'Copied!') : (t.alerts?.share || 'Share')}
+            </span>
           </button>
           {alerts.length > 1 && (
             <button
@@ -124,7 +129,9 @@ export default function WeatherAlertBanner({ alerts = [], notificationsEnabled, 
       {/* Recommended Action / Directive */}
       {topAlert.action && (
         <div className="mt-3 pt-2.5 border-t border-slate-200/80 flex items-start space-x-2 text-xs">
-          <span className="font-bold text-slate-900 uppercase tracking-wider flex-shrink-0">Safety Advisory:</span>
+          <span className="font-bold text-slate-900 uppercase tracking-wider flex-shrink-0">
+            {t.alerts?.safetyAdvisory || 'Safety Advisory'}:
+          </span>
           <span className="text-slate-700 font-medium">{topAlert.action}</span>
         </div>
       )}
@@ -132,7 +139,9 @@ export default function WeatherAlertBanner({ alerts = [], notificationsEnabled, 
       {/* Additional Collapsible Alerts */}
       {expanded && alerts.length > 1 && (
         <div className="mt-3 pt-3 border-t border-slate-200/80 space-y-2.5">
-          <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Additional Hazard Advisories ({alerts.length - 1}):</h4>
+          <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+            {t.alerts?.additionalAlerts || 'Additional Hazard Advisories'} ({alerts.length - 1}):
+          </h4>
           {alerts.slice(1).map((alt, idx) => {
             const subStyle = ALERT_STYLES[alt.level] || ALERT_STYLES.yellow;
             return (

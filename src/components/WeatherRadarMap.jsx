@@ -1,14 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, RotateCcw, Layers, Eye, Wind, CloudRain, ShieldAlert, Sparkles } from 'lucide-react';
 import { fetchRainViewerMetadata } from '../services/weatherService';
+import { TRANSLATIONS } from '../services/languages';
 import L from 'leaflet';
 
-export default function WeatherRadarMap({ currentLocation, weatherData, alerts = [] }) {
+export default function WeatherRadarMap({ activeLanguage = 'en', currentLocation, weatherData, alerts = [] }) {
   const mapRef = useRef(null);
   const leafletMap = useRef(null);
   const radarLayerRef = useRef(null);
   const satelliteLayerRef = useRef(null);
   const markerRef = useRef(null);
+
+  const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
+  const r = t.radar || TRANSLATIONS.en.radar;
 
   const [radarFrames, setRadarFrames] = useState([]);
   const [activeFrameIndex, setActiveFrameIndex] = useState(0);
@@ -69,13 +73,13 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
       marker.bindPopup(`
         <div class="p-1 text-xs">
           <strong class="text-sky-700 font-bold">${currentLocation?.name || 'Selected Location'}</strong>
-          <div class="mt-1 text-slate-700">Temp: <b>${temp}°C</b> | Wind: <b>${wind} km/h</b></div>
-          <div class="text-[10px] text-slate-500 mt-0.5">Live Weather Observation</div>
+          <div class="mt-1 text-slate-700">${r.temp || 'Temp'}: <b>${temp}°C</b> | ${r.wind || 'Wind'}: <b>${wind} km/h</b></div>
+          <div class="text-[10px] text-slate-500 mt-0.5">${r.liveObservation || 'Live Weather Observation'}</div>
         </div>
       `);
       markerRef.current = marker;
     }
-  }, [lat, lon, currentLocation, weatherData]);
+  }, [lat, lon, currentLocation, weatherData, activeLanguage]);
 
   // Load RainViewer Radar Tile Frames
   useEffect(() => {
@@ -152,14 +156,14 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
           <div>
             <div className="flex items-center space-x-2">
               <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-1.5">
-                <span>RainViewer Live Precipitation Radar</span>
+                <span>{r.title || 'Live Doppler Radar & Satellite GIS'}</span>
                 <span className="flex h-2 w-2 relative">
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
                 </span>
               </h3>
             </div>
             <p className="text-[11px] text-slate-500">
-              Live Weather Radar & Satellite Precipitation Map
+              {r.subtitle || 'Real-time precipitation echo reflectivity and satellite cloud streaming.'}
             </p>
           </div>
         </div>
@@ -176,7 +180,7 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
             }`}
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            <span>{isPlaying ? 'Pause' : 'Play Loop'}</span>
+            <span>{isPlaying ? (r.pause || 'Pause') : (r.play || 'Play Loop')}</span>
           </button>
 
           {/* Timestamp Indicator */}
@@ -208,13 +212,13 @@ export default function WeatherRadarMap({ currentLocation, weatherData, alerts =
             <span>Precipitation Intensity (dBZ)</span>
           </div>
           <div className="flex items-center space-x-1">
-            <span className="text-slate-500">Light</span>
+            <span className="text-slate-500">{r.light || 'Light'}</span>
             <div className="h-2.5 w-32 rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-600 border border-slate-300"></div>
-            <span className="text-rose-600 font-bold">Heavy</span>
+            <span className="text-rose-600 font-bold">{r.heavy || 'Heavy'}</span>
           </div>
           <div className="text-[9px] text-slate-500 flex items-center justify-between">
-            <span>Drizzle (10 dBZ)</span>
-            <span>Heavy Hail (&gt;55 dBZ)</span>
+            <span>{r.light || 'Light Drizzle'} (10 dBZ)</span>
+            <span>{r.severe || 'Extreme / Hail'} (&gt;55 dBZ)</span>
           </div>
         </div>
 

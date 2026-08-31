@@ -95,16 +95,12 @@ export default function App() {
   }, [alerts, notificationsEnabled, currentLocation]);
 
   const getInitialWelcome = (lang) => {
-    const welcomeTexts = {
-      en: `👋 Hello! I am **WeatherGPT**, your meteorological AI platform.\n\nAsk me about live forecasts, rainfall probability, cyclone/flood early warnings, crop-soil advisories, aviation METAR, and marine high-seas reports in natural language.`,
-      ta: `👋 வணக்கம்! நான் **வெதர் ஜிபிடி (WeatherGPT)**.\n\nநேரலை வானிலை முன்னறிவிப்பு, மழை வாய்ப்பு, புயல் எச்சரிக்கைகள், விவசாய பயிர் மற்றும் மண் ஆலோசனைகள், விமானம் மற்றும் மீனவர் வழிகாட்டல்களை என்னிடம் கேட்கலாம்.`,
-      hi: `👋 नमस्ते! मैं **वेदर जीपीटी (WeatherGPT)** हूँ।\n\nलाइव मौसम पूर्वानुमान, वर्षा की संभावना, आपदा अलर्ट, कृषि सलाह और समुद्री सुरक्षा के बारे में कुछ भी पूछें।`,
-    };
+    const currentT = TRANSLATIONS[lang] || TRANSLATIONS.en;
     return [
       {
         id: 'welcome-1',
         sender: 'ai',
-        text: welcomeTexts[lang] || welcomeTexts.en,
+        text: currentT?.chat?.welcomeGreeting || TRANSLATIONS.en.chat.welcomeGreeting,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       },
     ];
@@ -176,7 +172,7 @@ export default function App() {
 
   const topAlert = alerts.length > 0 ? alerts[0] : null;
   const current = weatherData?.current || {};
-  const wmo = getWeatherDescription(current.weather_code || 0);
+  const wmo = getWeatherDescription(current.weather_code || 0, activeLanguage);
 
   const handlePromptChat = (query) => {
     setActiveView('chat');
@@ -201,10 +197,10 @@ export default function App() {
               </div>
               <div>
                 <h1 className="font-bold text-base tracking-tight text-slate-900">
-                  WeatherGPT
+                  {t.sidebar?.appTitle || 'WeatherGPT'}
                 </h1>
                 <span className="text-[10px] text-sky-600 font-semibold tracking-wide">
-                  Live Weather & Radar
+                  {t.sidebar?.liveWeatherRadar || 'Live Weather & Radar'}
                 </span>
               </div>
             </div>
@@ -222,7 +218,7 @@ export default function App() {
             className="w-full mt-4 py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-medium text-xs flex items-center justify-center space-x-2 transition-all shadow-sm"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>New Weather Search</span>
+            <span>{t.sidebar?.newWeatherSearch || 'New Weather Search'}</span>
           </button>
         </div>
 
@@ -231,7 +227,7 @@ export default function App() {
           {/* Main Views */}
           <div className="space-y-1">
             <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
-              Weather Studio
+              {t.sidebar?.weatherStudio || 'Weather Studio'}
             </div>
             <button
               onClick={() => {
@@ -245,7 +241,7 @@ export default function App() {
               }`}
             >
               <MessageSquare className="w-4 h-4 text-sky-600" />
-              <span>Forecast & Assistant</span>
+              <span>{t.sidebar?.forecastAssistant || 'Forecast & Assistant'}</span>
             </button>
 
             <button
@@ -260,7 +256,7 @@ export default function App() {
               }`}
             >
               <Radio className="w-4 h-4 text-emerald-600" />
-              <span>Live Doppler Radar Map</span>
+              <span>{t.sidebar?.liveRadarMap || 'Live Doppler Radar Map'}</span>
             </button>
 
             <button
@@ -275,20 +271,20 @@ export default function App() {
               }`}
             >
               <TrendingUp className="w-4 h-4 text-indigo-600" />
-              <span>Climate & 7-Day Trends</span>
+              <span>{t.sidebar?.climateTrends || 'Climate & 7-Day Trends'}</span>
             </button>
           </div>
 
           {/* Decision Support Suites */}
           <div className="space-y-1">
             <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
-              Sector Advisories
+              {t.sidebar?.sectorAdvisories || 'Sector Advisories'}
             </div>
             {[
-              { id: 'agriculture', label: '🌾 Farmers & Agriculture', icon: Wheat },
-              { id: 'aviation', label: '✈️ Aviation METAR / TAF', icon: Plane },
-              { id: 'marine', label: '🌊 Marine & Fishermen', icon: Anchor },
-              { id: 'smartCity', label: '🏙️ Smart City & Disaster', icon: Building2 },
+              { id: 'agriculture', label: t.sidebar?.agriculture || '🌾 Farmers & Agriculture', icon: Wheat },
+              { id: 'aviation', label: t.sidebar?.aviation || '✈️ Aviation METAR / TAF', icon: Plane },
+              { id: 'marine', label: t.sidebar?.marine || '🌊 Marine & Fishermen', icon: Anchor },
+              { id: 'smartCity', label: t.sidebar?.smartCity || '🏙️ Smart City & Disaster', icon: Building2 },
             ].map((s) => {
               const Icon = s.icon;
               const isSelected = activeView === 'decision' && activeSector === s.id;
@@ -316,13 +312,11 @@ export default function App() {
           {/* 3 Active Feeds Info Box */}
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] space-y-1.5">
             <div className="font-semibold text-slate-700 flex items-center justify-between">
-              <span>Live Data Streams</span>
+              <span>{t.sidebar?.liveDataStreams || 'Live Data Streams'}</span>
               <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
             </div>
-            <p className="text-slate-500 text-[10px] leading-relaxed">
-              • Open-Meteo GFS / ECMWF<br />
-              • Air Quality WAQI PM2.5<br />
-              • RainViewer Radar GIS
+            <p className="text-slate-500 text-[10px] leading-relaxed whitespace-pre-line">
+              {t.sidebar?.dataFeeds || '• Open-Meteo GFS / ECMWF\n• Air Quality WAQI PM2.5\n• RainViewer Radar GIS'}
             </p>
           </div>
         </div>
@@ -351,14 +345,14 @@ export default function App() {
               className="flex-1 py-1.5 px-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs flex items-center justify-center space-x-1.5 transition-all shadow-sm"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Bulletin</span>
+              <span>{t.sidebar?.bulletin || 'Bulletin'}</span>
             </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
               className="flex-1 py-1.5 px-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs flex items-center justify-center space-x-1.5 transition-all shadow-sm"
             >
               <Settings className="w-3.5 h-3.5" />
-              <span>API Keys</span>
+              <span>{t.sidebar?.apiKeys || 'API Keys'}</span>
             </button>
           </div>
         </div>
@@ -386,6 +380,7 @@ export default function App() {
         <div className="flex-1 overflow-y-auto p-3 sm:p-5 flex flex-col max-w-6xl w-full mx-auto">
           {/* Active Hazard Early Warning Banner */}
           <WeatherAlertBanner
+            activeLanguage={activeLanguage}
             alerts={alerts}
             notificationsEnabled={notificationsEnabled}
             onToggleNotifications={handleToggleNotifications}
@@ -419,11 +414,12 @@ export default function App() {
                   className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Back to Forecast</span>
+                  <span>{t.radar?.backToForecast || 'Back to Forecast'}</span>
                 </button>
-                <span className="text-xs text-slate-500">Live Satellite & Radar Stream</span>
+                <span className="text-xs text-slate-500">{t.radar?.subtitle || 'Live Satellite & Radar Stream'}</span>
               </div>
               <WeatherRadarMap
+                activeLanguage={activeLanguage}
                 currentLocation={currentLocation}
                 weatherData={weatherData}
                 alerts={alerts}
@@ -440,11 +436,12 @@ export default function App() {
                   className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Back to Forecast</span>
+                  <span>{t.decision?.backToForecast || 'Back to Forecast'}</span>
                 </button>
-                <span className="text-xs text-slate-500">Decision Support Advisory</span>
+                <span className="text-xs text-slate-500">{t.decision?.decisionTitle || 'Decision Support Advisory'}</span>
               </div>
               <DecisionSupportModes
+                activeLanguage={activeLanguage}
                 currentLocation={currentLocation}
                 weatherData={weatherData}
                 aqiData={aqiData}
@@ -464,11 +461,12 @@ export default function App() {
                   className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Back to Forecast</span>
+                  <span>{t.climate?.backToForecast || 'Back to Forecast'}</span>
                 </button>
-                <span className="text-xs text-slate-500">7-Day & Historical Weather Analytics</span>
+                <span className="text-xs text-slate-500">{t.climate?.title || '7-Day & Historical Weather Analytics'}</span>
               </div>
               <ClimateAnalyticsChart
+                activeLanguage={activeLanguage}
                 weatherData={weatherData}
                 currentLocation={currentLocation}
               />
@@ -478,8 +476,13 @@ export default function App() {
       </div>
 
       {/* Modals */}
-      <ApiKeyModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <ApiKeyModal
+        activeLanguage={activeLanguage}
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
       <ReportExportModal
+        activeLanguage={activeLanguage}
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
         currentLocation={currentLocation}
