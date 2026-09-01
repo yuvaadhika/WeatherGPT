@@ -24,9 +24,9 @@ export default function ReportExportModal({
   const daily = weatherData?.daily || {};
   const dateStr = new Date().toLocaleString();
 
-  const agri = generateAgriAdvisory(weatherData);
-  const aviation = generateAviationBriefing(currentLocation?.name || 'Station', weatherData);
-  const marine = generateMarineBriefing(weatherData);
+  const agri = generateAgriAdvisory(weatherData, activeLanguage);
+  const aviation = generateAviationBriefing(currentLocation?.name || 'Station', weatherData, activeLanguage);
+  const marine = generateMarineBriefing(weatherData, activeLanguage);
 
   const handlePrint = () => {
     window.print();

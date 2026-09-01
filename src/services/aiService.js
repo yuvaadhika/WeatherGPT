@@ -434,10 +434,10 @@ export class WeatherAIAgent {
         fetchAirQuality(lat, lon)
       ]);
 
-      const alerts = evaluateSevereWeatherAlerts(nwpData, aqiData);
-      const agriAdvisory = generateAgriAdvisory(nwpData);
-      const aviationBriefing = generateAviationBriefing(targetLocation?.name || 'Local Station', nwpData);
-      const marineBriefing = generateMarineBriefing(nwpData);
+      const alerts = evaluateSevereWeatherAlerts(nwpData, aqiData, activeLanguage);
+      const agriAdvisory = generateAgriAdvisory(nwpData, activeLanguage);
+      const aviationBriefing = generateAviationBriefing(targetLocation?.name || 'Local Station', nwpData, activeLanguage);
+      const marineBriefing = generateMarineBriefing(nwpData, activeLanguage);
 
       // Generate localized conversational message
       const responseText = this.synthesizeNaturalLanguageResponse({
