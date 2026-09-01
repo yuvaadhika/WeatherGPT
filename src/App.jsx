@@ -190,7 +190,7 @@ export default function App() {
         setWeatherData(nwp);
         setAqiData(aqi);
 
-        const computedAlerts = evaluateSevereWeatherAlerts(nwp, aqi);
+        const computedAlerts = evaluateSevereWeatherAlerts(nwp, aqi, activeLanguage);
         setAlerts(computedAlerts);
       } catch (err) {
         console.error('Failed to load weather data:', err);
@@ -204,6 +204,14 @@ export default function App() {
       isMounted = false;
     };
   }, [currentLocation]);
+
+  // Re-evaluate alerts whenever activeLanguage changes
+  useEffect(() => {
+    if (weatherData && aqiData) {
+      const recomputedAlerts = evaluateSevereWeatherAlerts(weatherData, aqiData, activeLanguage);
+      setAlerts(recomputedAlerts);
+    }
+  }, [activeLanguage, weatherData, aqiData]);
 
   const topAlert = alerts.length > 0 ? alerts[0] : null;
   const current = weatherData?.current || {};

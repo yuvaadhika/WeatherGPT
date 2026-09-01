@@ -32,6 +32,137 @@ const COUNTRY_CODES = [
   { code: '+49', country: 'Germany 🇩🇪', flag: '🇩🇪' },
 ];
 
+const ALERT_MODAL_I18N = {
+  en: {
+    title: 'Alert & Notification Channels',
+    liveDispatch: 'Live Dispatch',
+    subtitle: (loc) => `Receive instant severe weather warnings via SMS, Email & Browser Push for ${loc}`,
+    smsTab: 'SMS Alerts',
+    emailTab: 'Email Alerts',
+    pushTab: 'Browser Push',
+    logsTab: (count) => `Dispatch Logs (${count})`,
+    smsTitle: 'SMS Mobile Alerts',
+    smsDesc: 'Receive urgent SMS warnings directly to your mobile phone',
+    smsPhoneLabel: 'Mobile Phone Number (SMS Recipient)',
+    smsPlaceholder: 'Enter 10-digit mobile number (e.g. 9876543210)',
+    smsCarrierNote: 'WeatherGPT delivers high-priority meteorological alerts directly to your mobile phone.',
+    smsTriggersLabel: 'SMS Alert Triggers:',
+    smsRedAlert: '🔴 RED Alerts (Severe)',
+    smsRedDesc: 'Cyclones, heavy flash floods, extreme gales',
+    smsOrangeAlert: '🟠 ORANGE Rain Warnings',
+    smsOrangeDesc: 'Intense rain & thunderstorm arrivals',
+    smsAqiAlert: '🌫️ Air Quality Hazards',
+    smsAqiDesc: 'PM2.5 / AQI > 250 toxic smog spikes',
+    smsStatusActive: (num) => `● Active for ${num}`,
+    smsNotConfigured: 'Not configured',
+    sendTestSms: 'Send Test SMS',
+    sending: 'Sending...',
+    emailTitle: 'Email Weather Bulletins',
+    emailDesc: 'Receive comprehensive meteorological advisories & morning digests',
+    emailLabel: 'Email Address / Login Email',
+    emailPlaceholder: 'Enter your email address (e.g. farmer.weather@gmail.com)',
+    emailNote: 'Formatted HTML forecasts, 48h rain onset timelines, and radar images will be delivered.',
+    emailTriggersLabel: 'Email Bulletin Subscriptions:',
+    emailStormAlert: '🚨 Emergency Storm Alerts',
+    emailStormDesc: 'Immediate dispatch upon severe hazard trigger',
+    emailMorningDigest: '🌅 Daily Morning Digest (7 AM)',
+    emailMorningDesc: "Day's max temp, rain probability, hourly chart",
+    emailAgri: '🌾 Agro-Crop Soil Advisory',
+    emailAgriDesc: 'Root-zone moisture, pesticide spray windows',
+    emailMarine: '🌊 Marine & High-Seas',
+    emailMarineDesc: 'Wave height, wind swell & squall warnings',
+    emailStatusActive: (email) => `● Active for ${email}`,
+    sendTestEmail: 'Send Test Email',
+    dispatching: 'Dispatching...',
+    pushStatusGranted: 'Browser Push Status: GRANTED & ACTIVE',
+    pushGrantedDesc: 'Native system notifications will display on your desktop/phone even when tab is minimized.',
+    pushDeniedDesc: 'Click below to allow notification permissions in your browser.',
+    allowPermissions: 'Allow Permissions',
+    audioChime: 'Emergency Audio Chime',
+    audioChimeDesc: 'Plays distinct two-tone frequencies for severe storms',
+    target: 'Target',
+    sendTestPush: 'Send Test Push & Sound',
+    activityStream: 'Real-Time Dispatch Activity Stream',
+    clearHistory: 'Clear History',
+    noDispatches: 'No alert dispatches yet.',
+    noDispatchesDesc: 'Dispatched SMS, Email and Push warnings will appear here in real-time.',
+    gatewayFooter: 'NWP Ensemble & WAQI Air Hazard Gateway',
+    done: 'Done',
+    pushGrantedToast: '✅ Browser Push Notifications enabled successfully!',
+    pushWarningToast: '⚠️ Please allow notification permission in your browser settings.',
+    smsPhoneWarningToast: '⚠️ Please enter your mobile phone number first.',
+    smsSentToast: (num) => `📱 Test SMS dispatched to ${num}!`,
+    emailWarningToast: '⚠️ Please enter a valid email address.',
+    emailSentToast: (email) => `📧 Test Email bulletin dispatched to ${email}!`,
+    pushSentToast: (loc) => `🔔 Live Push alert dispatched to browser for ${loc}!`,
+    logsClearedToast: 'Delivery logs cleared.',
+  },
+  ta: {
+    title: 'எச்சரிக்கை & அறிவிப்பு அமைப்புகள்',
+    liveDispatch: 'நேரலை அனுப்புதல்',
+    subtitle: (loc) => `${loc} பகுதியில் ஏற்படும் தீவிர வானிலை, புயல் மற்றும் மழை எச்சரிக்கைகளை SMS, மின்னஞ்சல் மற்றும் புஷ் மூலம் உடனுக்குடன் பெறுங்கள்.`,
+    smsTab: 'SMS எச்சரிக்கைகள்',
+    emailTab: 'மின்னஞ்சல் எச்சரிக்கைகள்',
+    pushTab: 'பிரவுசர் புஷ்',
+    logsTab: (count) => `அனுப்பிய பதிவுகள் (${count})`,
+    smsTitle: 'மொபைல் SMS எச்சரிக்கைகள்',
+    smsDesc: 'அவசர வானிலை எச்சரிக்கைகளை உங்கள் மொபைல் போனிலேயே நேரடியாகப் பெறுங்கள்',
+    smsPhoneLabel: 'மொபைல் போன் எண் (SMS பெறுநர்)',
+    smsPlaceholder: '10 இலக்க மொபைல் எண்ணை உள்ளிடவும் (எ.கா: 9876543210)',
+    smsCarrierNote: 'வெதர் ஜிபிடி தீவிர வானிலை எச்சரிக்கைகளை உங்கள் மொபைல் எண்ணுக்கு உடனடியாக அனுப்புகிறது.',
+    smsTriggersLabel: 'SMS எச்சரிக்கை காரணங்கள்:',
+    smsRedAlert: '🔴 சிவப்பு எச்சரிக்கைகள் (தீவிர புயல், பெருவெள்ளம்)',
+    smsRedDesc: 'புயல்கள், திடீர் வெள்ளப்பெருக்கு, தீவிர சூறாவளி காற்று',
+    smsOrangeAlert: '🟠 ஆரஞ்சு எச்சரிக்கைகள் (கனமழை, இடி மின்னல்)',
+    smsOrangeDesc: 'தீவிர கனமழை மற்றும் இடி மின்னல் தொடக்கம்',
+    smsAqiAlert: '🌫️ காற்று மாசுபாடு அபாயம்',
+    smsAqiDesc: 'PM2.5 / AQI > 250 நச்சுப் புகை அதிகரிப்பு',
+    smsStatusActive: (num) => `● ${num} எண்ணிற்கு இயக்கப்பட்டுள்ளது`,
+    smsNotConfigured: 'அமைக்கப்படவில்லை',
+    sendTestSms: 'சோதனை SMS அனுப்பு',
+    sending: 'அனுப்பப்படுகிறது...',
+    emailTitle: 'மின்னஞ்சல் வானிலை அறிக்கைகள்',
+    emailDesc: 'விரிவான வானிலை அறிக்கைகள் மற்றும் காலை செய்தி சுருக்கத்தைப் பெறுங்கள்',
+    emailLabel: 'மின்னஞ்சல் முகவரி (Email ID)',
+    emailPlaceholder: 'மின்னஞ்சல் முகவரியை உள்ளிடவும் (எ.கா: user@gmail.com)',
+    emailNote: 'வானிலை முன்னறிவிப்பு, 48 மணி நேர மழை அட்டவணை மற்றும் ரேடார் வரைபடங்கள் அனுப்பப்படும்.',
+    emailTriggersLabel: 'மின்னஞ்சல் சந்தா விவரங்கள்:',
+    emailStormAlert: '🚨 அவசர புயல் / கனமழை எச்சரிக்கைகள்',
+    emailStormDesc: 'தீவிர அபாய எச்சரிக்கை ஏற்பட்டவுடன் உடனுக்குடன் அனுப்பப்படும்',
+    emailMorningDigest: '🌅 தினசரி காலை 7 மணி வானிலை சுருக்கம்',
+    emailMorningDesc: 'அன்றைய அதிகபட்ச வெப்பம், மழை வாய்ப்பு, மணிநேர வரைபடம்',
+    emailAgri: '🌾 விவசாய பயிர் & மண் ஈரப்பதம் வழிகாட்டல்',
+    emailAgriDesc: 'மண் ஈரப்பதம், மருந்து தெளிப்பதற்கான உகந்த நேரம்',
+    emailMarine: '🌊 கடல் அலை & மீனவர் பாதுகாப்பு',
+    emailMarineDesc: 'அலை உயரம், காற்று வேகம் மற்றும் கடல் கொந்தளிப்பு எச்சரிக்கைகள்',
+    emailStatusActive: (email) => `● ${email} முகவரிக்கு இயக்கப்பட்டுள்ளது`,
+    sendTestEmail: 'சோதனை மின்னஞ்சல் அனுப்பு',
+    dispatching: 'அனுப்பப்படுகிறது...',
+    pushStatusGranted: 'பிரவுசர் புஷ் நிலைமை: இயக்கப்பட்டது (ACTIVE)',
+    pushGrantedDesc: 'பிரவுசர் மூடப்பட்டிருந்தாலும் டெஸ்க்டாப் / மொபைல் திரையில் நேரலை எச்சரிக்கை தோன்றும்.',
+    pushDeniedDesc: 'உங்கள் பிரவுசரில் அறிவிப்பு அனுமதியை (Notification Permission) இயக்க கீழே கிளிக் செய்யவும்.',
+    allowPermissions: 'அனுமதியை இயக்கு',
+    audioChime: 'அவசரகால எச்சரிக்கை ஒலி (Siren Sound)',
+    audioChimeDesc: 'தீவிர புயல்களின் போது கவனத்தை ஈர்க்கும் இரண்டு-தொனி எச்சரிக்கை ஒலியை இயக்கும்',
+    target: 'இடம்',
+    sendTestPush: 'சோதனை புஷ் & ஒலி அனுப்பு',
+    activityStream: 'நேரடி எச்சரிக்கை அனுப்பிய வரலாற்றுப் பதிவுகள்',
+    clearHistory: 'பதிவுகளை அழி',
+    noDispatches: 'இதுவரை எச்சரிக்கைகள் எதுவும் அனுப்பப்படவில்லை.',
+    noDispatchesDesc: 'அனுப்பப்படும் SMS, மின்னஞ்சல் மற்றும் புஷ் எச்சரிக்கைகள் நிகழ்நேரத்தில் இங்கே தோன்றும்.',
+    gatewayFooter: 'NWP மாதிரி & WAQI காற்று மாசு எச்சரிக்கை தளம்',
+    done: 'முடிந்தது',
+    pushGrantedToast: '✅ பிரவுசர் புஷ் அறிவிப்புகள் வெற்றிகரமாக இயக்கப்பட்டன!',
+    pushWarningToast: '⚠️ உங்கள் பிரவுசர் அமைப்புகளில் அறிவிப்பு அனுமதியை இயக்கவும்.',
+    smsPhoneWarningToast: '⚠️ முதலில் உங்கள் மொபைல் போன் எண்ணை உள்ளிடவும்.',
+    smsSentToast: (num) => `📱 சோதனை SMS ${num} எண்ணிற்கு வெற்றிகரமாக அனுப்பப்பட்டது!`,
+    emailWarningToast: '⚠️ சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்.',
+    emailSentToast: (email) => `📧 சோதனை மின்னஞ்சல் அறிக்கை ${email} முகவரிக்கு அனுப்பப்பட்டது!`,
+    pushSentToast: (loc) => `🔔 ${loc} இடத்திற்கான நேரலை புஷ் எச்சரிக்கை திரையில் அனுப்பப்பட்டது!`,
+    logsClearedToast: 'எச்சரிக்கை பதிவுகள் அழிக்கப்பட்டன.',
+  }
+};
+
 export default function AlertNotificationModal({
   isOpen,
   onClose,
@@ -45,6 +176,8 @@ export default function AlertNotificationModal({
   const [toastMessage, setToastMessage] = useState(null);
   const [isTesting, setIsTesting] = useState(false);
   const [pushPermission, setPushPermission] = useState(() => notificationService.getPermission());
+
+  const txt = ALERT_MODAL_I18N[activeLanguage] || ALERT_MODAL_I18N.en;
 
   useEffect(() => {
     if (isOpen) {
@@ -78,17 +211,17 @@ export default function AlertNotificationModal({
       };
       handleSave(updated);
       notificationService.sendTestAlert(currentLocationName);
-      showToast('✅ Browser Push Notifications enabled successfully!');
+      showToast(txt.pushGrantedToast);
       setLogs(notificationService.getDeliveryLogs());
     } else {
-      showToast('⚠️ Please allow notification permission in your browser settings.', 'warning');
+      showToast(txt.pushWarningToast, 'warning');
     }
   };
 
   // Send Test SMS
   const handleTestSms = () => {
     if (!settings.sms.phoneNumber?.trim()) {
-      showToast('⚠️ Please enter your mobile phone number first.', 'warning');
+      showToast(txt.smsPhoneWarningToast, 'warning');
       return;
     }
     setIsTesting(true);
@@ -99,14 +232,14 @@ export default function AlertNotificationModal({
       );
       setLogs(notificationService.getDeliveryLogs());
       setIsTesting(false);
-      showToast(`📱 Test SMS dispatched to ${settings.sms.countryCode} ${settings.sms.phoneNumber}!`);
+      showToast(txt.smsSentToast(`${settings.sms.countryCode} ${settings.sms.phoneNumber}`));
     }, 600);
   };
 
   // Send Test Email
   const handleTestEmail = () => {
     if (!settings.email.emailAddress?.trim() || !settings.email.emailAddress.includes('@')) {
-      showToast('⚠️ Please enter a valid email address.', 'warning');
+      showToast(txt.emailWarningToast, 'warning');
       return;
     }
     setIsTesting(true);
@@ -114,7 +247,7 @@ export default function AlertNotificationModal({
       notificationService.sendTestEmail(settings.email.emailAddress, currentLocationName);
       setLogs(notificationService.getDeliveryLogs());
       setIsTesting(false);
-      showToast(`📧 Test Email bulletin dispatched to ${settings.email.emailAddress}!`);
+      showToast(txt.emailSentToast(settings.email.emailAddress));
     }, 600);
   };
 
@@ -126,13 +259,13 @@ export default function AlertNotificationModal({
     }
     notificationService.sendTestAlert(currentLocationName);
     setLogs(notificationService.getDeliveryLogs());
-    showToast(`🔔 Live Push alert dispatched to browser for ${currentLocationName}!`);
+    showToast(txt.pushSentToast(currentLocationName));
   };
 
   const handleClearLogs = () => {
     notificationService.clearDeliveryLogs();
     setLogs([]);
-    showToast('Delivery logs cleared.');
+    showToast(txt.logsClearedToast);
   };
 
   return (
@@ -146,13 +279,13 @@ export default function AlertNotificationModal({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-                <span>Alert & Notification Channels</span>
+                <span>{txt.title}</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 font-semibold uppercase">
-                  Live Dispatch
+                  {txt.liveDispatch}
                 </span>
               </h2>
               <p className="text-xs text-slate-500">
-                Receive instant severe weather warnings via SMS, Email & Browser Push for <span className="font-semibold text-slate-700">{currentLocationName}</span>
+                {txt.subtitle(currentLocationName)}
               </p>
             </div>
           </div>
@@ -175,7 +308,7 @@ export default function AlertNotificationModal({
             }`}
           >
             <Smartphone className="w-4 h-4" />
-            <span>SMS Alerts</span>
+            <span>{txt.smsTab}</span>
             {settings.sms.enabled && settings.sms.phoneNumber && (
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             )}
@@ -190,7 +323,7 @@ export default function AlertNotificationModal({
             }`}
           >
             <Mail className="w-4 h-4" />
-            <span>Email Alerts</span>
+            <span>{txt.emailTab}</span>
             {settings.email.enabled && settings.email.emailAddress && (
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             )}
@@ -205,7 +338,7 @@ export default function AlertNotificationModal({
             }`}
           >
             <Bell className="w-4 h-4" />
-            <span>Browser Push</span>
+            <span>{txt.pushTab}</span>
             {settings.push.enabled && pushPermission === 'granted' && (
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             )}
@@ -220,7 +353,7 @@ export default function AlertNotificationModal({
             }`}
           >
             <Radio className="w-4 h-4" />
-            <span>Dispatch Logs ({logs.length})</span>
+            <span>{txt.logsTab(logs.length)}</span>
           </button>
         </div>
 
@@ -250,8 +383,8 @@ export default function AlertNotificationModal({
                     <Smartphone className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">SMS Mobile Alerts</h3>
-                    <p className="text-xs text-slate-500">Receive urgent SMS warnings directly to your mobile phone</p>
+                    <h3 className="text-sm font-bold text-slate-900">{txt.smsTitle}</h3>
+                    <p className="text-xs text-slate-500">{txt.smsDesc}</p>
                   </div>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -274,7 +407,7 @@ export default function AlertNotificationModal({
               {/* Phone Number Input */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 block">
-                  Mobile Phone Number (SMS Recipient)
+                  {txt.smsPhoneLabel}
                 </label>
                 <div className="flex items-center space-x-2">
                   {/* Country Code Dropdown */}
@@ -307,18 +440,18 @@ export default function AlertNotificationModal({
                       };
                       handleSave(updated);
                     }}
-                    placeholder="Enter 10-digit mobile number (e.g. 9876543210)"
+                    placeholder={txt.smsPlaceholder}
                     className="flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 shadow-sm font-medium"
                   />
                 </div>
                 <p className="text-[11px] text-slate-400">
-                  Carrier charges may apply depending on your network operator. WeatherGPT delivers high-priority meteorological alerts.
+                  {txt.smsCarrierNote}
                 </p>
               </div>
 
               {/* Triggers */}
               <div className="space-y-2.5 pt-2 border-t border-slate-100">
-                <span className="text-xs font-bold text-slate-700 block">SMS Alert Triggers:</span>
+                <span className="text-xs font-bold text-slate-700 block">{txt.smsTriggersLabel}</span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <label className="flex items-center space-x-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors text-xs">
                     <input
@@ -337,8 +470,8 @@ export default function AlertNotificationModal({
                       className="rounded text-sky-600 focus:ring-sky-500"
                     />
                     <div>
-                      <span className="font-semibold text-rose-700 block">🔴 RED Alerts (Severe)</span>
-                      <span className="text-[11px] text-slate-500">Cyclones, heavy flash floods, extreme gales</span>
+                      <span className="font-semibold text-rose-700 block">{txt.smsRedAlert}</span>
+                      <span className="text-[11px] text-slate-500">{txt.smsRedDesc}</span>
                     </div>
                   </label>
 
@@ -359,8 +492,8 @@ export default function AlertNotificationModal({
                       className="rounded text-sky-600 focus:ring-sky-500"
                     />
                     <div>
-                      <span className="font-semibold text-amber-700 block">🟠 ORANGE Rain Warnings</span>
-                      <span className="text-[11px] text-slate-500">Intense rain & thunderstorm arrivals</span>
+                      <span className="font-semibold text-amber-700 block">{txt.smsOrangeAlert}</span>
+                      <span className="text-[11px] text-slate-500">{txt.smsOrangeDesc}</span>
                     </div>
                   </label>
 
@@ -381,8 +514,8 @@ export default function AlertNotificationModal({
                       className="rounded text-sky-600 focus:ring-sky-500"
                     />
                     <div>
-                      <span className="font-semibold text-slate-800 block">🌫️ Air Quality Hazards</span>
-                      <span className="text-[11px] text-slate-500">PM2.5 / AQI &gt; 250 toxic smog spikes</span>
+                      <span className="font-semibold text-slate-800 block">{txt.smsAqiAlert}</span>
+                      <span className="text-[11px] text-slate-500">{txt.smsAqiDesc}</span>
                     </div>
                   </label>
                 </div>
@@ -392,9 +525,9 @@ export default function AlertNotificationModal({
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs text-slate-500">
                   Status: {settings.sms.enabled && settings.sms.phoneNumber ? (
-                    <span className="text-emerald-600 font-bold">● Active for {settings.sms.countryCode} {settings.sms.phoneNumber}</span>
+                    <span className="text-emerald-600 font-bold">{txt.smsStatusActive(`${settings.sms.countryCode} ${settings.sms.phoneNumber}`)}</span>
                   ) : (
-                    <span className="text-slate-400">Not configured</span>
+                    <span className="text-slate-400">{txt.smsNotConfigured}</span>
                   )}
                 </span>
                 <button
@@ -403,7 +536,7 @@ export default function AlertNotificationModal({
                   className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-sm transition-all disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>{isTesting ? 'Sending...' : 'Send Test SMS'}</span>
+                  <span>{isTesting ? txt.sending : txt.sendTestSms}</span>
                 </button>
               </div>
             </div>
@@ -419,8 +552,8 @@ export default function AlertNotificationModal({
                     <Mail className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Email Weather Bulletins</h3>
-                    <p className="text-xs text-slate-500">Receive comprehensive meteorological advisories & morning digests</p>
+                    <h3 className="text-sm font-bold text-slate-900">{txt.emailTitle}</h3>
+                    <p className="text-xs text-slate-500">{txt.emailDesc}</p>
                   </div>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -443,7 +576,7 @@ export default function AlertNotificationModal({
               {/* Email Address Input */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 block">
-                  Email Address / Login Email
+                  {txt.emailLabel}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
@@ -457,18 +590,18 @@ export default function AlertNotificationModal({
                       };
                       handleSave(updated);
                     }}
-                    placeholder="Enter your email address (e.g. farmer.weather@gmail.com)"
+                    placeholder={txt.emailPlaceholder}
                     className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 shadow-sm font-medium"
                   />
                 </div>
                 <p className="text-[11px] text-slate-400">
-                  Formatted HTML forecasts, 48h rain onset timelines, and radar images will be delivered.
+                  {txt.emailNote}
                 </p>
               </div>
 
               {/* Triggers */}
               <div className="space-y-2.5 pt-2 border-t border-slate-100">
-                <span className="text-xs font-bold text-slate-700 block">Email Bulletin Subscriptions:</span>
+                <span className="text-xs font-bold text-slate-700 block">{txt.emailTriggersLabel}</span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <label className="flex items-center space-x-2.5 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer transition-colors text-xs">
                     <input
@@ -487,8 +620,8 @@ export default function AlertNotificationModal({
                       className="rounded text-sky-600 focus:ring-sky-500"
                     />
                     <div>
-                      <span className="font-semibold text-rose-700 block">🚨 Emergency Storm Alerts</span>
-                      <span className="text-[11px] text-slate-500">Immediate dispatch upon severe hazard trigger</span>
+                      <span className="font-semibold text-rose-700 block">{txt.emailStormAlert}</span>
+                      <span className="text-[11px] text-slate-500">{txt.emailStormDesc}</span>
                     </div>
                   </label>
 
@@ -509,8 +642,8 @@ export default function AlertNotificationModal({
                       className="rounded text-sky-600 focus:ring-sky-500"
                     />
                     <div>
-                      <span className="font-semibold text-slate-800 block">🌅 Daily Morning Digest (7 AM)</span>
-                      <span className="text-[11px] text-slate-500">Day's max temp, rain probability, hourly chart</span>
+                      <span className="font-semibold text-slate-800 block">{txt.emailMorningDigest}</span>
+                      <span className="text-[11px] text-slate-500">{txt.emailMorningDesc}</span>
                     </div>
                   </label>
 
@@ -531,8 +664,8 @@ export default function AlertNotificationModal({
                       className="rounded text-sky-600 focus:ring-sky-500"
                     />
                     <div>
-                      <span className="font-semibold text-emerald-700 block">🌾 Agro-Crop Soil Advisory</span>
-                      <span className="text-[11px] text-slate-500">Root-zone moisture, pesticide spray windows</span>
+                      <span className="font-semibold text-emerald-700 block">{txt.emailAgri}</span>
+                      <span className="text-[11px] text-slate-500">{txt.emailAgriDesc}</span>
                     </div>
                   </label>
 
@@ -553,8 +686,8 @@ export default function AlertNotificationModal({
                       className="rounded text-sky-600 focus:ring-sky-500"
                     />
                     <div>
-                      <span className="font-semibold text-sky-700 block">🌊 Marine & High-Seas</span>
-                      <span className="text-[11px] text-slate-500">Wave height, wind swell & squall warnings</span>
+                      <span className="font-semibold text-sky-700 block">{txt.emailMarine}</span>
+                      <span className="text-[11px] text-slate-500">{txt.emailMarineDesc}</span>
                     </div>
                   </label>
                 </div>
@@ -564,9 +697,9 @@ export default function AlertNotificationModal({
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs text-slate-500">
                   Status: {settings.email.enabled && settings.email.emailAddress ? (
-                    <span className="text-emerald-600 font-bold">● Active for {settings.email.emailAddress}</span>
+                    <span className="text-emerald-600 font-bold">{txt.emailStatusActive(settings.email.emailAddress)}</span>
                   ) : (
-                    <span className="text-slate-400">Not configured</span>
+                    <span className="text-slate-400">{txt.smsNotConfigured}</span>
                   )}
                 </span>
                 <button
@@ -575,7 +708,7 @@ export default function AlertNotificationModal({
                   className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-sm transition-all disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>{isTesting ? 'Dispatching...' : 'Send Test Email'}</span>
+                  <span>{isTesting ? txt.dispatching : txt.sendTestEmail}</span>
                 </button>
               </div>
             </div>
@@ -601,12 +734,12 @@ export default function AlertNotificationModal({
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-slate-900">
-                        Browser Push Status: {pushPermission === 'granted' ? 'GRANTED & ACTIVE' : pushPermission.toUpperCase()}
+                        {pushPermission === 'granted' ? txt.pushStatusGranted : `Browser Push: ${pushPermission.toUpperCase()}`}
                       </h4>
                       <p className="text-[11px] text-slate-600 mt-0.5">
                         {pushPermission === 'granted'
-                          ? 'Native system notifications will display on your desktop/phone even when tab is minimized.'
-                          : 'Click below to allow notification permissions in your browser.'}
+                          ? txt.pushGrantedDesc
+                          : txt.pushDeniedDesc}
                       </p>
                     </div>
                   </div>
@@ -616,7 +749,7 @@ export default function AlertNotificationModal({
                       onClick={handleRequestPushPermission}
                       className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-sm transition-all"
                     >
-                      Allow Permissions
+                      {txt.allowPermissions}
                     </button>
                   )}
                 </div>
@@ -628,8 +761,8 @@ export default function AlertNotificationModal({
                   <div className="flex items-center space-x-2.5">
                     <Volume2 className="w-4 h-4 text-sky-600" />
                     <div>
-                      <span className="text-xs font-bold text-slate-800 block">Emergency Audio Chime</span>
-                      <span className="text-[11px] text-slate-500">Plays distinct two-tone frequencies for severe storms</span>
+                      <span className="text-xs font-bold text-slate-800 block">{txt.audioChime}</span>
+                      <span className="text-[11px] text-slate-500">{txt.audioChimeDesc}</span>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -653,14 +786,14 @@ export default function AlertNotificationModal({
               {/* Action Bar */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs text-slate-500">
-                  Target: {currentLocationName}
+                  {txt.target}: {currentLocationName}
                 </span>
                 <button
                   onClick={handleTestPush}
                   className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-sm transition-all"
                 >
                   <Bell className="w-3.5 h-3.5" />
-                  <span>Send Test Push & Sound</span>
+                  <span>{txt.sendTestPush}</span>
                 </button>
               </div>
             </div>
@@ -670,14 +803,14 @@ export default function AlertNotificationModal({
           {activeTab === 'logs' && (
             <div className="space-y-3 animate-fadeIn">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700">Real-Time Dispatch Activity Stream</span>
+                <span className="text-xs font-bold text-slate-700">{txt.activityStream}</span>
                 {logs.length > 0 && (
                   <button
                     onClick={handleClearLogs}
                     className="text-[11px] text-rose-600 hover:text-rose-700 flex items-center space-x-1 font-semibold"
                   >
                     <Trash2 className="w-3 h-3" />
-                    <span>Clear History</span>
+                    <span>{txt.clearHistory}</span>
                   </button>
                 )}
               </div>
@@ -685,8 +818,8 @@ export default function AlertNotificationModal({
               {logs.length === 0 ? (
                 <div className="text-center py-8 text-slate-400 text-xs">
                   <Radio className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
-                  <p>No alert dispatches yet.</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Dispatched SMS, Email and Push warnings will appear here in real-time.</p>
+                  <p>{txt.noDispatches}</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{txt.noDispatchesDesc}</p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1 divide-y divide-slate-100">
@@ -724,13 +857,13 @@ export default function AlertNotificationModal({
         <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center space-x-2 text-[11px] text-slate-500">
             <ShieldAlert className="w-4 h-4 text-sky-600" />
-            <span>NWP Ensemble & WAQI Air Hazard Gateway</span>
+            <span>{txt.gatewayFooter}</span>
           </div>
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs transition-colors shadow-sm"
           >
-            Done
+            {txt.done}
           </button>
         </div>
       </div>

@@ -338,7 +338,7 @@ export async function fetchClimateHistoricalData(lat, lon, yearsBack = 5) {
 }
 
 // Extreme Disaster & Early Warning Analysis Engine
-export function evaluateSevereWeatherAlerts(weatherData, aqiData) {
+export function evaluateSevereWeatherAlerts(weatherData, aqiData, lang = 'en') {
   const alerts = [];
   if (!weatherData?.current) return alerts;
 
@@ -355,19 +355,27 @@ export function evaluateSevereWeatherAlerts(weatherData, aqiData) {
     alerts.push({
       id: 'cyclone-danger',
       level: 'red',
-      category: 'Tropical Cyclone / Severe Gale',
-      title: 'RED ALERT: Severe Storm / High Wind Danger',
-      message: `Violent wind gusts detected up to ${windGust.toFixed(1)} km/h. High structural risk, uprooting of trees, and high-voltage power interruption likely. Stay indoors away from windows.`,
-      action: 'Suspend marine activity, secure loose objects, and seek sturdy shelter.',
+      category: lang === 'ta' ? 'வெப்பமண்டல புயல் / சூறாவளி' : 'Tropical Cyclone / Severe Gale',
+      title: lang === 'ta' ? 'சிவப்பு எச்சரிக்கை (RED ALERT): தீவிர புயல் / பலத்த காற்று ஆபத்து' : 'RED ALERT: Severe Storm / High Wind Danger',
+      message: lang === 'ta'
+        ? `சுமார் ${windGust.toFixed(1)} km/h வேகத்தில் பலத்த சூறாவளிக் காற்று வீச வாய்ப்பு. மரங்கள் வேரோடு சாய்வதற்கும், மின்கம்பங்கள் சேதமடைவதற்கும் வாய்ப்புள்ளது.`
+        : `Violent wind gusts detected up to ${windGust.toFixed(1)} km/h. High structural risk, uprooting of trees, and high-voltage power interruption likely. Stay indoors away from windows.`,
+      action: lang === 'ta'
+        ? 'கடலுக்குச் செல்வதை நிறுத்தவும், உறுதியான பாதுகாப்பான கட்டடங்களில் தஞ்சமடையவும்.'
+        : 'Suspend marine activity, secure loose objects, and seek sturdy shelter.',
     });
   } else if (windGust >= 55) {
     alerts.push({
       id: 'high-wind',
       level: 'orange',
-      category: 'Squally Winds',
-      title: 'ORANGE ALERT: Strong Squall Winds',
-      message: `Sustained wind gusts reaching ${windGust.toFixed(1)} km/h. Coastal and open highway transit cautions in effect.`,
-      action: 'Small boats and fishermen advised not to venture into deep sea.',
+      category: lang === 'ta' ? 'சூறைக்காற்று எச்சரிக்கை' : 'Squally Winds',
+      title: lang === 'ta' ? 'ஆரஞ்சு எச்சரிக்கை (ORANGE ALERT): பலத்த சூறைக்காற்று' : 'ORANGE ALERT: Strong Squall Winds',
+      message: lang === 'ta'
+        ? `${windGust.toFixed(1)} km/h வேகத்தில் பலத்த காற்று வீசக்கூடும். கடலோர மற்றும் நெடுஞ்சாலைப் பயணங்களில் எச்சரிக்கை தேவை.`
+        : `Sustained wind gusts reaching ${windGust.toFixed(1)} km/h. Coastal and open highway transit cautions in effect.`,
+      action: lang === 'ta'
+        ? 'நாட்டுப்படகுகள் மற்றும் மீனவர்கள் ஆழ்கடலுக்குச் செல்வதைத் தவிர்க்க அறிவுறுத்தப்படுகிறார்கள்.'
+        : 'Small boats and fishermen advised not to venture into deep sea.',
     });
   }
 
@@ -376,19 +384,27 @@ export function evaluateSevereWeatherAlerts(weatherData, aqiData) {
     alerts.push({
       id: 'flood-red',
       level: 'red',
-      category: 'Extreme Precipitation & Flood',
-      title: 'RED ALERT: Inundation & Flash Flood Risk',
-      message: `Extreme torrential precipitation expected (> ${todayMaxRain.toFixed(0)} mm). Significant urban waterlogging, riverbank overflow, and low-lying inundation.`,
-      action: 'Avoid underpasses, move valuables to higher elevations, follow NDRF/local disaster manager advisories.',
+      category: lang === 'ta' ? 'கனமழை & வெள்ள அபாயம்' : 'Extreme Precipitation & Flood',
+      title: lang === 'ta' ? 'சிவப்பு எச்சரிக்கை (RED ALERT): தீவிர கனமழை & திடீர் வெள்ள அபாயம்' : 'RED ALERT: Inundation & Flash Flood Risk',
+      message: lang === 'ta'
+        ? `தீவிர கனமழை எதிர்பார்க்கப்படுகிறது (> ${todayMaxRain.toFixed(0)} mm). தாழ்வான பகுதிகளில் வெள்ளப்பெருக்கு, நீர்நிலைகள் நிரம்பி வழிதல் மற்றும் போக்குவரத்து பாதிப்பு ஏற்படலாம்.`
+        : `Extreme torrential precipitation expected (> ${todayMaxRain.toFixed(0)} mm). Significant urban waterlogging, riverbank overflow, and low-lying inundation.`,
+      action: lang === 'ta'
+        ? 'சுரங்கப்பாதைகளைத் தவிர்க்கவும், உடைமைகளைப் பாதுகாப்பான இடங்களுக்கு மாற்றவும். பேரிடர் வழிகாட்டல்களைப் பின்பற்றவும்.'
+        : 'Avoid underpasses, move valuables to higher elevations, follow NDRF/local disaster manager advisories.',
     });
   } else if (todayMaxRain >= 50 || current.precipitation >= 10) {
     alerts.push({
       id: 'heavy-rain-orange',
       level: 'orange',
-      category: 'Heavy Downpour',
-      title: 'ORANGE ALERT: Heavy Rainfall Warning',
-      message: `Intense localized showers with rainfall exceeding ${todayMaxRain.toFixed(0)} mm. Localized traffic disruptions and drainage overflow expected.`,
-      action: 'Drive with low beams, clear farm drainage channels to prevent water stagnation.',
+      category: lang === 'ta' ? 'கனமழை எச்சரிக்கை' : 'Heavy Downpour',
+      title: lang === 'ta' ? 'ஆரஞ்சு எச்சரிக்கை (ORANGE ALERT): கனமழை எச்சரிக்கை' : 'ORANGE ALERT: Heavy Rainfall Warning',
+      message: lang === 'ta'
+        ? `${todayMaxRain.toFixed(0)} mm அளவுக்கு தீவிர மழை பெய்யக்கூடும். சாலைகளில் நீர் தேங்குதல் மற்றும் வடிகால் நிரம்பி வழிதல் வாய்ப்பு.`
+        : `Intense localized showers with rainfall exceeding ${todayMaxRain.toFixed(0)} mm. Localized traffic disruptions and drainage overflow expected.`,
+      action: lang === 'ta'
+        ? 'வாகனங்களில் முகப்பு விளக்குகளை எரியவிட்டு இயக்கவும். விவசாய வடிகால்களைச் சீரமைக்கவும்.'
+        : 'Drive with low beams, clear farm drainage channels to prevent water stagnation.',
     });
   }
 
@@ -397,19 +413,27 @@ export function evaluateSevereWeatherAlerts(weatherData, aqiData) {
     alerts.push({
       id: 'heatwave-red',
       level: 'red',
-      category: 'Severe Heatwave',
-      title: 'RED ALERT: Severe Heatwave Warning',
-      message: `Extreme ambient temperatures exceeding ${temp.toFixed(1)}°C. High likelihood of heat illness, dehydration, and sunstroke among all age groups.`,
-      action: 'Avoid direct sun exposure between 11 AM - 4 PM. Consume ORS, buttermilk, and ample water.',
+      category: lang === 'ta' ? 'கடும் வெப்ப அலை' : 'Severe Heatwave',
+      title: lang === 'ta' ? 'சிவப்பு எச்சரிக்கை (RED ALERT): தீவிர வெப்ப அலை எச்சரிக்கை' : 'RED ALERT: Severe Heatwave Warning',
+      message: lang === 'ta'
+        ? `அதிகபட்ச வெப்பநிலை ${temp.toFixed(1)}°C ஐ தாண்டக்கூடும். வெப்ப பக்கவாதம் மற்றும் நீரிழப்பு அபாயம் அதிகம்.`
+        : `Extreme ambient temperatures exceeding ${temp.toFixed(1)}°C. High likelihood of heat illness, dehydration, and sunstroke among all age groups.`,
+      action: lang === 'ta'
+        ? 'காலை 11 மணி முதல் மாலை 4 மணி வரை நேரடி வெயிலில் செல்வதைத் தவிர்க்கவும். போதுமான நீர் அருந்தவும்.'
+        : 'Avoid direct sun exposure between 11 AM - 4 PM. Consume ORS, buttermilk, and ample water.',
     });
   } else if (temp >= 39) {
     alerts.push({
       id: 'heatwave-yellow',
       level: 'yellow',
-      category: 'Moderate Heat Stress',
-      title: 'YELLOW ALERT: Elevated Thermal Stress',
-      message: `Maximum daytime temperature approaching ${temp.toFixed(1)}°C. Prolonged outdoor exertion may cause fatigue and heat cramps.`,
-      action: 'Wear light cotton clothing, keep livestock sheltered with adequate drinking water.',
+      category: lang === 'ta' ? 'மிதமான வெப்ப அழுத்தம்' : 'Moderate Heat Stress',
+      title: lang === 'ta' ? 'மஞ்சள் எச்சரிக்கை (YELLOW ALERT): உயர்ந்த வெப்பநிலை எச்சரிக்கை' : 'YELLOW ALERT: Elevated Thermal Stress',
+      message: lang === 'ta'
+        ? `பகல் நேர வெப்பநிலை ${temp.toFixed(1)}°C வரை உயரக்கூடும். நீண்ட நேரம் வெளியில் வேலை செய்வது சோர்வை ஏற்படுத்தலாம்.`
+        : `Maximum daytime temperature approaching ${temp.toFixed(1)}°C. Prolonged outdoor exertion may cause fatigue and heat cramps.`,
+      action: lang === 'ta'
+        ? 'பருத்தி ஆடைகளை அணியவும், கால்நடைகளுக்கு நிழல் மற்றும் குடிநீர் வசதி செய்து தரவும்.'
+        : 'Wear light cotton clothing, keep livestock sheltered with adequate drinking water.',
     });
   }
 
@@ -418,19 +442,27 @@ export function evaluateSevereWeatherAlerts(weatherData, aqiData) {
     alerts.push({
       id: 'aqi-severe',
       level: 'red',
-      category: 'Severe Air Pollution Hazard',
-      title: 'RED ALERT: Hazardous Air Quality (AQI ' + aqi + ')',
-      message: `Severe PM2.5/PM10 particulate concentration. Serious respiratory threat to children, elderly, and individuals with cardiovascular conditions.`,
-      action: 'Use N95 masks outdoors, run HEPA air purifiers indoors, halt construction dust activities.',
+      category: lang === 'ta' ? 'கடுமையான காற்று மாசுபாடு' : 'Severe Air Pollution Hazard',
+      title: lang === 'ta' ? `சிவப்பு எச்சரிக்கை (RED ALERT): அபாயகரமான காற்று தரம் (AQI ${aqi})` : `RED ALERT: Hazardous Air Quality (AQI ${aqi})`,
+      message: lang === 'ta'
+        ? `தீவிர PM2.5 துகள்கள் மாசுபாடு. குழந்தைகள், முதியவர்கள் மற்றும் சுவாசப் பிரச்சனை உள்ளவர்களுக்கு கடுமையான பாதிப்பை ஏற்படுத்தலாம்.`
+        : `Severe PM2.5/PM10 particulate concentration. Serious respiratory threat to children, elderly, and individuals with cardiovascular conditions.`,
+      action: lang === 'ta'
+        ? 'வெளியே செல்லும்போது N95 முகக்கவசம் அணியவும், தூசு நடவடிக்கைகளைத் தவிர்க்கவும்.'
+        : 'Use N95 masks outdoors, run HEPA air purifiers indoors, halt construction dust activities.',
     });
   } else if (aqi >= 200) {
     alerts.push({
       id: 'aqi-poor',
       level: 'orange',
-      category: 'Poor Air Quality',
-      title: 'ORANGE ALERT: Unhealthy Air Quality (AQI ' + aqi + ')',
-      message: `Elevated smog and aerosol optical depth. Sensitive groups should avoid prolonged outdoor exercise.`,
-      action: 'Limit morning cardio workouts outdoors; keep windows sealed during peak traffic hours.',
+      category: lang === 'ta' ? 'மோசமான காற்று தரம்' : 'Poor Air Quality',
+      title: lang === 'ta' ? `ஆரஞ்சு எச்சரிக்கை (ORANGE ALERT): ஆரோக்கியமற்ற காற்று (AQI ${aqi})` : `ORANGE ALERT: Unhealthy Air Quality (AQI ${aqi})`,
+      message: lang === 'ta'
+        ? `அதிகரித்த நச்சுப் புகை. சுவாசப் பிரச்சனை உள்ளவர்கள் வெளியில் உடற்பயிற்சி செய்வதைத் தவிர்க்கவும்.`
+        : `Elevated smog and aerosol optical depth. Sensitive groups should avoid prolonged outdoor exercise.`,
+      action: lang === 'ta'
+        ? 'காலை நேர நடைபயிற்சியைக் குறைக்கவும், போக்குவரத்து நெரிசல் நேரங்களில் ஜன்னல்களை மூடவும்.'
+        : 'Limit morning cardio workouts outdoors; keep windows sealed during peak traffic hours.',
     });
   }
 
@@ -439,10 +471,14 @@ export function evaluateSevereWeatherAlerts(weatherData, aqiData) {
     alerts.push({
       id: 'uv-extreme',
       level: 'yellow',
-      category: 'Extreme Solar Radiation',
-      title: 'YELLOW ALERT: Very High UV Index (' + uv.toFixed(1) + ')',
-      message: 'Intense ultraviolet solar radiation. Skin damage and sunburn can occur in under 15 minutes of unprotected exposure.',
-      action: 'Apply broad-spectrum SPF 50+ sunscreen, wear UV-protective sunglasses and wide-brim hats.',
+      category: lang === 'ta' ? 'தீவிர சூரிய புற ஊதாக்கதிர்' : 'Extreme Solar Radiation',
+      title: lang === 'ta' ? `மஞ்சள் எச்சரிக்கை (YELLOW ALERT): மிக அதிக UV குறியீடு (${uv.toFixed(1)})` : `YELLOW ALERT: Very High UV Index (${uv.toFixed(1)})`,
+      message: lang === 'ta'
+        ? 'தீவிர புற ஊதாக்கதிர் வீச்சு. பாதுகாப்பு இல்லாமல் வெளியில் சென்றால் 15 நிமிடங்களில் தோல் பாதிப்பு ஏற்படலாம்.'
+        : 'Intense ultraviolet solar radiation. Skin damage and sunburn can occur in under 15 minutes of unprotected exposure.',
+      action: lang === 'ta'
+        ? 'சன்ஸ்கிரீன் பயன்படுத்தவும், சூரிய கண்ணாடி மற்றும் தொப்பி அணியவும்.'
+        : 'Apply broad-spectrum SPF 50+ sunscreen, wear UV-protective sunglasses and wide-brim hats.',
     });
   }
 
@@ -451,10 +487,14 @@ export function evaluateSevereWeatherAlerts(weatherData, aqiData) {
     alerts.push({
       id: 'nominal-green',
       level: 'green',
-      category: 'Nominal Weather Conditions',
-      title: 'GREEN: Normal Weather Conditions',
-      message: `Fair and stable atmospheric conditions with mild winds (${current.wind_speed_10m} km/h) and comfortable humidity levels.`,
-      action: 'Ideal for agricultural sowing, marine navigation, outdoor transit, and aviation operations.',
+      category: lang === 'ta' ? 'இயல்பான வானிலை சூழல்' : 'Nominal Weather Conditions',
+      title: lang === 'ta' ? 'பச்சை (GREEN): சீரான வானிலை சூழல்' : 'GREEN: Normal Weather Conditions',
+      message: lang === 'ta'
+        ? `மிதமான காற்று (${current.wind_speed_10m} km/h) மற்றும் சீரான ஈரப்பதத்துடன் இயல்பான வானிலை நிலவுகிறது.`
+        : `Fair and stable atmospheric conditions with mild winds (${current.wind_speed_10m} km/h) and comfortable humidity levels.`,
+      action: lang === 'ta'
+        ? 'விவசாய பணிகள், கடல் பயணம், மற்றும் வெளிப்புற நடவடிக்கைகளுக்கு ஏற்ற சூழல்.'
+        : 'Ideal for agricultural sowing, marine navigation, outdoor transit, and aviation operations.',
     });
   }
 
