@@ -10,7 +10,8 @@ import {
   Compass,
   Bell,
   BellRing,
-  BellOff
+  BellOff,
+  Globe
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getLocalizedPlaceName } from '../services/weatherService';
@@ -139,6 +140,23 @@ export default function Header({
 
       {/* Right Controls */}
       <div className="flex items-center space-x-2">
+        {/* Language Selector in Header */}
+        <div className="flex items-center space-x-1.5 bg-slate-100/90 border border-slate-200 hover:border-sky-400 rounded-xl px-2 py-1 shadow-sm transition-all">
+          <Globe className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
+          <select
+            value={activeLanguage}
+            onChange={(e) => setActiveLanguage(e.target.value)}
+            className="bg-transparent text-[11px] font-semibold text-slate-700 focus:outline-none cursor-pointer pr-1"
+            title="Choose Language (10 Languages Supported)"
+          >
+            {SUPPORTED_LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code} className="bg-white text-slate-800">
+                {l.nativeName}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Weather Alert Push Notification Bell */}
         <button
           onClick={onToggleNotifications}
