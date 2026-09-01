@@ -7,6 +7,7 @@ import DecisionSupportModes from './components/DecisionSupportModes';
 import ClimateAnalyticsChart from './components/ClimateAnalyticsChart';
 import ApiKeyModal from './components/ApiKeyModal';
 import ReportExportModal from './components/ReportExportModal';
+import AlertNotificationModal from './components/AlertNotificationModal';
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -72,30 +73,20 @@ export default function App() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [initialChatQuery, setInitialChatQuery] = useState('');
-  const [notificationsEnabled, setNotificationsEnabled] = useState(() => notificationService.isEnabled());
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => notificationService.hasAnyChannelActive());
 
   const handleToggleNotifications = async () => {
-    if (!notificationsEnabled) {
-      const perm = await notificationService.requestPermission();
-      if (perm === 'granted') {
-        setNotificationsEnabled(true);
-        notificationService.sendTestAlert(currentLocation.name || 'Your Location');
-      } else {
-        alert('Please allow notification permissions in your browser to receive instant weather alert popups.');
-      }
-    } else {
-      notificationService.setEnabled(false);
-      setNotificationsEnabled(false);
-    }
+    setIsAlertModalOpen(true);
   };
 
-  // Dispatch browser push notification whenever severe alert is detected
+  // Dispatch multi-channel weather alerts (Push + SMS + Email) whenever severe alert is detected
   useEffect(() => {
     if (alerts && alerts.length > 0 && notificationsEnabled) {
       const severeAlert = alerts.find((a) => a.level === 'red' || a.level === 'orange');
       if (severeAlert) {
-        notificationService.sendAlert(severeAlert, currentLocation.name || 'Your Location');
+        notificationService.sendMultiChannelAlert(severeAlert, currentLocation.name || 'Your Location');
       }
     }
   }, [alerts, notificationsEnabled, currentLocation]);
@@ -418,6 +409,7 @@ export default function App() {
           notificationsEnabled={notificationsEnabled}
           onToggleNotifications={handleToggleNotifications}
           onTestNotification={() => notificationService.sendTestAlert(currentLocation.name)}
+          onOpenAlertModal={() => setIsAlertModalOpen(true)}
         />
 
         {/* View Content Area */}
@@ -428,6 +420,7 @@ export default function App() {
             alerts={alerts}
             notificationsEnabled={notificationsEnabled}
             onToggleNotifications={handleToggleNotifications}
+            onOpenAlertModal={() => setIsAlertModalOpen(true)}
           />
           {/* Main View: Clean AI Chat (Preserved across view transitions) */}
           <div className={activeView === 'chat' ? 'flex-1 flex flex-col min-h-0' : 'hidden'}>
@@ -533,6 +526,13 @@ export default function App() {
         weatherData={weatherData}
         aqiData={aqiData}
         alerts={alerts}
+      />
+      <AlertNotificationModal
+        activeLanguage={activeLanguage}
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
+        currentLocationName={currentLocation?.name || 'Chennai'}
+        onSettingsUpdated={() => setNotificationsEnabled(notificationService.hasAnyChannelActive())}
       />
     </div>
   );

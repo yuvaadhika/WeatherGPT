@@ -37,7 +37,13 @@ export const ALERT_STYLES = {
   },
 };
 
-export default function WeatherAlertBanner({ activeLanguage = 'en', alerts = [], notificationsEnabled, onToggleNotifications }) {
+export default function WeatherAlertBanner({
+  activeLanguage = 'en',
+  alerts = [],
+  notificationsEnabled,
+  onToggleNotifications,
+  onOpenAlertModal
+}) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -88,14 +94,14 @@ export default function WeatherAlertBanner({ activeLanguage = 'en', alerts = [],
         </div>
 
         <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-          {!notificationsEnabled && onToggleNotifications && (
+          {(onOpenAlertModal || onToggleNotifications) && (
             <button
-              onClick={onToggleNotifications}
-              title="Turn ON Alert Notifications"
+              onClick={onOpenAlertModal || onToggleNotifications}
+              title="Configure SMS, Email & Push Alert Channels"
               className="p-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-sky-700 transition-all text-xs flex items-center space-x-1 shadow-sm font-medium"
             >
               <BellRing className="w-3.5 h-3.5 text-sky-600" />
-              <span className="hidden md:inline text-[11px]">{t.alerts?.notifyMe || 'Notify Me'}</span>
+              <span className="hidden md:inline text-[11px]">{notificationsEnabled ? 'Alert Channels' : (t.alerts?.notifyMe || 'Notify Me')}</span>
             </button>
           )}
           <button

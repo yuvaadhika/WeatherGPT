@@ -28,7 +28,8 @@ export default function Header({
   onOpenSidebar,
   notificationsEnabled,
   onToggleNotifications,
-  onTestNotification
+  onTestNotification,
+  onOpenAlertModal
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -157,10 +158,10 @@ export default function Header({
           </select>
         </div>
 
-        {/* Weather Alert Push Notification Bell */}
+        {/* Weather Alert Push & SMS / Email Notification Bell */}
         <button
-          onClick={onToggleNotifications}
-          title={notificationsEnabled ? (t.header?.alertsOnTooltip || 'Weather Alert Push Notifications Active') : (t.header?.alertsOffTooltip || 'Click to enable Live Weather Alert Notifications')}
+          onClick={onOpenAlertModal || onToggleNotifications}
+          title="Configure Alerts & Notification Channels (SMS, Email, Push)"
           className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1.5 transition-all shadow-sm ${
             notificationsEnabled
               ? 'bg-sky-50 border-sky-300 text-sky-700 hover:bg-sky-100'
@@ -173,7 +174,7 @@ export default function Header({
             <Bell className="w-3.5 h-3.5 text-slate-400" />
           )}
           <span className="text-[11px] font-semibold hidden md:inline">
-            {notificationsEnabled ? (t.header?.alertsOn || 'Alerts ON') : (t.header?.alertsOff || 'Alerts OFF')}
+            {notificationsEnabled ? (t.header?.alertsOn || 'Alerts ON') : (t.header?.alertsOff || 'Alerts Setup')}
           </span>
         </button>
 
