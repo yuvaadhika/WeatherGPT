@@ -46,9 +46,9 @@ export default function DecisionSupportModes({
   const daily = weatherData?.daily || {};
   const hourly = weatherData?.hourly || {};
 
-  const agriAdvisory = generateAgriAdvisory(weatherData);
-  const aviationBriefing = generateAviationBriefing(locName, weatherData);
-  const marineBriefing = generateMarineBriefing(weatherData);
+  const agriAdvisory = generateAgriAdvisory(weatherData, activeLanguage);
+  const aviationBriefing = generateAviationBriefing(locName, weatherData, activeLanguage);
+  const marineBriefing = generateMarineBriefing(weatherData, activeLanguage);
 
   const aqi = aqiData?.current?.us_aqi || 55;
   const pm25 = aqiData?.current?.pm2_5 || 15.4;
@@ -452,8 +452,8 @@ export default function DecisionSupportModes({
               </div>
               <p className="text-xs text-slate-700 leading-relaxed">
                 {(daily.precipitation_sum?.[0] || 0) > 30
-                  ? 'High risk of arterial road waterlogging and subway underpass inundation. Municipal storm-pumps on standby.'
-                  : 'Low waterlogging risk. Stormwater drainage operating well within design retention capacity.'}
+                  ? (activeLanguage === 'ta' ? 'பிரதான சாலைகளில் வெள்ளப்பெருக்கு மற்றும் சுரங்கப்பாதைகளில் நீர் தேங்கும் அதிக அபாயம். நகராட்சி மோட்டார்கள் தயார் நிலையில் உள்ளன.' : 'High risk of arterial road waterlogging and subway underpass inundation. Municipal storm-pumps on standby.')
+                  : (activeLanguage === 'ta' ? 'வெள்ள அபாயம் குறைவு. மழைநீர் வடிகால்கள் சீராக இயங்குகின்றன.' : 'Low waterlogging risk. Stormwater drainage operating well within design retention capacity.')}
               </p>
             </div>
 
@@ -464,8 +464,8 @@ export default function DecisionSupportModes({
               </div>
               <p className="text-xs text-slate-700 leading-relaxed">
                 {(current.temperature_2m || 25) > 38
-                  ? 'Severe concrete thermal retention. Nighttime cooling rate attenuated by 3.2°C compared to rural periphery.'
-                  : 'Normal thermal comfort index with moderate urban ventilation.'}
+                  ? (activeLanguage === 'ta' ? 'கான்கிரீட் கட்டடங்களால் தீவிர வெப்ப ஈர்ப்பு. கிராமப்புறங்களை விட இரவு நேர வெப்பம் 3.2°C அதிகமாக இருக்கும்.' : 'Severe concrete thermal retention. Nighttime cooling rate attenuated by 3.2°C compared to rural periphery.')
+                  : (activeLanguage === 'ta' ? 'மிதமான காற்றோட்டத்துடன் இயல்பான வெப்ப சூழல் நிலவுகிறது.' : 'Normal thermal comfort index with moderate urban ventilation.')}
               </p>
             </div>
           </div>
@@ -477,19 +477,27 @@ export default function DecisionSupportModes({
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
               <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-sm">
-                <span className="text-slate-500 block text-[10px]">National Disaster (NDRF)</span>
+                <span className="text-slate-500 block text-[10px]">
+                  {activeLanguage === 'ta' ? 'தேசிய பேரிடர் மீட்புப் படை (NDRF)' : 'National Disaster (NDRF)'}
+                </span>
                 <span className="font-bold text-sky-700">1078 / 011-24363260</span>
               </div>
               <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-sm">
-                <span className="text-slate-500 block text-[10px]">State Disaster Control (SDMA)</span>
+                <span className="text-slate-500 block text-[10px]">
+                  {activeLanguage === 'ta' ? 'மாநில பேரிடர் ஆணையம் (SDMA)' : 'State Disaster Control (SDMA)'}
+                </span>
                 <span className="font-bold text-sky-700">1070</span>
               </div>
               <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-sm">
-                <span className="text-slate-500 block text-[10px]">Fire & Flood Rescue</span>
+                <span className="text-slate-500 block text-[10px]">
+                  {activeLanguage === 'ta' ? 'தீயணைப்பு & மீட்புப்பணி' : 'Fire & Flood Rescue'}
+                </span>
                 <span className="font-bold text-sky-700">101</span>
               </div>
               <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-sm">
-                <span className="text-slate-500 block text-[10px]">Ambulance & Emergency</span>
+                <span className="text-slate-500 block text-[10px]">
+                  {activeLanguage === 'ta' ? 'ஆம்புலன்ஸ் & அவசர உதவி' : 'Ambulance & Emergency'}
+                </span>
                 <span className="font-bold text-sky-700">108</span>
               </div>
             </div>
@@ -505,7 +513,7 @@ export default function DecisionSupportModes({
               <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
                 <span>{t.climate?.title || 'Numerical Weather Prediction (NWP) & Climate Intelligence'}</span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 font-semibold">
-                  Decadal Science
+                  {activeLanguage === 'ta' ? '10 ஆண்டு அறிவியல்' : 'Decadal Science'}
                 </span>
               </h3>
               <p className="text-xs text-slate-500">
@@ -516,7 +524,7 @@ export default function DecisionSupportModes({
               onClick={() => onPromptChat && onPromptChat(`Analyze decadal climate trends and NWP model variance for ${locName}`)}
               className="text-xs px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 font-medium transition-all"
             >
-              Ask Climate Analysis →
+              {activeLanguage === 'ta' ? 'காலநிலை ஆய்வு கேள் →' : 'Ask Climate Analysis →'}
             </button>
           </div>
 
@@ -524,25 +532,31 @@ export default function DecisionSupportModes({
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-sm">
               <div className="text-xs font-bold text-sky-700">NOAA GFS (0.25° Global)</div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Global high-resolution spectral model. Excels in synoptic-scale cyclone trajectory forecasting.
+                {activeLanguage === 'ta' ? 'அமெரிக்க உலகளாவிய உயர் துல்லிய மாதிரி. புயல் பாதையைக் கணிப்பதில் சிறந்தது.' : 'Global high-resolution spectral model. Excels in synoptic-scale cyclone trajectory forecasting.'}
               </p>
-              <div className="text-[10px] text-slate-400">Update cycle: 4x daily (00, 06, 12, 18 UTC)</div>
+              <div className="text-[10px] text-slate-400">
+                {activeLanguage === 'ta' ? 'புதுப்பிப்பு: தினசரி 4 முறை' : 'Update cycle: 4x daily (00, 06, 12, 18 UTC)'}
+              </div>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-sm">
               <div className="text-xs font-bold text-blue-700">ECMWF IFS (9 km Integrated)</div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Gold-standard medium-range atmospheric physics engine. High precision for convective precipitation.
+                {activeLanguage === 'ta' ? 'ஐரோப்பிய வளிமண்டல மாதிரி. மழை மற்றும் பருவமழை கணிப்பில் மிகத் துல்லியமானது.' : 'Gold-standard medium-range atmospheric physics engine. High precision for convective precipitation.'}
               </p>
-              <div className="text-[10px] text-slate-400">Update cycle: 2x daily (00, 12 UTC)</div>
+              <div className="text-[10px] text-slate-400">
+                {activeLanguage === 'ta' ? 'புதுப்பிப்பு: தினசரி 2 முறை' : 'Update cycle: 2x daily (00, 12 UTC)'}
+              </div>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 shadow-sm">
               <div className="text-xs font-bold text-purple-700">DWD ICON (13 km Global)</div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Non-hydrostatic icosahedral grid. Superb boundary layer moisture and localized wind dynamics.
+                {activeLanguage === 'ta' ? 'ஜெர்மன் வானிலை மாதிரி. தரைமட்ட ஈரப்பதம் மற்றும் காற்று சுழற்சியை துல்லியமாகக் கணிக்கும்.' : 'Non-hydrostatic icosahedral grid. Superb boundary layer moisture and localized wind dynamics.'}
               </p>
-              <div className="text-[10px] text-slate-400">Update cycle: 4x daily</div>
+              <div className="text-[10px] text-slate-400">
+                {activeLanguage === 'ta' ? 'புதுப்பிப்பு: தினசரி 4 முறை' : 'Update cycle: 4x daily'}
+              </div>
             </div>
           </div>
 

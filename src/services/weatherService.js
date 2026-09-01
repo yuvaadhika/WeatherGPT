@@ -462,7 +462,7 @@ export function evaluateSevereWeatherAlerts(weatherData, aqiData) {
 }
 
 // Agricultural Crop & Soil Advisory Generation
-export function generateAgriAdvisory(weatherData) {
+export function generateAgriAdvisory(weatherData, lang = 'en') {
   if (!weatherData?.current) return null;
   const current = weatherData.current;
   const hourly = weatherData.hourly;
@@ -473,18 +473,60 @@ export function generateAgriAdvisory(weatherData) {
   const rainNext48h = (daily?.precipitation_sum?.slice(0, 2) || []).reduce((a, b) => a + b, 0);
   const maxTemp = daily?.temperature_2m_max?.[0] || current.temperature_2m;
 
-  let sprayCondition = 'Favorable';
-  let sprayAdvice = 'Low wind speed and zero rain probability make today optimal for fertilizer / pesticide foliar spraying.';
-  if (current.wind_speed_10m > 20 || current.precipitation > 0 || rainNext48h > 10) {
-    sprayCondition = 'Unfavorable';
-    sprayAdvice = 'Postpone chemical spraying due to gusty winds (>20 km/h) or upcoming precipitation wash-off risk.';
-  }
+  const isFavorable = !(current.wind_speed_10m > 20 || current.precipitation > 0 || rainNext48h > 10);
+  const sprayCondition = isFavorable ? 'Favorable' : 'Unfavorable';
 
-  let irrigationAdvice = 'Moderate irrigation required to maintain root-zone moisture balance.';
-  if (soilMoisture > 0.4 || rainNext48h > 20) {
-    irrigationAdvice = 'Withhold irrigation; soil is adequately saturated and upcoming rain will sustain crop demands.';
-  } else if (soilMoisture < 0.15 && maxTemp > 34) {
-    irrigationAdvice = 'Critical: Provide light, frequent drip/sprinkler irrigation during early morning or late evening to mitigate moisture stress.';
+  let sprayAdvice = '';
+  let irrigationAdvice = '';
+
+  if (lang === 'ta') {
+    sprayAdvice = isFavorable
+      ? 'குறைந்த காற்றின் வேகம் மற்றும் மழை வாய்ப்பு இல்லாததால், இன்று உரம் மற்றும் பூச்சிக்கொல்லி இலைவழி தெளிப்புக்கு மிகவும் உகந்த நாள்.'
+      : 'பலத்த காற்று (>20 km/h) அல்லது மழை காரணமாக மருந்து அடித்துக் கழுவிச்செல்லும் அபாயம் உள்ளதால், ரசாயனத் தெளிப்பைத் தள்ளிப்போடவும்.';
+
+    if (soilMoisture > 0.4 || rainNext48h > 20) {
+      irrigationAdvice = 'நீர்ப்பாசனத்தை நிறுத்தி வைக்கவும்; மண்ணில் போதுமான ஈரப்பதம் உள்ளதுடன் வரவிருக்கும் மழை பயிர்களின் தேவையை பூர்த்தி செய்யும்.';
+    } else if (soilMoisture < 0.15 && maxTemp > 34) {
+      irrigationAdvice = 'முக்கியமானது: பயிர் வாட்டத்தைத் தணிக்க அதிகாலை அல்லது மாலை வேளையில் மிதமான சொட்டுநீர் / தெளிப்பு நீர்ப்பாசனம் செய்யவும்.';
+    } else {
+      irrigationAdvice = 'வேர் மண்டல ஈரப்பத சமநிலையைப் பராமரிக்க மிதமான நீர்ப்பாசனம் போதுமானது.';
+    }
+  } else if (lang === 'hi') {
+    sprayAdvice = isFavorable
+      ? 'हवा की कम गति और बारिश की शून्य संभावना के कारण आज उर्वरक/कीटनाशक छिड़काव के लिए अनुकूल समय है।'
+      : 'तेज हवाओं (>20 किमी/घंटा) या बारिश के जोखिम के कारण रासायनिक छिड़काव स्थगित करें।';
+
+    if (soilMoisture > 0.4 || rainNext48h > 20) {
+      irrigationAdvice = 'सिंचाई रोकें; मिट्टी में पर्याप्त नमी है और आगामी बारिश फसलों की मांग को पूरा करेगी।';
+    } else if (soilMoisture < 0.15 && maxTemp > 34) {
+      irrigationAdvice = 'महत्वपूर्ण: नमी के तनाव को कम करने के लिए सुबह या देर शाम हल्की ड्रिप/स्प्रिंकलर सिंचाई करें।';
+    } else {
+      irrigationAdvice = 'जड़ क्षेत्र की नमी का संतुलन बनाए रखने के लिए मध्यम सिंचाई आवश्यक है।';
+    }
+  } else if (lang === 'te') {
+    sprayAdvice = isFavorable
+      ? 'తక్కువ గాలి వేగం మరియు వర్షం లేకపోవడం వల్ల ఎరువులు/పురుగుమందుల పిచికారీకి నేడు అనుకూలం.'
+      : 'ఈదురు గాలులు (>20 km/h) లేదా వర్షం కారణంగా రసాయన పిచికారీని వాయిదా వేయండి.';
+
+    if (soilMoisture > 0.4 || rainNext48h > 20) {
+      irrigationAdvice = 'నీటిపారుదల నిలిపివేయండి; నేలలో తగినంత తేమ ఉంది మరియు రాబోయే వర్షం పంటలకు సరిపోతుంది.';
+    } else if (soilMoisture < 0.15 && maxTemp > 34) {
+      irrigationAdvice = 'ముఖ్యమైనది: ఉదయం లేదా సాయంత్రం వేళల్లో డ్రిప్/స్ప్రింక్లర్ ద్వారా తేలికపాటి నీటిపారుదల అందించండి.';
+    } else {
+      irrigationAdvice = 'మట్టి తేమ సమతుల్యతను కాపాడటానికి మితమైన నీటిపారుదల అవసరం.';
+    }
+  } else {
+    sprayAdvice = isFavorable
+      ? 'Low wind speed and zero rain probability make today optimal for fertilizer / pesticide foliar spraying.'
+      : 'Postpone chemical spraying due to gusty winds (>20 km/h) or upcoming precipitation wash-off risk.';
+
+    if (soilMoisture > 0.4 || rainNext48h > 20) {
+      irrigationAdvice = 'Withhold irrigation; soil is adequately saturated and upcoming rain will sustain crop demands.';
+    } else if (soilMoisture < 0.15 && maxTemp > 34) {
+      irrigationAdvice = 'Critical: Provide light, frequent drip/sprinkler irrigation during early morning or late evening to mitigate moisture stress.';
+    } else {
+      irrigationAdvice = 'Moderate irrigation required to maintain root-zone moisture balance.';
+    }
   }
 
   return {
@@ -493,16 +535,11 @@ export function generateAgriAdvisory(weatherData) {
     sprayCondition,
     sprayAdvice,
     irrigationAdvice,
-    cropSuitability: [
-      { crop: 'Paddy / Rice', status: rainNext48h > 15 ? 'Excellent for transplanting' : 'Normal vegetative care', risk: 'Low' },
-      { crop: 'Cotton / Groundnut', status: sprayCondition === 'Favorable' ? 'Optimal for nutrient spray' : 'Hold spray applications', risk: current.relative_humidity_2m > 80 ? 'Fungal pest risk' : 'Low' },
-      { crop: 'Vegetables & Pulses', status: 'Ensure proper drainage in beds', risk: rainNext48h > 30 ? 'Root rot alert' : 'Low' },
-    ]
   };
 }
 
 // Aviation METAR / TAF Briefing Generator
-export function generateAviationBriefing(locationName, weatherData) {
+export function generateAviationBriefing(locationName, weatherData, lang = 'en') {
   if (!weatherData?.current) return null;
   const current = weatherData.current;
   const visibilityMeters = weatherData.hourly?.visibility?.[0] || 10000;
@@ -514,23 +551,23 @@ export function generateAviationBriefing(locationName, weatherData) {
   const dewC = Math.round(weatherData.hourly?.dew_point_2m?.[0] || (current.temperature_2m - 4));
   const pressureHpa = Math.round(current.pressure_msl || current.surface_pressure || 1013);
 
-  // Flight Category (VFR, MVFR, IFR, LIFR)
   let flightCategory = 'VFR (Visual Flight Rules)';
-  let categoryColor = 'text-emerald-400';
+  let categoryColor = 'text-emerald-600';
   let ceilingFt = cloudCoverPercent > 70 ? 2500 : cloudCoverPercent > 40 ? 5000 : 10000;
   
   if (visibilityMeters < 1500 || ceilingFt < 500) {
-    flightCategory = 'LIFR (Low Instrument Flight Rules)';
-    categoryColor = 'text-rose-500';
+    flightCategory = lang === 'ta' ? 'LIFR (குறைந்த கருவி பறத்தல்)' : 'LIFR (Low Instrument Flight Rules)';
+    categoryColor = 'text-rose-600';
   } else if (visibilityMeters < 5000 || ceilingFt < 1000) {
-    flightCategory = 'IFR (Instrument Flight Rules)';
-    categoryColor = 'text-amber-400';
+    flightCategory = lang === 'ta' ? 'IFR (கருவி சார்ந்த பறத்தல்)' : 'IFR (Instrument Flight Rules)';
+    categoryColor = 'text-amber-600';
   } else if (visibilityMeters <= 8000 || ceilingFt <= 3000) {
-    flightCategory = 'MVFR (Marginal VFR)';
-    categoryColor = 'text-sky-400';
+    flightCategory = lang === 'ta' ? 'MVFR (விளிம்புநிலை VFR)' : 'MVFR (Marginal VFR)';
+    categoryColor = 'text-sky-600';
+  } else {
+    flightCategory = lang === 'ta' ? 'VFR (கண் பார்வை பறத்தல்)' : 'VFR (Visual Flight Rules)';
   }
 
-  // Generate synthetic standard ICAO METAR string
   const stationCode = (locationName.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') || 'VOBL').padEnd(4, 'X');
   const now = new Date();
   const dayStr = String(now.getUTCDate()).padStart(2, '0');
@@ -546,6 +583,15 @@ export function generateAviationBriefing(locationName, weatherData) {
 
   const metar = `METAR ${stationCode} ${dayStr}${hourStr}${minStr}Z ${windStr} ${visStr} ${cloudStr} ${tempDewStr} ${qnhStr} NOSIG`;
 
+  let turbulenceRisk = '';
+  if (lang === 'ta') {
+    turbulenceRisk = gustKnots > 25 ? 'மிதமான முதல் தீவிர வளிமண்டல காற்று கொந்தளிப்பு' : 'லேசான / அமைதியான பறக்கும் சூழல்';
+  } else if (lang === 'hi') {
+    turbulenceRisk = gustKnots > 25 ? 'मध्यम से गंभीर वायुमंडलीय अशांति' : 'हल्की / सुचारू उड़ान स्थिति';
+  } else {
+    turbulenceRisk = gustKnots > 25 ? 'Moderate to Severe Mechanical Turbulence' : 'Light / Smooth Flight Conditions';
+  }
+
   return {
     metar,
     flightCategory,
@@ -556,33 +602,66 @@ export function generateAviationBriefing(locationName, weatherData) {
     gustKnots,
     windDirection: windDir,
     altimeterHpa: pressureHpa,
-    turbulenceRisk: gustKnots > 25 ? 'Moderate to Severe Mechanical Turbulence' : 'Light / Smooth',
+    turbulenceRisk,
   };
 }
 
 // Marine & Fishermen Oceanographic Briefing
-export function generateMarineBriefing(weatherData) {
+export function generateMarineBriefing(weatherData, lang = 'en') {
   if (!weatherData?.current) return null;
   const current = weatherData.current;
   const windSpeedKmh = current.wind_speed_10m || 10;
   const windGustKmh = current.wind_gusts_10m || windSpeedKmh;
 
-  // Ocean wave simulation based on wind velocity fetch
   const estimatedWaveHeightMeters = Math.max(0.4, Number(((windSpeedKmh / 35) ** 1.3 * 1.5).toFixed(1)));
   const swellPeriodSec = Math.min(14, Math.max(5, Math.round(estimatedWaveHeightMeters * 3 + 4)));
   
   let seaState = 'Calm to Slight';
-  let seaColor = 'text-emerald-400';
-  let fishermanAdvisory = 'Safe for all artisanal canoes, trawlers, and mechanized deep-sea fishing crafts.';
+  let seaColor = 'text-emerald-600';
+  let fishermanAdvisory = '';
 
-  if (estimatedWaveHeightMeters > 3.0 || windGustKmh > 55) {
-    seaState = 'Very Rough to High (Dangerous)';
-    seaColor = 'text-rose-500';
-    fishermanAdvisory = 'STRICT WARNING: Total prohibition on venturing into the sea. Fishermen out at sea advised to return to coast immediately.';
-  } else if (estimatedWaveHeightMeters > 1.8 || windGustKmh > 40) {
-    seaState = 'Moderate to Rough';
-    seaColor = 'text-amber-400';
-    fishermanAdvisory = 'Caution: Small non-mechanized vessels advised against navigating offshore beyond 10 nautical miles.';
+  if (lang === 'ta') {
+    if (estimatedWaveHeightMeters > 3.0 || windGustKmh > 55) {
+      seaState = 'மிகவும் கொந்தளிப்பானது (ஆபத்து)';
+      seaColor = 'text-rose-600';
+      fishermanAdvisory = 'கடுமையான எச்சரிக்கை: கடலுக்குச் செல்ல முழு தடை விதிக்கப்பட்டுள்ளது. கடலில் உள்ள மீனவர்கள் உடனடியாக கரைக்குத் திரும்புமாறு அறிவுறுத்தப்படுகிறார்கள்.';
+    } else if (estimatedWaveHeightMeters > 1.8 || windGustKmh > 40) {
+      seaState = 'மிதமானது முதல் கொந்தளிப்பானது';
+      seaColor = 'text-amber-600';
+      fishermanAdvisory = 'எச்சரிக்கை: சிறிய நாட்டுப்படகுகள் 10 கடல் மைல்களுக்கு அப்பால் ஆழ்கடலுக்குச் செல்வதைத் தவிர்க்க அறிவுறுத்தப்படுகிறார்கள்.';
+    } else {
+      seaState = 'அமைதியானது / மிதமானது';
+      seaColor = 'text-emerald-600';
+      fishermanAdvisory = 'அனைத்து வகையான நாட்டுப் படகுகள், விசைப்படகுகள் மற்றும் ஆழ்கடல் மீன்பிடி தொழிலுக்கு பாதுகாப்பானது.';
+    }
+  } else if (lang === 'hi') {
+    if (estimatedWaveHeightMeters > 3.0 || windGustKmh > 55) {
+      seaState = 'बहुत अशांत / खतरनाक';
+      seaColor = 'text-rose-600';
+      fishermanAdvisory = 'सख्त चेतावनी: समुद्र में जाने पर पूर्ण प्रतिबंध। समुद्र में मौजूद मछुआरों को तुरंत तट पर लौटने की सलाह दी जाती है।';
+    } else if (estimatedWaveHeightMeters > 1.8 || windGustKmh > 40) {
+      seaState = 'मध्यम से अशांत';
+      seaColor = 'text-amber-600';
+      fishermanAdvisory = 'सावधानी: छोटी गैर-मशीनीकृत नौकाओं को 10 समुद्री मील से आगे न जाने की सलाह दी जाती है।';
+    } else {
+      seaState = 'शांत से अनुकूल';
+      seaColor = 'text-emerald-600';
+      fishermanAdvisory = 'नाविकों, ट्रॉलरों और गहरे समुद्र में मछली पकड़ने के लिए पूरी तरह सुरक्षित।';
+    }
+  } else {
+    if (estimatedWaveHeightMeters > 3.0 || windGustKmh > 55) {
+      seaState = 'Very Rough to High (Dangerous)';
+      seaColor = 'text-rose-600';
+      fishermanAdvisory = 'STRICT WARNING: Total prohibition on venturing into the sea. Fishermen out at sea advised to return to coast immediately.';
+    } else if (estimatedWaveHeightMeters > 1.8 || windGustKmh > 40) {
+      seaState = 'Moderate to Rough';
+      seaColor = 'text-amber-600';
+      fishermanAdvisory = 'Caution: Small non-mechanized vessels advised against navigating offshore beyond 10 nautical miles.';
+    } else {
+      seaState = 'Calm to Slight';
+      seaColor = 'text-emerald-600';
+      fishermanAdvisory = 'Safe for all artisanal canoes, trawlers, and mechanized deep-sea fishing crafts.';
+    }
   }
 
   return {
