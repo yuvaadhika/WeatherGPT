@@ -9,7 +9,8 @@ import {
   generateAgriAdvisory,
   generateAviationBriefing,
   generateMarineBriefing,
-  getWeatherDescription
+  getWeatherDescription,
+  getLocalizedPlaceName
 } from './weatherService';
 
 // Advanced Rain Verdict & Timing Calculation Engine - Precision Rain Arrival & Peak Window
@@ -426,7 +427,13 @@ export class WeatherAIAgent {
 
       const lat = targetLocation?.latitude || 13.0827;
       const lon = targetLocation?.longitude || 80.2707;
-      const locName = `${targetLocation?.name || 'Chennai'}${targetLocation?.admin1 ? `, ${targetLocation.admin1}` : ''}, ${targetLocation?.country || 'India'}`;
+      const rawCity = targetLocation?.rawName || targetLocation?.name || 'Chennai';
+      const rawAdmin = targetLocation?.rawAdmin1 || targetLocation?.admin1 || '';
+      const rawCountry = targetLocation?.rawCountry || targetLocation?.country || 'India';
+      const localizedCity = getLocalizedPlaceName(rawCity, activeLanguage);
+      const localizedAdmin = rawAdmin ? getLocalizedPlaceName(rawAdmin, activeLanguage) : '';
+      const localizedCountry = getLocalizedPlaceName(rawCountry, activeLanguage);
+      const locName = `${localizedCity}${localizedAdmin ? `, ${localizedAdmin}` : ''}, ${localizedCountry}`;
 
       // Fetch fresh real-time multi-source data
       const [nwpData, aqiData] = await Promise.all([
@@ -498,7 +505,7 @@ export class WeatherAIAgent {
   }) {
     const current = nwpData?.current || {};
     const daily = nwpData?.daily || {};
-    const wmo = getWeatherDescription(current.weather_code || 0);
+    const wmo = getWeatherDescription(current.weather_code || 0, lang);
     const temp = current.temperature_2m ?? '--';
     const feels = current.apparent_temperature ?? temp;
     const humidity = current.relative_humidity_2m ?? '--';

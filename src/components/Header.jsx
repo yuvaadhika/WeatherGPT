@@ -80,15 +80,17 @@ export default function Header({
 
         {/* Current Location Pill */}
         <button
-          onClick={onDetectLocation}
+          onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
           title={t.header?.detectGps || 'Auto-detect GPS Location'}
-          className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100/90 border border-slate-200 hover:border-sky-500/50 text-xs font-medium text-slate-800 transition-all shadow-sm"
+          className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100/90 border border-slate-200 hover:border-sky-500/50 text-xs font-medium text-slate-800 transition-all shadow-sm cursor-pointer"
         >
-          <MapPin className="w-3.5 h-3.5 text-sky-600" />
+          <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
           <span className="truncate max-w-[120px] sm:max-w-[180px] font-semibold">
             {displayLocationName}
           </span>
-          <span className="text-[10px] text-sky-600 font-normal hidden sm:inline">(GPS)</span>
+          <span className="text-[10px] text-sky-600 font-semibold hidden sm:inline">
+            ({activeLanguage === 'ta' ? 'ஜிபிஎஸ்' : activeLanguage === 'hi' ? 'जीपीएस' : activeLanguage === 'te' ? 'జీపీఎస్' : 'GPS'})
+          </span>
         </button>
       </div>
 

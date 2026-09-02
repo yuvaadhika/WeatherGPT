@@ -58,9 +58,10 @@ export default function ChatInterface({
 
   const messagesEndRef = useRef(null);
 
-  // Initial welcome greeting - only if no messages exist yet
+  // Initial welcome greeting - update if no user messages exist yet
   useEffect(() => {
-    if (messages.length === 0) {
+    const hasUserMessage = messages.some((m) => m.sender === 'user');
+    if (!hasUserMessage) {
       const initialGreeting = t.chat?.welcomeGreeting || TRANSLATIONS.en.chat.welcomeGreeting;
       setMessages([
         {

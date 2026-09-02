@@ -105,6 +105,17 @@ export default function App() {
 
   const [chatMessages, setChatMessages] = useState(() => getInitialWelcome(activeLanguage));
 
+  // Automatically update welcome message when language changes if no user message has been sent
+  useEffect(() => {
+    setChatMessages((prev) => {
+      const hasUserMessage = prev.some((m) => m.sender === 'user');
+      if (!hasUserMessage) {
+        return getInitialWelcome(activeLanguage);
+      }
+      return prev;
+    });
+  }, [activeLanguage]);
+
   const handleNewChat = () => {
     setChatMessages(getInitialWelcome(activeLanguage));
     setActiveView('chat');
@@ -114,17 +125,20 @@ export default function App() {
 
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
 
-  const detectUserLocation = (lang = activeLanguage) => {
+  const detectUserLocation = (lang) => {
+    const targetLang = typeof lang === 'string' && lang ? lang : activeLanguage;
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
           try {
-            const loc = await reverseGeocode(lat, lon, lang);
-            setCurrentLocation(loc);
+            const loc = await reverseGeocode(lat, lon, targetLang);
+            if (loc) {
+              setCurrentLocation(loc);
+            }
           } catch (e) {
-            console.warn(e);
+            console.warn('Reverse geocode error:', e);
           }
         },
         (err) => {
@@ -168,7 +182,9 @@ export default function App() {
               name: loc.name,
               admin1: loc.admin1,
               country: loc.country,
-              rawName: loc.rawName || prev.rawName
+              rawName: loc.rawName || prev.rawName,
+              rawAdmin1: loc.rawAdmin1 || prev.rawAdmin1,
+              rawCountry: loc.rawCountry || prev.rawCountry
             }));
           }
         })

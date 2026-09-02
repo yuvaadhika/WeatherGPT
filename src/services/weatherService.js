@@ -58,8 +58,9 @@ export const getWeatherDescription = (code, lang = 'en') => {
   return { ...base, label: localizedLabel };
 };
 
-// City & place name translation dictionary for Indian & Global cities
+// // City & place name translation dictionary for Indian & Global cities (Comprehensive coverage of Tamil Nadu & India)
 export const CITY_TRANSLATIONS = {
+  // --- Tamil Nadu Districts & Major Cities ---
   Chennai: {
     ta: 'சென்னை', hi: 'चेन्नई', te: 'చెన్నై', bn: 'চেন্নাই', mr: 'चेन्नई',
     gu: 'ચેન્નાઈ', kn: 'ಚೆನ್ನೈ', ml: 'ചെന്നൈ', pa: 'ਚੇਨਈ', en: 'Chennai'
@@ -67,38 +68,6 @@ export const CITY_TRANSLATIONS = {
   'Tamil Nadu': {
     ta: 'தமிழ்நாடு', hi: 'तमिलनाडु', te: 'తమిళనాడు', bn: 'তামিলনাড়ু', mr: 'तमिळनाडू',
     gu: 'તમિલનાડુ', kn: 'ತಮಿಳುನಾಡು', ml: 'തമിഴ്‌നാട്', pa: 'ਤਾਮਿਲਨਾਡੂ', en: 'Tamil Nadu'
-  },
-  Delhi: {
-    ta: 'தில்லி', hi: 'दिल्ली', te: 'ఢిల్లీ', bn: 'দিল্লি', mr: 'दिल्ली',
-    gu: 'દિલ્હી', kn: 'ದೆಹಲಿ', ml: 'ഡൽഹി', pa: 'ਦਿੱਲੀ', en: 'Delhi'
-  },
-  Mumbai: {
-    ta: 'மும்பை', hi: 'मुंबई', te: 'ముంబై', bn: 'মুম্বই', mr: 'मुंबई',
-    gu: 'મુંબઈ', kn: 'ಮುಂಬೈ', ml: 'മുംബൈ', pa: 'ਮੁੰਬਈ', en: 'Mumbai'
-  },
-  Bengaluru: {
-    ta: 'பெங்களூரு', hi: 'बेंगलुरु', te: 'బెంగళూరు', bn: 'বেঙ্গালুরু', mr: 'बंगळुरू',
-    gu: 'બેંગલુરુ', kn: 'ಬೆಂಗಳೂರು', ml: 'ബെംഗളൂരു', pa: 'ਬੰਗਲੌਰ', en: 'Bengaluru'
-  },
-  Bangalore: {
-    ta: 'பெங்களூரு', hi: 'बेंगलुरु', te: 'బెంగళూరు', bn: 'বেঙ্গালুরু', mr: 'बंगळुरू',
-    gu: 'બેંગલુરુ', kn: 'ಬೆಂಗಳೂರು', ml: 'ബെംഗളೂരു', pa: 'ਬੰਗਲੌਰ', en: 'Bengaluru'
-  },
-  Kolkata: {
-    ta: 'கொல்கத்தா', hi: 'कोलकाता', te: 'కోల్‌కతా', bn: 'কলকাতা', mr: 'कोलकाता',
-    gu: 'કોલકાતા', kn: 'ಕೋಲ್ಕತ್ತಾ', ml: 'കൊൽക്കത്ത', pa: 'ਕੋਲਕਾਤਾ', en: 'Kolkata'
-  },
-  Hyderabad: {
-    ta: 'ஹைதராபாத்', hi: 'हैदराबाद', te: 'హైదరాబాద్', bn: 'হায়দ্রাবাদ', mr: 'हैदराबाद',
-    gu: 'હૈદરાબાદ', kn: 'ಹೈದರಾಬಾದ್', ml: 'ഹൈദരാബാദ്', pa: 'ਹੈਦਰਾਬਾਦ', en: 'Hyderabad'
-  },
-  Kochi: {
-    ta: 'கொச்சி', hi: 'कोच्चि', te: 'కొచ్చి', bn: 'কোচি', mr: 'कोची',
-    gu: 'કોચી', kn: 'ಕೊಚ್ಚಿ', ml: 'കൊച്ചി', pa: 'ਕੋਚੀ', en: 'Kochi'
-  },
-  Amritsar: {
-    ta: 'அமிர்தசரஸ்', hi: 'अमृतसर', te: 'అమృతసర్', bn: 'অমৃতসর', mr: 'अमृतसर',
-    gu: 'અમૃતસર', kn: 'ಅಮೃತಸರ', ml: 'അമൃത്സർ', pa: 'ਅੰਮ੍ਰਿਤਸਰ', en: 'Amritsar'
   },
   Madurai: {
     ta: 'மதுரை', hi: 'मदुरै', te: 'మదురై', bn: 'মাদুরাই', mr: 'मदुराई',
@@ -124,10 +93,332 @@ export const CITY_TRANSLATIONS = {
     ta: 'திருநெல்வேலி', hi: 'तिरुनेलवेली', te: 'తిరునెల్వేలి', bn: 'তিরুনেলবেলি', mr: 'तिरुनेलवेली',
     gu: 'તિરુનેલવેલી', kn: 'ತಿರುನೆಲ್ವೇಲಿ', ml: 'തിരുനെൽവേലി', pa: 'ਤਿਰੂਨੇਲਵੇਲੀ', en: 'Tirunelveli'
   },
+  Erode: {
+    ta: 'ஈரோடு', hi: 'इरोड', te: 'ఈరోడ్', bn: 'ইরোড', mr: 'इरोड',
+    gu: 'ઇરોડ', kn: 'ಈರೋಡ್', ml: 'ഈറോഡ്', pa: 'ਈਰੋਡ', en: 'Erode'
+  },
+  Vellore: {
+    ta: 'வேலூர்', hi: 'वेल्लोर', te: 'వెల్లూరు', bn: 'ভেলোর', mr: 'वेल्लोर',
+    gu: 'વેલ્લોર', kn: 'ವೆಲ್ಲೂರಿಗೆ', ml: 'വെല്ലൂർ', pa: 'ਵੇਲੋਰ', en: 'Vellore'
+  },
+  Thanjavur: {
+    ta: 'தஞ்சாவூர்', hi: 'तंजावुर', te: 'తంజావూరు', bn: 'তাঞ্জাভুর', mr: 'तंजावर',
+    gu: 'તંજાવુર', kn: 'ತಂಜಾವೂರು', ml: 'തഞ്ചാവൂർ', pa: 'ਤੰਜਾਵੁਰ', en: 'Thanjavur'
+  },
+  Tiruppur: {
+    ta: 'திருப்பூர்', hi: 'तिरुपूर', te: 'తిరుప్పూర్', bn: 'তিরুপুর', mr: 'तिरुप्पूर',
+    gu: 'તિરુપુર', kn: 'ತಿರುಪ್ಪುರ್', ml: 'തിരുപ്പൂർ', pa: 'ਤਿਰੂਪੁਰ', en: 'Tiruppur'
+  },
+  Tirupur: {
+    ta: 'திருப்பூர்', hi: 'तिरुपूर', te: 'తిరుప్పూర్', bn: 'তিরুপুর', mr: 'तिरुप्पूर',
+    gu: 'તિરુપુર', kn: 'ತಿರುಪ್ಪುರ್', ml: 'തിരുപ്പൂർ', pa: 'ਤਿਰੂਪੁਰ', en: 'Tirupur'
+  },
+  Dindigul: {
+    ta: 'திண்டுக்கல்', hi: 'डिंडीगुल', te: 'దిండిగల్', bn: 'দিন্দিগুল', mr: 'दिंडीगुल',
+    gu: 'દિંડીગુલ', kn: 'ದಿಂಡಿಗಲ್', ml: 'ദിണ്ടിഗൽ', pa: 'ਡਿੰਡੀਗੁਲ', en: 'Dindigul'
+  },
+  Kanchipuram: {
+    ta: 'காஞ்சிபுரம்', hi: 'कांचीपुरम', te: 'కాంచీపురం', bn: 'কাঞ্চিপুরম', mr: 'कांचीपुरम',
+    gu: 'કાંચીપુરમ', kn: 'ಕಾಂಚೀಪುರಂ', ml: 'കാഞ്ചീപുരം', pa: 'ਕਾਂਚੀਪੁਰਮ', en: 'Kanchipuram'
+  },
+  Chengalpattu: {
+    ta: 'செங்கல்பட்டு', hi: 'चेंगलपट्टू', te: 'చెంగల్పట్టు', bn: 'চেঙ্গালপট্টু', mr: 'चेंगलपट्टू',
+    gu: 'ચેંગલપટ્ટુ', kn: 'ಚೆಂಗಲ್ಪಟ್ಟು', ml: 'ചെങ്കൽപട്ട്', pa: 'ਚੇਂਗਲਪੱਟੂ', en: 'Chengalpattu'
+  },
+  Tiruvallur: {
+    ta: 'திருவள்ளூர்', hi: 'तिरुवल्लूर', te: 'తిరువళ్లూరు', bn: 'তিরুভাল্লুর', mr: 'तिरुवल्लूर',
+    gu: 'તિરુવલ્લુર', kn: 'ತಿರುವಳ್ಳೂರು', ml: 'തിരുവള്ളൂർ', pa: 'ਤਿਰੂਵੱਲੂਰ', en: 'Tiruvallur'
+  },
+  Thiruvallur: {
+    ta: 'திருவள்ளூர்', hi: 'तिरुवल्लूर', te: 'తిరువళ్లూరు', bn: 'তিরুভাল্লুর', mr: 'तिरुवल्लूर',
+    gu: 'તિરુવલ્લુર', kn: 'ತಿರುವಳ್ಳೂರು', ml: 'തിരുവള്ളൂർ', pa: 'ਤਿਰੂਵੱਲੂਰ', en: 'Thiruvallur'
+  },
+  Tiruvannamalai: {
+    ta: 'திருவண்ணாமலை', hi: 'तिरुवन्नामलाई', te: 'తిరువణ్ణామలై', bn: 'তিরুভান্নামালাই', mr: 'तिरुवन्नामलाई',
+    gu: 'તિરુવન્નામલાઈ', kn: 'ತಿರುವಣ್ಣಾಮಲೈ', ml: 'തിരുവണ്ണാമലൈ', pa: 'ਤਿਰੂਵੰਨਾਮਲਾਈ', en: 'Tiruvannamalai'
+  },
+  Cuddalore: {
+    ta: 'கடலூர்', hi: 'कुड्डालोर', te: 'కడలూరు', bn: 'কুদ্দালোর', mr: 'कुड्डालोर',
+    gu: 'કુડ્ડાલોર', kn: 'ಕಡಲೂರು', ml: 'കടലൂർ', pa: 'ਕੁੱਡਾਲੋਰ', en: 'Cuddalore'
+  },
+  Villupuram: {
+    ta: 'விழுப்புரம்', hi: 'विल्लुपुरम', te: 'విల్లుపురం', bn: 'ভিলুপুরম', mr: 'विल्लुपुरम',
+    gu: 'વિલ્લુપુરમ', kn: 'ವಿಲ್ಲುಪುರಂ', ml: 'വില്ലുപുരം', pa: 'ਵਿਲੁਪੁਰਮ', en: 'Villupuram'
+  },
+  Viluppuram: {
+    ta: 'விழுப்புரம்', hi: 'विल्लुपुरम', te: 'విల్లుపురం', bn: 'ভিলুপুরম', mr: 'विल्लुपुरम',
+    gu: 'વિલ્લુપુરમ', kn: 'ವಿಲ್ಲುಪುರಂ', ml: 'വില്ലുപുരം', pa: 'ਵਿਲੁਪੁਰਮ', en: 'Viluppuram'
+  },
+  Nagapattinam: {
+    ta: 'நாகப்பட்டினம்', hi: 'नागापट्टिनम', te: 'నాగపట్నం', bn: 'নাগাপট্টিনম', mr: 'नागापट्टिनम',
+    gu: 'નાગાપટ્ટિનમ', kn: 'ನಾಗಪಟ್ಟಿಣಂ', ml: 'നാഗപട്ടണം', pa: 'ਨਾਗਾਪੱਟਿਨਮ', en: 'Nagapattinam'
+  },
+  Tiruvarur: {
+    ta: 'திருவாரூர்', hi: 'तिरुवरुर', te: 'తిరువారూర్', bn: 'তিরুভারুর', mr: 'तिरुवरुर',
+    gu: 'તિરુવરુર', kn: 'ತಿರುವಾರೂರು', ml: 'തിരുവാരൂർ', pa: 'ਤਿਰੂਵਰੂਰ', en: 'Tiruvarur'
+  },
+  Mayiladuthurai: {
+    ta: 'மயிலாடுதுறை', hi: 'मयिलादुथुरै', te: 'మయిలాడుతురై', bn: 'ময়িলাদুথুরাই', mr: 'मयिलादुथुरै',
+    gu: 'મયિલાદુથુરઈ', kn: 'ಮಯಿಲಾಡುತುರೈ', ml: 'മയിലാടുതുറൈ', pa: 'ਮਯੀਲਾਦੁਥੁਰਈ', en: 'Mayiladuthurai'
+  },
+  Pudukkottai: {
+    ta: 'புதுக்கோட்டை', hi: 'पुदुक्कोट्टई', te: 'పుదుక్కోట్టై', bn: 'পদুচ্চোত্তাই', mr: 'पुदुक्कोट्टई',
+    gu: 'પુદુક્કોટ્ટઈ', kn: 'ಪುದುಕೋಟೆ', ml: 'പുതുക്കോട്ട', pa: 'ਪੁਦੁਕੋਟਈ', en: 'Pudukkottai'
+  },
+  Sivaganga: {
+    ta: 'சிவகங்கை', hi: 'शिवगंगा', te: 'శివగంగ', bn: 'শিবগঙ্গা', mr: 'शिवगंगा',
+    gu: 'શિવગંગા', kn: 'ಶಿವಗಂಗಾ', ml: 'ശിവഗംഗ', pa: 'ਸ਼ਿਵਗੰਗਾ', en: 'Sivaganga'
+  },
+  Ramanathapuram: {
+    ta: 'ராமநாதபுரம்', hi: 'रामनाथपुरम', te: 'రామనాథపురం', bn: 'রামনাথপুরম', mr: 'रामनाथपुरम',
+    gu: 'રામનાથપુરમ', kn: 'ರಾಮನಾಥಪುರಂ', ml: 'രാമനാഥപുരം', pa: 'ਰਾਮਨਾਥਪੁਰਮ', en: 'Ramanathapuram'
+  },
+  Virudhunagar: {
+    ta: 'விருதுநகர்', hi: 'विरुद्धुनगर', te: 'విరుదునగర్', bn: 'বিরুধুনগর', mr: 'विरुद्धुनगर',
+    gu: 'વિરુદ્ધુનગર', kn: 'ವಿರುಧುನಗರ', ml: 'വിരുദുനഗർ', pa: 'ਵਿਰੁਧੁਨਗਰ', en: 'Virudhunagar'
+  },
+  Theni: {
+    ta: 'தேனி', hi: 'थेनी', te: 'థేని', bn: 'থেনি', mr: 'थेनी',
+    gu: 'થેની', kn: 'ಥೇನಿ', ml: 'തേനി', pa: 'ਥੇਨੀ', en: 'Theni'
+  },
+  Tenkasi: {
+    ta: 'தென்காசி', hi: 'तेनकासी', te: 'తెన్కాశి', bn: 'তেনকাশি', mr: 'तेनकासी',
+    gu: 'તેનકાસી', kn: 'ತೆನ್ಕಾಸಿ', ml: 'തെങ്കാശി', pa: 'ਤੇਨਕਾਸੀ', en: 'Tenkasi'
+  },
+  Thoothukudi: {
+    ta: 'தூத்துக்குடி', hi: 'थूथुकुडी', te: 'తూత్తుకుడి', bn: 'থুথুকুডি', mr: 'थूथुकुडी',
+    gu: 'થૂથુકુડી', kn: 'ತೂತುಕುಡಿ', ml: 'തൂത്തുക്കുടി', pa: 'ਥੂਥੁਕੁਡੀ', en: 'Thoothukudi'
+  },
+  Tuticorin: {
+    ta: 'தூத்துக்குடி', hi: 'तूतीकोरिन', te: 'తూత్తుకుడి', bn: 'তুতিকোরিন', mr: 'तूतीकोरिन',
+    gu: 'ટ્યુટીકોરીન', kn: 'ತೂತುಕುಡಿ', ml: 'തൂത്തുക്കുടി', pa: 'ਟੂਟੀਕੋਰਿਨ', en: 'Tuticorin'
+  },
+  Kanniyakumari: {
+    ta: 'கன்னியாகுமரி', hi: 'कन्याकुमारी', te: 'కన్యాకుమారి', bn: 'কন্যাকুমারী', mr: 'कन्याकुमारी',
+    gu: 'કન્યાકુમારી', kn: 'ಕನ್ಯಾಕುಮಾರಿ', ml: 'കന്യാകുമാരി', pa: 'ਕੰਨਿਆਕੁਮਾਰੀ', en: 'Kanniyakumari'
+  },
+  Kanyakumari: {
+    ta: 'கன்னியாகுமரி', hi: 'कन्याकुमारी', te: 'కన్యాకుమారి', bn: 'কন্যাকুমারী', mr: 'कन्याकुमारी',
+    gu: 'કન્યાકુમારી', kn: 'ಕನ್ಯಾಕುಮಾರಿ', ml: 'കന്യാകുമാരി', pa: 'ਕੰਨਿਆਕੁਮਾਰੀ', en: 'Kanyakumari'
+  },
+  Nilgiris: {
+    ta: 'நீலகிரி', hi: 'नीलगिरि', te: 'నీలగిరి', bn: 'নীলগিরি', mr: 'निलगिरी',
+    gu: 'નીલગિરિ', kn: 'ನೀಲಗಿರಿ', ml: 'നീലഗിരി', pa: 'ਨੀਲਗਿਰੀ', en: 'Nilgiris'
+  },
+  Ooty: {
+    ta: 'ஊட்டி', hi: 'ऊटी', te: 'ఊటీ', bn: 'উটি', mr: 'उटी',
+    gu: 'ઊટી', kn: 'ಊಟಿ', ml: 'ഊട്ടി', pa: 'ਊਟੀ', en: 'Ooty'
+  },
+  Udhagamandalam: {
+    ta: 'உதகமண்டலம்', hi: 'उधगमंडलम', te: 'ఉదగమండలం', bn: 'উদগমণ্ডলম', mr: 'उधगमंडलम',
+    gu: 'ઉધગમંડલમ', kn: 'ಉದಕಮಂಡಲ', ml: 'ഉദകമണ്ഡലം', pa: 'ਉਧਗਮੰਡਲਮ', en: 'Udhagamandalam'
+  },
+  Krishnagiri: {
+    ta: 'கிருஷ்ணகிரி', hi: 'कृष्णगिरि', te: 'కృష్ణగిరి', bn: 'কৃষ্ণগিরি', mr: 'कृष्णगिरी',
+    gu: 'કૃષ્ણગિરિ', kn: 'ಕೃಷ್ಣಗಿರಿ', ml: 'കൃഷ്ണഗിരി', pa: 'ਕ੍ਰਿਸ਼ਨਾਗਿਰੀ', en: 'Krishnagiri'
+  },
+  Dharmapuri: {
+    ta: 'தருமபுரி', hi: 'धर्मपुरी', te: 'ధర్మపురి', bn: 'ধর্মপুরী', mr: 'धर्मपुरी',
+    gu: 'ધર્મપુરી', kn: 'ಧರ್ಮಪುರಿ', ml: 'ധർമ്മപുരി', pa: 'ਧਰਮਪੁਰੀ', en: 'Dharmapuri'
+  },
+  Namakkal: {
+    ta: 'நாமக்கல்', hi: 'नमक्कल', te: 'నమక్కల్', bn: 'নামাক্কাল', mr: 'नमक्कल',
+    gu: 'નમક્કલ', kn: 'ನಾಮಕ್ಕಲ್', ml: 'നാമക്കൽ', pa: 'ਨਾਮੱਕਲ', en: 'Namakkal'
+  },
+  Karur: {
+    ta: 'கரூர்', hi: 'करूर', te: 'కరూర్', bn: 'করুর', mr: 'करूर',
+    gu: 'કરુર', kn: 'ಕರೂರು', ml: 'കരൂർ', pa: 'ਕਰੂਰ', en: 'Karur'
+  },
+  Perambalur: {
+    ta: 'பெரம்பலூர்', hi: 'पेराम्बलूर', te: 'పెరంబలూరు', bn: 'পেরাম্বালুর', mr: 'पेरांबलूर',
+    gu: 'પેરામ્બલુર', kn: 'ಪೆರಂಬಲೂರು', ml: 'പെരമ്പലൂർ', pa: 'ਪੇਰਾਮਬਲੂਰ', en: 'Perambalur'
+  },
+  Ariyalur: {
+    ta: 'அரியலூர்', hi: 'अरियालूर', te: 'అరియలూరు', bn: 'আরিয়ালুর', mr: 'अरियालूर',
+    gu: 'અરિયાલુર', kn: 'ಅರಿಯಲೂರು', ml: 'അരിയല്ലൂർ', pa: 'ਅਅਰੀਆਲੂਰ', en: 'Ariyalur'
+  },
+  Kallakurichi: {
+    ta: 'கள்ளக்குறிச்சி', hi: 'कल्लाकुरिची', te: 'కల్లకురిచి', bn: 'কাল্লাকুরিচি', mr: 'कल्लाकुरिची',
+    gu: 'કલ્લાકુરીચી', kn: 'ಕಲ್ಲಕುರಿಚಿ', ml: 'കള്ളക്കുറിച്ചി', pa: 'ਕੱਲਾਕੁਰਿਚੀ', en: 'Kallakurichi'
+  },
+  Ranipet: {
+    ta: 'ராணிப்பேட்டை', hi: 'रानीपेट', te: 'రాణిపేట', bn: 'রানীপেট', mr: 'राणीपेठ',
+    gu: 'રાનીપેટ', kn: 'ರಾಣಿಪೇಟೆ', ml: 'റാണിപ്പേട്ട', pa: 'ਰਾਨੀਪੇਟ', en: 'Ranipet'
+  },
+  Tirupathur: {
+    ta: 'திருப்பத்தூர்', hi: 'तिरुपात्तूर', te: 'తిరుపత్తూరు', bn: 'তিরুপাত্তুর', mr: 'तिरुपात्तूर',
+    gu: 'તિરુપાત્તુર', kn: 'ತಿರುಪತ್ತೂರು', ml: 'തിരുപ്പത്തൂർ', pa: 'ਤਿਰੂਪੱਤੂਰ', en: 'Tirupathur'
+  },
+  Tirupattur: {
+    ta: 'திருப்பத்தூர்', hi: 'तिरुपात्तूर', te: 'తిరుపత్తూరు', bn: 'তিরুপাত্তুর', mr: 'तिरुपात्तूर',
+    gu: 'તિરુપાત્તુર', kn: 'ತಿರುಪತ್ತೂರು', ml: 'തിരുപ്പത്തൂർ', pa: 'ਤਿਰੂਪੱਤੂਰ', en: 'Tirupattur'
+  },
+
+  // --- Chennai Localities & Suburbs ---
+  Tambaram: {
+    ta: 'தாம்பரம்', hi: 'तांबरम', te: 'తాంబరం', bn: 'তাম্বারাম', mr: 'तांबरम',
+    gu: 'તાંબરમ', kn: 'ತಾಂಬರಂ', ml: 'താംബരം', pa: 'ਤਾਂਬਰਮ', en: 'Tambaram'
+  },
+  Avadi: {
+    ta: 'ஆவடி', hi: 'अवादी', te: 'ఆవడి', bn: 'আভাদি', mr: 'अवादी',
+    gu: 'આવાડી', kn: 'ಆವಡಿ', ml: 'ആവഡി', pa: 'ਆਵਾਦੀ', en: 'Avadi'
+  },
+  Ambattur: {
+    ta: 'அம்பத்தூர்', hi: 'अंबत्तूर', te: 'అంబత్తూరు', bn: 'আম্বাত্তুর', mr: 'अंबत्तूर',
+    gu: 'અંબત્તુર', kn: 'ಅಂಬತ್ತೂರು', ml: 'അമ്പത്തൂർ', pa: 'ਅੰਬੱਤੂਰ', en: 'Ambattur'
+  },
+  Velachery: {
+    ta: 'வேளச்சேரி', hi: 'वेलाचेरी', te: 'వేలచేరి', bn: 'ভেলাচেরি', mr: 'वेलाचेरी',
+    gu: 'વેલાચેરી', kn: 'ವೇಲಚೇರಿ', ml: 'വേളാച്ചേരി', pa: 'ਵੇਲਾਚੇਰੀ', en: 'Velachery'
+  },
+  Guindy: {
+    ta: 'கிண்டி', hi: 'गुइंडी', te: 'గిండి', bn: 'গুইন্ডি', mr: 'गुइंडी',
+    gu: 'ગુઇન્ડી', kn: 'ಗಿಂಡಿ', ml: 'ഗിണ്ടി', pa: 'ਗੁਇੰਡੀ', en: 'Guindy'
+  },
+  'Anna Nagar': {
+    ta: 'அண்ணா நகர்', hi: 'अन्ना नगर', te: 'అన్నా నగర్', bn: 'আন্না নগর', mr: 'अण्णा नगर',
+    gu: 'અન્ના નગર', kn: 'ಅಣ್ಣಾ ನಗರ', ml: 'അണ്ണാ നഗർ', pa: 'ਅੰਨਾ ਨਗਰ', en: 'Anna Nagar'
+  },
+  'T. Nagar': {
+    ta: 'தி. நகர்', hi: 'टी नगर', te: 'టి నగర్', bn: 'টি নগর', mr: 'टी नगर',
+    gu: 'ટી નગર', kn: 'ಟಿ ನಗರ', ml: 'ടി നഗർ', pa: 'ਟੀ ਨਗਰ', en: 'T. Nagar'
+  },
+  'T Nagar': {
+    ta: 'தி. நகர்', hi: 'टी नगर', te: 'టి నగర్', bn: 'টি নগর', mr: 'टी नगर',
+    gu: 'ટી નગર', kn: 'ಟಿ ನಗರ', ml: 'ടി നഗർ', pa: 'ਟੀ ਨਗਰ', en: 'T Nagar'
+  },
+  Porur: {
+    ta: 'போரூர்', hi: 'पोरूर', te: 'పోరూర్', bn: 'পোরুর', mr: 'पोरूर',
+    gu: 'પોરુર', kn: 'ಪೋರೂರು', ml: 'പോരൂർ', pa: 'ਪੋਰੂਰ', en: 'Porur'
+  },
+  Sholinganallur: {
+    ta: 'சோழிங்கநல்லூர்', hi: 'शोलिंगनल्लूर', te: 'షోలింగనల్లూరు', bn: 'শোলিঙ্গানাল্লুর', mr: 'शोलिंगनल्लूर',
+    gu: 'શોલિંગનલ્લુર', kn: 'ಶೋಲಿಂಗನಲ್ಲೂರು', ml: 'ഷോളിംഗനല്ലൂർ', pa: 'ਸ਼ੋਲਿੰਗਨੱਲੂਰ', en: 'Sholinganallur'
+  },
+  Chromepet: {
+    ta: 'குரோம்பேட்டை', hi: 'क्रोमपेट', te: 'క్రోమ్‌పేట్', bn: 'ক্রোমপেট', mr: 'क्रोमपेट',
+    gu: 'ક્રોમપેટ', kn: 'ಕ್ರೋಮ್‌ಪೇಟೆ', ml: 'ക്രോംപേട്ട്', pa: 'ਕ੍ਰੋਮਪੇਟ', en: 'Chromepet'
+  },
+  Pallavaram: {
+    ta: 'பல்லாவரம்', hi: 'पल्लावरम', te: 'పల్లవరం', bn: 'পাল্লাভারাম', mr: 'पल्लावरम',
+    gu: 'પલ્લાવરમ', kn: 'ಪಲ್ಲಾವರಂ', ml: 'പല്ലാവരം', pa: 'ਪੱਲਾਵਰਮ', en: 'Pallavaram'
+  },
+  Poonamallee: {
+    ta: 'பூந்தமல்லி', hi: 'पूनमल्ली', te: 'పూనమల్లి', bn: 'পূনামল্লী', mr: 'पूनमल्ली',
+    gu: 'પૂનમલ્લી', kn: 'ಪೂನಮಲ್ಲಿ', ml: 'പൂനമല്ലി', pa: 'ਪੂਨਮੱਲੀ', en: 'Poonamallee'
+  },
+  Adyar: {
+    ta: 'அடையாறு', hi: 'अड्यार', te: 'అడయార్', bn: 'আদিয়ার', mr: 'अड्यार',
+    gu: 'અડયાર', kn: 'ಅಡ್ಯಾರ್', ml: 'അഡയാർ', pa: 'ਅਅਡਿਆਰ', en: 'Adyar'
+  },
+  Mylapore: {
+    ta: 'மயிலாப்பூர்', hi: 'मयिलापुर', te: 'మైలాపూర్', bn: 'মাইলাপুর', mr: 'मयिलापूर',
+    gu: 'મયિલાપુર', kn: 'ಮೈಲಾಪುರ', ml: 'മൈലാപ്പൂർ', pa: 'ਮਾਈਲਾਪੁਰ', en: 'Mylapore'
+  },
+  Hosur: {
+    ta: 'ஓசூர்', hi: 'होसुर', te: 'హోసూర్', bn: 'হোসুর', mr: 'होसूर',
+    gu: 'હોસુર', kn: 'ಹೊಸೂರು', ml: 'ഹൊസൂർ', pa: 'ਹੋਸੁਰ', en: 'Hosur'
+  },
+  Kumbakonam: {
+    ta: 'கும்பகோணம்', hi: 'कुंभकोणम', te: 'కుంభకోణం', bn: 'কুম্ভকোনম', mr: 'कुंभकोणम',
+    gu: 'કુંભકોણમ', kn: 'ಕುಂಭಕೋಣಂ', ml: 'കുംഭകോണം', pa: 'ਕੁੰਭਕੋਣਮ', en: 'Kumbakonam'
+  },
+  Karaikudi: {
+    ta: 'காரைக்குடி', hi: 'कारैकुडी', te: 'కారైకుడి', bn: 'কারাইকুড়ি', mr: 'कारैकुडी',
+    gu: 'કારૈકુડી', kn: 'ಕಾರೈಕುಡಿ', ml: 'കാരൈക്കുടി', pa: 'ਕਾਰੈਕੁਡੀ', en: 'Karaikudi'
+  },
+  Pondicherry: {
+    ta: 'புதுச்சேரி', hi: 'पुडुचेरी', te: 'పుదుచ్చేరి', bn: 'পুদুচেরি', mr: 'पुद्दुचेरी',
+    gu: 'પુડુચેરી', kn: 'ಪುದುಚೇರಿ', ml: 'പുതുച്ചേരി', pa: 'ਪੁਡੂਚੇਰੀ', en: 'Pondicherry'
+  },
+  Puducherry: {
+    ta: 'புதுச்சேரி', hi: 'पुडुचेरी', te: 'పుదుచ్చేరి', bn: 'পুদুচেরি', mr: 'पुद्दुचेरी',
+    gu: 'પુડુચેરી', kn: 'ಪುದುಚೇರಿ', ml: 'പുതുച്ചേരി', pa: 'ਪੁਡੂਚੇਰੀ', en: 'Puducherry'
+  },
+
+  // --- Major Indian Metros & States ---
+  Delhi: {
+    ta: 'தில்லி', hi: 'दिल्ली', te: 'ఢిల్లీ', bn: 'দিল্লি', mr: 'दिल्ली',
+    gu: 'દિલ્હી', kn: 'ದೆಹಲಿ', ml: 'ഡൽഹി', pa: 'ਦਿੱਲੀ', en: 'Delhi'
+  },
+  'New Delhi': {
+    ta: 'புது தில்லி', hi: 'नई दिल्ली', te: 'న్యూఢిల్లీ', bn: 'নতুন দিল্লি', mr: 'नवी दिल्ली',
+    gu: 'નવી દિલ્હી', kn: 'ನವದೆಹಲಿ', ml: 'ന്യൂഡൽഹി', pa: 'ਨਵੀਂ ਦਿੱਲੀ', en: 'New Delhi'
+  },
+  Mumbai: {
+    ta: 'மும்பை', hi: 'मुंबई', te: 'ముంబై', bn: 'মুম্বই', mr: 'मुंबई',
+    gu: 'મુંબઈ', kn: 'ಮುಂಬೈ', ml: 'മുംബൈ', pa: 'ਮੁੰਬਈ', en: 'Mumbai'
+  },
+  Bengaluru: {
+    ta: 'பெங்களூரு', hi: 'बेंगलुरु', te: 'బెంగళూరు', bn: 'বেঙ্গালুরু', mr: 'बंगळुरू',
+    gu: 'બેંગલુરુ', kn: 'ಬೆಂಗಳೂರು', ml: 'ബെംഗളൂരു', pa: 'ਬੰਗਲੌਰ', en: 'Bengaluru'
+  },
+  Bangalore: {
+    ta: 'பெங்களூரு', hi: 'बेंगलुरु', te: 'బెంగళూరు', bn: 'বেঙ্গালুরু', mr: 'बंगळुरू',
+    gu: 'બેંગલુરુ', kn: 'ಬೆಂಗಳೂರು', ml: 'ബെംഗളൂരു', pa: 'ਬੰਗਲੌਰ', en: 'Bangalore'
+  },
+  Kolkata: {
+    ta: 'கொல்கத்தா', hi: 'कोलकाता', te: 'కోల్‌కతా', bn: 'কলকাতা', mr: 'कोलकाता',
+    gu: 'કોલકાતા', kn: 'ಕೋಲ್ಕತ್ತಾ', ml: 'കൊൽക്കത്ത', pa: 'ਕੋਲਕਾਤਾ', en: 'Kolkata'
+  },
+  Hyderabad: {
+    ta: 'ஹைதராபாத்', hi: 'हैदराबाद', te: 'హైదరాబాద్', bn: 'হায়দ্রাবাদ', mr: 'हैदराबाद',
+    gu: 'હૈદરાબાદ', kn: 'ಹೈದರಾಬಾದ್', ml: 'ഹൈദരാബാദ്', pa: 'ਹੈਦਰਾਬਾਦ', en: 'Hyderabad'
+  },
+  Pune: {
+    ta: 'புனே', hi: 'पुणे', te: 'పుణె', bn: 'পুনে', mr: 'पुणे',
+    gu: 'પુણે', kn: 'ಪುಣೆ', ml: 'പൂനെ', pa: 'ਪੁਣੇ', en: 'Pune'
+  },
+  Ahmedabad: {
+    ta: 'அகமதாபாத்', hi: 'अहमदाबाद', te: 'అహ్మదాబాద్', bn: 'আহমেদাবাদ', mr: 'अहमदाबाद',
+    gu: 'અમદાવાદ', kn: 'ಅಹಮದಾಬಾದ್', ml: 'അഹമ്മദാബാദ്', pa: 'ਅਹਿਮਦਾਬਾਦ', en: 'Ahmedabad'
+  },
+  Jaipur: {
+    ta: 'ஜெய்ப்பூர்', hi: 'जयपुर', te: 'జైపూర్', bn: 'জয়পুর', mr: 'जयपूर',
+    gu: 'જયપુર', kn: 'ಜೈಪುರ', ml: 'ജയ്പൂർ', pa: 'ਜੈਪੁਰ', en: 'Jaipur'
+  },
+  Lucknow: {
+    ta: 'லக்னோ', hi: 'लखनऊ', te: 'లక్నో', bn: 'লখনউ', mr: 'लखनौ',
+    gu: 'લખનૌ', kn: 'ಲಕ್ನೋ', ml: 'ലഖ്‌നൗ', pa: 'ਲਖਨਊ', en: 'Lucknow'
+  },
+  Kochi: {
+    ta: 'கொச்சி', hi: 'कोच्चि', te: 'కొచ్చి', bn: 'কোচি', mr: 'कोची',
+    gu: 'કોચી', kn: 'ಕೊಚ್ಚಿ', ml: 'കൊച്ചി', pa: 'ਕੋਚੀ', en: 'Kochi'
+  },
+  Thiruvananthapuram: {
+    ta: 'திருவனந்தபுரம்', hi: 'तिरुवनंतपुरम', te: 'తిరువనంతపురం', bn: 'তিরুবনন্তপুরম', mr: 'तिरुवनंतपुरम',
+    gu: 'તિરુવનંતપુરમ', kn: 'ತಿರುವನಂತಪುರ', ml: 'തിരുവനന്തപുരം', pa: 'ਤਿਰੂਵਨੰਤਪੁਰਮ', en: 'Thiruvananthapuram'
+  },
+  Kerala: {
+    ta: 'கேரளா', hi: 'केरल', te: 'కేరళ', bn: 'কেরালা', mr: 'केरळ',
+    gu: 'કેરળ', kn: 'ಕೇರಳ', ml: 'കേരളം', pa: 'ਕੇਰਲ', en: 'Kerala'
+  },
+  Karnataka: {
+    ta: 'கர்நாடகா', hi: 'कर्नाटक', te: 'కర్ణాటక', bn: 'কর্ণাটক', mr: 'कर्नाटक',
+    gu: 'કર્ણાટક', kn: 'ಕರ್ನಾಟಕ', ml: 'കർണാടക', pa: 'ਕਰਨਾਟਕ', en: 'Karnataka'
+  },
+  'Andhra Pradesh': {
+    ta: 'ஆந்திரப் பிரதேசம்', hi: 'आंध्र प्रदेश', te: 'ఆంధ్ర ప్రదేశ్', bn: 'অন্ধ্র প্রদেশ', mr: 'आंध्र प्रदेश',
+    gu: 'આંધ્ર પ્રદેશ', kn: 'ಆಂಧ್ರ ಪ್ರದೇಶ', ml: 'ആന്ധ്രാപ്രദേശ്', pa: 'ਆਂਧਰਾ ਪ੍ਰਦੇਸ਼', en: 'Andhra Pradesh'
+  },
+  Telangana: {
+    ta: 'தெலுங்கானா', hi: 'तेलंगाना', te: 'తెలంగాణ', bn: 'তেলেঙ্গানা', mr: 'तेलंगणा',
+    gu: 'તેલંગાણા', kn: 'ತೆಲಂಗಾಣ', ml: 'തെലങ്കാന', pa: 'ਤੇਲੰਗਾਨਾ', en: 'Telangana'
+  },
+  Maharashtra: {
+    ta: 'மகாராஷ்டிரா', hi: 'महाराष्ट्र', te: 'మహారాష్ట్ర', bn: 'মহারাষ্ট্র', mr: 'महाराष्ट्र',
+    gu: 'મહારાષ્ટ્ર', kn: 'ಮಹಾರಾಷ್ಟ್ರ', ml: 'മഹാരാഷ്ട്ര', pa: 'ਮਹਾਰਾਸ਼ਟਰ', en: 'Maharashtra'
+  },
+  Gujarat: {
+    ta: 'குஜராத்', hi: 'गुजरात', te: 'గుజరాత్', bn: 'গুজরাট', mr: 'गुजरात',
+    gu: 'ગુજરાત', kn: 'ಗುಜರಾತ್', ml: 'ഗുജറാത്ത്', pa: 'ਗੁਜਰਾਤ', en: 'Gujarat'
+  },
   India: {
     ta: 'இந்தியா', hi: 'भारत', te: 'భారతదేశం', bn: 'ভারত', mr: 'भारत',
     gu: 'ભારત', kn: 'ಭಾರತ', ml: 'ഇന്ത്യ', pa: 'ਭਾਰਤ', en: 'India'
   },
+
+  // --- GPS and Detection Terms ---
   'Current Location': {
     ta: 'தற்போதைய இடம்', hi: 'वर्तमान स्थान', te: 'ప్రస్తుత స్థానం', bn: 'বর্তমান অবস্থান', mr: 'सध्याचे स्थान',
     gu: 'વર્તમાન સ્થળ', kn: 'ಪ್ರಸ್ತುತ ಸ್ಥಳ', ml: 'നിലവിലെ സ്ഥലം', pa: 'ਮੌਜੂਦਾ ਸਥਾਨ', en: 'Current Location'
@@ -135,22 +426,64 @@ export const CITY_TRANSLATIONS = {
   'Detected Location': {
     ta: 'கண்டறியப்பட்ட இடம்', hi: 'पहचाना गया स्थान', te: 'గుర్తించిన స్థానం', bn: 'চিহ্নিত অবস্থান', mr: 'शोधलेले स्थान',
     gu: 'શોધાયેલ સ્થળ', kn: 'ಗುರುತಿಸಲಾದ ಸ್ಥಳ', ml: 'കണ്ടെത്തിയ സ്ഥലം', pa: 'ਲੱਭਿਆ ਗਿਆ ਸਥਾਨ', en: 'Detected Location'
-  }
+  },
+  'Your Location': {
+    ta: 'உங்கள் இடம்', hi: 'आपका स्थान', te: 'మీ స్థానం', bn: 'আপনার অবস্থান', mr: 'तुमचे स्थान',
+    gu: 'તમારું સ્થળ', kn: 'ನಿಮ್ಮ ಸ್ಥಳ', ml: 'നിങ്ങളുടെ സ്ഥലം', pa: 'ਤੁਹਾਡਾ ਸਥਾਨ', en: 'Your Location'
+  },
+  'GPS Location': {
+    ta: 'ஜிபிஎஸ் இடம்', hi: 'जीपीएस स्थान', te: 'జీపీఎస్ స్థానం', bn: 'জিপিএস অবস্থান', mr: 'जीपीएस स्थान',
+    gu: 'જીપીએસ સ્થળ', kn: 'ಜಿಪಿಎಸ್ ಸ್ಥಳ', ml: 'ജിപിഎസ് സ്ഥലം', pa: 'ਜੀਪੀਐਸ ਸਥਾਨ', en: 'GPS Location'
+  },
+  'Local Station': {
+    ta: 'உள்ளூர் நிலையம்', hi: 'स्थानीय स्टेशन', te: 'స్థానిక స్టేషన్', bn: 'স্থানীয় স্টেশন', mr: 'स्थानिक स्टेशन',
+    gu: 'સ્થાનિક સ્ટેશન', kn: 'ಸ್ಥಳೀಯ ನಿಲ್ದಾಣ', ml: 'പ്രാദേശിക സ്റ്റേഷൻ', pa: 'ਸਥਾਨਕ ਸਟੇਸ਼ਨ', en: 'Local Station'
+  },
 };
 
-export function getLocalizedPlaceName(englishName, lang = 'en') {
-  if (!englishName) return '';
-  if (CITY_TRANSLATIONS[englishName]?.[lang]) {
-    return CITY_TRANSLATIONS[englishName][lang];
+export function getLocalizedPlaceName(placeName, lang = 'en') {
+  if (!placeName) return '';
+  const clean = String(placeName).trim();
+  if (!clean) return '';
+
+  // 1. Direct dictionary lookup by key
+  if (CITY_TRANSLATIONS[clean]?.[lang]) {
+    return CITY_TRANSLATIONS[clean][lang];
   }
-  // Case insensitive check
+
+  // 2. Case-insensitive key match
+  const lowerClean = clean.toLowerCase();
   const matchedKey = Object.keys(CITY_TRANSLATIONS).find(
-    (k) => k.toLowerCase() === String(englishName).trim().toLowerCase()
+    (k) => k.toLowerCase() === lowerClean
   );
   if (matchedKey && CITY_TRANSLATIONS[matchedKey]?.[lang]) {
     return CITY_TRANSLATIONS[matchedKey][lang];
   }
-  return englishName;
+
+  // 3. Reverse / Cross-language match (e.g. input is already 'சென்னை' or 'Chennai', find its target language)
+  for (const [key, translations] of Object.entries(CITY_TRANSLATIONS)) {
+    if (key.toLowerCase() === lowerClean) {
+      return translations[lang] || translations.en || key;
+    }
+    for (const val of Object.values(translations)) {
+      if (typeof val === 'string' && val.toLowerCase() === lowerClean) {
+        return translations[lang] || translations.en || key;
+      }
+    }
+  }
+
+  // 4. Clean administrative suffixes like " District", " City", " taluk"
+  const stripped = clean
+    .replace(/\s+(District|City|Corporation|Taluk|Town|Mandal|Village)$/i, '')
+    .trim();
+  if (stripped && stripped !== clean) {
+    const subMatch = getLocalizedPlaceName(stripped, lang);
+    if (subMatch && subMatch !== stripped) {
+      return subMatch;
+    }
+  }
+
+  return clean;
 }
 
 // Geocoding: Search any location / village / city in India & Worldwide
@@ -169,38 +502,56 @@ export async function searchLocation(query, lang = 'en') {
   }
 }
 
-// Reverse Geocode from lat/long coordinates
+// Reverse Geocode from lat/long coordinates with robust multi-level name extraction
 export async function reverseGeocode(lat, lon, lang = 'en') {
+  const targetLang = typeof lang === 'string' ? lang : 'en';
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1&accept-language=${lang}`, {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12&addressdetails=1&accept-language=${targetLang},en;q=0.8`, {
       headers: { 'User-Agent': 'WeatherGPT-App/1.0' }
     });
     if (!res.ok) throw new Error('Reverse geocoding failed');
     const data = await res.json();
-    const rawCity = data.address?.city || data.address?.town || data.address?.village || data.address?.county || data.address?.state_district || 'Detected Location';
-    const rawState = data.address?.state || '';
-    const rawCountry = data.address?.country || 'India';
 
-    const city = getLocalizedPlaceName(rawCity, lang) || rawCity;
-    const state = getLocalizedPlaceName(rawState, lang) || rawState;
-    const country = getLocalizedPlaceName(rawCountry, lang) || rawCountry;
+    const addr = data.address || {};
+    const rawCity = addr.city ||
+                    addr.town ||
+                    addr.suburb ||
+                    addr.neighbourhood ||
+                    addr.village ||
+                    addr.municipality ||
+                    addr.county ||
+                    addr.state_district ||
+                    data.name ||
+                    'Chennai';
+
+    const rawState = addr.state || 'Tamil Nadu';
+    const rawCountry = addr.country || 'India';
+
+    const city = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
+    const state = getLocalizedPlaceName(rawState, targetLang) || rawState;
+    const country = getLocalizedPlaceName(rawCountry, targetLang) || rawCountry;
 
     return {
       name: city,
       admin1: state,
       country: country,
       rawName: rawCity,
+      rawAdmin1: rawState,
+      rawCountry: rawCountry,
       latitude: lat,
       longitude: lon,
     };
   } catch (err) {
     console.warn('Fallback reverse geocode:', err);
     return {
-      name: getLocalizedPlaceName('Chennai', lang),
+      name: getLocalizedPlaceName('Chennai', targetLang),
+      admin1: getLocalizedPlaceName('Tamil Nadu', targetLang),
+      country: getLocalizedPlaceName('India', targetLang),
       rawName: 'Chennai',
+      rawAdmin1: 'Tamil Nadu',
+      rawCountry: 'India',
       latitude: lat,
       longitude: lon,
-      country: getLocalizedPlaceName('India', lang),
     };
   }
 }
