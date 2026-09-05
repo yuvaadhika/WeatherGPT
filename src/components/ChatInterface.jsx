@@ -440,12 +440,12 @@ export default function ChatInterface({
 
                     <div className="flex items-center gap-2 pt-1 border-t border-sky-100/80">
                       <button
-                        onClick={() => handleDownloadDirectReport(msg)}
+                        onClick={() => onOpenExport ? onOpenExport(msg) : handleDownloadDirectReport(msg)}
                         className="flex-1 px-3 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white text-[11px] font-bold rounded-xl shadow-xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
-                        title="Instant Download HTML / PDF Report"
+                        title="Review and Confirm Report Download"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'பதிவிறக்கு (Download Report)' : 'Download Full Report'}</span>
+                        <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'அறிக்கையை உறுதிப்படுத்திப் பதிவிறக்கு' : msg.detectedLanguage === 'tanglish' ? 'Confirm & Download Report' : 'Review & Download Report'}</span>
                       </button>
 
                       {onOpenExport && (
@@ -455,7 +455,7 @@ export default function ChatInterface({
                           title="Preview & Print"
                         >
                           <Printer className="w-3.5 h-3.5 text-slate-600" />
-                          <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'அச்சிடு / PDF' : 'Print / PDF'}</span>
+                          <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'முன்னோட்டம் / PDF' : 'Preview / PDF'}</span>
                         </button>
                       )}
                     </div>

@@ -1,5 +1,5 @@
-import React, { useRef, useMemo } from 'react';
-import { X, Printer, Download, FileText, CheckCircle2, ShieldAlert, Sparkles, Radio, Droplets, Wind, Sun, Thermometer, Wheat, Plane, Anchor } from 'lucide-react';
+import React, { useRef, useMemo, useState } from 'react';
+import { X, Printer, Download, FileText, CheckCircle2, ShieldAlert, Sparkles, Radio, Droplets, Wind, Sun, Thermometer, Wheat, Plane, Anchor, Check } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
 import { createWeatherIntelligenceReport, downloadHTMLReport, downloadTextReport } from '../services/reportService';
 import WeatherRadarMap from './WeatherRadarMap';
@@ -16,6 +16,8 @@ export default function ReportExportModal({
   aiResponse = ''
 }) {
   const reportRef = useRef(null);
+  const [downloadStatus, setDownloadStatus] = useState(null); // 'html' | 'text' | 'print' | null
+
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
   const rep = t.reportModal || TRANSLATIONS.en.reportModal;
 
@@ -38,15 +40,21 @@ export default function ReportExportModal({
   if (!isOpen || !report) return null;
 
   const handlePrint = () => {
+    setDownloadStatus('print');
     window.print();
+    setTimeout(() => setDownloadStatus(null), 4000);
   };
 
   const handleDownloadHTML = () => {
     downloadHTMLReport(report);
+    setDownloadStatus('html');
+    setTimeout(() => setDownloadStatus(null), 4000);
   };
 
   const handleDownloadText = () => {
     downloadTextReport(report);
+    setDownloadStatus('text');
+    setTimeout(() => setDownloadStatus(null), 4000);
   };
 
   return (
@@ -77,6 +85,48 @@ export default function ReportExportModal({
 
         {/* Scrollable Report Document Body */}
         <div ref={reportRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 text-xs text-slate-700 font-sans">
+          {/* Download Success Confirmation Toast / Banner */}
+          {downloadStatus && (
+            <div className="p-3.5 rounded-2xl bg-emerald-600 text-white flex items-center justify-between shadow-lg animate-fadeIn border border-emerald-500">
+              <div className="flex items-center space-x-2.5">
+                <CheckCircle2 className="w-5 h-5 text-emerald-100 animate-bounce" />
+                <div>
+                  <span className="font-bold text-xs block">
+                    {isTa ? '✓ அறிக்கை வெற்றிகரமாகப் பதிவிறக்கப்பட்டது!' : isTanglish ? '✓ WeatherGPT Report Successfully Downloaded!' : '✓ Intelligence Dossier Downloaded Successfully!'}
+                  </span>
+                  <span className="text-[10px] text-emerald-100">
+                    {downloadStatus === 'html'
+                      ? (isTa ? 'நேரலை Doppler Radar வரைபடத்துடன் HTML ஆவணம் பதிவிறக்கமானது.' : 'Interactive HTML Document with Live Doppler Radar downloaded.')
+                      : downloadStatus === 'text'
+                      ? (isTa ? 'உரை அறிக்கை (.txt) பதிவிறக்கமானது.' : 'Text Bulletin (.txt) downloaded.')
+                      : (isTa ? 'அச்சு / PDF உரையாடல் திறக்கப்பட்டது.' : 'Print / PDF spooler opened.')}
+                  </span>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded-lg bg-emerald-700/80 text-[10px] font-bold">READY</span>
+            </div>
+          )}
+
+          {/* Download Confirmation Callout */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50/70 to-indigo-50/50 border border-sky-200/80 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center space-x-2.5">
+              <div className="p-1.5 rounded-xl bg-sky-600 text-white shadow-xs">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="font-bold text-slate-900 text-xs block">
+                  {isTa ? 'அறிக்கை பதிவிறக்க உறுதிப்படுத்தல்' : isTanglish ? 'Confirm Report Download Format' : 'Confirm Dossier Download Format'}
+                </span>
+                <span className="text-[11px] text-slate-600">
+                  {isTa ? 'கீழே உள்ள முன்னறிவிப்பு & ரேடாரைச் சரிபார்த்து நீங்கள் விரும்பும் முறையில் பதிவிறக்கவும்.' : 'Review the meteorological dispatch below and select your preferred download format.'}
+                </span>
+              </div>
+            </div>
+            <span className="text-[10px] px-2 py-1 rounded-lg bg-sky-100 text-sky-800 font-bold border border-sky-200 hidden sm:inline-block">
+              {report.locName}
+            </span>
+          </div>
+
           {/* Official Document Banner */}
           <div className="p-4 rounded-2xl bg-slate-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
             <div>
