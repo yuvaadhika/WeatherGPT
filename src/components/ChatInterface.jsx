@@ -55,6 +55,7 @@ export default function ChatInterface({
   const [isListening, setIsListening] = useState(false);
   const [speakingMsgId, setSpeakingMsgId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [autoSpeak, setAutoSpeak] = useState(true);
 
   const messagesEndRef = useRef(null);
 
@@ -76,7 +77,7 @@ export default function ChatInterface({
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, speakingMsgId]);
 
   useEffect(() => {
     if (initialQuery) {
@@ -126,6 +127,11 @@ export default function ChatInterface({
       };
 
       setMessages((prev) => [...prev, aiMsg]);
+
+      // Automatically speak the entire AI output in the selected language
+      if (autoSpeak && response.text) {
+        handleSpeak(aiMsg.id, response.text);
+      }
     } catch (err) {
       console.error(err);
       setMessages((prev) => [
@@ -165,22 +171,13 @@ export default function ChatInterface({
     }
   };
 
-  const handleSpeak = (msgId, text, msgWeatherData = null) => {
+  const handleSpeak = (msgId, text) => {
     if (speakingMsgId === msgId) {
       speechEngine.stopSpeaking();
       setSpeakingMsgId(null);
     } else {
       setSpeakingMsgId(msgId);
-      let textToSpeak = text;
-      if (msgWeatherData?.current) {
-        textToSpeak = generateFullSpokenWeatherBulletin({
-          locationName: currentLocation?.name || 'Chennai',
-          weatherData: msgWeatherData,
-          aqiData: aqiData,
-          lang: activeLanguage,
-        });
-      }
-      speechEngine.speak(textToSpeak, activeLangObj.voiceCode || 'en-US', () => {
+      speechEngine.speak(text, activeLangObj.voiceCode || 'en-US', () => {
         setSpeakingMsgId(null);
       });
     }
@@ -392,19 +389,19 @@ export default function ChatInterface({
                     <span className="font-mono text-[10px] text-slate-400">{msg.timestamp}</span>
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => handleSpeak(msg.id, msg.text, msg.weatherData)}
-                        title={isSpeakingThis ? (t.chat?.voiceStop || 'Stop Voice') : (t.chat?.voiceSpeak || 'Read Aloud')}
-                        className={`p-1 rounded-lg hover:bg-slate-100 flex items-center space-x-1 transition-colors ${
-                          isSpeakingThis ? 'text-sky-600 font-semibold' : 'text-slate-500 hover:text-slate-800'
+                        onClick={() => handleSpeak(msg.id, msg.text)}
+                        title={isSpeakingThis ? (t.chat?.voiceStop || 'Stop Voice') : (t.chat?.voiceSpeak || 'Read Aloud (All Outputs)')}
+                        className={`px-2 py-1 rounded-xl hover:bg-slate-100 flex items-center space-x-1.5 transition-colors cursor-pointer ${
+                          isSpeakingThis ? 'bg-sky-100 text-sky-700 font-bold border border-sky-300' : 'text-slate-500 hover:text-slate-800'
                         }`}
                       >
-                        {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                        {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5 text-sky-600 animate-pulse" /> : <Volume2 className="w-3.5 h-3.5" />}
                         <span className="text-[10px]">{isSpeakingThis ? (t.chat?.voiceStop || 'Stop') : (t.chat?.voiceSpeak || 'Listen')}</span>
                       </button>
                       <button
                         onClick={() => handleCopy(msg.id, msg.text)}
                         title="Copy text"
-                        className="p-1 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                        className="p-1 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
                       >
                         {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                       </button>
@@ -432,24 +429,82 @@ export default function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Floating Bottom Input Bar */}
+      {/* Floating Bottom Input Bar & Active Voice Equalizer */}
       <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pb-3 pt-2">
-        {/* Quick prompt chip bar */}
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-2 mb-1 text-xs">
-          {[
-            t.chat?.promptRainQuery,
-            t.chat?.promptFarmerQuery,
-            t.chat?.promptAviationQuery,
-            t.chat?.promptMarineQuery,
-          ].filter(Boolean).slice(0, 4).map((prompt, idx) => (
+        {/* Active Speaking Indicator Equalizer Banner */}
+        {speakingMsgId && (
+          <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white px-3.5 py-2.5 rounded-2xl flex items-center justify-between shadow-lg mb-2 border border-sky-500/30 animate-fadeIn">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-1 h-4">
+                <span className="w-1 bg-sky-400 rounded-full h-3 animate-bounce"></span>
+                <span className="w-1 bg-sky-300 rounded-full h-4 animate-pulse"></span>
+                <span className="w-1 bg-cyan-300 rounded-full h-2 animate-bounce"></span>
+                <span className="w-1 bg-white rounded-full h-3.5 animate-pulse"></span>
+              </div>
+              <div className="text-xs">
+                <span className="font-bold text-sky-200 block">
+                  {activeLanguage === 'ta' ? 'வானிலை AI குரலில் விளக்குகிறது...' : `WeatherGPT Voice Assistant (${activeLangObj.nativeName})`}
+                </span>
+                <span className="text-[10px] text-slate-300">
+                  {activeLanguage === 'ta' ? 'அனைத்து முன்னறிவிப்பு தகவல்களும் குரலில் ஒலிக்கிறது' : 'Speaking complete meteorological output'}
+                </span>
+              </div>
+            </div>
             <button
-              key={idx}
-              onClick={() => handleSendMessage(prompt)}
-              className="flex-shrink-0 px-2.5 py-1 rounded-full bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] transition-all truncate max-w-[240px] shadow-sm"
+              onClick={() => {
+                speechEngine.stopSpeaking();
+                setSpeakingMsgId(null);
+              }}
+              className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 transition-all cursor-pointer shadow-sm"
+              title="Stop voice"
             >
-              {prompt}
+              <VolumeX className="w-3.5 h-3.5" />
+              <span>{activeLanguage === 'ta' ? 'நிறுத்து' : 'Stop'}</span>
             </button>
-          ))}
+          </div>
+        )}
+
+        {/* Quick Prompt Bar + Auto-Voice Toggle */}
+        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2 mb-1 text-xs">
+          <div className="flex items-center space-x-1.5 overflow-x-auto">
+            {[
+              t.chat?.promptRainQuery,
+              t.chat?.promptFarmerQuery,
+              t.chat?.promptAviationQuery,
+              t.chat?.promptMarineQuery,
+            ].filter(Boolean).slice(0, 4).map((prompt, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSendMessage(prompt)}
+                className="flex-shrink-0 px-2.5 py-1 rounded-full bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] transition-all truncate max-w-[200px] shadow-sm cursor-pointer"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+
+          {/* Auto-Voice Response Toggle Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (autoSpeak && speakingMsgId) {
+                speechEngine.stopSpeaking();
+                setSpeakingMsgId(null);
+              }
+              setAutoSpeak(!autoSpeak);
+            }}
+            className={`flex-shrink-0 px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${
+              autoSpeak
+                ? 'bg-sky-50 text-sky-700 border border-sky-300 shadow-xs'
+                : 'bg-slate-100 text-slate-500 border border-slate-200 hover:text-slate-800'
+            }`}
+            title={autoSpeak ? 'Auto Voice: ON (AI will speak all outputs aloud)' : 'Auto Voice: OFF (AI text only)'}
+          >
+            {autoSpeak ? <Volume2 className="w-3.5 h-3.5 text-sky-600 animate-pulse" /> : <VolumeX className="w-3.5 h-3.5" />}
+            <span className="whitespace-nowrap">
+              {autoSpeak ? (activeLanguage === 'ta' ? 'குரல்: ஆன்' : 'Voice: ON') : (activeLanguage === 'ta' ? 'குரல்: ஆஃப்' : 'Voice: OFF')}
+            </span>
+          </button>
         </div>
 
         {/* Input box */}
@@ -465,7 +520,7 @@ export default function ChatInterface({
             type="button"
             onClick={handleToggleVoice}
             title={isListening ? (t.chat?.voiceListening || 'Listening...') : 'Speak with Voice (10 Languages)'}
-            className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 ${
+            className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${
               isListening
                 ? 'bg-rose-600 text-white animate-pulse shadow-md'
                 : 'text-slate-500 hover:text-sky-600 hover:bg-slate-100'
@@ -492,7 +547,7 @@ export default function ChatInterface({
           <button
             type="submit"
             disabled={!inputQuery.trim() || isLoading}
-            className={`p-2.5 rounded-xl font-medium flex items-center justify-center transition-all flex-shrink-0 ${
+            className={`p-2.5 rounded-xl font-medium flex items-center justify-center transition-all flex-shrink-0 cursor-pointer ${
               inputQuery.trim() && !isLoading
                 ? 'bg-sky-600 text-white hover:bg-sky-700 shadow-sm'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed'

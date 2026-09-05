@@ -39,13 +39,10 @@ import {
   Layers,
   BarChart2,
   Shirt,
-  Footprints,
-  Play,
-  Square
+  Footprints
 } from 'lucide-react';
-import { TRANSLATIONS, SUPPORTED_LANGUAGES } from '../services/languages';
-import { getWeatherDescription, getLocalizedPlaceName, generateFullSpokenWeatherBulletin } from '../services/weatherService';
-import { speechEngine } from '../services/speechService';
+import { TRANSLATIONS } from '../services/languages';
+import { getWeatherDescription, getLocalizedPlaceName } from '../services/weatherService';
 
 export default function MobileDashboard({
   activeLanguage = 'en',
@@ -65,7 +62,6 @@ export default function MobileDashboard({
   notificationsEnabled
 }) {
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
-  const activeLangObj = SUPPORTED_LANGUAGES.find((l) => l.code === activeLanguage) || SUPPORTED_LANGUAGES[0];
   const current = weatherData?.current || {};
   const daily = weatherData?.daily || {};
   const hourly = weatherData?.hourly || {};
@@ -78,7 +74,6 @@ export default function MobileDashboard({
   const [activeHourlyMetric, setActiveHourlyMetric] = useState('temp'); // 'temp' | 'rain' | 'wind'
   const [heroTab, setHeroTab] = useState('nowcast'); // 'nowcast' | 'activities' | 'health'
   const [sharedToast, setSharedToast] = useState(false);
-  const [isSpeakingBulletin, setIsSpeakingBulletin] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -89,27 +84,6 @@ export default function MobileDashboard({
     const interval = setInterval(updateTime, 10000);
     return () => clearInterval(interval);
   }, []);
-
-  // Full Spoken Voice Meteorological Bulletin Handler (Speaks ALL 9 parameters across 10 languages)
-  const handleToggleVoiceBulletin = () => {
-    if (isSpeakingBulletin) {
-      speechEngine.stopSpeaking();
-      setIsSpeakingBulletin(false);
-    } else {
-      const bulletinText = generateFullSpokenWeatherBulletin({
-        locationName: currentLocation?.name || 'Chennai',
-        weatherData,
-        aqiData,
-        riskData,
-        lang: activeLanguage,
-      });
-
-      setIsSpeakingBulletin(true);
-      speechEngine.speak(bulletinText, activeLangObj.voiceCode || 'en-US', () => {
-        setIsSpeakingBulletin(false);
-      });
-    }
-  };
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
@@ -394,92 +368,7 @@ export default function MobileDashboard({
         )}
       </div>
 
-      {/* 2. FULL SPOKEN VOICE METEOROLOGICAL BULLETIN AUDIO PLAYER (Speaks ALL 9 parameters across 10 languages) */}
-      <div className={`p-4 rounded-3xl border transition-all shadow-md ${
-        isSpeakingBulletin
-          ? 'bg-gradient-to-r from-sky-600 via-indigo-600 to-blue-700 text-white border-sky-400 shadow-sky-500/25 ring-2 ring-sky-300 animate-pulse'
-          : 'bg-white/90 backdrop-blur-xl border-slate-200/80 text-slate-800 hover:border-sky-300'
-      }`}>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={handleToggleVoiceBulletin}
-              className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
-                isSpeakingBulletin
-                  ? 'bg-white text-sky-600 shadow-white/30 scale-105'
-                  : 'bg-gradient-to-tr from-sky-600 to-indigo-600 text-white shadow-sky-500/20 hover:scale-105'
-              }`}
-              title={isSpeakingBulletin ? 'Stop Audio Broadcast' : 'Play Full Spoken Weather Bulletin'}
-            >
-              {isSpeakingBulletin ? (
-                <Square className="w-5 h-5 fill-current animate-pulse" />
-              ) : (
-                <Play className="w-5 h-5 fill-current ml-0.5" />
-              )}
-            </button>
-
-            <div>
-              <div className="flex items-center space-x-2">
-                <h3 className={`text-xs font-bold tracking-tight ${isSpeakingBulletin ? 'text-white' : 'text-slate-900'}`}>
-                  {activeLanguage === 'ta' ? '🎙️ முழு வானிலை ஒலி அறிக்கை' : '🎙️ Live Audio Weather Bulletin'}
-                </h3>
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                  isSpeakingBulletin ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-800'
-                }`}>
-                  {activeLangObj.nativeName}
-                </span>
-              </div>
-              <p className={`text-[11px] leading-tight ${isSpeakingBulletin ? 'text-sky-100' : 'text-slate-500'}`}>
-                {isSpeakingBulletin
-                  ? (activeLanguage === 'ta' ? 'வானிலையின் அனைத்து தகவல்களையும் வாசிக்கிறது...' : 'Speaking complete 9-parameter meteorological briefing...')
-                  : (activeLanguage === 'ta' ? 'வெப்பநிலை, மழை, காற்று, AQI, UV மற்றும் செயல்பாட்டு வழிகாட்டியை முழுமையாக கேட்க' : 'Hear complete weather, rain nowcast, wind, AQI, UV & farm advisory')}
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={handleToggleVoiceBulletin}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
-              isSpeakingBulletin
-                ? 'bg-rose-500 text-white hover:bg-rose-600 shadow-sm'
-                : 'bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200'
-            }`}
-          >
-            {isSpeakingBulletin ? (
-              <>
-                <VolumeX className="w-3.5 h-3.5" />
-                <span>{activeLanguage === 'ta' ? 'நிறுத்து' : 'Stop'}</span>
-              </>
-            ) : (
-              <>
-                <Volume2 className="w-3.5 h-3.5 text-sky-600" />
-                <span>{activeLanguage === 'ta' ? 'கேட்கவும்' : 'Play'}</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Dynamic Animated Soundwave Equalizer when playing */}
-        {isSpeakingBulletin && (
-          <div className="mt-3 pt-2.5 border-t border-white/20 flex items-center justify-between text-[11px] text-sky-100">
-            <div className="flex items-center space-x-1">
-              <span className="w-1 h-3 bg-white rounded-full animate-bounce"></span>
-              <span className="w-1 h-5 bg-white rounded-full animate-bounce [animation-delay:0.15s]"></span>
-              <span className="w-1 h-4 bg-white rounded-full animate-bounce [animation-delay:0.3s]"></span>
-              <span className="w-1 h-6 bg-white rounded-full animate-bounce [animation-delay:0.45s]"></span>
-              <span className="w-1 h-3 bg-white rounded-full animate-bounce [animation-delay:0.2s]"></span>
-              <span className="ml-1.5 font-semibold text-white">
-                {activeLanguage === 'ta' ? 'ஒலி அறிக்கை இயக்கத்தில் உள்ளது' : 'Broadcast Active'}
-              </span>
-            </div>
-            <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-mono font-bold">
-              {currentLocation?.name || 'Chennai'}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* 3. AI Hyperlocal Live Weather Intelligence & Smart Activity Hub */}
+      {/* 2. AI Hyperlocal Live Weather Intelligence & Smart Activity Hub */}
       <div className="bg-gradient-to-br from-white via-sky-50/40 to-indigo-50/30 border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5 relative overflow-hidden">
         {/* Top Header & Tab Pills */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
