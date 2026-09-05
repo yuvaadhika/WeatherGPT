@@ -1482,6 +1482,178 @@ export function generateAgriAdvisory(weatherData, lang = 'en') {
   };
 }
 
+// 🌾 Smart Agri Crop & Seed Selection Advisory Engine
+// Provides precision seed varieties and sowing advice based on live temperature, moisture, and rainfall telemetry
+export function generateCropSeedAdvisory(weatherData, lang = 'en') {
+  if (!weatherData?.current) return null;
+  const current = weatherData.current;
+  const hourly = weatherData.hourly;
+  const daily = weatherData.daily;
+
+  const temp = current.temperature_2m || 30;
+  const humidity = current.relative_humidity_2m || 70;
+  const soilMoisture = (hourly?.soil_moisture_0_to_1cm?.[0] ?? 0.25) * 100;
+  const rainNext48h = (daily?.precipitation_sum?.slice(0, 2) || []).reduce((a, b) => a + b, 0);
+  const rainNext7d = (daily?.precipitation_sum?.slice(0, 7) || []).reduce((a, b) => a + b, 0);
+
+  let sowingStatus = 'Optimal';
+  let sowingStatusTa = 'விதைப்புக்கு மிகவும் உகந்தது';
+  let sowingStatusTanglish = 'Vidhaippu seiya migavum etra neram (Optimal)';
+  let sowingStatusEn = 'Highly Optimal for Sowing & Transplanting';
+
+  if (rainNext48h > 35) {
+    sowingStatus = 'Delay';
+    sowingStatusTa = 'கனமழை எச்சரிக்கை - விதைப்பை 2 நாட்கள் ஒத்திவைக்கவும்';
+    sowingStatusTanglish = 'Kanamazhai ethirpaarpadhal vidhaippai 2 naal thallipodavum';
+    sowingStatusEn = 'Heavy Rain Alert - Postpone Direct Sowing by 2 Days';
+  } else if (soilMoisture < 20 && temp > 36) {
+    sowingStatus = 'Caution';
+    sowingStatusTa = 'வறண்ட மண் - நீர்ப்பாசனம் செய்த பின் விதைக்கவும்';
+    sowingStatusTanglish = 'Mannil eerapatham kuraivu - Neerpaasanam seithu pin vidhaikkavum';
+    sowingStatusEn = 'Dry Soil Moisture - Irrigate field before sowing';
+  }
+
+  // Dynamic seed recommendations based on climate
+  let seeds = [];
+  if (temp >= 24 && temp <= 34) {
+    seeds = [
+      {
+        cropTa: 'சம்பா நெல் (Paddy / Rice)',
+        cropEn: 'Samba Paddy / Rice',
+        cropTanglish: 'Samba Nel (Paddy)',
+        variety: 'CR 1009, CO 51, ADT 45, BPT 5204',
+        duration: '130 - 145 நாட்கள்',
+        suitability: '100% ஏற்றது',
+        reasonTa: 'நிலவும் சீரான வெப்பநிலையும் மிதமான ஈரப்பதமும் நாற்று நடுதலுக்கு மிகச் சிறந்தது.',
+        reasonTanglish: 'Ippodhaiya climate Samba nel naatru nada super suitable.',
+        reasonEn: 'Ambient temperature and moisture are perfect for paddy sapling transplantation.'
+      },
+      {
+        cropTa: 'உளுந்து (Black Gram / Urad)',
+        cropEn: 'Black Gram / Urad Dal',
+        cropTanglish: 'Ulundu (Black Gram)',
+        variety: 'வம்பன்-8 (VBN 8), கோ-6 (CO 6)',
+        duration: '65 - 75 நாட்கள்',
+        suitability: '95% ஏற்றது',
+        reasonTa: 'குறைந்த நீரில் அதிக மகசூல் தரும்; வண்டல் மற்றும் கரிசல் மண்ணில் விதைக்க உகந்தது.',
+        reasonTanglish: 'Kuraintha thanneeril nalla vilachal tharum.',
+        reasonEn: 'Short duration pulse crop giving high yield with moderate moisture.'
+      },
+      {
+        cropTa: 'நிலக்கடலை (Groundnut)',
+        cropEn: 'Groundnut / Peanut',
+        cropTanglish: 'Nilakkadalai (Groundnut)',
+        variety: 'TMV 7, VRI 8, கதிரி லெபாக்ஷி',
+        duration: '105 - 115 நாட்கள்',
+        suitability: '90% ஏற்றது',
+        reasonTa: 'செம்மண் மற்றும் மணற்பாங்கான நிலங்களில் விதைப்புக்கு ஏற்ற தட்பவெப்பநிலை.',
+        reasonTanglish: 'Semman & manarpaangaan nilangalil vidhaikka super.',
+        reasonEn: 'Ideal for red loamy soils under current atmospheric conditions.'
+      },
+      {
+        cropTa: 'மக்காச்சோளம் (Hybrid Maize)',
+        cropEn: 'Hybrid Maize',
+        cropTanglish: 'Makkacholam (Maize)',
+        variety: 'CO 6, NK 6240, பயோனீர் 30V92',
+        duration: '100 - 110 நாட்கள்',
+        suitability: '88% ஏற்றது',
+        reasonTa: 'சிறந்த தானிய எடை மற்றும் தண்டு வளர்ச்சிக்கு ஏற்ற சூரிய ஒளி மற்றும் தட்பவெப்பம்.',
+        reasonTanglish: 'Nalla sooriya oli & mazhai eerapathathirku etrathu.',
+        reasonEn: 'Great fodder and grain development with current sunshine hours.'
+      }
+    ];
+  } else if (temp > 34) {
+    seeds = [
+      {
+        cropTa: 'கேழ்வரகு / ராகி (Finger Millet / Ragi)',
+        cropEn: 'Finger Millet / Ragi',
+        cropTanglish: 'Ragi / Kelvaragu',
+        variety: 'CO 15, GPU 28, Paiyur 2',
+        duration: '95 - 105 நாட்கள்',
+        suitability: '98% உகந்தது',
+        reasonTa: 'அதிக வெப்பம் மற்றும் வறட்சியைத் தாங்கி வளரக்கூடிய உயர் சத்து தானியப் பயிர்.',
+        reasonTanglish: 'Adhiga veppam & varatchiyai thaangi valarum.',
+        reasonEn: 'Drought-tolerant millet ideal for warmer atmospheric conditions.'
+      },
+      {
+        cropTa: 'கம்பு (Pearl Millet / Bajra)',
+        cropEn: 'Pearl Millet / Bajra',
+        cropTanglish: 'Kambu (Bajra)',
+        variety: 'CO 10, ICMV 221',
+        duration: '80 - 90 நாட்கள்',
+        suitability: '95% உகந்தது',
+        reasonTa: 'குறைந்த நீர் தேவையில் அதிக உலர் தீவனம் மற்றும் தானியம் தரும்.',
+        reasonTanglish: 'Kuraintha thanneeril nalla mahasul.',
+        reasonEn: 'Requires minimal water while providing excellent grain yield.'
+      },
+      {
+        cropTa: 'பருத்தி (Cotton)',
+        cropEn: 'Cotton',
+        cropTanglish: 'Paruthi (Cotton)',
+        variety: 'சுவின் (Suvin), SVPR 6, RCH 2',
+        duration: '150 - 165 நாட்கள்',
+        suitability: '92% உகந்தது',
+        reasonTa: 'சூரிய வெளிச்சமும் கதகதப்பான வெப்பமும் பூ மற்றும் காய் பிடிப்பிற்கு சிறந்தது.',
+        reasonTanglish: 'Sooriya oli & veppam poo pidikka super.',
+        reasonEn: 'Warm sunny weather promotes healthy boll formation.'
+      }
+    ];
+  } else {
+    // Cool climate / Hill station (<24°C)
+    seeds = [
+      {
+        cropTa: 'காய்கறிகள் (கேரட் / பீட்ரூட் / முட்டைகோஸ்)',
+        cropEn: 'Cool Season Vegetables (Carrot, Cabbage)',
+        cropTanglish: 'Kaygarigal (Carrot / Cabbage)',
+        variety: 'குரோடா (Kuroda), கோல்டன் ஏக்கர்',
+        duration: '70 - 90 நாட்கள்',
+        suitability: '96% உகந்தது',
+        reasonTa: 'குளிர்ந்த காற்று மற்றும் மிதமான ஈரப்பதம் கிழங்கு திரட்சிக்கு உதவும்.',
+        reasonTanglish: 'Kulirntha climate kilangu perudhaaga valara uthavum.',
+        reasonEn: 'Cool microclimate is ideal for tuber and leaf development.'
+      },
+      {
+        cropTa: 'பாசிப்பயறு (Green Gram)',
+        cropEn: 'Green Gram',
+        cropTanglish: 'Pasippayiru (Moong)',
+        variety: 'VRM 1, CO 8',
+        duration: '60 - 65 நாட்கள்',
+        suitability: '90% உகந்தது',
+        reasonTa: 'குறுகிய கால ஊடுபயிராக பயிரிட ஏற்றது.',
+        reasonTanglish: 'Short period la nalla mahasul.',
+        reasonEn: 'Short-duration intercrop with high nitrogen fixation.'
+      }
+    ];
+  }
+
+  // Seed treatment and fertilizer tips
+  const seedTreatmentTa = 'விதை நேர்த்தி: 1 கிலோ விதைக்கு 10 கிராம் டிரைக்கோடெர்மா விரிடி (Trichoderma) அல்லது 200 கிராம் அசோஸ்பைரில்லம் (Azospirillum) கொண்டு விதை நேர்த்தி செய்து விதைத்தால் வேர் அழுகல் நோய் தடுக்கப்பட்டு முளைப்புத்திறன் அதிகரிக்கும்.';
+  const seedTreatmentTanglish = 'Vidhai Nerthi Tip: 1 kg vidhaikku 10g Trichoderma viride allathu Azospirillum kalanthu vidhaithaal ver azhugal noi thadukkappattu 100% nalla mulaikkum.';
+  const seedTreatmentEn = 'Seed Treatment: Treat 1 kg seeds with 10g Trichoderma viride or Azospirillum bio-fertilizer to prevent root rot and maximize germination.';
+
+  const pestWarningTa = humidity > 78
+    ? 'பூச்சி/பூஞ்சான எச்சரிக்கை: காற்றில் அதிக ஈரப்பதம் உள்ளதால் இலைக்கருகல் மற்றும் பூஞ்சானத் தாக்குதல் வாய்ப்புள்ளது. ஆரம்ப நிலையிலேயே வேப்பெண்ணெய் கரைசல் (3%) தெளிக்கவும்.'
+    : 'வானிலை சீராக உள்ளது; பூச்சி தாக்குதல் அபாயம் மிகக் குறைவு.';
+
+  const pestWarningTanglish = humidity > 78
+    ? 'Poochi & Fungus Warning: Kaatril eerapatham adhiga irupadhal fungal attack varalaam. Neem oil 3% thelithu thadukkavum.'
+    : 'Climate safe-aa irukku; poochi thaakkudhal romba kuraivu.';
+
+  const pestWarningEn = humidity > 78
+    ? 'Pest/Fungus Risk: High ambient humidity favors foliar blight. Preventive application of 3% neem oil formulation recommended.'
+    : 'Atmospheric conditions stable; minimal pest pressure observed.';
+
+  return {
+    sowingStatus,
+    sowingStatusLabel: lang === 'ta' ? sowingStatusTa : lang === 'tanglish' ? sowingStatusTanglish : sowingStatusEn,
+    soilMoisturePercent: Math.round(soilMoisture),
+    rainNext7dMm: rainNext7d.toFixed(1),
+    recommendedSeeds: seeds,
+    seedTreatmentTip: lang === 'ta' ? seedTreatmentTa : lang === 'tanglish' ? seedTreatmentTanglish : seedTreatmentEn,
+    pestWarning: lang === 'ta' ? pestWarningTa : lang === 'tanglish' ? pestWarningTanglish : pestWarningEn,
+  };
+}
+
 // Aviation METAR / TAF Briefing Generator
 export function generateAviationBriefing(locationName, weatherData, lang = 'en') {
   if (!weatherData?.current) return null;

@@ -16,10 +16,11 @@ import {
   RefreshCw,
   Search,
   CheckCircle2,
-  ChevronRight
+  ChevronRight,
+  Route
 } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
-import { getWeatherDescription, getLocalizedPlaceName } from '../services/weatherService';
+import { getWeatherDescription, getLocalizedPlaceName, searchLocation } from '../services/weatherService';
 
 const POPULAR_ROUTES = [
   {
@@ -95,6 +96,18 @@ const POPULAR_ROUTES = [
   },
 ];
 
+// Helper to calculate approximate distance in km
+function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth radius km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
+
 export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLocation }) {
   const [selectedRoute, setSelectedRoute] = useState(POPULAR_ROUTES[0]);
   const [departureOffset, setDepartureOffset] = useState(0); // in hours from now
@@ -103,9 +116,85 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   const [overallSafetyScore, setOverallSafetyScore] = useState(88);
   const [hazardPoints, setHazardPoints] = useState([]);
 
+  // Custom Origin / Destination Search State
+  const [originQuery, setOriginQuery] = useState('');
+  const [originSuggestions, setOriginSuggestions] = useState([]);
+  const [destQuery, setDestQuery] = useState('');
+  const [destSuggestions, setDestSuggestions] = useState([]);
+  const [customOrigin, setCustomOrigin] = useState(null);
+  const [customDest, setCustomDest] = useState(null);
+  const [isCustomMode, setIsCustomMode] = useState(false);
+
   useEffect(() => {
     simulateRouteWeather(selectedRoute, departureOffset);
   }, [selectedRoute, departureOffset, activeLanguage]);
+
+  // Handle Origin Search
+  const handleOriginSearch = async (val) => {
+    setOriginQuery(val);
+    if (val.trim().length >= 2) {
+      try {
+        const results = await searchLocation(val.trim());
+        setOriginSuggestions(results.slice(0, 4));
+      } catch (e) {
+        setOriginSuggestions([]);
+      }
+    } else {
+      setOriginSuggestions([]);
+    }
+  };
+
+  // Handle Destination Search
+  const handleDestSearch = async (val) => {
+    setDestQuery(val);
+    if (val.trim().length >= 2) {
+      try {
+        const results = await searchLocation(val.trim());
+        setDestSuggestions(results.slice(0, 4));
+      } catch (e) {
+        setDestSuggestions([]);
+      }
+    } else {
+      setDestSuggestions([]);
+    }
+  };
+
+  // Build & Simulate Custom Route
+  const createAndApplyCustomRoute = (originLoc, destLoc) => {
+    if (!originLoc || !destLoc) return;
+    const dist = calculateHaversineDistance(originLoc.latitude, originLoc.longitude, destLoc.latitude, destLoc.longitude);
+    const driveHrs = parseFloat(Math.max(dist / 50, 1).toFixed(1));
+
+    // Generate 3 interpolated intermediate waypoints along the route
+    const waypoints = [];
+    const numWaypoints = dist > 200 ? 3 : 2;
+    for (let i = 1; i <= numWaypoints; i++) {
+      const fraction = i / (numWaypoints + 1);
+      const wLat = originLoc.latitude + (destLoc.latitude - originLoc.latitude) * fraction;
+      const wLon = originLoc.longitude + (destLoc.longitude - originLoc.longitude) * fraction;
+      const offsetHour = parseFloat((driveHrs * fraction).toFixed(1));
+      waypoints.push({
+        name: `Waypoint ${i} (${Math.round(dist * fraction)} km)`,
+        offsetHour,
+        lat: wLat,
+        lon: wLon,
+      });
+    }
+
+    const customRouteObj = {
+      id: `custom-${Date.now()}`,
+      from: originLoc.name || 'Origin',
+      fromCoords: { lat: originLoc.latitude, lon: originLoc.longitude },
+      to: destLoc.name || 'Destination',
+      toCoords: { lat: destLoc.latitude, lon: destLoc.longitude },
+      distanceKm: dist,
+      driveHours: driveHrs,
+      waypoints,
+    };
+
+    setSelectedRoute(customRouteObj);
+    setIsCustomMode(true);
+  };
 
   const simulateRouteWeather = async (route, depHour) => {
     setIsSimulating(true);
@@ -158,9 +247,9 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
               temp: 27,
               rainProb: 15,
               rainMm: 0,
-              wind: 16,
+              wind: 12,
               vis: 10,
-              wmo: { label: 'Clear' },
+              wmo: { label: 'Clear Sky' },
               isRainy: false,
               isFoggy: false,
               isGale: false,
@@ -172,77 +261,163 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
       setRouteSimulation(fetched);
 
       // Compute Route Safety Score (0-100)
-      let penalty = 0;
+      let score = 100;
       const hazards = [];
 
       fetched.forEach((pt) => {
-        if (pt.rainMm >= 5 || pt.rainProb >= 70) {
-          penalty += 15;
-          hazards.push(`Heavy rain near ${pt.name} (~${pt.rainMm} mm, ${pt.rainProb}% chance)`);
-        } else if (pt.isRainy) {
-          penalty += 8;
-          hazards.push(`Passing showers expected near ${pt.name}`);
+        if (pt.isRainy) {
+          score -= 12;
+          hazards.push({ point: pt.name, type: 'Rain / Wet Road', time: pt.arrivalStr, severity: 'amber' });
         }
         if (pt.isFoggy) {
-          penalty += 12;
-          hazards.push(`Low visibility & dense fog near ${pt.name} (${pt.vis} km)`);
+          score -= 15;
+          hazards.push({ point: pt.name, type: 'Dense Fog / Low Visibility (<3 km)', time: pt.arrivalStr, severity: 'red' });
         }
         if (pt.isGale) {
-          penalty += 10;
-          hazards.push(`Strong crosswinds near ${pt.name} (${pt.wind} km/h)`);
+          score -= 10;
+          hazards.push({ point: pt.name, type: 'Crosswind Gusts (>35 km/h)', time: pt.arrivalStr, severity: 'amber' });
         }
       });
 
-      const finalScore = Math.max(25, 100 - penalty);
-      setOverallSafetyScore(finalScore);
+      setOverallSafetyScore(Math.max(score, 30));
       setHazardPoints(hazards);
     } catch (err) {
-      console.error(err);
+      console.error('Route simulation error:', err);
     } finally {
       setIsSimulating(false);
     }
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-4 pb-20 animate-fadeIn">
-      {/* 1. Header Card */}
-      <div className="bg-gradient-to-br from-white via-sky-50/50 to-indigo-50/40 border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
+    <div className="space-y-4 pb-20 animate-fadeIn">
+      {/* 1. Header Card with Corridor Chooser & Custom Search */}
+      <div className="bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center space-x-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
-              <Navigation className="w-5 h-5" />
+            <div className="p-2.5 rounded-2xl bg-sky-50 text-sky-600 border border-sky-200 shadow-xs">
+              <Route className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                {activeLanguage === 'ta' ? '🚗 பயணப் பாதை வானிலை வழிகாட்டி' : '🚗 Smart Travel & Route Weather Planner'}
+                {activeLanguage === 'ta' ? '🚗 பயணப் பாதை வானிலை & நெடுஞ்சாலை வழிகாட்டி' : '🚗 Smart Travel & Route Weather Planner'}
               </h2>
               <p className="text-xs text-slate-500">
                 {activeLanguage === 'ta'
-                  ? 'நெடுஞ்சாலை வழித்தட வானிலை, மழை எச்சரிக்கைகள் மற்றும் பாதுகாப்பான புறப்படும் நேரம்'
-                  : 'Waypoint-by-waypoint highway telemetry, road hazard scoring & safe departure windows.'}
+                  ? 'நெடுஞ்சாலை வழித்தடங்களில் நேரலை மழை, மூடுபனி & பாதுகாப்பு கணிப்பு'
+                  : 'Multi-waypoint highway telemetry, road hazard index & safe departure window'}
               </p>
             </div>
           </div>
 
-          <span className="text-[10px] font-black px-2.5 py-1 rounded-xl bg-sky-100 text-sky-800 border border-sky-200">
-            NWP Live Route GIS
+          <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto flex items-center space-x-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Live Open-Meteo GIS</span>
           </span>
         </div>
 
-        {/* Route Selector Chips */}
-        <div className="space-y-1.5 pt-1">
-          <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-            {activeLanguage === 'ta' ? 'பிரபலமான நெடுஞ்சாலை வழித்தடங்கள்:' : 'Select Highway Corridor:'}
+        {/* Custom Origin & Destination Input Form */}
+        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-sky-50/70 via-indigo-50/70 to-blue-50/70 border border-sky-100 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-slate-800 flex items-center space-x-1.5">
+              <Search className="w-3.5 h-3.5 text-sky-600" />
+              <span>{activeLanguage === 'ta' ? 'உங்கள் சொந்த வழித்தடத்தைத் தேடுங்கள்' : 'Custom Route Planner (Any Cities)'}</span>
+            </span>
+            <span className="text-[10px] text-slate-500 font-medium">Type any 2 places</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 relative">
+            {/* Origin Input */}
+            <div className="relative">
+              <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs focus-within:border-sky-500">
+                <MapPin className="w-3.5 h-3.5 text-emerald-600 mr-1.5 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={originQuery}
+                  onChange={(e) => handleOriginSearch(e.target.value)}
+                  placeholder={customOrigin ? customOrigin.name : (activeLanguage === 'ta' ? 'புறப்படும் ஊர் (எ.கா: மதுரை)' : 'From (Origin city)...')}
+                  className="w-full text-xs text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none"
+                />
+              </div>
+
+              {/* Origin Autocomplete Suggestions */}
+              {originSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden divide-y divide-slate-100">
+                  {originSuggestions.map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setCustomOrigin(s);
+                        setOriginQuery(s.name);
+                        setOriginSuggestions([]);
+                        if (customDest) createAndApplyCustomRoute(s, customDest);
+                      }}
+                      className="w-full text-left px-3 py-1.5 text-xs text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors cursor-pointer flex items-center justify-between"
+                    >
+                      <span className="truncate">{s.name}, {s.admin1 || s.country}</span>
+                      <span className="text-[9px] text-slate-400">Select</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Destination Input */}
+            <div className="relative">
+              <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs focus-within:border-sky-500">
+                <MapPin className="w-3.5 h-3.5 text-rose-600 mr-1.5 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={destQuery}
+                  onChange={(e) => handleDestSearch(e.target.value)}
+                  placeholder={customDest ? customDest.name : (activeLanguage === 'ta' ? 'சென்றடையும் ஊர் (எ.கா: ராமேஸ்வரம்)' : 'To (Destination city)...')}
+                  className="w-full text-xs text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none"
+                />
+              </div>
+
+              {/* Destination Autocomplete Suggestions */}
+              {destSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden divide-y divide-slate-100">
+                  {destSuggestions.map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setCustomDest(s);
+                        setDestQuery(s.name);
+                        setDestSuggestions([]);
+                        if (customOrigin) createAndApplyCustomRoute(customOrigin, s);
+                      }}
+                      className="w-full text-left px-3 py-1.5 text-xs text-slate-700 hover:bg-sky-50 hover:text-sky-700 font-medium transition-colors cursor-pointer flex items-center justify-between"
+                    >
+                      <span className="truncate">{s.name}, {s.admin1 || s.country}</span>
+                      <span className="text-[9px] text-slate-400">Select</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* AI Suggested Popular Corridors Chips */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-bold text-slate-700 flex items-center space-x-1">
+            <Sparkles className="w-3 h-3 text-amber-500" />
+            <span>{activeLanguage === 'ta' ? 'பிரபலமான நெடுஞ்சாலை வழித்தடங்கள் (AI Suggested):' : 'AI Popular Highway Corridors:'}</span>
           </label>
-          <div className="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
+          <div className="flex items-center space-x-2 overflow-x-auto pb-1">
             {POPULAR_ROUTES.map((rt) => (
               <button
                 key={rt.id}
-                onClick={() => setSelectedRoute(rt)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-2xl font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
-                  selectedRoute.id === rt.id
+                onClick={() => {
+                  setSelectedRoute(rt);
+                  setIsCustomMode(false);
+                }}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
+                  selectedRoute.id === rt.id && !isCustomMode
                     ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
-                    : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80 border border-slate-200/60'
                 }`}
               >
                 <span>{rt.from}</span>
@@ -254,11 +429,11 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         </div>
 
         {/* Departure Time Slider */}
-        <div className="p-3 bg-white/90 border border-slate-200/80 rounded-2xl space-y-2">
+        <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2">
           <div className="flex items-center justify-between text-xs font-bold text-slate-800">
             <span className="flex items-center space-x-1.5">
               <Clock className="w-4 h-4 text-sky-600" />
-              <span>{activeLanguage === 'ta' ? 'புறப்படும் நேரம்:' : 'Planned Departure Time:'}</span>
+              <span>{activeLanguage === 'ta' ? 'திட்டமிட்ட புறப்படும் நேரம்:' : 'Planned Departure Time:'}</span>
             </span>
             <span className="px-2.5 py-0.5 rounded-lg bg-sky-50 text-sky-700 font-extrabold border border-sky-200">
               {departureOffset === 0
@@ -290,7 +465,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
       {/* 2. Route Safety Score & Overview Card */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Safety Score Meter */}
-        <div className="p-4 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between space-y-2">
+        <div className="p-4 rounded-3xl bg-white/90 backdrop-blur-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
             <span>{activeLanguage === 'ta' ? 'பயண பாதுகாப்பு குறியீடு' : 'Route Safety Index'}</span>
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -319,7 +494,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         </div>
 
         {/* Distance & Driving Hours */}
-        <div className="p-4 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between space-y-2">
+        <div className="p-4 rounded-3xl bg-white/90 backdrop-blur-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
             <span>{activeLanguage === 'ta' ? 'தொலைவு & பயண நேரம்' : 'Distance & Duration'}</span>
             <Car className="w-4 h-4 text-sky-600" />
@@ -334,7 +509,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         </div>
 
         {/* AI Optimal Window */}
-        <div className="p-4 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between space-y-2">
+        <div className="p-4 rounded-3xl bg-white/90 backdrop-blur-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
             <span>{activeLanguage === 'ta' ? 'சிறந்த புறப்படும் நேரம்' : 'AI Departure Window'}</span>
             <Sparkles className="w-4 h-4 text-amber-500" />
@@ -352,98 +527,110 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         </div>
       </div>
 
-      {/* 3. Waypoint-by-Waypoint Interactive Timeline */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-          <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
-            {activeLanguage === 'ta' ? 'வழித்தட வானிலை நிலவரம் (Waypoint Telemetry)' : 'Waypoint-by-Waypoint Live Weather'}
+      {/* 3. Hazard Warnings Callout */}
+      {hazardPoints.length > 0 && (
+        <div className="p-4 rounded-3xl bg-amber-50 border border-amber-200 shadow-xs space-y-2 animate-fadeIn">
+          <div className="flex items-center space-x-2 text-amber-800 font-extrabold text-xs">
+            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <span>{activeLanguage === 'ta' ? 'வழித்தட வானிலை எச்சரிக்கைகள்' : 'Active Route Weather Hazards'}</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {hazardPoints.map((hz, idx) => (
+              <div key={idx} className="p-2.5 rounded-xl bg-white/90 border border-amber-200 text-xs flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-slate-800">{hz.point}</span>
+                  <p className="text-[10px] text-amber-700">{hz.type}</p>
+                </div>
+                <span className="text-[10px] font-bold text-slate-500">{hz.time}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 4. Interactive Waypoint-by-Waypoint Telemetry Timeline */}
+      <div className="bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs sm:text-sm font-black text-slate-900 flex items-center space-x-2">
+            <Compass className="w-4 h-4 text-sky-600" />
+            <span>{activeLanguage === 'ta' ? 'வழித்தட வாரியான நேரலை முன்னறிவிப்பு' : 'Waypoint-by-Waypoint Live Telemetry'}</span>
           </h3>
-          {isSimulating && (
-            <div className="flex items-center space-x-1 text-xs text-sky-600">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              <span>Simulating...</span>
-            </div>
-          )}
+          {isSimulating && <RefreshCw className="w-3.5 h-3.5 text-sky-600 animate-spin" />}
         </div>
 
-        <div className="space-y-3 pt-1">
-          {routeSimulation.map((pt, idx) => (
-            <div
-              key={idx}
-              className={`p-3.5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                pt.isRainy
-                  ? 'bg-sky-50/60 border-sky-300 shadow-xs'
-                  : pt.isFoggy
-                  ? 'bg-amber-50/60 border-amber-300 shadow-xs'
-                  : 'bg-slate-50/60 border-slate-200'
-              }`}
-            >
-              {/* Point Name & Timing */}
-              <div className="flex items-center space-x-3">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
-                  pt.isStart
-                    ? 'bg-emerald-600 text-white'
-                    : pt.isEnd
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-200 text-slate-700'
-                }`}>
-                  {pt.isStart ? 'A' : pt.isEnd ? 'B' : `${idx}`}
-                </div>
-                <div>
-                  <div className="text-xs sm:text-sm font-bold text-slate-900 flex items-center space-x-1.5">
-                    <span>{getLocalizedPlaceName(pt.name, activeLanguage) || pt.name}</span>
-                    {pt.isStart && (
-                      <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">
-                        {activeLanguage === 'ta' ? 'தொடக்க இடம்' : 'Start'}
-                      </span>
-                    )}
-                    {pt.isEnd && (
-                      <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-800">
-                        {activeLanguage === 'ta' ? 'சேருமிடம்' : 'Destination'}
-                      </span>
-                    )}
+        <div className="space-y-2.5">
+          {routeSimulation.map((pt, idx) => {
+            const isOrigin = idx === 0;
+            const isDestination = idx === routeSimulation.length - 1;
+
+            return (
+              <div
+                key={idx}
+                className={`p-3 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                  pt.isRainy || pt.isFoggy
+                    ? 'bg-amber-50/70 border-amber-200'
+                    : 'bg-slate-50/70 hover:bg-slate-50 border-slate-200/70'
+                }`}
+              >
+                {/* Waypoint Identity & ETA */}
+                <div className="flex items-center space-x-3">
+                  <div className={`p-2 rounded-xl text-white font-black text-xs flex items-center justify-center h-8 w-8 flex-shrink-0 ${
+                    isOrigin ? 'bg-emerald-600' : isDestination ? 'bg-rose-600' : 'bg-sky-600'
+                  }`}>
+                    {isOrigin ? 'A' : isDestination ? 'B' : idx}
                   </div>
-                  <div className="text-[10px] text-slate-500 font-semibold">
-                    {activeLanguage === 'ta' ? `கணிக்கப்பட்ட நேரம்: ${pt.arrivalStr}` : `Expected Arrival: ${pt.arrivalStr}`}
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs sm:text-sm font-black text-slate-900">{pt.name}</span>
+                      {isOrigin && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-bold">Start</span>
+                      )}
+                      {isDestination && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-100 text-rose-800 font-bold">End</span>
+                      )}
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-medium flex items-center space-x-1.5 mt-0.5">
+                      <Clock className="w-3 h-3 text-slate-400" />
+                      <span>ETA: {pt.arrivalStr}</span>
+                      <span>•</span>
+                      <span>{pt.wmo?.label || 'Clear'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weather Metrics Grid */}
+                <div className="grid grid-cols-4 gap-2 text-center sm:text-right">
+                  {/* Temp */}
+                  <div className="p-1.5 rounded-lg bg-white border border-slate-100">
+                    <span className="text-[9px] text-slate-400 block">Temp</span>
+                    <span className="text-xs font-black text-slate-800">{pt.temp}°C</span>
+                  </div>
+
+                  {/* Rain */}
+                  <div className={`p-1.5 rounded-lg border ${
+                    pt.rainProb >= 40 ? 'bg-sky-50 border-sky-200 text-sky-800 font-bold' : 'bg-white border-slate-100 text-slate-700'
+                  }`}>
+                    <span className="text-[9px] text-slate-400 block">Rain</span>
+                    <span className="text-xs font-black">{pt.rainProb}%</span>
+                  </div>
+
+                  {/* Wind */}
+                  <div className="p-1.5 rounded-lg bg-white border border-slate-100">
+                    <span className="text-[9px] text-slate-400 block">Wind</span>
+                    <span className="text-xs font-bold text-slate-700">{pt.wind} km/h</span>
+                  </div>
+
+                  {/* Visibility */}
+                  <div className={`p-1.5 rounded-lg border ${
+                    pt.vis <= 3 ? 'bg-rose-50 border-rose-200 text-rose-800 font-bold' : 'bg-white border-slate-100 text-slate-700'
+                  }`}>
+                    <span className="text-[9px] text-slate-400 block">Visibility</span>
+                    <span className="text-xs font-bold">{pt.vis} km</span>
                   </div>
                 </div>
               </div>
-
-              {/* Weather Metrics Strip */}
-              <div className="flex items-center space-x-3 text-xs self-end sm:self-auto">
-                {/* Temp */}
-                <div className="flex items-center space-x-1 text-slate-700 font-bold">
-                  <Thermometer className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{pt.temp}°C</span>
-                </div>
-
-                {/* Rain */}
-                <div className={`flex items-center space-x-1 font-bold ${
-                  pt.rainProb >= 40 ? 'text-sky-600' : 'text-slate-500'
-                }`}>
-                  <CloudRain className="w-3.5 h-3.5" />
-                  <span>{pt.rainProb}% Rain</span>
-                </div>
-
-                {/* Wind */}
-                <div className="flex items-center space-x-1 text-slate-600 hidden sm:flex">
-                  <Wind className="w-3.5 h-3.5 text-blue-500" />
-                  <span>{pt.wind} km/h</span>
-                </div>
-
-                {/* Condition Badge */}
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${
-                  pt.isRainy
-                    ? 'bg-sky-100 text-sky-800 border-sky-300'
-                    : pt.isFoggy
-                    ? 'bg-amber-100 text-amber-800 border-amber-300'
-                    : 'bg-white text-slate-700 border-slate-200'
-                }`}>
-                  {pt.wmo.label}
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

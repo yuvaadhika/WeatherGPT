@@ -429,8 +429,8 @@ export default function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Floating Bottom Input Bar & Active Voice Equalizer */}
-      <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pb-3 pt-2">
+      {/* Floating Bottom Input Bar & Active Voice Equalizer (Elevated above mobile bottom nav) */}
+      <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-2 pb-20 sm:pb-4 z-20">
         {/* Active Speaking Indicator Equalizer Banner */}
         {speakingMsgId && (
           <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white px-3.5 py-2.5 rounded-2xl flex items-center justify-between shadow-lg mb-2 border border-sky-500/30 animate-fadeIn">

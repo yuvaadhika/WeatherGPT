@@ -42,7 +42,7 @@ import {
   Footprints
 } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
-import { getWeatherDescription, getLocalizedPlaceName } from '../services/weatherService';
+import { getWeatherDescription, getLocalizedPlaceName, generateCropSeedAdvisory } from '../services/weatherService';
 
 export default function MobileDashboard({
   activeLanguage = 'en',
@@ -159,6 +159,7 @@ export default function MobileDashboard({
   // Extra Commute & Road Flooding Vulnerability
   const roadFloodScore = parseFloat(rainToday) > 40 ? 88 : parseFloat(rainToday) > 15 ? 65 : parseFloat(rainToday) > 2 ? 35 : 12;
   const needUmbrella = parseFloat(rainToday) > 0.5 || (hourly.precipitation_probability?.[0] || 0) > 40;
+  const cropSeedAdvisory = generateCropSeedAdvisory(weatherData, activeLanguage);
 
   const riskScore = riskData?.score || 75;
   const riskLevel = riskData?.level || 'high';
@@ -870,6 +871,68 @@ export default function MobileDashboard({
               ? 'சாலைகளில் பார்வைத் திறன் நன்று (10 கி.மீ). சுரங்கப்பாதைகளில் வழக்கமான போக்குவரத்து.'
               : 'Highway visibility nominal (10 km). Standard traffic flow across underpasses.'}
           </p>
+        </div>
+      </div>
+
+      {/* 🌾 SMART AGRI SEED & CROP ADVISORY CARD */}
+      <div className="bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-900 text-white border border-emerald-500/30 rounded-3xl p-4 sm:p-5 shadow-lg space-y-3 relative overflow-hidden">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2.5">
+            <div className="p-2 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <Wheat className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-black text-white">
+                {activeLanguage === 'ta' ? '🌾 விவசாய விதை & பயிர் வழிகாட்டி' : '🌾 Smart Climate Seed & Crop Selection'}
+              </h3>
+              <p className="text-[10px] text-emerald-200/80">
+                {activeLanguage === 'ta' ? 'இந்த தட்பவெப்பநிலைக்கு உகந்த விதைகள் & விதைப்பு நேரம்' : 'Recommended seeds & sowing window based on current weather'}
+              </p>
+            </div>
+          </div>
+          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border ${
+            cropSeedAdvisory?.sowingStatus === 'Optimal'
+              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+              : 'bg-amber-500/20 text-amber-300 border-amber-400/30'
+          }`}>
+            {cropSeedAdvisory?.sowingStatusLabel || 'Optimal Sowing'}
+          </span>
+        </div>
+
+        {/* Recommended Seed Varieties Matrix */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {(cropSeedAdvisory?.recommendedSeeds || []).slice(0, 2).map((seed, idx) => (
+            <div key={idx} className="p-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-emerald-300">
+                  {activeLanguage === 'ta' ? seed.cropTa : seed.cropEn}
+                </span>
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-900/60 text-emerald-200 border border-emerald-500/30">
+                  {seed.suitability}
+                </span>
+              </div>
+              <div className="text-[10px] text-white font-medium">
+                <strong>{activeLanguage === 'ta' ? 'ரகங்கள்:' : 'Varieties:'}</strong> {seed.variety}
+              </div>
+              <p className="text-[10px] text-slate-300 line-clamp-2">
+                {activeLanguage === 'ta' ? seed.reasonTa : seed.reasonEn}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Action button to ask AI Chat for more farming guidance */}
+        <div className="flex items-center justify-between pt-1 border-t border-white/10">
+          <span className="text-[10px] text-emerald-200 font-medium">
+            {activeLanguage === 'ta' ? 'மண் ஈரப்பதம்:' : 'Topsoil Moisture:'} <strong>{cropSeedAdvisory?.soilMoisturePercent || 25}%</strong>
+          </span>
+          <button
+            onClick={() => onOpenChat && onOpenChat(activeLanguage === 'ta' ? 'இந்த வானிலைக்கு எந்த விதை விதைக்கலாம்? விவசாய ஆலோசனை கூறவும்' : 'Which seeds should I sow in this climate? Give crop advice')}
+            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 transition-all shadow-md cursor-pointer"
+          >
+            <span>{activeLanguage === 'ta' ? 'AI விவசாய ஆலோசனை' : 'Ask AI Crop Advice'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
 

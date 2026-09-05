@@ -1,17 +1,66 @@
-// WeatherGPT Conversational AI Engine
-// Integrates LLM Inference (Hugging Face / Gemini) with Meteorological Tool Calling & Domain Intent Routing
-
 import {
   fetchNWPForecast,
   fetchAirQuality,
   searchLocation,
   evaluateSevereWeatherAlerts,
   generateAgriAdvisory,
+  generateCropSeedAdvisory,
   generateAviationBriefing,
   generateMarineBriefing,
   getWeatherDescription,
   getLocalizedPlaceName
 } from './weatherService';
+
+// 🌐 Universal Multi-Language & Tanglish Auto-Detector Engine
+// Detects Tamil script, Indic Unicode scripts, Tanglish Romanized phonetics, and English queries
+export function detectLanguageFromQuery(query, defaultLang = 'en') {
+  if (!query || typeof query !== 'string') return defaultLang;
+  const q = query.trim();
+  const qLower = q.toLowerCase();
+
+  // 1. Script checks (Unicode ranges)
+  if (/[\u0B80-\u0BFF]/.test(q)) return 'ta'; // Tamil script
+  if (/[\u0900-\u097F]/.test(q)) {
+    if (/\b(आहे|नाही|पाऊस|कसा|काय|करावे|होय|सांगा)\b/i.test(q)) return 'mr'; // Marathi
+    return 'hi'; // Hindi
+  }
+  if (/[\u0C00-\u0C7F]/.test(q)) return 'te'; // Telugu
+  if (/[\u0D00-\u0D7F]/.test(q)) return 'ml'; // Malayalam
+  if (/[\u0C80-\u0CFF]/.test(q)) return 'kn'; // Kannada
+  if (/[\u0980-\u09FF]/.test(q)) return 'bn'; // Bengali
+  if (/[\u0A80-\u0AFF]/.test(q)) return 'gu'; // Gujarati
+  if (/[\u0A00-\u0A7F]/.test(q)) return 'pa'; // Punjabi
+
+  // 2. Tanglish Detection (Conversational Tamil written in English alphabets)
+  const tanglishPatterns = [
+    /\b(mazhai|malai|varuma|varum|peyyuma|irukku|irukkuma|irukkaa|irukkum|eppadi|epdi|ippo|eppo|nalaiku|naalaikku|naalai|iniku|innikku|indha|enta|solla|sollu|sollunga|chennai la|madurai la|coimbatore la|trichy la|salem la|ooty la|nellai la)\b/i,
+    /\b(vidhai|vitha|vithai|seed|payir|vivasaayam|vivasayi|panlama|podalama|podanum|podalaama|podunga|koodum|neram|veliya|kaathu|kaatru|veiyil|veyil|vanam|megam|kulir|thaneer|thanneer|oothe|aagum|theriyuma|kidaikkuma)\b/i,
+    /\b(weather epdi|climate epdi|rain varuma|today weather epdi|tomorrow rain varuma|weather sollunga|ennaku|ungala|romba|konjam|enga|paathu|kudutha|varanum|pannu|pannalam|kudu|thappu|solra|mathiri)\b/i
+  ];
+
+  for (const pattern of tanglishPatterns) {
+    if (pattern.test(qLower)) {
+      return 'tanglish';
+    }
+  }
+
+  // 3. Hinglish Detection
+  const hinglishPatterns = [
+    /\b(kya|hoga|hai|hogi|barish|barsat|hogi kya|kab|aayegi|kaisa|mausam|aaj ka|kal ka|batao|bataiye|kheti|fasal|beej)\b/i
+  ];
+  for (const pattern of hinglishPatterns) {
+    if (pattern.test(qLower)) {
+      return 'hi';
+    }
+  }
+
+  // If user explicitly picked a non-English language in UI and query has no other script
+  if (defaultLang && defaultLang !== 'en') {
+    return defaultLang;
+  }
+
+  return 'en';
+}
 
 // Advanced Rain Verdict & Timing Calculation Engine - Precision Rain Arrival & Peak Window
 export function calculateRainVerdict(nwpData, timeframe = 'current') {
@@ -422,6 +471,11 @@ export class WeatherAIAgent {
   // Process natural language weather query and return structured response
   async processQuery({ query, currentLocation, activeLanguage = 'en' }) {
     try {
+      // 🎯 Auto-detect Language & Tanglish directly from prompt if not explicitly matching UI
+      const effectiveLang = detectLanguageFromQuery(query, activeLanguage);
+      const isTanglish = effectiveLang === 'tanglish';
+      const targetLangForData = isTanglish ? 'ta' : effectiveLang;
+
       const { domain, timeframe, isRainInquiry } = this.extractQueryContext(query, currentLocation);
       const targetLocation = await this.resolveLocationFromQuery(query, currentLocation);
 
@@ -430,9 +484,9 @@ export class WeatherAIAgent {
       const rawCity = targetLocation?.rawName || targetLocation?.name || 'Chennai';
       const rawAdmin = targetLocation?.rawAdmin1 || targetLocation?.admin1 || '';
       const rawCountry = targetLocation?.rawCountry || targetLocation?.country || 'India';
-      const localizedCity = getLocalizedPlaceName(rawCity, activeLanguage);
-      const localizedAdmin = rawAdmin ? getLocalizedPlaceName(rawAdmin, activeLanguage) : '';
-      const localizedCountry = getLocalizedPlaceName(rawCountry, activeLanguage);
+      const localizedCity = getLocalizedPlaceName(rawCity, targetLangForData);
+      const localizedAdmin = rawAdmin ? getLocalizedPlaceName(rawAdmin, targetLangForData) : '';
+      const localizedCountry = getLocalizedPlaceName(rawCountry, targetLangForData);
       const locName = `${localizedCity}${localizedAdmin ? `, ${localizedAdmin}` : ''}, ${localizedCountry}`;
 
       // Fetch fresh real-time multi-source data
@@ -441,10 +495,10 @@ export class WeatherAIAgent {
         fetchAirQuality(lat, lon)
       ]);
 
-      const alerts = evaluateSevereWeatherAlerts(nwpData, aqiData, activeLanguage);
-      const agriAdvisory = generateAgriAdvisory(nwpData, activeLanguage);
-      const aviationBriefing = generateAviationBriefing(targetLocation?.name || 'Local Station', nwpData, activeLanguage);
-      const marineBriefing = generateMarineBriefing(nwpData, activeLanguage);
+      const alerts = evaluateSevereWeatherAlerts(nwpData, aqiData, targetLangForData);
+      const agriAdvisory = generateAgriAdvisory(nwpData, targetLangForData);
+      const aviationBriefing = generateAviationBriefing(targetLocation?.name || 'Local Station', nwpData, targetLangForData);
+      const marineBriefing = generateMarineBriefing(nwpData, targetLangForData);
 
       // Generate localized conversational message
       const responseText = this.synthesizeNaturalLanguageResponse({
@@ -459,7 +513,7 @@ export class WeatherAIAgent {
         agriAdvisory,
         aviationBriefing,
         marineBriefing,
-        lang: activeLanguage
+        lang: effectiveLang
       });
 
       return {
@@ -467,6 +521,7 @@ export class WeatherAIAgent {
         location: targetLocation,
         domain,
         timeframe,
+        detectedLanguage: effectiveLang,
         weatherData: nwpData,
         aqiData,
         alerts,
@@ -488,7 +543,7 @@ export class WeatherAIAgent {
     }
   }
 
-  // Multilingual synthesis engine for 10 languages
+  // Multilingual synthesis engine for 10 languages + Tanglish
   synthesizeNaturalLanguageResponse({
     query,
     locName,
@@ -505,7 +560,8 @@ export class WeatherAIAgent {
   }) {
     const current = nwpData?.current || {};
     const daily = nwpData?.daily || {};
-    const wmo = getWeatherDescription(current.weather_code || 0, lang);
+    const effectiveLangForWmo = lang === 'tanglish' ? 'ta' : lang;
+    const wmo = getWeatherDescription(current.weather_code || 0, effectiveLangForWmo);
     const temp = current.temperature_2m ?? '--';
     const feels = current.apparent_temperature ?? temp;
     const humidity = current.relative_humidity_2m ?? '--';
@@ -517,6 +573,7 @@ export class WeatherAIAgent {
 
     // Calculate detailed Rain Verdict & Predicted Timing
     const rainCalc = calculateRainVerdict(nwpData, timeframe);
+    const cropSeedAdvisory = generateCropSeedAdvisory(nwpData, lang);
 
     // Highest alert level
     const topAlert =
@@ -524,6 +581,82 @@ export class WeatherAIAgent {
       alerts.find((a) => a.level === 'orange') ||
       alerts.find((a) => a.level === 'yellow') ||
       alerts[0];
+
+    // 🌟 Special Language: TANGLISH (Conversational Tamil in English letters)
+    if (lang === 'tanglish') {
+      if (isRainInquiry) {
+        if (rainCalc.verdict === 'YES') {
+          return (
+            `🌧️ **Mazhai Theerpu: Aam (YES - Mazhai Kandippa Peyyum! 🌧️)**\n\n` +
+            `• ⏰ **Kaanikkapatta Neram (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
+            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% | **Ethirpaarkappadum Alavu:** ~${rainCalc.totalPrecip} mm\n` +
+            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
+            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
+            `• 💡 **Mukkiya Advice:** Veliya kelambura appo kandippa Kudai (Umbrella) allathu Raincoat eduthuttu ponga!`
+          );
+        } else if (rainCalc.verdict === 'MAYBE') {
+          return (
+            `🌦️ **Mazhai Theerpu: Vaippu Irukku (MAYBE - Lesana Thooral / Megamootam 🌦️)**\n\n` +
+            `• ⏰ **Kaanikkapatta Neram (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
+            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% | **Ethirpaarkappadum Alavu:** ~${rainCalc.totalPrecip} mm\n` +
+            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
+            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
+            `• 💡 **Advice:** Sila idangalil lesana thooral varalaam. Veli velai irundha pathu thittam pottukonga.`
+          );
+        } else {
+          return (
+            `☀️ **Mazhai Theerpu: Illai (NO - Mazhai Peyya Vaippu Illai! ☀️)**\n\n` +
+            `• ⏰ **Predicted Time:** Adutha 24 mani nerathil mazhai vaippu illa.\n` +
+            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% (Romba Kuraivu) | **Mazhai Alavu:** 0 mm\n` +
+            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
+            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
+            `• 💡 **Advice:** Mazhai peyya vaippe illa. Thelivana veyil & nalla climate irukum. Unga velaiya thairiyama pannalam!`
+          );
+        }
+      }
+
+      if (domain === 'agriculture' && cropSeedAdvisory) {
+        return (
+          `🌾 **${locName} - Vivasaya Vidhai & Payir Valikaatti (Farmer Climate Advice):**\n\n` +
+          `• 🌡️ **Ippodhaiya Climate:** ${temp}°C | **Eerapatham:** ${humidity}% | **Mann Eerapatham:** ${cropSeedAdvisory.soilMoisturePercent}%\n` +
+          `• 🚜 **Vidhaippu Thaguthi (Sowing Status):** ✅ **${cropSeedAdvisory.sowingStatusLabel}**\n\n` +
+          `🌱 **Intha Climate-ku Yetha Vidhaigal (Recommended Seeds):**\n` +
+          cropSeedAdvisory.recommendedSeeds.map((s, idx) => `  ${idx + 1}. **${s.cropTanglish || s.cropEn}** (${s.variety})\n     *Kaalam:* ${s.duration} | *Yethadhu:* ${s.suitability}\n     *Karanam:* ${s.reasonTanglish || s.reasonEn}`).join('\n\n') +
+          `\n\n• 💧 **Paasana Vazhikaattal:** ${agriAdvisory?.irrigationAdvice || 'Mannil nalla eerapatham irukku, thevaikku yetrappa paasanam seyyavum.'}\n` +
+          `• 🧪 **Marundhu / Uram Thelippu:** ${agriAdvisory?.sprayCondition === 'Favorable' ? '✅ Nalla neram, thelikkalam' : '⚠️ Mazhai & kaatru irupadhal thelippai thallipodavum.'}\n` +
+          `• 🛡️ **${cropSeedAdvisory.pestWarning}**\n` +
+          `• 💡 **${cropSeedAdvisory.seedTreatmentTip}**`
+        );
+      }
+
+      if (domain === 'marine' && marineBriefing) {
+        return (
+          `🌊 **${locName} Kadal & Meenavar Pathukaappu Arikkai:**\n` +
+          `• **Kadal Nilai:** ${marineBriefing.seaState} (Alai Uyarathil: ${marineBriefing.waveHeightM} m)\n` +
+          `• **Kaatru Vegam:** ${wind} km/h | **Kadal Veppam:** ${marineBriefing.seaSurfaceTemp}°C\n` +
+          `• **Meenavargal Echarikkai:** ${marineBriefing.fishermanAdvisory}\n` +
+          `• **Uyar Alai Neram:** ${marineBriefing.tideInfo.nextHighTide}`
+        );
+      }
+
+      if (timeframe === 'tomorrow') {
+        return (
+          `☀️ **${locName} - Naalaya Vaanilai Munnarivippu:**\n` +
+          `• **Adhigabatcha Veppam:** ${tomorrowTempMax}°C\n` +
+          `• **Mazhai Peyya Vaippu:** ${tomorrowRainProb}%\n` +
+          `• **Kaatru Vegam:** ${wind} km/h | **Kaatru Tharam (AQI):** ${aqi}\n` +
+          `• **Echarikkai Nilai:** ${topAlert?.title || 'Iyalbaana Vaanilai'}`
+        );
+      }
+
+      return (
+        `📍 **${locName} Neralai Vaanilai Thagaval (Live Weather):**\n` +
+        `• **Vaanilai Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
+        `• **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
+        `• **Mazhai Vaippu:** ${rainProb}% | **Kaatru Tharam (AQI):** ${aqi}\n` +
+        `• **Echarikkai Kurippu:** ${topAlert?.message || 'Vaanilai seeraaga ulladhu.'}`
+      );
+    }
 
     // Language 1: TAMIL (தமிழ்)
     if (lang === 'ta') {
@@ -558,14 +691,17 @@ export class WeatherAIAgent {
         }
       }
 
-      if (domain === 'agriculture' && agriAdvisory) {
+      if (domain === 'agriculture' && cropSeedAdvisory) {
         return (
-          `🌾 **${locName} க்கான விவசாய வானிலை மற்றும் மண் ஆலோசனை:**\n` +
-          `• **தற்போதைய வெப்பநிலை:** ${temp}°C | **ஈரப்பதம்:** ${humidity}%\n` +
-          `• **மண் ஈரப்பதம்:** ${agriAdvisory.soilMoisturePercent}% (மண் வெப்பநிலை: ${agriAdvisory.soilTemperature}°C)\n` +
-          `• **மருந்து தெளிக்கும் நிலை:** ${agriAdvisory.sprayCondition === 'Favorable' ? '✅ சிறந்தது' : '⚠️ ஒத்திவைக்கவும்'}\n` +
-          `• **பாசன வழிகாட்டல்:** ${agriAdvisory.irrigationAdvice}\n` +
-          `• **பயிர் பரிந்துரை:** ${agriAdvisory.cropSuitability.map((c) => `${c.crop} - ${c.status}`).join(', ')}.`
+          `🌾 **${locName} - விவசாய விதை & பயிர் வழிகாட்டி (Crop & Seed Advisory):**\n\n` +
+          `• 🌡️ **வானிலை நிலை:** ${temp}°C | **ஈரப்பதம்:** ${humidity}% | **மண் ஈரப்பதம்:** ${cropSeedAdvisory.soilMoisturePercent}%\n` +
+          `• 🚜 **விதைப்பு தகுதி:** ✅ **${cropSeedAdvisory.sowingStatusLabel}**\n\n` +
+          `🌱 **இந்த தட்பவெப்பத்திற்கு ஏற்ற உகந்த விதைகள் (Recommended Seeds):**\n` +
+          cropSeedAdvisory.recommendedSeeds.map((s, idx) => `  ${idx + 1}. **${s.cropTa}** (${s.variety})\n     *பயிர் காலம்:* ${s.duration} | *ஏற்புத்திறன்:* ${s.suitability}\n     *காரணம்:* ${s.reasonTa}`).join('\n\n') +
+          `\n\n• 💧 **பாசன வழிகாட்டல்:** ${agriAdvisory?.irrigationAdvice || 'மண்ணில் போதுமான ஈரப்பதம் உள்ளது.'}\n` +
+          `• 🧪 **உரம் / மருந்து தெளிப்பு:** ${agriAdvisory?.sprayCondition === 'Favorable' ? '✅ சிறந்தது, இன்று தெளிக்கலாம்' : '⚠️ காற்று/மழை காரணமாக ஒத்திவைக்கவும்.'}\n` +
+          `• 🛡️ **${cropSeedAdvisory.pestWarning}**\n` +
+          `• 💡 **${cropSeedAdvisory.seedTreatmentTip}**`
         );
       }
       if (domain === 'marine' && marineBriefing) {
@@ -1004,16 +1140,17 @@ export class WeatherAIAgent {
       }
     }
 
-    if (domain === 'agriculture' && agriAdvisory) {
+    if (domain === 'agriculture' && cropSeedAdvisory) {
       return (
-        `🌾 **Crop & Agricultural Meteorological Advisory for ${locName}:**\n` +
-        `• **Current Temperature:** ${temp}°C (Feels like ${feels}°C) | **Humidity:** ${humidity}%\n` +
-        `• **Root-Zone Soil Moisture:** ${agriAdvisory.soilMoisturePercent}% | **Topsoil Temp:** ${agriAdvisory.soilTemperature}°C\n` +
-        `• **Agrochemical Spray Window:** ${agriAdvisory.sprayCondition === 'Favorable' ? '✅ Optimal Window' : '⚠️ Hold Chemical Applications'}\n` +
-        `  *Rationale:* ${agriAdvisory.sprayAdvice}\n` +
-        `• **Irrigation Directive:** ${agriAdvisory.irrigationAdvice}\n` +
-        `• **Crop Status Matrix:**\n` +
-        agriAdvisory.cropSuitability.map((c) => `  - **${c.crop}**: ${c.status} (Pest Risk: ${c.risk})`).join('\n')
+        `🌾 **Smart Agricultural Crop & Seed Selection Advisory for ${locName}:**\n\n` +
+        `• 🌡️ **Microclimate:** ${temp}°C (Feels like ${feels}°C) | **Humidity:** ${humidity}% | **Topsoil Moisture:** ${cropSeedAdvisory.soilMoisturePercent}%\n` +
+        `• 🚜 **Sowing Readiness:** ✅ **${cropSeedAdvisory.sowingStatusLabel}**\n\n` +
+        `🌱 **Recommended Seeds for Current Climate:**\n` +
+        cropSeedAdvisory.recommendedSeeds.map((s, idx) => `  ${idx + 1}. **${s.cropEn}** (${s.variety})\n     *Crop Duration:* ${s.duration} | *Suitability:* ${s.suitability}\n     *Agronomic Reason:* ${s.reasonEn}`).join('\n\n') +
+        `\n\n• 💧 **Irrigation Strategy:** ${agriAdvisory?.irrigationAdvice || 'Moderate irrigation to maintain root-zone saturation.'}\n` +
+        `• 🧪 **Agrochemical Spray Window:** ${agriAdvisory?.sprayCondition === 'Favorable' ? '✅ Optimal for foliar application' : '⚠️ Postpone due to wind/rain.'}\n` +
+        `• 🛡️ **${cropSeedAdvisory.pestWarning}**\n` +
+        `• 💡 **${cropSeedAdvisory.seedTreatmentTip}**`
       );
     }
 
