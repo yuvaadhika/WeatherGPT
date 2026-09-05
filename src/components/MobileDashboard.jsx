@@ -205,28 +205,7 @@ export default function MobileDashboard({
 
   return (
     <div className="w-full max-w-lg mx-auto pb-24 space-y-4 font-sans text-slate-800 animate-fadeIn">
-      {/* 1. Phone Top Status Bar (Dynamic Island & Time & Connectivity) */}
-      <div className="flex items-center justify-between px-3 pt-1 text-[11px] font-semibold text-slate-500 tracking-tight select-none">
-        <div className="flex items-center space-x-1 font-mono text-slate-800 text-xs font-bold">
-          <span>{currentTimeStr || '9:41'}</span>
-        </div>
-
-        {/* Dynamic Island Pill / SIH Badge */}
-        <div className="px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-medium flex items-center space-x-1.5 shadow-sm">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-          <span className="tracking-wide text-sky-300 font-bold">WEATHERGPT</span>
-          <span className="text-slate-400 text-[9px] hidden sm:inline">• SIH 2026</span>
-        </div>
-
-        <div className="flex items-center space-x-1.5 text-slate-700">
-          <span className="text-[10px] font-bold">5G</span>
-          <div className="w-4 h-2 rounded-sm border border-slate-600 p-0.5 flex items-center">
-            <div className="h-full w-3/4 bg-slate-800 rounded-2xs"></div>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Top Location Bar & Header */}
+      {/* 1. Top Location Bar & Header */}
       <div className="bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-4 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">

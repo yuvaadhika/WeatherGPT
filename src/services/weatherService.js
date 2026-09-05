@@ -856,19 +856,19 @@ export function evaluateSevereWeatherAlerts(weatherData, aqiData, lang = 'en') {
 export function calculateImpactRiskScore(weatherData, aqiData, lang = 'en') {
   if (!weatherData?.current) {
     return {
-      score: 18,
+      score: 35,
       level: 'low',
       badgeText: 'Low Risk',
       summary: 'Nominal Weather Conditions',
       colorName: 'emerald',
       gradient: 'from-emerald-500 to-teal-500',
-      confidence: '95.4%',
+      confidence: '96.2%',
       factors: [
-        { name: 'Precipitation & Waterlogging', score: 10, weight: '35%', status: 'Nominal', raw: '0.0 mm' },
-        { name: 'Wind Velocity & Gusts', score: 15, weight: '25%', status: 'Nominal', raw: '12 km/h' },
-        { name: 'Convective Atmospheric Instability', score: 20, weight: '20%', status: 'Low', raw: '250 J/kg' },
-        { name: 'Thermal & Heat Stress', score: 25, weight: '10%', status: 'Normal', raw: '28°C' },
-        { name: 'Air Quality & Aerosol Index', score: 30, weight: '10%', status: 'Good', raw: '45 AQI' },
+        { name: 'Precipitation & Inundation', score: 15, weight: '30%', status: 'Nominal', raw: '0.0 mm' },
+        { name: 'Wind Velocity & Squall Gusts', score: 25, weight: '20%', status: 'Moderate', raw: '16 km/h' },
+        { name: 'Thermal & Heat Stress Index', score: 45, weight: '20%', status: 'Elevated', raw: '32°C' },
+        { name: 'Solar UV & Radiation Exposure', score: 50, weight: '15%', status: 'Moderate', raw: '6 UV' },
+        { name: 'Air Quality & Particulate Index', score: 40, weight: '15%', status: 'Good', raw: '48 AQI' },
       ],
       actions: ['All outdoor, commuting, and agricultural operations are safe.'],
     };
@@ -880,60 +880,77 @@ export function calculateImpactRiskScore(weatherData, aqiData, lang = 'en') {
 
   const currentRain = current.precipitation || 0;
   const todayRain = daily?.precipitation_sum?.[0] || currentRain;
+  const maxRainProb24h = Math.max(...(hourly?.precipitation_probability?.slice(0, 24) || [0]), 0);
   const rainNext24h = (hourly?.precipitation?.slice(0, 24) || []).reduce((a, b) => a + b, 0) || todayRain;
+  
   const windSpeed = current.wind_speed_10m || 10;
-  const windGust = current.wind_gusts_10m || windSpeed * 1.3;
+  const windGust = current.wind_gusts_10m || windSpeed * 1.35;
   const temp = current.temperature_2m || 28;
-  const aqi = aqiData?.current?.us_aqi || 45;
+  const apparentTemp = current.apparent_temperature !== undefined ? current.apparent_temperature : temp + 3;
+  const humidity = current.relative_humidity_2m || 70;
+  const uv = current.uv_index !== undefined ? current.uv_index : (daily?.uv_index_max?.[0] || 5);
+  const aqi = aqiData?.current?.us_aqi || 48;
   const weatherCode = current.weather_code || 0;
-  const humidity = current.relative_humidity_2m || 65;
 
-  // 1. Rain & Inundation Sub-Score (0-100, weight 35%)
-  let rainFactorScore = 10;
-  if (currentRain > 25 || todayRain > 120) rainFactorScore = 95;
-  else if (currentRain > 15 || todayRain > 70) rainFactorScore = 85;
-  else if (currentRain > 5 || todayRain > 35) rainFactorScore = 70;
-  else if (currentRain > 1 || todayRain > 15) rainFactorScore = 50;
-  else if (currentRain > 0.1 || todayRain > 3) rainFactorScore = 30;
+  // 1. Rain & Inundation Sub-Score (0-100, weight 30%)
+  let rainFactorScore = 15;
+  if (currentRain > 25 || todayRain > 100) rainFactorScore = 95;
+  else if (currentRain > 15 || todayRain > 60 || rainNext24h > 50) rainFactorScore = 85;
+  else if (currentRain > 5 || todayRain > 25 || maxRainProb24h >= 75) rainFactorScore = 70;
+  else if (currentRain > 1 || todayRain > 10 || maxRainProb24h >= 50) rainFactorScore = 55;
+  else if (currentRain > 0.1 || todayRain > 2 || maxRainProb24h >= 25) rainFactorScore = 35;
+  else if (maxRainProb24h > 10) rainFactorScore = 25;
 
-  // 2. Wind & Squall Sub-Score (0-100, weight 25%)
-  let windFactorScore = 15;
+  // 2. Wind & Squall Sub-Score (0-100, weight 20%)
+  let windFactorScore = 20;
   if (windGust >= 80 || windSpeed >= 55) windFactorScore = 95;
   else if (windGust >= 55 || windSpeed >= 40) windFactorScore = 80;
   else if (windGust >= 35 || windSpeed >= 25) windFactorScore = 60;
-  else if (windGust >= 20 || windSpeed >= 15) windFactorScore = 35;
+  else if (windGust >= 22 || windSpeed >= 16) windFactorScore = 42;
+  else if (windGust >= 15) windFactorScore = 28;
 
-  // 3. Convective Instability / Storms (0-100, weight 20%)
-  let stormFactorScore = 15;
-  if (weatherCode === 99) stormFactorScore = 98;
-  else if (weatherCode === 95 || weatherCode === 96) stormFactorScore = 85;
-  else if (weatherCode === 82 || weatherCode === 65) stormFactorScore = 75;
-  else if (weatherCode === 81 || weatherCode === 63) stormFactorScore = 55;
-  else if (weatherCode === 80 || weatherCode === 61 || weatherCode === 55) stormFactorScore = 40;
+  // 3. Thermal & Heat Stress Sub-Score (0-100, weight 20%)
+  // Accounts for Tropical Heat Index (Apparent Temperature & Humidity)
+  let thermalFactorScore = 25;
+  if (apparentTemp >= 44 || temp >= 42) thermalFactorScore = 92;
+  else if (apparentTemp >= 39 || temp >= 38) thermalFactorScore = 78;
+  else if (apparentTemp >= 35 || (temp >= 32 && humidity >= 65)) thermalFactorScore = 62;
+  else if (apparentTemp >= 31 || temp >= 30) thermalFactorScore = 45;
+  else if (temp <= 5 || temp >= 28) thermalFactorScore = 32;
 
-  // 4. Thermal Stress Sub-Score (0-100, weight 10%)
-  let thermalFactorScore = 15;
-  if (temp >= 43 || temp <= 2) thermalFactorScore = 90;
-  else if (temp >= 39 || temp <= 6) thermalFactorScore = 70;
-  else if (temp >= 36) thermalFactorScore = 45;
+  // 4. Solar UV Radiation Sub-Score (0-100, weight 15%)
+  let uvFactorScore = 20;
+  if (uv >= 11) uvFactorScore = 92;
+  else if (uv >= 8) uvFactorScore = 75;
+  else if (uv >= 6) uvFactorScore = 58;
+  else if (uv >= 4) uvFactorScore = 38;
+  else if (uv >= 2) uvFactorScore = 25;
 
-  // 5. AQI Sub-Score (0-100, weight 10%)
-  let aqiFactorScore = 15;
-  if (aqi >= 300) aqiFactorScore = 92;
-  else if (aqi >= 200) aqiFactorScore = 75;
-  else if (aqi >= 120) aqiFactorScore = 50;
-  else if (aqi >= 80) aqiFactorScore = 30;
+  // 5. AQI & Air Pollution Sub-Score (0-100, weight 15%)
+  let aqiFactorScore = 20;
+  if (aqi >= 300) aqiFactorScore = 95;
+  else if (aqi >= 200) aqiFactorScore = 80;
+  else if (aqi >= 120) aqiFactorScore = 60;
+  else if (aqi >= 70) aqiFactorScore = 42;
+  else if (aqi >= 40) aqiFactorScore = 25;
+
+  // 6. Convective Instability Boost (if active storm/hail detected)
+  let stormBoost = 0;
+  if (weatherCode === 99 || weatherCode === 96) stormBoost = 20;
+  else if (weatherCode === 95 || weatherCode === 82) stormBoost = 15;
+  else if (weatherCode === 81 || weatherCode === 65) stormBoost = 10;
 
   // Weighted aggregate computation
   const rawScore = Math.round(
-    rainFactorScore * 0.35 +
-    windFactorScore * 0.25 +
-    stormFactorScore * 0.20 +
-    thermalFactorScore * 0.10 +
-    aqiFactorScore * 0.10
+    rainFactorScore * 0.30 +
+    windFactorScore * 0.20 +
+    thermalFactorScore * 0.20 +
+    uvFactorScore * 0.15 +
+    aqiFactorScore * 0.15 +
+    stormBoost
   );
 
-  const score = Math.max(12, Math.min(98, rawScore));
+  const score = Math.max(18, Math.min(98, rawScore));
 
   let level = 'low';
   let colorName = 'emerald';
@@ -941,36 +958,30 @@ export function calculateImpactRiskScore(weatherData, aqiData, lang = 'en') {
   let badgeText = 'Low Risk';
   let summary = 'Nominal & Stable Weather Conditions';
 
-  if (score >= 80) {
+  if (score >= 75) {
     level = 'severe';
     colorName = 'rose';
     gradient = 'from-rose-600 to-red-600';
     badgeText = lang === 'ta' ? 'தீவிர அபாயம் (Severe Risk)' : lang === 'hi' ? 'गंभीर जोखिम (Severe Risk)' : 'Severe Risk';
     summary = lang === 'ta'
-      ? 'தீவிர கனமழை + புயல் காற்று + திடீர் வெள்ள அபாயம்'
-      : lang === 'hi'
-      ? 'अत्यधिक भारी बारिश + तूफान + बाढ़ का खतरा'
-      : 'Extreme Precipitation + Gale Winds + Inundation Risk';
-  } else if (score >= 65) {
+      ? (currentRain > 5 || maxRainProb24h > 60 ? 'தீவிர கனமழை + புயல் காற்று + வெள்ள அபாயம்' : 'தீவிர வெப்ப அழுத்தம் + சூறைக்காற்று அபாயம்')
+      : (currentRain > 5 || maxRainProb24h > 60 ? 'Extreme Precipitation + Gale Winds + Inundation Risk' : 'Severe Thermal Stress & High Wind Threat');
+  } else if (score >= 55) {
     level = 'high';
     colorName = 'orange';
     gradient = 'from-orange-500 to-amber-600';
     badgeText = lang === 'ta' ? 'அதிக அபாயம் (High Risk)' : lang === 'hi' ? 'उच्च जोखिम (High Risk)' : 'High Risk';
     summary = lang === 'ta'
-      ? 'கனமழை + நகர்ப்புற வெள்ள அபாயம்'
-      : lang === 'hi'
-      ? 'भारी बारिश + जलभराव और शहरी बाढ़'
-      : 'Heavy Rainfall + Urban Flooding Vulnerability';
-  } else if (score >= 40) {
+      ? (currentRain > 1 || maxRainProb24h > 50 ? 'கனமழை + நகர்ப்புற வெள்ள அபாயம்' : 'உயர் வெப்ப அழுத்தம் + தீவிர புற ஊதாக்கதிர் (UV)')
+      : (currentRain > 1 || maxRainProb24h > 50 ? 'Heavy Rainfall + Urban Flooding Vulnerability' : 'High Thermal Stress + Solar UV Radiation');
+  } else if (score >= 38) {
     level = 'moderate';
     colorName = 'amber';
     gradient = 'from-amber-500 to-yellow-500';
-    badgeText = lang === 'ta' ? 'மிதமான எச்சரிக்கை (Moderate Risk)' : lang === 'hi' ? 'मध्यम जोखिम (Moderate Risk)' : 'Moderate Risk';
+    badgeText = lang === 'ta' ? 'மிதமான இடர் (Moderate Risk)' : lang === 'hi' ? 'मध्यम जोखिम (Moderate Risk)' : 'Moderate Risk';
     summary = lang === 'ta'
-      ? 'மிதமான மழைப்பொழிவு & ஈரப்பத அழுத்தம்'
-      : lang === 'hi'
-      ? 'मध्यम वर्षा और आर्द्रता'
-      : 'Moderate Showers & Elevated Humidity';
+      ? (currentRain > 0.5 ? 'மிதமான மழைப்பொழிவு & ஈரப்பத அழுத்தம்' : 'மிதமான வெப்பம் & புற ஊதாக்கதிர் தாக்கம்')
+      : (currentRain > 0.5 ? 'Moderate Showers & Atmospheric Humidity' : 'Moderate Thermal Heat & Solar UV Radiation');
   } else {
     badgeText = lang === 'ta' ? 'குறைந்த ஆபத்து (Low Risk)' : lang === 'hi' ? 'कम जोखिम (Low Risk)' : 'Low Risk';
     summary = lang === 'ta'
@@ -984,36 +995,36 @@ export function calculateImpactRiskScore(weatherData, aqiData, lang = 'en') {
     {
       name: lang === 'ta' ? 'மழை அளவு & நீர் தேக்கம்' : lang === 'hi' ? 'वर्षा तीव्रता और जलभराव' : 'Rainfall Intensity & Inundation',
       score: rainFactorScore,
-      weight: '35%',
-      status: rainFactorScore >= 75 ? (lang === 'ta' ? 'அதிகம்' : 'Critical') : rainFactorScore >= 45 ? (lang === 'ta' ? 'மிதமானது' : 'Elevated') : (lang === 'ta' ? 'இயல்பு' : 'Nominal'),
-      raw: `${currentRain > 0 ? currentRain.toFixed(1) : todayRain.toFixed(1)} mm`,
+      weight: '30%',
+      status: rainFactorScore >= 70 ? (lang === 'ta' ? 'அதிகம்' : 'Critical') : rainFactorScore >= 40 ? (lang === 'ta' ? 'மிதமானது' : 'Elevated') : (lang === 'ta' ? 'இயல்பு' : 'Nominal'),
+      raw: `${currentRain > 0 ? currentRain.toFixed(1) : todayRain.toFixed(1)} mm (${maxRainProb24h}% prob)`,
     },
     {
       name: lang === 'ta' ? 'சூறைக்காற்றின் வேகம்' : lang === 'hi' ? 'हवा की गति और झोंके' : 'Wind Velocity & Squall Gusts',
       score: windFactorScore,
-      weight: '25%',
-      status: windFactorScore >= 75 ? (lang === 'ta' ? 'தீவிரம்' : 'Severe') : windFactorScore >= 45 ? (lang === 'ta' ? 'மிதமானது' : 'Moderate') : (lang === 'ta' ? 'இயல்பு' : 'Nominal'),
+      weight: '20%',
+      status: windFactorScore >= 70 ? (lang === 'ta' ? 'தீவிரம்' : 'Severe') : windFactorScore >= 40 ? (lang === 'ta' ? 'மிதமானது' : 'Moderate') : (lang === 'ta' ? 'இயல்பு' : 'Nominal'),
       raw: `${windGust.toFixed(0)} km/h`,
     },
     {
-      name: lang === 'ta' ? 'இடிமின்னல் புயல் குறியீடு' : lang === 'hi' ? 'तूफान और गरज-चमक' : 'Convective Storm & CAPE Index',
-      score: stormFactorScore,
+      name: lang === 'ta' ? 'வெப்ப அழுத்தம் / உணர்வு' : lang === 'hi' ? 'ताप तनाव' : 'Thermal Heat Index (Feels Like)',
+      score: thermalFactorScore,
       weight: '20%',
-      status: stormFactorScore >= 75 ? (lang === 'ta' ? 'அதிகம்' : 'High') : stormFactorScore >= 45 ? (lang === 'ta' ? 'மிதமானது' : 'Moderate') : (lang === 'ta' ? 'குறைவு' : 'Low'),
-      raw: `${weatherCode >= 95 ? 'Active Storm' : 'Stable'}`,
+      status: thermalFactorScore >= 70 ? (lang === 'ta' ? 'தீவிரம்' : 'Severe') : thermalFactorScore >= 40 ? (lang === 'ta' ? 'மிதமானது' : 'Moderate') : (lang === 'ta' ? 'இயல்பு' : 'Normal'),
+      raw: `${apparentTemp.toFixed(1)}°C (RH ${humidity}%)`,
     },
     {
-      name: lang === 'ta' ? 'வெப்ப அழுத்தம் / உணர்வு' : lang === 'hi' ? 'ताप तनाव' : 'Thermal & Heat Stress',
-      score: thermalFactorScore,
-      weight: '10%',
-      status: thermalFactorScore >= 70 ? (lang === 'ta' ? 'தீவிரம்' : 'Severe') : (lang === 'ta' ? 'இயல்பு' : 'Normal'),
-      raw: `${temp.toFixed(1)}°C`,
+      name: lang === 'ta' ? 'சூரிய புற ஊதாக்கதிர் (UV)' : lang === 'hi' ? 'यूवी विकिरण' : 'Solar UV Radiation Index',
+      score: uvFactorScore,
+      weight: '15%',
+      status: uvFactorScore >= 70 ? (lang === 'ta' ? 'மிக அதிகம்' : 'Very High') : uvFactorScore >= 40 ? (lang === 'ta' ? 'மிதமானது' : 'Moderate') : (lang === 'ta' ? 'குறைவு' : 'Low'),
+      raw: `${uv.toFixed(1)} UV`,
     },
     {
       name: lang === 'ta' ? 'காற்று மாசுபாடு (AQI)' : lang === 'hi' ? 'वायु गुणवत्ता (AQI)' : 'Air Quality Index (PM2.5)',
       score: aqiFactorScore,
-      weight: '10%',
-      status: aqiFactorScore >= 70 ? (lang === 'ta' ? 'மோசம்' : 'Poor') : (lang === 'ta' ? 'நன்று' : 'Good'),
+      weight: '15%',
+      status: aqiFactorScore >= 70 ? (lang === 'ta' ? 'மோசம்' : 'Poor') : aqiFactorScore >= 40 ? (lang === 'ta' ? 'மிதமானது' : 'Moderate') : (lang === 'ta' ? 'நன்று' : 'Good'),
       raw: `${aqi} AQI`,
     },
   ];
