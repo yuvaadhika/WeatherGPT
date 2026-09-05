@@ -12,6 +12,7 @@ import ClimateAnalyticsChart from './components/ClimateAnalyticsChart';
 import ApiKeyModal from './components/ApiKeyModal';
 import ReportExportModal from './components/ReportExportModal';
 import AlertNotificationModal from './components/AlertNotificationModal';
+import OnboardingPermissionModal from './components/OnboardingPermissionModal';
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -83,11 +84,26 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
+    // Show on first visit
+    return localStorage.getItem('weather_onboarding_shown') !== 'true';
+  });
   const [initialChatQuery, setInitialChatQuery] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => notificationService.hasAnyChannelActive());
 
   const handleToggleNotifications = async () => {
     setIsAlertModalOpen(true);
+  };
+
+  const handleAllowPermissions = async (allowLocation, allowAlerts) => {
+    localStorage.setItem('weather_onboarding_shown', 'true');
+    if (allowLocation) {
+      detectUserLocation(activeLanguage);
+    }
+    if (allowAlerts) {
+      setNotificationsEnabled(true);
+      notificationService.sendTestAlert(currentLocation.name || 'Your Location');
+    }
   };
 
   // Multi-channel weather alerts when severe alert is detected
@@ -686,6 +702,15 @@ export default function App() {
         onClose={() => setIsAlertModalOpen(false)}
         currentLocationName={currentLocation?.name || 'Chennai'}
         onSettingsUpdated={() => setNotificationsEnabled(notificationService.hasAnyChannelActive())}
+      />
+
+      <OnboardingPermissionModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        activeLanguage={activeLanguage}
+        setActiveLanguage={setActiveLanguage}
+        onAllowPermissions={handleAllowPermissions}
+        onSkip={() => localStorage.setItem('weather_onboarding_shown', 'true')}
       />
     </div>
   );

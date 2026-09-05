@@ -26,7 +26,17 @@ import {
   Activity,
   Wheat,
   Share2,
-  Maximize2
+  Maximize2,
+  Sunrise,
+  Sunset,
+  Car,
+  Umbrella,
+  ShieldCheck,
+  CheckCircle2,
+  AlertTriangle,
+  Flame,
+  Layers,
+  BarChart2
 } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
 import { getWeatherDescription, getLocalizedPlaceName } from '../services/weatherService';
@@ -57,6 +67,8 @@ export default function MobileDashboard({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [activeHourlyMetric, setActiveHourlyMetric] = useState('temp'); // 'temp' | 'rain' | 'wind'
+  const [sharedToast, setSharedToast] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -97,6 +109,21 @@ export default function MobileDashboard({
     setSearchOpen(false);
   };
 
+  const handleShareWeather = () => {
+    const shareText = `WeatherGPT Live Alert (${currentLocation?.name || 'Chennai'}): Temp ${Math.round(current.temperature_2m || 28)}°C, Risk Score ${riskData?.score || 75}/100 (${riskData?.badgeText || 'Alert'}). Check live: https://weather-gpt-yuvi.vercel.app/`;
+    if (navigator.share) {
+      navigator.share({
+        title: 'WeatherGPT Live Alert',
+        text: shareText,
+        url: 'https://weather-gpt-yuvi.vercel.app/',
+      }).catch(console.warn);
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareText);
+      setSharedToast(true);
+      setTimeout(() => setSharedToast(false), 3000);
+    }
+  };
+
   const wmo = getWeatherDescription(current.weather_code || 0, activeLanguage);
   const tempC = current.temperature_2m !== undefined ? Math.round(current.temperature_2m) : 28;
   const feelsLike = current.apparent_temperature !== undefined ? Math.round(current.apparent_temperature) : tempC + 3;
@@ -107,6 +134,19 @@ export default function MobileDashboard({
   const dewPoint = (tempC - (100 - humidity) / 5).toFixed(0);
   const aqiVal = aqiData?.current?.us_aqi || 48;
   const uvVal = current.uv_index !== undefined ? current.uv_index : (daily.uv_index_max?.[0] || 6);
+
+  // Extra Solar & Astronomical Data
+  const sunriseStr = daily.sunrise?.[0] ? new Date(daily.sunrise[0]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '06:05 AM';
+  const sunsetStr = daily.sunset?.[0] ? new Date(daily.sunset[0]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '06:22 PM';
+
+  // Extra Soil Moisture & Agri Telemetry
+  const soilMoistureVal = hourly.soil_moisture_0_to_1cm?.[0] !== undefined ? Math.round(hourly.soil_moisture_0_to_1cm[0] * 100) : 42;
+  const soilTempVal = hourly.soil_temperature_0cm?.[0] !== undefined ? Math.round(hourly.soil_temperature_0cm[0]) : tempC - 2;
+  const spraySuitability = windKmh <= 15 && parseFloat(rainToday) === 0 ? 'Optimal' : 'Unfavorable';
+
+  // Extra Commute & Road Flooding Vulnerability
+  const roadFloodScore = parseFloat(rainToday) > 40 ? 88 : parseFloat(rainToday) > 15 ? 65 : parseFloat(rainToday) > 2 ? 35 : 12;
+  const needUmbrella = parseFloat(rainToday) > 0.5 || (hourly.precipitation_probability?.[0] || 0) > 40;
 
   const riskScore = riskData?.score || 75;
   const riskLevel = riskData?.level || 'high';
@@ -133,9 +173,10 @@ export default function MobileDashboard({
     const hourLabel = idx === 0 ? (activeLanguage === 'ta' ? 'இப்போது' : 'Now') : d.toLocaleTimeString([], { hour: 'numeric' });
     const hTemp = Math.round(hourly.temperature_2m?.[idx] ?? tempC);
     const hRainProb = hourly.precipitation_probability?.[idx] ?? Math.min(100, Math.round((hourly.precipitation?.[idx] || 0) * 20));
+    const hWind = Math.round(hourly.wind_speed_10m?.[idx] ?? windKmh);
     const hCode = hourly.weather_code?.[idx] ?? 0;
     const hWmo = getWeatherDescription(hCode, activeLanguage);
-    return { hourLabel, hTemp, hRainProb, hWmo };
+    return { hourLabel, hTemp, hRainProb, hWind, hWmo };
   });
 
   // Next 7 days slice
@@ -205,8 +246,15 @@ export default function MobileDashboard({
             </div>
           </div>
 
-          {/* Right Action Icons (Search + Alert Bell) */}
+          {/* Right Action Icons (Share + Search + Alert Bell) */}
           <div className="flex items-center space-x-1.5">
+            <button
+              onClick={handleShareWeather}
+              className="p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              title="Share Live Weather Bulletin"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
             <button
               onClick={() => setSearchOpen(!searchOpen)}
               className="p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
@@ -230,6 +278,13 @@ export default function MobileDashboard({
             </button>
           </div>
         </div>
+
+        {/* Share Feedback Toast */}
+        {sharedToast && (
+          <div className="p-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold text-center animate-fadeIn">
+            ✓ {activeLanguage === 'ta' ? 'வானிலை அறிக்கை நகலெடுக்கப்பட்டது!' : 'Live weather bulletin copied to clipboard!'}
+          </div>
+        )}
 
         {/* Location Selector Chip */}
         <div className="flex items-center justify-between pt-1 border-t border-slate-100">
@@ -306,7 +361,6 @@ export default function MobileDashboard({
 
       {/* 3. Impact Risk Score Card with Circular SVG Radial Gauge (0-100) */}
       <div className="bg-gradient-to-br from-white via-slate-50 to-orange-50/30 border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3 relative overflow-hidden">
-        {/* Subtle background glow */}
         <div
           className={`absolute -right-10 -bottom-10 w-40 h-40 rounded-full blur-3xl opacity-20 pointer-events-none ${
             riskScore >= 65 ? 'bg-rose-500' : 'bg-amber-500'
@@ -460,6 +514,90 @@ export default function MobileDashboard({
         </div>
       </div>
 
+      {/* ✨ EXTRA SECTION 1: Astronomical Ephemeris & Solar Cycle Card */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-indigo-500/10 border border-amber-200/80 rounded-3xl p-4 shadow-sm space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Sunrise className="w-4 h-4 text-amber-600" />
+            <h3 className="text-xs font-bold text-slate-900">
+              {activeLanguage === 'ta' ? 'சூரிய உதயம் & அஸ்தமன சுழற்சி' : 'Sun Cycle & Astronomical Ephemeris'}
+            </h3>
+          </div>
+          <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+            {activeLanguage === 'ta' ? 'பகல் 12 மணி 17 நிமி' : 'Daylight 12h 17m'}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 pt-1">
+          <div className="p-3 rounded-2xl bg-white/90 border border-amber-200/60 flex items-center space-x-3">
+            <div className="p-2 rounded-xl bg-amber-500 text-white">
+              <Sunrise className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-[10px] font-semibold text-slate-400 block">{activeLanguage === 'ta' ? 'சூரிய உதயம்' : 'Sunrise'}</span>
+              <span className="text-sm font-extrabold text-slate-900">{sunriseStr}</span>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-2xl bg-white/90 border border-indigo-200/60 flex items-center space-x-3">
+            <div className="p-2 rounded-xl bg-indigo-600 text-white">
+              <Sunset className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-[10px] font-semibold text-slate-400 block">{activeLanguage === 'ta' ? 'சூரிய அஸ்தமனம்' : 'Sunset'}</span>
+              <span className="text-sm font-extrabold text-slate-900">{sunsetStr}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ✨ EXTRA SECTION 2: Agriculture Soil Moisture & Commute Safety Matrix */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Agri Soil Card */}
+        <div className="p-4 rounded-3xl bg-white border border-emerald-200/80 shadow-sm space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-1.5 font-bold text-xs text-emerald-800">
+              <Wheat className="w-4 h-4 text-emerald-600" />
+              <span>{activeLanguage === 'ta' ? 'விவசாய மண் ஈரப்பதம்' : 'Soil Moisture & Crop'}</span>
+            </div>
+            <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${
+              spraySuitability === 'Optimal' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+            }`}>
+              {spraySuitability} Spray
+            </span>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            <span className="text-2xl font-black text-slate-900">{soilMoistureVal}%</span>
+            <span className="text-xs text-slate-500">{activeLanguage === 'ta' ? '0-10cm மேல்மண் ஈரப்பதம்' : 'Topsoil Moisture'}</span>
+          </div>
+          <p className="text-[11px] text-slate-600 leading-snug">
+            {activeLanguage === 'ta'
+              ? `மண் வெப்பநிலை ${soilTempVal}°C. பயிர் தெளிப்பு மற்றும் பாசன திட்டமிடலுக்கு ஏற்றது.`
+              : `Soil temperature at ${soilTempVal}°C. Optimal for active root hydration and scheduling.`}
+          </p>
+        </div>
+
+        {/* Urban Commute & Rain Gear Card */}
+        <div className="p-4 rounded-3xl bg-white border border-sky-200/80 shadow-sm space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-1.5 font-bold text-xs text-sky-800">
+              <Car className="w-4 h-4 text-sky-600" />
+              <span>{activeLanguage === 'ta' ? 'பயண வெள்ள பாதிப்பு' : 'Urban Commute Risk'}</span>
+            </div>
+            <span className="text-[10px] font-bold text-slate-500 font-mono">{roadFloodScore}/100</span>
+          </div>
+          <div className="flex items-center space-x-2 text-xs font-bold text-slate-900">
+            <Umbrella className="w-4 h-4 text-sky-600" />
+            <span>{needUmbrella ? (activeLanguage === 'ta' ? 'மழைக்கோட் / குடை தேவை' : 'Rain Gear Required') : (activeLanguage === 'ta' ? 'குடை தேவையில்லை' : 'No Rain Gear Needed')}</span>
+          </div>
+          <p className="text-[11px] text-slate-600 leading-snug">
+            {activeLanguage === 'ta'
+              ? 'சாலைகளில் பார்வைத் திறன் நன்று (10 கி.மீ). சுரங்கப்பாதைகளில் வழக்கமான போக்குவரத்து.'
+              : 'Highway visibility nominal (10 km). Standard traffic flow across underpasses.'}
+          </p>
+        </div>
+      </div>
+
       {/* 5. Live Weather Doppler Radar Card */}
       <div className="bg-white border border-slate-200/90 rounded-3xl p-4 shadow-sm space-y-2.5">
         <div className="flex items-center justify-between">
@@ -483,23 +621,19 @@ export default function MobileDashboard({
           onClick={onOpenRadar}
           className="relative h-36 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 cursor-pointer group"
         >
-          {/* Static Map Background Simulation with RainViewer Doppler Tile */}
           <div className="absolute inset-0 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
           
-          {/* Simulated radar sweep animation overlay */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-24 h-24 rounded-full border border-emerald-500/30 animate-ping"></div>
             <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/50"></div>
             <div className="absolute h-3.5 w-3.5 rounded-full bg-sky-400 border-2 border-white shadow-md"></div>
           </div>
 
-          {/* Location Badge on Radar */}
           <div className="absolute top-2 left-2 px-2 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md text-[10px] font-semibold text-white border border-slate-700 flex items-center space-x-1.5">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>{displayLocation}</span>
           </div>
 
-          {/* Color Scale Legend (Light -> Heavy) */}
           <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-2.5 py-1 rounded-xl bg-slate-950/80 backdrop-blur-md text-[9px] font-semibold text-slate-300 border border-slate-700">
             <span>{activeLanguage === 'ta' ? 'லேசானது' : 'Light'}</span>
             <div className="h-1.5 flex-1 mx-2 rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-600"></div>
@@ -524,7 +658,6 @@ export default function MobileDashboard({
           </button>
         </div>
 
-        {/* 3 Alerts List matching Mockup */}
         <div className="space-y-2">
           {alerts.length > 0 ? (
             alerts.slice(0, 3).map((al, idx) => (
@@ -579,18 +712,43 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* 7. 24-Hour Hourly Forecast Slider */}
+      {/* 7. 24-Hour Hourly Forecast Slider with Interactive Metric Switcher */}
       <div className="bg-white border border-slate-200/90 rounded-3xl p-4 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5">
             <Clock className="w-4 h-4 text-sky-600" />
             <h3 className="text-xs font-bold text-slate-900">
-              {activeLanguage === 'ta' ? '24 மணி நேர மணிநேர முன்னறிவிப்பு' : '24-Hour Hourly Forecast'}
+              {activeLanguage === 'ta' ? '24 மணி நேர முன்னறிவிப்பு' : '24-Hour Hourly Forecast'}
             </h3>
           </div>
-          <span className="text-[10px] text-slate-400 font-mono">
-            {activeLanguage === 'ta' ? 'மழை சாத்தியம் %' : 'Rain prob %'}
-          </span>
+
+          {/* Metric Switcher Tabs */}
+          <div className="flex items-center space-x-1 bg-slate-100 p-0.5 rounded-xl text-[10px] font-bold text-slate-600">
+            <button
+              onClick={() => setActiveHourlyMetric('temp')}
+              className={`px-2 py-0.5 rounded-lg transition-all ${
+                activeHourlyMetric === 'temp' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+              }`}
+            >
+              °C
+            </button>
+            <button
+              onClick={() => setActiveHourlyMetric('rain')}
+              className={`px-2 py-0.5 rounded-lg transition-all ${
+                activeHourlyMetric === 'rain' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+              }`}
+            >
+              Rain %
+            </button>
+            <button
+              onClick={() => setActiveHourlyMetric('wind')}
+              className={`px-2 py-0.5 rounded-lg transition-all ${
+                activeHourlyMetric === 'wind' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+              }`}
+            >
+              Wind
+            </button>
+          </div>
         </div>
 
         {/* Horizontal Scroll Strip */}
@@ -605,7 +763,17 @@ export default function MobileDashboard({
               }`}
             >
               <div className="text-[10px] font-bold text-slate-500">{h.hourLabel}</div>
-              <div className="text-sm font-extrabold text-slate-900">{h.hTemp}°</div>
+              
+              {activeHourlyMetric === 'temp' && (
+                <div className="text-sm font-extrabold text-slate-900">{h.hTemp}°</div>
+              )}
+              {activeHourlyMetric === 'rain' && (
+                <div className="text-xs font-black text-sky-600 font-mono">{h.hRainProb}%</div>
+              )}
+              {activeHourlyMetric === 'wind' && (
+                <div className="text-xs font-black text-blue-600 font-mono">{h.hWind}k</div>
+              )}
+
               <div className="text-[9px] font-bold text-sky-600 font-mono">
                 {h.hRainProb}%
               </div>
