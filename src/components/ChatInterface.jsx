@@ -23,12 +23,16 @@ import {
   Wheat,
   Plane,
   Anchor,
-  Radio
+  Radio,
+  FileText,
+  Download,
+  Printer
 } from 'lucide-react';
 import { weatherAI } from '../services/aiService';
 import { speechEngine } from '../services/speechService';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getWeatherDescription, generateFullSpokenWeatherBulletin } from '../services/weatherService';
+import { createWeatherIntelligenceReport, downloadHTMLReport } from '../services/reportService';
 
 export default function ChatInterface({
   activeLanguage = 'en',
@@ -41,7 +45,8 @@ export default function ChatInterface({
   messages: externalMessages,
   setMessages: externalSetMessages,
   onOpenRadar,
-  onOpenDecision
+  onOpenDecision,
+  onOpenExport
 }) {
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
   const activeLangObj = SUPPORTED_LANGUAGES.find((l) => l.code === activeLanguage) || SUPPORTED_LANGUAGES[0];
@@ -200,6 +205,20 @@ export default function ChatInterface({
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     }
+  };
+
+  const handleDownloadDirectReport = (msg) => {
+    const userQuery = messages.slice().reverse().find((m) => m.sender === 'user')?.text || '';
+    const reportData = createWeatherIntelligenceReport({
+      location: currentLocation,
+      weatherData: msg.weatherData || weatherData,
+      aqiData: msg.aqiData || aqiData,
+      alerts: msg.alerts || [],
+      chatQuery: userQuery,
+      aiResponse: msg.text,
+      lang: msg.detectedLanguage || activeLanguage
+    });
+    downloadHTMLReport(reportData);
   };
 
   return (
@@ -390,6 +409,55 @@ export default function ChatInterface({
                       >
                         <span>{t.chat?.agriAdvisory || 'Open Sector Advisory'} →</span>
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 📥 Post-Conversation Comprehensive Intelligence Report Download Card */}
+                {isAi && msg.id !== 'welcome-1' && (
+                  <div className="mt-3 p-3 rounded-2xl bg-gradient-to-r from-sky-50 via-indigo-50/60 to-sky-50 border border-sky-200/80 shadow-2xs space-y-2">
+                    <div className="flex items-start space-x-2.5">
+                      <div className="p-1.5 rounded-xl bg-sky-600 text-white shadow-xs flex-shrink-0 mt-0.5">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-[11px] font-bold text-slate-900 block leading-tight">
+                          {msg.detectedLanguage === 'ta' || activeLanguage === 'ta'
+                            ? '📊 இந்த முன்னறிவிப்பிற்கான முழுமையான வானிலை & ரேடார் அறிக்கையைப் பதிவிறக்க வேண்டுமா?'
+                            : msg.detectedLanguage === 'tanglish'
+                            ? '📊 Full Weather & Live Radar Report-ஐ Download பண்ணவா?'
+                            : '📊 Would you like to download the complete Weather & Radar Intelligence Report?'}
+                        </span>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">
+                          {msg.detectedLanguage === 'ta' || activeLanguage === 'ta'
+                            ? 'நேரலை அளவீடுகள், மழை நேரம், GIS ரேடார் வரைபடம், காற்று தரம் & விவசாய வழிகாட்டல்கள் அடங்கியது'
+                            : msg.detectedLanguage === 'tanglish'
+                            ? 'Includes Live Telemetry, Rain Timing, GIS Radar, AQI & Sector Directives'
+                            : 'Includes live telemetry, 48h rain timing, GIS radar stream, AQI & sector advisories'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1 border-t border-sky-100/80">
+                      <button
+                        onClick={() => handleDownloadDirectReport(msg)}
+                        className="flex-1 px-3 py-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white text-[11px] font-bold rounded-xl shadow-xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
+                        title="Instant Download HTML / PDF Report"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'பதிவிறக்கு (Download Report)' : 'Download Full Report'}</span>
+                      </button>
+
+                      {onOpenExport && (
+                        <button
+                          onClick={() => onOpenExport(msg)}
+                          className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-[11px] font-semibold rounded-xl flex items-center justify-center space-x-1 transition-all cursor-pointer shadow-2xs"
+                          title="Preview & Print"
+                        >
+                          <Printer className="w-3.5 h-3.5 text-slate-600" />
+                          <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'அச்சிடு / PDF' : 'Print / PDF'}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

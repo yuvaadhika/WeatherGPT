@@ -91,6 +91,7 @@ export default function App() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [exportReportParams, setExportReportParams] = useState(null);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
@@ -650,6 +651,10 @@ export default function App() {
                 setActiveSector(sec || 'agriculture');
                 setActiveView('decision');
               }}
+              onOpenExport={(msg) => {
+                setExportReportParams(msg);
+                setIsExportOpen(true);
+              }}
             />
           </div>
 
@@ -875,13 +880,18 @@ export default function App() {
       />
 
       <ReportExportModal
-        activeLanguage={activeLanguage}
+        activeLanguage={exportReportParams?.detectedLanguage || activeLanguage}
         isOpen={isExportOpen}
-        onClose={() => setIsExportOpen(false)}
+        onClose={() => {
+          setIsExportOpen(false);
+          setExportReportParams(null);
+        }}
         currentLocation={currentLocation}
-        weatherData={weatherData}
-        aqiData={aqiData}
-        alerts={alerts}
+        weatherData={exportReportParams?.weatherData || weatherData}
+        aqiData={exportReportParams?.aqiData || aqiData}
+        alerts={exportReportParams?.alerts || alerts}
+        chatQuery={exportReportParams ? (chatMessages.slice().reverse().find(m => m.sender === 'user')?.text || '') : ''}
+        aiResponse={exportReportParams?.text || ''}
       />
 
       <AlertNotificationModal
