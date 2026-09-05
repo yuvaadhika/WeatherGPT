@@ -2,6 +2,7 @@ import React, { useRef, useMemo } from 'react';
 import { X, Printer, Download, FileText, CheckCircle2, ShieldAlert, Sparkles, Radio, Droplets, Wind, Sun, Thermometer, Wheat, Plane, Anchor } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
 import { createWeatherIntelligenceReport, downloadHTMLReport, downloadTextReport } from '../services/reportService';
+import WeatherRadarMap from './WeatherRadarMap';
 
 export default function ReportExportModal({
   activeLanguage = 'en',
@@ -146,10 +147,10 @@ export default function ReportExportModal({
           </div>
 
           {/* Section 2: Rain Verdict & Radar Telemetry */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center space-x-1.5">
               <Radio className="w-3.5 h-3.5 text-sky-600" />
-              <span>2. {isTa ? 'மழை தீர்ப்பு & நேரடி ரேடார் (Rain Verdict & GIS Radar)' : 'Rain Verdict & GIS Doppler Radar'}</span>
+              <span>2. {isTa ? 'மழை தீர்ப்பு & நேரடி ரேடார் (Rain Verdict & Live Doppler Radar)' : 'Rain Verdict & Live Doppler Radar Stream'}</span>
             </h5>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
@@ -174,6 +175,18 @@ export default function ReportExportModal({
                   <div>• <strong>{isTa ? 'எதிரொலிப்பு' : 'Echo Level'}:</strong> {report.radarTelemetry.reflectivityLevel}</div>
                 </div>
               </div>
+            </div>
+
+            {/* Embedded Interactive Doppler Radar GIS Stream */}
+            <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+              <WeatherRadarMap
+                activeLanguage={activeLanguage}
+                currentLocation={currentLocation}
+                weatherData={weatherData}
+                alerts={alerts}
+                compact={true}
+                height="280px"
+              />
             </div>
           </div>
 

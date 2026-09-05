@@ -4,7 +4,14 @@ import { fetchRainViewerMetadata } from '../services/weatherService';
 import { TRANSLATIONS } from '../services/languages';
 import L from 'leaflet';
 
-export default function WeatherRadarMap({ activeLanguage = 'en', currentLocation, weatherData, alerts = [] }) {
+export default function WeatherRadarMap({
+  activeLanguage = 'en',
+  currentLocation,
+  weatherData,
+  alerts = [],
+  compact = false,
+  height = '420px'
+}) {
   const mapRef = useRef(null);
   const leafletMap = useRef(null);
   const radarLayerRef = useRef(null);
@@ -23,6 +30,16 @@ export default function WeatherRadarMap({ activeLanguage = 'en', currentLocation
 
   const lat = currentLocation?.latitude || 13.0827;
   const lon = currentLocation?.longitude || 80.2707;
+
+  // Invalidate size on mount / resize for responsive rendering in modals
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (leafletMap.current) {
+        leafletMap.current.invalidateSize();
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [compact, height]);
 
   // Initialize Map
   useEffect(() => {
@@ -146,45 +163,47 @@ export default function WeatherRadarMap({ activeLanguage = 'en', currentLocation
     : 'Live Stream';
 
   return (
-    <div className="w-full h-full flex flex-col rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm">
+    <div className={`w-full flex flex-col rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-sm ${compact ? 'h-[300px]' : 'h-full'}`}>
       {/* Radar GIS Controls Header */}
-      <div className="p-3.5 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5">
-        <div className="flex items-center space-x-2.5">
-          <div className="p-1.5 rounded-lg bg-sky-50 border border-sky-200 text-sky-600">
-            <CloudRain className="w-4 h-4" />
+      <div className={`${compact ? 'p-2' : 'p-3.5'} bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2`}>
+        <div className="flex items-center space-x-2">
+          <div className={`${compact ? 'p-1' : 'p-1.5'} rounded-lg bg-sky-50 border border-sky-200 text-sky-600`}>
+            <CloudRain className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'}`} />
           </div>
           <div>
-            <div className="flex items-center space-x-2">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center space-x-1.5">
+            <div className="flex items-center space-x-1.5">
+              <h3 className={`${compact ? 'text-xs' : 'text-sm'} font-bold text-slate-900 flex items-center space-x-1.5`}>
                 <span>{r.title || 'Live Doppler Radar & Satellite GIS'}</span>
                 <span className="flex h-2 w-2 relative">
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
                 </span>
               </h3>
             </div>
-            <p className="text-[11px] text-slate-500">
-              {r.subtitle || 'Real-time precipitation echo reflectivity and satellite cloud streaming.'}
-            </p>
+            {!compact && (
+              <p className="text-[11px] text-slate-500">
+                {r.subtitle || 'Real-time precipitation echo reflectivity and satellite cloud streaming.'}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Playback & Layer Controls */}
-        <div className="flex items-center space-x-2 text-xs">
+        <div className="flex items-center space-x-1.5 text-xs">
           {/* Play/Pause Button */}
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className={`px-3 py-1.5 rounded-xl font-medium flex items-center space-x-1.5 transition-all shadow-sm ${
+            className={`px-2.5 py-1 rounded-xl font-medium flex items-center space-x-1 transition-all shadow-sm ${
               isPlaying
                 ? 'bg-sky-600 text-white hover:bg-sky-700'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            <span>{isPlaying ? (r.pause || 'Pause') : (r.play || 'Play Loop')}</span>
+            {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+            <span className="text-[11px]">{isPlaying ? (r.pause || 'Pause') : (r.play || 'Play Loop')}</span>
           </button>
 
           {/* Timestamp Indicator */}
-          <div className="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 font-mono text-slate-700 text-xs">
+          <div className="px-2 py-0.5 rounded-xl bg-slate-100 border border-slate-200 font-mono text-slate-700 text-[10px]">
             🕒 {activeTimestamp}
           </div>
 
@@ -192,7 +211,7 @@ export default function WeatherRadarMap({ activeLanguage = 'en', currentLocation
           <select
             value={colorScheme}
             onChange={(e) => setColorScheme(Number(e.target.value))}
-            className="px-2 py-1 bg-white border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none shadow-sm"
+            className="px-2 py-1 bg-white border border-slate-200 rounded-xl text-slate-700 text-[11px] focus:outline-none shadow-sm"
           >
             <option value={2}>Doppler Standard</option>
             <option value={1}>RainViewer HD</option>
@@ -203,29 +222,25 @@ export default function WeatherRadarMap({ activeLanguage = 'en', currentLocation
       </div>
 
       {/* Map Canvas Container */}
-      <div className="relative flex-1 min-h-[420px] w-full">
-        <div ref={mapRef} className="w-full h-full" style={{ minHeight: '420px' }}></div>
+      <div className={`relative flex-1 w-full ${compact ? 'min-h-[220px]' : 'min-h-[420px]'}`}>
+        <div ref={mapRef} className="w-full h-full" style={{ minHeight: compact ? '220px' : '420px' }}></div>
 
         {/* Legend Overlay */}
-        <div className="absolute bottom-4 left-4 z-[1000] p-2.5 rounded-xl bg-white/95 border border-slate-200 backdrop-blur-md text-[10px] text-slate-700 shadow-md space-y-1.5">
+        <div className={`absolute bottom-2 left-2 z-[1000] ${compact ? 'p-1.5 text-[9px]' : 'p-2.5 text-[10px]'} rounded-xl bg-white/95 border border-slate-200 backdrop-blur-md text-slate-700 shadow-md space-y-1`}>
           <div className="font-semibold text-slate-900 flex items-center justify-between">
-            <span>Precipitation Intensity (dBZ)</span>
+            <span>Precipitation (dBZ)</span>
           </div>
           <div className="flex items-center space-x-1">
             <span className="text-slate-500">{r.light || 'Light'}</span>
-            <div className="h-2.5 w-32 rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-600 border border-slate-300"></div>
+            <div className={`${compact ? 'h-2 w-20' : 'h-2.5 w-32'} rounded-full bg-gradient-to-r from-sky-400 via-emerald-400 via-amber-400 to-rose-600 border border-slate-300`}></div>
             <span className="text-rose-600 font-bold">{r.heavy || 'Heavy'}</span>
-          </div>
-          <div className="text-[9px] text-slate-500 flex items-center justify-between">
-            <span>{r.light || 'Light Drizzle'} (10 dBZ)</span>
-            <span>{r.severe || 'Extreme / Hail'} (&gt;55 dBZ)</span>
           </div>
         </div>
 
         {/* Frame Timeline Scrubber Slider */}
         {radarFrames.length > 0 && (
-          <div className="absolute bottom-4 right-4 z-[1000] p-2 rounded-xl bg-white/95 border border-slate-200 backdrop-blur-md shadow-md flex items-center space-x-2">
-            <span className="text-[10px] text-slate-600 font-mono">Frame {activeFrameIndex + 1}/{radarFrames.length}</span>
+          <div className={`absolute bottom-2 right-2 z-[1000] ${compact ? 'p-1.5' : 'p-2'} rounded-xl bg-white/95 border border-slate-200 backdrop-blur-md shadow-md flex items-center space-x-1.5`}>
+            <span className="text-[9px] text-slate-600 font-mono">Frame {activeFrameIndex + 1}/{radarFrames.length}</span>
             <input
               type="range"
               min="0"
@@ -235,7 +250,7 @@ export default function WeatherRadarMap({ activeLanguage = 'en', currentLocation
                 setIsPlaying(false);
                 setActiveFrameIndex(Number(e.target.value));
               }}
-              className="w-28 sm:w-40 accent-sky-600 cursor-pointer"
+              className="w-20 sm:w-28 accent-sky-600 cursor-pointer"
             />
           </div>
         )}

@@ -72,6 +72,8 @@ export function createWeatherIntelligenceReport({
       : `WeatherGPT Autonomous Meteorological & Radar Intelligence Dossier - ${locName}`,
     locName,
     coordinates,
+    lat: location?.latitude || 13.0827,
+    lon: location?.longitude || 80.2707,
     dateStr,
     lang,
     chatQuery,
@@ -127,6 +129,8 @@ export function downloadHTMLReport(reportData, filename) {
   <meta charset="UTF-8">
   <title>${reportData.title}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     body { background-color: #f1f5f9; color: #1e293b; padding: 24px; line-height: 1.5; }
@@ -246,6 +250,15 @@ export function downloadHTMLReport(reportData, filename) {
           </div>
         </div>
       </div>
+
+      <!-- Live Doppler Radar Interactive Stream -->
+      <div style="margin-top: 14px; border-radius: 14px; overflow: hidden; border: 1px solid #bae6fd; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.08); background: #ffffff;">
+        <div style="background: #0f172a; color: #38bdf8; padding: 9px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold;">
+          <span>🛰️ Live Doppler Radar & Precipitation Stream (${reportData.locName})</span>
+          <span style="font-size: 10px; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 8px; border-radius: 6px; font-weight: bold;">24/7 ACTIVE</span>
+        </div>
+        <div id="radarMap" style="height: 300px; width: 100%; z-index: 1;"></div>
+      </div>
     </div>
 
     <!-- 3. 7-Day Forecast Table -->
@@ -309,6 +322,49 @@ export function downloadHTMLReport(reportData, filename) {
       </div>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      try {
+        var lat = ${reportData.lat || 13.0827};
+        var lon = ${reportData.lon || 80.2707};
+        var map = L.map('radarMap', { zoomControl: true, attributionControl: false }).setView([lat, lon], 7);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          maxZoom: 18,
+          subdomains: 'abcd'
+        }).addTo(map);
+
+        var marker = L.circleMarker([lat, lon], {
+          radius: 9,
+          fillColor: '#0284c7',
+          color: '#ffffff',
+          weight: 2.5,
+          opacity: 1,
+          fillOpacity: 0.95
+        }).addTo(map);
+        marker.bindPopup('<strong style="color:#0369a1;">' + '${(reportData.locName || 'Target Location').replace(/'/g, "\\'")}' + '</strong><br>Temp: <b>${reportData.current.temperature}°C</b> • ${reportData.current.weatherCondition}').openPopup();
+
+        fetch('https://api.rainviewer.com/public/weather-maps.json')
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            var past = (data.radar && data.radar.past) ? data.radar.past : [];
+            var nowcast = (data.radar && data.radar.nowcast) ? data.radar.nowcast : [];
+            var frames = past.concat(nowcast);
+            if (frames.length > 0) {
+              var lastFrame = frames[frames.length - 1];
+              var radarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/' + lastFrame.time + '/256/{z}/{x}/{y}/2/1_1.png', {
+                opacity: 0.75,
+                zIndex: 10
+              });
+              radarLayer.addTo(map);
+            }
+          })
+          .catch(function(e) { console.warn('Radar frame fetch error', e); });
+      } catch (err) {
+        console.error('Doppler radar initialization error', err);
+      }
+    });
+  </script>
 </body>
 </html>`;
 
