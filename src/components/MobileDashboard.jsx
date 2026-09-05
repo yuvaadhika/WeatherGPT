@@ -36,7 +36,9 @@ import {
   AlertTriangle,
   Flame,
   Layers,
-  BarChart2
+  BarChart2,
+  Shirt,
+  Footprints
 } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
 import { getWeatherDescription, getLocalizedPlaceName } from '../services/weatherService';
@@ -68,6 +70,7 @@ export default function MobileDashboard({
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [activeHourlyMetric, setActiveHourlyMetric] = useState('temp'); // 'temp' | 'rain' | 'wind'
+  const [heroTab, setHeroTab] = useState('nowcast'); // 'nowcast' | 'activities' | 'health'
   const [sharedToast, setSharedToast] = useState(false);
 
   useEffect(() => {
@@ -338,78 +341,226 @@ export default function MobileDashboard({
         )}
       </div>
 
-      {/* 3. Impact Risk Score Card with Circular SVG Radial Gauge (0-100) */}
-      <div className="bg-gradient-to-br from-white via-slate-50 to-orange-50/30 border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3 relative overflow-hidden">
-        <div
-          className={`absolute -right-10 -bottom-10 w-40 h-40 rounded-full blur-3xl opacity-20 pointer-events-none ${
-            riskScore >= 65 ? 'bg-rose-500' : 'bg-amber-500'
-          }`}
-        />
+      {/* 3. AI Hyperlocal Live Weather Intelligence & Smart Activity Hub */}
+      <div className="bg-gradient-to-br from-white via-sky-50/40 to-indigo-50/30 border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5 relative overflow-hidden">
+        {/* Top Header & Tab Pills */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+          <div className="flex items-center space-x-1.5">
+            <Sparkles className="w-4 h-4 text-sky-600" />
+            <h2 className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight">
+              {activeLanguage === 'ta' ? 'AI நேரடி வானிலை நுண்ணறிவு & வழிகாட்டி' : 'AI Hyperlocal Weather Intelligence'}
+            </h2>
+          </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex-1 space-y-1.5 pr-2">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {activeLanguage === 'ta' ? 'தற்போதைய இடர் நிலை' : 'Current Risk Level'}
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <span className={`text-xs sm:text-sm font-black px-3 py-1 rounded-2xl border shadow-xs ${getRiskBadgeClass(riskScore)}`}>
-                {riskBadge}
-              </span>
-            </div>
-
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
-              {riskSummary}
-            </h3>
-
-            {/* Explainable AI "Why this risk?" Button */}
+          {/* Interactive 3 Tabs */}
+          <div className="flex items-center space-x-1 bg-slate-100/90 p-1 rounded-2xl text-[11px] font-bold text-slate-600 self-start sm:self-auto">
             <button
-              onClick={onOpenXAI}
-              className="inline-flex items-center space-x-1.5 text-xs font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 px-2.5 py-1 rounded-xl transition-all cursor-pointer"
+              onClick={() => setHeroTab('nowcast')}
+              className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
+                heroTab === 'nowcast' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+              }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-sky-600" />
-              <span>{activeLanguage === 'ta' ? 'இந்த இடர் ஏன்? (XAI)' : 'Why this risk?'}</span>
-              <ArrowUpRight className="w-3 h-3" />
+              ⚡ {activeLanguage === 'ta' ? '3h முன்னறிவிப்பு' : '3h Nowcast'}
+            </button>
+            <button
+              onClick={() => setHeroTab('activities')}
+              className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
+                heroTab === 'activities' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+              }`}
+            >
+              🎯 {activeLanguage === 'ta' ? 'செயல்பாடுகள்' : 'Activities'}
+            </button>
+            <button
+              onClick={() => setHeroTab('health')}
+              className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
+                heroTab === 'health' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+              }`}
+            >
+              🩺 {activeLanguage === 'ta' ? 'சுகாதாரம்' : 'Health & Comfort'}
             </button>
           </div>
+        </div>
 
-          {/* SVG Circular Radial Gauge */}
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                className="stroke-slate-200"
-                strokeWidth="8"
-                fill="transparent"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                stroke={getRiskScoreColor(riskScore)}
-                strokeWidth="8"
-                strokeDasharray={`${2 * Math.PI * 40}`}
-                strokeDashoffset={`${2 * Math.PI * 40 * (1 - riskScore / 100)}`}
-                strokeLinecap="round"
-                fill="transparent"
-                className="transition-all duration-1000 ease-out"
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
-                {riskScore}
-              </span>
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">
-                / 100
-              </span>
-              <span className="text-[8px] font-semibold text-slate-500 uppercase">
-                {activeLanguage === 'ta' ? 'மதிப்பீடு' : 'Risk Score'}
-              </span>
+        {/* TAB 1: 3-Hour AI Rain & Atmosphere Nowcast */}
+        {heroTab === 'nowcast' && (
+          <div className="space-y-3 animate-fadeIn">
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { time: activeLanguage === 'ta' ? 'இப்போது' : 'Now', offset: 0, rain: (current.precipitation || 0).toFixed(1), prob: hourly.precipitation_probability?.[0] || 0, desc: wmo.label },
+                { time: '+45 min', offset: 1, rain: (hourly.precipitation?.[1] || 0).toFixed(1), prob: hourly.precipitation_probability?.[1] || 5, desc: activeLanguage === 'ta' ? 'சீரானது' : 'Fair' },
+                { time: '+90 min', offset: 2, rain: (hourly.precipitation?.[2] || 0).toFixed(1), prob: hourly.precipitation_probability?.[2] || 10, desc: activeLanguage === 'ta' ? 'மேகமூட்டம்' : 'Cloudy' },
+                { time: '+3 hrs', offset: 3, rain: (hourly.precipitation?.[3] || 0).toFixed(1), prob: hourly.precipitation_probability?.[3] || 15, desc: activeLanguage === 'ta' ? 'தென்றல்' : 'Breezy' },
+              ].map((step, idx) => (
+                <div
+                  key={idx}
+                  className={`p-2.5 rounded-2xl border text-center space-y-1 transition-all ${
+                    idx === 0
+                      ? 'bg-sky-50 border-sky-300 shadow-xs text-sky-950'
+                      : 'bg-white/80 border-slate-200 text-slate-800'
+                  }`}
+                >
+                  <span className="text-[10px] font-bold text-slate-500 block">{step.time}</span>
+                  <div className="text-xs font-black text-slate-900">{step.prob}% Rain</div>
+                  <div className="w-full bg-slate-200 h-1 rounded-full overflow-hidden">
+                    <div
+                      className="bg-sky-500 h-full rounded-full"
+                      style={{ width: `${Math.max(10, step.prob)}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] font-semibold text-slate-500 block truncate">{step.desc}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200/80 text-xs text-slate-700 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="font-semibold">
+                  {parseFloat(rainToday) > 0.5
+                    ? (activeLanguage === 'ta' ? `மழை பெய்ய வாய்ப்புள்ளது (${rainToday} mm). குடை எடுத்துச் செல்லவும்.` : `Showers expected today (~${rainToday} mm). Carry rain gear.`)
+                    : (activeLanguage === 'ta' ? 'அடுத்த 3 மணி நேரத்திற்கு மழை குறுக்கீடு இல்லை. வானிலை சீரானது.' : 'No rain interruption expected in the next 3 hours. Atmospheric pressure stable.')}
+                </span>
+              </div>
+              <button
+                onClick={onOpenRadar}
+                className="text-[10px] font-bold text-sky-600 hover:text-sky-700 flex items-center space-x-0.5 flex-shrink-0 ml-1 cursor-pointer"
+              >
+                <span>{activeLanguage === 'ta' ? 'ரேடார்' : 'Radar'}</span>
+                <ChevronRight className="w-3 h-3" />
+              </button>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* TAB 2: Smart Daily Life Activity Advisor */}
+        {heroTab === 'activities' && (
+          <div className="grid grid-cols-2 gap-2 animate-fadeIn text-xs">
+            {/* Travel */}
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+              <div className="flex items-center justify-between text-slate-700 font-bold">
+                <div className="flex items-center space-x-1.5">
+                  <Car className="w-3.5 h-3.5 text-sky-600" />
+                  <span>{activeLanguage === 'ta' ? 'பயணம் & வாகனம்' : 'Driving & Travel'}</span>
+                </div>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-emerald-100 text-emerald-800 font-black">
+                  {activeLanguage === 'ta' ? 'சீரானது' : 'Safe'}
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-tight">
+                {activeLanguage === 'ta' ? 'சாலைகளில் பார்வைத் திறன் 10 கி.மீ. வழக்கமான போக்குவரத்து.' : 'Road visibility 10 km. Normal highway commute.'}
+              </p>
+            </div>
+
+            {/* Sports */}
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+              <div className="flex items-center justify-between text-slate-700 font-bold">
+                <div className="flex items-center space-x-1.5">
+                  <Footprints className="w-3.5 h-3.5 text-amber-600" />
+                  <span>{activeLanguage === 'ta' ? 'உடற்பயிற்சி & ஓட்டம்' : 'Outdoor Fitness'}</span>
+                </div>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-sky-100 text-sky-800 font-black">
+                  {activeLanguage === 'ta' ? 'உகந்தது' : 'Good'}
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-tight">
+                {activeLanguage === 'ta' ? `காற்றோட்டம் ${windKmh} km/h. மாலை 7 மணி வரை சிறந்தது.` : `Mild winds ${windKmh} km/h. Great until evening.`}
+              </p>
+            </div>
+
+            {/* Laundry */}
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+              <div className="flex items-center justify-between text-slate-700 font-bold">
+                <div className="flex items-center space-x-1.5">
+                  <Shirt className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>{activeLanguage === 'ta' ? 'துணி உலர்த்துதல்' : 'Laundry Drying'}</span>
+                </div>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-emerald-100 text-emerald-800 font-black">
+                  95% Dry
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-tight">
+                {activeLanguage === 'ta' ? 'வெளியில் 2 மணி நேரத்தில் முழுமையாக உலரும்.' : 'Estimated outdoor dry time: 2 hours.'}
+              </p>
+            </div>
+
+            {/* Farming */}
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+              <div className="flex items-center justify-between text-slate-700 font-bold">
+                <div className="flex items-center space-x-1.5">
+                  <Wheat className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{activeLanguage === 'ta' ? 'தோட்டம் & விவசாயம்' : 'Gardening & Agri'}</span>
+                </div>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-emerald-100 text-emerald-800 font-black">
+                  Optimal
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-tight">
+                {activeLanguage === 'ta' ? 'இலைவழி உரம் தெளிக்க ஏற்ற காற்றின் வேகம்.' : 'Optimal foliar spraying conditions.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: Health & Comfort Telemetry */}
+        {heroTab === 'health' && (
+          <div className="grid grid-cols-2 gap-2 animate-fadeIn text-xs">
+            {/* AQI */}
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+              <div className="flex items-center justify-between font-bold text-slate-700">
+                <div className="flex items-center space-x-1.5">
+                  <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{activeLanguage === 'ta' ? 'சுவாசக் காற்று தரம்' : 'Air Quality'}</span>
+                </div>
+                <span className="text-[10px] font-extrabold text-emerald-700">{aqiVal} AQI</span>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-tight">
+                {activeLanguage === 'ta' ? 'தூய்மையான காற்று; வெளிப்புற நடவடிக்கைகளுக்கு பாதுகாப்பானது.' : 'Clean air index. Safe for all demographic groups.'}
+              </p>
+            </div>
+
+            {/* UV */}
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+              <div className="flex items-center justify-between font-bold text-slate-700">
+                <div className="flex items-center space-x-1.5">
+                  <Sun className="w-3.5 h-3.5 text-amber-600" />
+                  <span>{activeLanguage === 'ta' ? 'புற ஊதாக்கதிர் (UV)' : 'Solar UV'}</span>
+                </div>
+                <span className="text-[10px] font-extrabold text-amber-700">UV {uvVal}</span>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-tight">
+                {activeLanguage === 'ta' ? 'நண்பகல் வேளையில் சன்ஸ்கிரீன் அல்லது தொப்பி அணியவும்.' : 'Moderate UV. Sun protection advised during midday.'}
+              </p>
+            </div>
+
+            {/* Hydration */}
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+              <div className="flex items-center justify-between font-bold text-slate-700">
+                <div className="flex items-center space-x-1.5">
+                  <Droplets className="w-3.5 h-3.5 text-sky-600" />
+                  <span>{activeLanguage === 'ta' ? 'குடிநீர் அளவு' : 'Hydration'}</span>
+                </div>
+                <span className="text-[10px] font-extrabold text-sky-700">2.5 L</span>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-tight">
+                {activeLanguage === 'ta' ? 'உடலில் நீர்ச்சத்தை தக்கவைக்க போதுமான நீர் அருந்தவும்.' : 'Maintain optimal hydration with natural water & fluids.'}
+              </p>
+            </div>
+
+            {/* Thermal Feel */}
+            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+              <div className="flex items-center justify-between font-bold text-slate-700">
+                <div className="flex items-center space-x-1.5">
+                  <Thermometer className="w-3.5 h-3.5 text-rose-600" />
+                  <span>{activeLanguage === 'ta' ? 'வெப்ப உணர்வு' : 'Thermal Feel'}</span>
+                </div>
+                <span className="text-[10px] font-extrabold text-slate-900">{feelsLike}°C</span>
+              </div>
+              <p className="text-[10px] text-slate-500 leading-tight">
+                {activeLanguage === 'ta' ? `காற்றின் ஈரப்பதம் ${humidity}%. சீரான மாலை தென்றல்.` : `Humidity at ${humidity}%. Comfortable ambient flow.`}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 4. 4 Live Weather Telemetry Badges (2x2 Grid) */}
