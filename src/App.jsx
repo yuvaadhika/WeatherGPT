@@ -596,9 +596,9 @@ export default function App() {
         />
 
         {/* View Content Area */}
-        <div className="flex-1 overflow-y-auto p-2 sm:p-4 md:p-5 flex flex-col max-w-5xl w-full mx-auto relative">
+        <div className={`flex-1 flex flex-col max-w-5xl w-full mx-auto relative min-h-0 ${activeView === 'chat' ? 'overflow-hidden p-0 sm:p-4 h-full' : 'overflow-y-auto p-2 sm:p-4 md:p-5'}`}>
           {/* Active Hazard Early Warning Banner (on non-home screens) */}
-          {activeView !== 'home' && (
+          {activeView !== 'home' && activeView !== 'chat' && (
             <WeatherAlertBanner
               activeLanguage={activeLanguage}
               alerts={alerts}
@@ -634,7 +634,7 @@ export default function App() {
           )}
 
           {/* VIEW 2: Clean AI Chat (Preserved state across navigation) */}
-          <div className={activeView === 'chat' ? 'flex-1 flex flex-col min-h-0' : 'hidden'}>
+          <div className={activeView === 'chat' ? 'flex-1 flex flex-col min-h-0 h-full overflow-hidden' : 'hidden'}>
             <ChatInterface
               activeLanguage={activeLanguage}
               currentLocation={currentLocation}

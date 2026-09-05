@@ -116,6 +116,7 @@ export default function ChatInterface({
         id: `ai-${Date.now()}`,
         sender: 'ai',
         text: response.text,
+        detectedLanguage: response.detectedLanguage,
         weatherData: response.weatherData,
         aqiData: response.aqiData,
         alerts: response.alerts,
@@ -128,9 +129,9 @@ export default function ChatInterface({
 
       setMessages((prev) => [...prev, aiMsg]);
 
-      // Automatically speak the entire AI output in the selected language
+      // Automatically speak the entire AI output in the detected / selected language
       if (autoSpeak && response.text) {
-        handleSpeak(aiMsg.id, response.text);
+        handleSpeak(aiMsg.id, response.text, response.detectedLanguage);
       }
     } catch (err) {
       console.error(err);
@@ -171,13 +172,23 @@ export default function ChatInterface({
     }
   };
 
-  const handleSpeak = (msgId, text) => {
+  const handleSpeak = (msgId, text, msgLang) => {
     if (speakingMsgId === msgId) {
       speechEngine.stopSpeaking();
       setSpeakingMsgId(null);
     } else {
       setSpeakingMsgId(msgId);
-      speechEngine.speak(text, activeLangObj.voiceCode || 'en-US', () => {
+      let targetVoiceCode = activeLangObj.voiceCode || 'en-US';
+      if (msgLang === 'tanglish') {
+        targetVoiceCode = 'en-IN';
+      } else if (msgLang === 'ta' || /[\u0B80-\u0BFF]/.test(text)) {
+        targetVoiceCode = 'ta-IN';
+      } else if (msgLang) {
+        const foundLang = SUPPORTED_LANGUAGES.find((l) => l.code === msgLang);
+        if (foundLang) targetVoiceCode = foundLang.voiceCode;
+      }
+
+      speechEngine.speak(text, targetVoiceCode, () => {
         setSpeakingMsgId(null);
       });
     }
@@ -192,7 +203,7 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden">
+    <div className="flex-1 flex flex-col h-full min-h-0 overflow-hidden">
       {/* Messages Scroll Area */}
       <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 space-y-5">
         {/* Welcome Cards for Empty/New Conversations */}
@@ -389,7 +400,7 @@ export default function ChatInterface({
                     <span className="font-mono text-[10px] text-slate-400">{msg.timestamp}</span>
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => handleSpeak(msg.id, msg.text)}
+                        onClick={() => handleSpeak(msg.id, msg.text, msg.detectedLanguage)}
                         title={isSpeakingThis ? (t.chat?.voiceStop || 'Stop Voice') : (t.chat?.voiceSpeak || 'Read Aloud (All Outputs)')}
                         className={`px-2 py-1 rounded-xl hover:bg-slate-100 flex items-center space-x-1.5 transition-colors cursor-pointer ${
                           isSpeakingThis ? 'bg-sky-100 text-sky-700 font-bold border border-sky-300' : 'text-slate-500 hover:text-slate-800'
@@ -429,11 +440,11 @@ export default function ChatInterface({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Floating Bottom Input Bar & Active Voice Equalizer (Elevated above mobile bottom nav) */}
-      <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-2 pb-20 sm:pb-4 z-20">
+      {/* Floating Bottom Input Bar & Active Voice Equalizer (Elevated above mobile bottom nav bar) */}
+      <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-2 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] sm:pb-4 z-30 flex-shrink-0">
         {/* Active Speaking Indicator Equalizer Banner */}
         {speakingMsgId && (
-          <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white px-3.5 py-2.5 rounded-2xl flex items-center justify-between shadow-lg mb-2 border border-sky-500/30 animate-fadeIn">
+          <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white px-3.5 py-2.5 rounded-2xl flex items-center justify-between shadow-xl mb-2 border border-sky-500/40 animate-fadeIn">
             <div className="flex items-center space-x-3">
               <div className="flex items-center space-x-1 h-4">
                 <span className="w-1 bg-sky-400 rounded-full h-3 animate-bounce"></span>
@@ -443,10 +454,16 @@ export default function ChatInterface({
               </div>
               <div className="text-xs">
                 <span className="font-bold text-sky-200 block">
-                  {activeLanguage === 'ta' ? 'வானிலை AI குரலில் விளக்குகிறது...' : `WeatherGPT Voice Assistant (${activeLangObj.nativeName})`}
+                  {messages.find(m => m.id === speakingMsgId)?.detectedLanguage === 'tanglish'
+                    ? 'WeatherGPT Tanglish Voice (குரல் விளக்கம்)'
+                    : (messages.find(m => m.id === speakingMsgId)?.detectedLanguage === 'ta' || activeLanguage === 'ta')
+                    ? 'வானிலை AI குரலில் விளக்குகிறது...'
+                    : `WeatherGPT Voice Assistant (${activeLangObj.nativeName})`}
                 </span>
                 <span className="text-[10px] text-slate-300">
-                  {activeLanguage === 'ta' ? 'அனைத்து முன்னறிவிப்பு தகவல்களும் குரலில் ஒலிக்கிறது' : 'Speaking complete meteorological output'}
+                  {activeLanguage === 'ta' || messages.find(m => m.id === speakingMsgId)?.detectedLanguage === 'ta'
+                    ? 'அனைத்து முன்னறிவிப்பு தகவல்களும் குரலில் ஒலிக்கிறது'
+                    : 'Speaking complete meteorological output'}
                 </span>
               </div>
             </div>
@@ -476,7 +493,7 @@ export default function ChatInterface({
               <button
                 key={idx}
                 onClick={() => handleSendMessage(prompt)}
-                className="flex-shrink-0 px-2.5 py-1 rounded-full bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] transition-all truncate max-w-[200px] shadow-sm cursor-pointer"
+                className="flex-shrink-0 px-2.5 py-1 rounded-full bg-white/90 hover:bg-white text-slate-600 border border-slate-200 text-[11px] transition-all truncate max-w-[200px] shadow-2xs cursor-pointer"
               >
                 {prompt}
               </button>
@@ -513,7 +530,7 @@ export default function ChatInterface({
             e.preventDefault();
             handleSendMessage();
           }}
-          className="relative flex items-center bg-white border border-slate-300 rounded-2xl shadow-md p-1.5 focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100 transition-all"
+          className="relative flex items-center bg-white/95 backdrop-blur-xl border border-sky-300/80 rounded-2xl shadow-xl p-1.5 focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-200/60 transition-all"
         >
           {/* Voice Input Mic */}
           <button
@@ -523,7 +540,7 @@ export default function ChatInterface({
             className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${
               isListening
                 ? 'bg-rose-600 text-white animate-pulse shadow-md'
-                : 'text-slate-500 hover:text-sky-600 hover:bg-slate-100'
+                : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs'
             }`}
           >
             {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}

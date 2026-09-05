@@ -18,8 +18,8 @@ export function detectLanguageFromQuery(query, defaultLang = 'en') {
   const q = query.trim();
   const qLower = q.toLowerCase();
 
-  // 1. Script checks (Unicode ranges)
-  if (/[\u0B80-\u0BFF]/.test(q)) return 'ta'; // Tamil script
+  // 1. Script checks (Unicode ranges) - Tamil script ALWAYS takes highest priority
+  if (/[\u0B80-\u0BFF]/.test(q)) return 'ta'; // Tamil script (தமிழ்)
   if (/[\u0900-\u097F]/.test(q)) {
     if (/\b(आहे|नाही|पाऊस|कसा|काय|करावे|होय|सांगा)\b/i.test(q)) return 'mr'; // Marathi
     return 'hi'; // Hindi
@@ -33,9 +33,12 @@ export function detectLanguageFromQuery(query, defaultLang = 'en') {
 
   // 2. Tanglish Detection (Conversational Tamil written in English alphabets)
   const tanglishPatterns = [
-    /\b(mazhai|malai|varuma|varum|peyyuma|irukku|irukkuma|irukkaa|irukkum|eppadi|epdi|ippo|eppo|nalaiku|naalaikku|naalai|iniku|innikku|indha|enta|solla|sollu|sollunga|chennai la|madurai la|coimbatore la|trichy la|salem la|ooty la|nellai la)\b/i,
-    /\b(vidhai|vitha|vithai|seed|payir|vivasaayam|vivasayi|panlama|podalama|podanum|podalaama|podunga|koodum|neram|veliya|kaathu|kaatru|veiyil|veyil|vanam|megam|kulir|thaneer|thanneer|oothe|aagum|theriyuma|kidaikkuma)\b/i,
-    /\b(weather epdi|climate epdi|rain varuma|today weather epdi|tomorrow rain varuma|weather sollunga|ennaku|ungala|romba|konjam|enga|paathu|kudutha|varanum|pannu|pannalam|kudu|thappu|solra|mathiri)\b/i
+    /\b(mazhai|malai|mazha|varuma|varum|peyyuma|peiyuma|peiyum|peyyum|irukku|erukku|iruku|eruku|irukkaa|erukkaa|irukkuma|erukkuma|irukkum|erukkum|irukka|eruka)\b/i,
+    /\b(eppadi|epdi|ippo|eppo|enga|nalaiku|naalaikku|naalaiku|naalai|iniku|innikku|inniku|indha|intha|enta|solla|sollu|sollunga|solunga|sollungalen)\b/i,
+    /\b(vidhai|vitha|vithai|seed|payir|vivasaayam|vivasayam|vivasayi|panlama|pannalama|podalama|podanum|podalaama|podunga|koodum|neram|veliya|kaathu|kaatru|veiyil|veyil|vanam|megam|kulir|thaneer|thanneer|oothe|aagum|theriyuma|kidaikkuma)\b/i,
+    /\b(weather epdi|climate epdi|rain varuma|today weather|tomorrow rain|weather sollunga|climate sollunga|ennaku|enakku|ungala|ungalluku|ungalukku|romba|konjam|paathu|kudutha|varanum|pannu|pannalam|kudu|thappu|solra|mathiri)\b/i,
+    /\b(kudai|raincoat|umbrella thevaya|umbrella theva|veliya poga|thittam|keka|pesu|paaru|parkalam|paarkalam|theerpu|marundhu|uram|thelikkalam|adikkuma|adikkum|eduthuttu|pogalama|pogalaama|vaikanum|vaikalam|vacha)\b/i,
+    /\b(chennai|madurai|coimbatore|kovai|trichy|salem|ooty|nellai|tirunelveli|vellore|thanjavur|erode|tiruppur|dindigul|cuddalore|kanchipuram|villupuram|nagar|tamilnadu|tn)\s*(la|le|kku|ku)\b/i
   ];
 
   for (const pattern of tanglishPatterns) {
@@ -60,6 +63,73 @@ export function detectLanguageFromQuery(query, defaultLang = 'en') {
   }
 
   return 'en';
+}
+
+// Resolves Tamil and Tanglish city references to standard English query names for Open-Meteo geocoding
+export function resolveTamilAndTanglishCityName(query) {
+  if (!query || typeof query !== 'string') return null;
+  const q = query.trim();
+  const qLower = q.toLowerCase();
+
+  // 1. Direct Tamil Unicode city map
+  const tamilCityMap = [
+    { pattern: /(?:சென்னை|சென்னையில|சென்னையில்|சென்னைல|சென்னையிலா)/, name: 'Chennai' },
+    { pattern: /(?:மதுரை|மதுரையில|மதுரையில்|மதுரைல)/, name: 'Madurai' },
+    { pattern: /(?:கோவை|கோவையில|கோவையில்|கோயம்புத்தூர்|கோயம்புத்தூரில்)/, name: 'Coimbatore' },
+    { pattern: /(?:திருச்சி|திருச்சியில|திருச்சியில்|திருச்சிராப்பள்ளி)/, name: 'Tiruchirappalli' },
+    { pattern: /(?:சேலம்|சேலத்துல|சேலத்தில்)/, name: 'Salem' },
+    { pattern: /(?:நெல்லை|நெல்லையில|நெல்லையில்|திருநெல்வேலி|திருநெல்வேலியில்)/, name: 'Tirunelveli' },
+    { pattern: /(?:வேலூர்|வேலூரில்|வேலூர்ல)/, name: 'Vellore' },
+    { pattern: /(?:ஈரோடு|ஈரோட்டில்|ஈரோடுல)/, name: 'Erode' },
+    { pattern: /(?:தஞ்சாவூர்|தஞ்சாவூரில்|தஞ்சை|தஞ்சையில்)/, name: 'Thanjavur' },
+    { pattern: /(?:தூத்துக்குடி|தூத்துக்குடியில்)/, name: 'Thoothukudi' },
+    { pattern: /(?:திண்டுக்கல்|திண்டுக்கல்லில்)/, name: 'Dindigul' },
+    { pattern: /(?:கன்னியாகுமரி|கன்னியாகுமரியில்)/, name: 'Kanyakumari' },
+    { pattern: /(?:ஊட்டி|ஊட்டியில்|உதகை)/, name: 'Ooty' },
+    { pattern: /(?:புதுச்சேரி|புதுச்சேரியில்|பாண்டிச்சேரி)/, name: 'Puducherry' },
+    { pattern: /(?:தில்லி|புது தில்லி|டெல்லி)/, name: 'Delhi' },
+    { pattern: /(?:மும்பை|மும்பையில்)/, name: 'Mumbai' },
+    { pattern: /(?:பெங்களூரு|பெங்களூர்|பெங்களூரில்)/, name: 'Bengaluru' },
+    { pattern: /(?:ஹைதராபாத்|ஐதராபாத்)/, name: 'Hyderabad' },
+    { pattern: /(?:கொல்கத்தா|கொல்கத்தாவில்)/, name: 'Kolkata' },
+  ];
+
+  for (const item of tamilCityMap) {
+    if (item.pattern.test(q)) {
+      return item.name;
+    }
+  }
+
+  // 2. Tanglish Romanized city matching with suffixes like "chennai la", "chennaila", "madurai kku", etc.
+  const tanglishCityMap = [
+    { pattern: /\b(chennai|madras)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Chennai' },
+    { pattern: /\b(madurai)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Madurai' },
+    { pattern: /\b(coimbatore|kovai)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Coimbatore' },
+    { pattern: /\b(trichy|tiruchirappalli)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Tiruchirappalli' },
+    { pattern: /\b(salem)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Salem' },
+    { pattern: /\b(nellai|tirunelveli)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Tirunelveli' },
+    { pattern: /\b(vellore)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Vellore' },
+    { pattern: /\b(erode)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Erode' },
+    { pattern: /\b(thanjavur|tanjore)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Thanjavur' },
+    { pattern: /\b(thoothukudi|tuticorin)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Thoothukudi' },
+    { pattern: /\b(dindigul)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Dindigul' },
+    { pattern: /\b(kanyakumari|nagercoil)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Kanyakumari' },
+    { pattern: /\b(ooty|udhagamandalam)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Ooty' },
+    { pattern: /\b(pondicherry|puducherry)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Puducherry' },
+    { pattern: /\b(delhi|new delhi)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Delhi' },
+    { pattern: /\b(mumbai|bombay)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Mumbai' },
+    { pattern: /\b(bangalore|bengaluru)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Bengaluru' },
+    { pattern: /\b(hyderabad)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Hyderabad' },
+    { pattern: /\b(kolkata|calcutta)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Kolkata' },
+  ];
+
+  for (const item of tanglishCityMap) {
+    if (item.pattern.test(qLower)) {
+      return item.name;
+    }
+  }
+
+  return null;
 }
 
 // Advanced Rain Verdict & Timing Calculation Engine - Precision Rain Arrival & Peak Window
@@ -294,8 +364,16 @@ export class WeatherAIAgent {
       qLower.includes('மழை') ||
       qLower.includes('mazhai') ||
       qLower.includes('mazha') ||
+      qLower.includes('malai') ||
       qLower.includes('varuma') ||
+      qLower.includes('peyyuma') ||
+      qLower.includes('peiyuma') ||
+      qLower.includes('peyyum') ||
+      qLower.includes('peiyum') ||
       qLower.includes('irukkuma') ||
+      qLower.includes('kudai') ||
+      qLower.includes('umbrella') ||
+      qLower.includes('raincoat') ||
       qLower.includes('மழை வருமா') ||
       qLower.includes('बारिश') ||
       qLower.includes('वर्षा') ||
@@ -320,6 +398,9 @@ export class WeatherAIAgent {
       qLower.includes('விவசாயம்') ||
       qLower.includes('பயிர்') ||
       qLower.includes('vivasaayam') ||
+      qLower.includes('vivasayam') ||
+      qLower.includes('vidhai') ||
+      qLower.includes('vitha') ||
       qLower.includes('payir') ||
       qLower.includes('फसल') ||
       qLower.includes('किसान')
@@ -402,6 +483,7 @@ export class WeatherAIAgent {
       qLower.includes('நாளை') ||
       qLower.includes('naalai') ||
       qLower.includes('nalaiku') ||
+      qLower.includes('naalaikku') ||
       qLower.includes('कल')
     ) {
       timeframe = 'tomorrow';
@@ -425,13 +507,23 @@ export class WeatherAIAgent {
 
   // Find location mentions or fallback to current selected location
   async resolveLocationFromQuery(query, fallbackLocation) {
+    // 1. Check known Tamil & Tanglish city patterns first
+    const knownCity = resolveTamilAndTanglishCityName(query);
+    if (knownCity) {
+      const results = await searchLocation(knownCity);
+      if (results && results.length > 0) {
+        return results[0];
+      }
+    }
+
     const words = query.split(/[\s,?.!]+/);
     const stopWords = new Set([
       'what', 'is', 'the', 'weather', 'in', 'at', 'for', 'will', 'it', 'rain',
       'tomorrow', 'today', 'how', 'like', 'a', 'an', 'and', 'or', 'show', 'me',
-      'tell', 'forecast', 'report', 'of', 'naalai', 'mazhai', 'epdi', 'irukku',
-      'la', 'kya', 'hoga', 'mein', 'ko', 'varuma', 'irukkuma', 'pls', 'please', 'check',
-      'status', 'chance', 'details'
+      'tell', 'forecast', 'report', 'of', 'naalai', 'nalaiku', 'naalaikku', 'mazhai', 'malai', 'mazha', 'epdi', 'irukku', 'erukku',
+      'iruku', 'eruku', 'irukka', 'eruka', 'la', 'le', 'kku', 'ku', 'kya', 'hoga', 'mein', 'ko', 'varuma', 'irukkuma', 'pls', 'please', 'check',
+      'status', 'chance', 'details', 'peyyuma', 'peiyuma', 'peyyum', 'peiyum', 'kudutha', 'sollu', 'sollunga', 'solunga', 'kudu',
+      'kudai', 'umbrella', 'thevaya', 'theva', 'eduthuttu', 'pogalama', 'pogalaama', 'vaikalam', 'vacha', 'pannu', 'pannalam'
     ]);
 
     // Look for preposition clues like "in Chennai", "at Delhi", "for Mumbai"
@@ -636,6 +728,25 @@ export class WeatherAIAgent {
           `• **Kaatru Vegam:** ${wind} km/h | **Kadal Veppam:** ${marineBriefing.seaSurfaceTemp}°C\n` +
           `• **Meenavargal Echarikkai:** ${marineBriefing.fishermanAdvisory}\n` +
           `• **Uyar Alai Neram:** ${marineBriefing.tideInfo.nextHighTide}`
+        );
+      }
+
+      if (domain === 'aviation' && aviationBriefing) {
+        return (
+          `✈️ **${locName} Vimaana Pokkuvarathu Vaanilai Kurippu (Aviation METAR):**\n` +
+          `\`${aviationBriefing.metar}\`\n` +
+          `• **Flight Category:** ${aviationBriefing.flightCategory}\n` +
+          `• **Paarvai Dhooram (Visibility):** ${aviationBriefing.visibilityKm} km | **Megam Ceiling:** ${aviationBriefing.ceilingFeet} ft\n` +
+          `• **Kaatru Vegam:** ${aviationBriefing.windKnots} knots (Direction: ${aviationBriefing.windDirection}°)`
+        );
+      }
+
+      if (domain === 'air_quality') {
+        return (
+          `🍃 **${locName} Kaatru Tharam (Air Quality AQI):**\n` +
+          `• **AQI Level:** ${aqi} (${aqiData?.current?.dominant_pollutant || 'PM2.5'})\n` +
+          `• **Kaatru Soolai:** ${aqi <= 50 ? 'Nalla Kaatru (Good)' : aqi <= 100 ? 'Madhamaana Kaatru (Moderate)' : 'Maasupatta Kaatru (Unhealthy)'}\n` +
+          `• **Mukkiya Advice:** ${aqi > 100 ? 'Veliya porappa Mask podunga.' : 'Kaatru nallave irukku, veli velai thairiyama seyyalaam.'}`
         );
       }
 

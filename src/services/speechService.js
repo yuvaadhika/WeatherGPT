@@ -382,8 +382,16 @@ class SpeechEngine {
     }
 
     // Auto-detect script language (Tamil, Telugu, Hindi, etc.)
-    const detectedLang = this.detectScriptLanguage(text);
-    const effectiveLang = detectedLang ? `${detectedLang}-IN` : langCode;
+    const detectedScript = this.detectScriptLanguage(text);
+    let effectiveLang = langCode;
+
+    if (detectedScript) {
+      effectiveLang = `${detectedScript}-IN`;
+    } else if (langCode === 'tanglish' || langCode === 'ta-tanglish') {
+      effectiveLang = 'en-IN';
+    } else if (langCode === 'ta' || langCode === 'tamil') {
+      effectiveLang = 'ta-IN';
+    }
 
     // Prepare clean text
     const cleanText = this.cleanTextForSpeech(text, effectiveLang);
