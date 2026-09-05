@@ -72,12 +72,12 @@ export default function Header({
     : (t.header?.detecting || 'Detecting...');
 
   return (
-    <header className="w-full border-b border-slate-200 bg-white/90 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0 z-30 shadow-sm">
+    <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/90 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0 z-30 shadow-2xs">
       {/* Left: Mobile Menu & Location */}
       <div className="flex items-center space-x-2 sm:space-x-3">
         <button
           onClick={onOpenSidebar}
-          className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer"
+          className="p-2 rounded-xl bg-white/80 border border-sky-200/70 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer hover:border-sky-300"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -86,13 +86,13 @@ export default function Header({
         <button
           onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
           title={activeLanguage === 'ta' ? 'அனைத்து இடங்களையும் (A-Z) காண்க' : 'Browse All Places Directory (A-Z)'}
-          className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100/90 hover:bg-sky-50 border border-slate-200 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-sm cursor-pointer group"
+          className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/85 hover:bg-sky-50 border border-sky-200/70 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group"
         >
           <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
           <span className="truncate max-w-[110px] sm:max-w-[170px] font-bold text-slate-900 group-hover:text-sky-700">
             {displayLocationName}
           </span>
-          <span className="text-[10px] text-sky-600 font-semibold px-1.5 py-0.2 rounded bg-sky-100/80 border border-sky-200">
+          <span className="text-[10px] text-sky-600 font-semibold px-1.5 py-0.2 rounded bg-sky-100/90 border border-sky-200">
             A-Z ▾
           </span>
         </button>

@@ -59,9 +59,9 @@ export default function DecisionSupportModes({
   const rainSum48h = ((daily.precipitation_sum?.[0] || 0) + (daily.precipitation_sum?.[1] || 0));
 
   return (
-    <div className="w-full rounded-2xl bg-white border border-slate-200 p-4 sm:p-6 shadow-sm space-y-6">
+    <div className="w-full rounded-3xl bg-white/85 backdrop-blur-md border border-sky-100/90 p-4 sm:p-6 shadow-2xs space-y-6">
       {/* Sector Selection Tabs */}
-      <div className="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-slate-200">
+      <div className="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-sky-100">
         {[
           { id: 'agriculture', label: d.tabs?.agriculture || '🌾 Agriculture & Farmers', icon: Wheat },
           { id: 'aviation', label: d.tabs?.aviation || '✈️ Aviation METAR / TAF', icon: Plane },

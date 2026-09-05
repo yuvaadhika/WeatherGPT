@@ -219,7 +219,7 @@ export default function MobileDashboard({
   return (
     <div className="w-full max-w-lg mx-auto pb-24 space-y-4 font-sans text-slate-800 animate-fadeIn">
       {/* 1. Top Location Bar & Header */}
-      <div className="bg-white/90 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-4 shadow-sm space-y-3">
+      <div className="bg-white/85 backdrop-blur-xl border border-sky-200/70 rounded-3xl p-4 shadow-2xs space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
@@ -242,24 +242,24 @@ export default function MobileDashboard({
           <div className="flex items-center space-x-1.5">
             <button
               onClick={handleShareWeather}
-              className="p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              className="p-2 rounded-2xl bg-sky-50 hover:bg-sky-100 text-slate-600 hover:text-slate-900 border border-sky-100 transition-colors cursor-pointer"
               title="Share Live Weather Bulletin"
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 className="w-4 h-4 text-sky-600" />
             </button>
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="p-2 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+              className="p-2 rounded-2xl bg-sky-50 hover:bg-sky-100 text-slate-600 hover:text-slate-900 border border-sky-100 transition-colors cursor-pointer"
               title="Search City"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 text-sky-600" />
             </button>
             <button
               onClick={onOpenAlertModal}
               className={`p-2 rounded-2xl border transition-all cursor-pointer relative ${
                 notificationsEnabled
-                  ? 'bg-sky-50 border-sky-300 text-sky-600'
-                  : 'bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-800'
+                  ? 'bg-sky-100 border-sky-300 text-sky-700'
+                  : 'bg-sky-50 border-sky-100 text-slate-500 hover:text-slate-800'
               }`}
               title="Alert Notifications Setup"
             >
@@ -279,7 +279,7 @@ export default function MobileDashboard({
         )}
 
         {/* Location Selector Chip */}
-        <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+        <div className="flex items-center justify-between pt-1 border-t border-sky-100/80">
           <button
             onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
             className="flex items-center space-x-1.5 text-left group cursor-pointer"
@@ -289,7 +289,7 @@ export default function MobileDashboard({
             <div>
               <div className="text-xs font-bold text-slate-900 flex items-center space-x-1">
                 <span className="truncate max-w-[180px] group-hover:text-sky-600">{displayLocation}</span>
-                <span className="text-[10px] text-sky-600 font-bold px-1.5 py-0.2 rounded bg-sky-100/80 border border-sky-200">
+                <span className="text-[10px] text-sky-600 font-bold px-1.5 py-0.2 rounded bg-sky-100/90 border border-sky-200">
                   A-Z ▾
                 </span>
               </div>
@@ -300,14 +300,14 @@ export default function MobileDashboard({
           <div className="flex items-center space-x-1.5">
             <button
               onClick={() => onOpenLocationModal && onOpenLocationModal()}
-              className="text-[10px] font-bold text-slate-700 hover:text-sky-700 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-sky-100 border border-slate-200 transition-colors cursor-pointer"
+              className="text-[10px] font-bold text-slate-700 hover:text-sky-700 px-2.5 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200/70 transition-colors cursor-pointer"
               title="Open Alphabetical A-Z Places Directory"
             >
               {activeLanguage === 'ta' ? 'அனைத்து இடங்கள் (A-Z)' : 'A-Z Places'}
             </button>
             <button
               onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
-              className="text-[10px] font-semibold text-sky-600 hover:text-sky-700 px-2 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200/60 transition-colors cursor-pointer"
+              className="text-[10px] font-semibold text-sky-600 hover:text-sky-700 px-2 py-1 rounded-xl bg-sky-100/80 hover:bg-sky-200/80 border border-sky-200/80 transition-colors cursor-pointer"
             >
               {activeLanguage === 'ta' ? 'ஜிபிஎஸ்' : 'Auto GPS'}
             </button>
@@ -324,7 +324,7 @@ export default function MobileDashboard({
                 onClick={() => onOpenLocationModal && onOpenLocationModal()}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={activeLanguage === 'ta' ? 'அனைத்து இடங்கள் (A-Z) தேடுக...' : 'Search all places (A-Z directory)...'}
-                className="w-full pl-8 pr-24 py-2 text-xs bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all shadow-inner cursor-pointer"
+                className="w-full pl-8 pr-24 py-2 text-xs bg-sky-50/70 border border-sky-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all shadow-inner cursor-pointer"
                 autoFocus
               />
               <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400" />
@@ -332,7 +332,7 @@ export default function MobileDashboard({
                 <button
                   type="button"
                   onClick={() => onOpenLocationModal && onOpenLocationModal()}
-                  className="px-2 py-1 text-[10px] font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl transition-all cursor-pointer"
+                  className="px-2 py-1 text-[10px] font-bold bg-sky-100 hover:bg-sky-200 text-sky-800 rounded-xl transition-all cursor-pointer"
                 >
                   A-Z
                 </button>
@@ -347,7 +347,7 @@ export default function MobileDashboard({
 
             {/* Autocomplete dropdown */}
             {searchResults.length > 0 && (
-              <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 divide-y divide-slate-100">
+              <div className="absolute top-full mt-1 left-0 right-0 bg-white border border-sky-200 rounded-2xl shadow-xl overflow-hidden z-50 divide-y divide-sky-50">
                 {searchResults.map((city) => (
                   <button
                     key={`${city.id}-${city.latitude}`}
@@ -374,9 +374,9 @@ export default function MobileDashboard({
       </div>
 
       {/* 2. AI Hyperlocal Live Weather Intelligence & Smart Activity Hub */}
-      <div className="bg-gradient-to-br from-white via-sky-50/40 to-indigo-50/30 border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-white/95 via-sky-50/60 to-blue-50/50 border border-sky-200/70 rounded-3xl p-4 sm:p-5 shadow-2xs space-y-3.5 relative overflow-hidden backdrop-blur-md">
         {/* Top Header & Tab Pills */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-sky-100 pb-2.5">
           <div className="flex items-center space-x-1.5">
             <Sparkles className="w-4 h-4 text-sky-600" />
             <h2 className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight">
@@ -385,11 +385,11 @@ export default function MobileDashboard({
           </div>
 
           {/* Interactive 3 Tabs */}
-          <div className="flex items-center space-x-1 bg-slate-100/90 p-1 rounded-2xl text-[11px] font-bold text-slate-600 self-start sm:self-auto">
+          <div className="flex items-center space-x-1 bg-sky-100/70 p-1 rounded-2xl text-[11px] font-bold text-slate-600 self-start sm:self-auto">
             <button
               onClick={() => setHeroTab('nowcast')}
               className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
-                heroTab === 'nowcast' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+                heroTab === 'nowcast' ? 'bg-white text-sky-700 shadow-2xs' : 'hover:text-slate-900'
               }`}
             >
               ⚡ {activeLanguage === 'ta' ? '3h முன்னறிவிப்பு' : '3h Nowcast'}
@@ -397,7 +397,7 @@ export default function MobileDashboard({
             <button
               onClick={() => setHeroTab('activities')}
               className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
-                heroTab === 'activities' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+                heroTab === 'activities' ? 'bg-white text-sky-700 shadow-2xs' : 'hover:text-slate-900'
               }`}
             >
               🎯 {activeLanguage === 'ta' ? 'செயல்பாடுகள்' : 'Activities'}
@@ -405,7 +405,7 @@ export default function MobileDashboard({
             <button
               onClick={() => setHeroTab('health')}
               className={`px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
-                heroTab === 'health' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+                heroTab === 'health' ? 'bg-white text-sky-700 shadow-2xs' : 'hover:text-slate-900'
               }`}
             >
               🩺 {activeLanguage === 'ta' ? 'சுகாதாரம்' : 'Health & Comfort'}
@@ -427,8 +427,8 @@ export default function MobileDashboard({
                   key={idx}
                   className={`p-2.5 rounded-2xl border text-center space-y-1 transition-all ${
                     idx === 0
-                      ? 'bg-sky-50 border-sky-300 shadow-xs text-sky-950'
-                      : 'bg-white/80 border-slate-200 text-slate-800'
+                      ? 'bg-sky-50 border-sky-300 shadow-2xs text-sky-950'
+                      : 'bg-white/85 border-sky-100 text-slate-800'
                   }`}
                 >
                   <span className="text-[10px] font-bold text-slate-500 block">{step.time}</span>
@@ -444,7 +444,7 @@ export default function MobileDashboard({
               ))}
             </div>
 
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200/80 text-xs text-slate-700 flex items-center justify-between">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 text-xs text-slate-700 flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span className="font-semibold">
@@ -468,7 +468,7 @@ export default function MobileDashboard({
         {heroTab === 'activities' && (
           <div className="grid grid-cols-2 gap-2 animate-fadeIn text-xs">
             {/* Travel */}
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 shadow-2xs space-y-1">
               <div className="flex items-center justify-between text-slate-700 font-bold">
                 <div className="flex items-center space-x-1.5">
                   <Car className="w-3.5 h-3.5 text-sky-600" />
@@ -484,7 +484,7 @@ export default function MobileDashboard({
             </div>
 
             {/* Sports */}
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 shadow-2xs space-y-1">
               <div className="flex items-center justify-between text-slate-700 font-bold">
                 <div className="flex items-center space-x-1.5">
                   <Footprints className="w-3.5 h-3.5 text-amber-600" />
@@ -500,7 +500,7 @@ export default function MobileDashboard({
             </div>
 
             {/* Laundry */}
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 shadow-2xs space-y-1">
               <div className="flex items-center justify-between text-slate-700 font-bold">
                 <div className="flex items-center space-x-1.5">
                   <Shirt className="w-3.5 h-3.5 text-indigo-600" />
@@ -516,7 +516,7 @@ export default function MobileDashboard({
             </div>
 
             {/* Farming */}
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 shadow-2xs space-y-1">
               <div className="flex items-center justify-between text-slate-700 font-bold">
                 <div className="flex items-center space-x-1.5">
                   <Wheat className="w-3.5 h-3.5 text-emerald-600" />
@@ -537,7 +537,7 @@ export default function MobileDashboard({
         {heroTab === 'health' && (
           <div className="grid grid-cols-2 gap-2 animate-fadeIn text-xs">
             {/* AQI */}
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 shadow-2xs space-y-1">
               <div className="flex items-center justify-between font-bold text-slate-700">
                 <div className="flex items-center space-x-1.5">
                   <Activity className="w-3.5 h-3.5 text-emerald-600" />
@@ -551,7 +551,7 @@ export default function MobileDashboard({
             </div>
 
             {/* UV */}
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 shadow-2xs space-y-1">
               <div className="flex items-center justify-between font-bold text-slate-700">
                 <div className="flex items-center space-x-1.5">
                   <Sun className="w-3.5 h-3.5 text-amber-600" />
@@ -565,7 +565,7 @@ export default function MobileDashboard({
             </div>
 
             {/* Hydration */}
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 shadow-2xs space-y-1">
               <div className="flex items-center justify-between font-bold text-slate-700">
                 <div className="flex items-center space-x-1.5">
                   <Droplets className="w-3.5 h-3.5 text-sky-600" />
@@ -579,7 +579,7 @@ export default function MobileDashboard({
             </div>
 
             {/* Thermal Feel */}
-            <div className="p-2.5 rounded-2xl bg-white/80 border border-slate-200 shadow-xs space-y-1">
+            <div className="p-2.5 rounded-2xl bg-white/85 border border-sky-100 shadow-2xs space-y-1">
               <div className="flex items-center justify-between font-bold text-slate-700">
                 <div className="flex items-center space-x-1.5">
                   <Thermometer className="w-3.5 h-3.5 text-rose-600" />
@@ -596,15 +596,15 @@ export default function MobileDashboard({
       </div>
 
       {/* ✨ 3. AI INNOVATION SUITE (4 Killer Features: Route Planner, Event Score, Spotter, SOS Hub) */}
-      <div className="bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 text-white border border-sky-500/30 rounded-3xl p-4 sm:p-5 shadow-lg space-y-3 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-sky-100/90 via-sky-50/95 to-indigo-50/90 text-slate-800 border border-sky-200/90 rounded-3xl p-4 sm:p-5 shadow-2xs space-y-3 relative overflow-hidden backdrop-blur-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs sm:text-sm font-black text-white tracking-tight">
+            <Sparkles className="w-4 h-4 text-sky-600" />
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
               {activeLanguage === 'ta' ? '🚀 புதிய AI வானிலை கண்டுபிடிப்புகள்' : '🚀 AI Innovation & Decision Suite'}
             </h3>
           </div>
-          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30">
+          <span className="text-[9px] font-black px-2.5 py-0.5 rounded-full bg-sky-200/70 text-sky-800 border border-sky-300/70">
             4 New Tools
           </span>
         </div>
@@ -614,22 +614,22 @@ export default function MobileDashboard({
           {/* Tool 1: Route Planner */}
           <button
             onClick={() => onOpenRoutePlanner && onOpenRoutePlanner()}
-            className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-xs"
+            className="p-3 rounded-2xl bg-white/85 hover:bg-white hover:border-sky-300 border border-sky-200/70 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-2xs hover:shadow-xs"
           >
             <div className="flex items-center justify-between">
-              <span className="text-base p-1.5 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-400/30">
+              <span className="text-base p-1.5 rounded-xl bg-sky-100 text-sky-700 border border-sky-200">
                 🚗
               </span>
-              <span className="text-[9px] font-bold text-sky-300 bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-500/30">
+              <span className="text-[9px] font-bold text-sky-700 bg-sky-100/90 px-1.5 py-0.5 rounded border border-sky-200">
                 Route GIS
               </span>
             </div>
             <div>
-              <div className="text-xs font-black text-white group-hover:text-sky-300 transition-colors flex items-center space-x-1">
+              <div className="text-xs font-black text-slate-900 group-hover:text-sky-700 transition-colors flex items-center space-x-1">
                 <span>{activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை' : 'Route Planner'}</span>
                 <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <p className="text-[10px] text-slate-300 line-clamp-2 mt-0.5">
+              <p className="text-[10px] text-slate-600 line-clamp-2 mt-0.5">
                 {activeLanguage === 'ta' ? 'நெடுஞ்சாலை மழை & புறப்படும் நேரம்' : 'Highway rain forecast & safe travel hours.'}
               </p>
             </div>
@@ -638,22 +638,22 @@ export default function MobileDashboard({
           {/* Tool 2: Event Weather Score */}
           <button
             onClick={() => onOpenEventScore && onOpenEventScore()}
-            className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-xs"
+            className="p-3 rounded-2xl bg-white/85 hover:bg-white hover:border-rose-300 border border-rose-100 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-2xs hover:shadow-xs"
           >
             <div className="flex items-center justify-between">
-              <span className="text-base p-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-400/30">
+              <span className="text-base p-1.5 rounded-xl bg-rose-100 text-rose-700 border border-rose-200">
                 🎪
               </span>
-              <span className="text-[9px] font-bold text-rose-300 bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-500/30">
+              <span className="text-[9px] font-bold text-rose-700 bg-rose-100/90 px-1.5 py-0.5 rounded border border-rose-200">
                 Score
               </span>
             </div>
             <div>
-              <div className="text-xs font-black text-white group-hover:text-rose-300 transition-colors flex items-center space-x-1">
+              <div className="text-xs font-black text-slate-900 group-hover:text-rose-700 transition-colors flex items-center space-x-1">
                 <span>{activeLanguage === 'ta' ? 'சுபகாரிய விழா கணிப்பு' : 'Event Score'}</span>
                 <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <p className="text-[10px] text-slate-300 line-clamp-2 mt-0.5">
+              <p className="text-[10px] text-slate-600 line-clamp-2 mt-0.5">
                 {activeLanguage === 'ta' ? 'திருமணம் & பந்தல் காற்று சாத்தியக்கூறு' : 'Wedding, sports & pandal rain risk.'}
               </p>
             </div>
@@ -662,22 +662,22 @@ export default function MobileDashboard({
           {/* Tool 3: Community Spotter */}
           <button
             onClick={() => onOpenSpotter && onOpenSpotter()}
-            className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-xs"
+            className="p-3 rounded-2xl bg-white/85 hover:bg-white hover:border-teal-300 border border-teal-100 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-2xs hover:shadow-xs"
           >
             <div className="flex items-center justify-between">
-              <span className="text-base p-1.5 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-400/30">
+              <span className="text-base p-1.5 rounded-xl bg-teal-100 text-teal-700 border border-teal-200">
                 📍
               </span>
-              <span className="text-[9px] font-bold text-teal-300 bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-500/30">
+              <span className="text-[9px] font-bold text-teal-700 bg-teal-100/90 px-1.5 py-0.5 rounded border border-teal-200">
                 Live Feed
               </span>
             </div>
             <div>
-              <div className="text-xs font-black text-white group-hover:text-teal-300 transition-colors flex items-center space-x-1">
+              <div className="text-xs font-black text-slate-900 group-hover:text-teal-700 transition-colors flex items-center space-x-1">
                 <span>{activeLanguage === 'ta' ? 'மக்கள் நேரடி சமூகம்' : 'Live Spotter'}</span>
                 <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <p className="text-[10px] text-slate-300 line-clamp-2 mt-0.5">
+              <p className="text-[10px] text-slate-600 line-clamp-2 mt-0.5">
                 {activeLanguage === 'ta' ? 'தெரு வாரியாக தண்ணீர் தேக்கம் & மழை' : 'Citizen-verified street waterlogging & rain.'}
               </p>
             </div>
@@ -686,22 +686,22 @@ export default function MobileDashboard({
           {/* Tool 4: Emergency SOS */}
           <button
             onClick={() => onOpenEmergencySOS && onOpenEmergencySOS()}
-            className="p-3 rounded-2xl bg-rose-600/25 hover:bg-rose-600/35 backdrop-blur-md border border-rose-400/40 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-xs"
+            className="p-3 rounded-2xl bg-rose-50/90 hover:bg-rose-100/90 hover:border-rose-300 border border-rose-200/80 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-2xs hover:shadow-xs"
           >
             <div className="flex items-center justify-between">
-              <span className="text-base p-1.5 rounded-xl bg-rose-500/30 text-rose-300 border border-rose-400/40 animate-pulse">
+              <span className="text-base p-1.5 rounded-xl bg-rose-200/70 text-rose-800 border border-rose-300 animate-pulse">
                 🚨
               </span>
-              <span className="text-[9px] font-black text-rose-200 bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-500/40">
+              <span className="text-[9px] font-black text-rose-800 bg-rose-200/80 px-1.5 py-0.5 rounded border border-rose-300">
                 SOS & Alert
               </span>
             </div>
             <div>
-              <div className="text-xs font-black text-white group-hover:text-rose-300 transition-colors flex items-center space-x-1">
+              <div className="text-xs font-black text-rose-950 group-hover:text-rose-700 transition-colors flex items-center space-x-1">
                 <span>{activeLanguage === 'ta' ? 'புயல் வெள்ள SOS' : 'Disaster SOS'}</span>
                 <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <p className="text-[10px] text-rose-200/90 line-clamp-2 mt-0.5">
+              <p className="text-[10px] text-rose-800 line-clamp-2 mt-0.5">
                 {activeLanguage === 'ta' ? 'முன்கூட்டிய எச்சரிக்கை & அவசர எண்கள்' : 'Predictive before-awareness & 1-tap SOS.'}
               </p>
             </div>
@@ -712,10 +712,10 @@ export default function MobileDashboard({
       {/* 4. 4 Live Weather Telemetry Badges (2x2 Grid) */}
       <div className="grid grid-cols-2 gap-2.5">
         {/* Card 1: Temperature & Feel */}
-        <div className="p-3.5 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-1">
+        <div className="p-3.5 rounded-3xl bg-white/85 backdrop-blur-md border border-sky-100/90 shadow-2xs space-y-1 hover:border-sky-200 transition-all">
           <div className="flex items-center justify-between text-slate-400">
             <Thermometer className="w-4 h-4 text-amber-500" />
-            <span className="text-[10px] font-semibold text-slate-400">{wmo.label}</span>
+            <span className="text-[10px] font-semibold text-slate-500">{wmo.label}</span>
           </div>
           <div className="text-xl sm:text-2xl font-black text-slate-900">
             {tempC}°C
@@ -726,7 +726,7 @@ export default function MobileDashboard({
         </div>
 
         {/* Card 2: Rainfall (12h) */}
-        <div className="p-3.5 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-1">
+        <div className="p-3.5 rounded-3xl bg-white/85 backdrop-blur-md border border-sky-100/90 shadow-2xs space-y-1 hover:border-sky-200 transition-all">
           <div className="flex items-center justify-between text-slate-400">
             <CloudRain className="w-4 h-4 text-sky-500" />
             <span className="text-[10px] font-semibold text-sky-600 font-mono">12h</span>
@@ -740,7 +740,7 @@ export default function MobileDashboard({
         </div>
 
         {/* Card 3: Wind & Gusts */}
-        <div className="p-3.5 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-1">
+        <div className="p-3.5 rounded-3xl bg-white/85 backdrop-blur-md border border-sky-100/90 shadow-2xs space-y-1 hover:border-sky-200 transition-all">
           <div className="flex items-center justify-between text-slate-400">
             <Wind className="w-4 h-4 text-blue-500" />
             <span className="text-[10px] font-semibold text-slate-400">
@@ -756,7 +756,7 @@ export default function MobileDashboard({
         </div>
 
         {/* Card 4: Humidity & Dew Point */}
-        <div className="p-3.5 rounded-3xl bg-white border border-slate-200/80 shadow-sm space-y-1">
+        <div className="p-3.5 rounded-3xl bg-white/85 backdrop-blur-md border border-sky-100/90 shadow-2xs space-y-1 hover:border-sky-200 transition-all">
           <div className="flex items-center justify-between text-slate-400">
             <Droplets className="w-4 h-4 text-teal-500" />
             <span className="text-[10px] font-semibold text-slate-400">RH</span>
@@ -771,16 +771,16 @@ export default function MobileDashboard({
       </div>
 
       {/* Extra Secondary Telemetry Pill Strip (AQI, UV, Pressure, Visibility) */}
-      <div className="grid grid-cols-4 gap-2 bg-slate-50/80 border border-slate-200/80 rounded-2xl p-2 text-center text-xs">
-        <div className="border-r border-slate-200 pr-1">
+      <div className="grid grid-cols-4 gap-2 bg-sky-50/70 border border-sky-100/90 rounded-2xl p-2 text-center text-xs">
+        <div className="border-r border-sky-200/60 pr-1">
           <span className="text-[9px] font-bold text-slate-400 block uppercase">AQI PM2.5</span>
           <span className="font-extrabold text-emerald-600 text-xs">{aqiVal}</span>
         </div>
-        <div className="border-r border-slate-200 pr-1">
+        <div className="border-r border-sky-200/60 pr-1">
           <span className="text-[9px] font-bold text-slate-400 block uppercase">UV Index</span>
           <span className="font-extrabold text-amber-600 text-xs">{uvVal}</span>
         </div>
-        <div className="border-r border-slate-200 pr-1">
+        <div className="border-r border-sky-200/60 pr-1">
           <span className="text-[9px] font-bold text-slate-400 block uppercase">Pressure</span>
           <span className="font-extrabold text-slate-700 text-xs">{current.surface_pressure ? Math.round(current.surface_pressure) : 1012} hPa</span>
         </div>
@@ -791,7 +791,7 @@ export default function MobileDashboard({
       </div>
 
       {/* ✨ EXTRA SECTION 1: Astronomical Ephemeris & Solar Cycle Card */}
-      <div className="bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-indigo-500/10 border border-amber-200/80 rounded-3xl p-4 shadow-sm space-y-2.5">
+      <div className="bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-indigo-500/10 border border-amber-200/80 rounded-3xl p-4 shadow-2xs space-y-2.5 backdrop-blur-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Sunrise className="w-4 h-4 text-amber-600" />
@@ -799,13 +799,13 @@ export default function MobileDashboard({
               {activeLanguage === 'ta' ? 'சூரிய உதயம் & அஸ்தமன சுழற்சி' : 'Sun Cycle & Astronomical Ephemeris'}
             </h3>
           </div>
-          <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-bold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-200/70">
             {activeLanguage === 'ta' ? 'பகல் 12 மணி 17 நிமி' : 'Daylight 12h 17m'}
           </span>
         </div>
 
         <div className="grid grid-cols-2 gap-3 pt-1">
-          <div className="p-3 rounded-2xl bg-white/90 border border-amber-200/60 flex items-center space-x-3">
+          <div className="p-3 rounded-2xl bg-white/85 border border-amber-200/60 flex items-center space-x-3 shadow-2xs">
             <div className="p-2 rounded-xl bg-amber-500 text-white">
               <Sunrise className="w-4 h-4" />
             </div>
@@ -815,7 +815,7 @@ export default function MobileDashboard({
             </div>
           </div>
 
-          <div className="p-3 rounded-2xl bg-white/90 border border-indigo-200/60 flex items-center space-x-3">
+          <div className="p-3 rounded-2xl bg-white/85 border border-indigo-200/60 flex items-center space-x-3 shadow-2xs">
             <div className="p-2 rounded-xl bg-indigo-600 text-white">
               <Sunset className="w-4 h-4" />
             </div>
@@ -830,7 +830,7 @@ export default function MobileDashboard({
       {/* ✨ EXTRA SECTION 2: Agriculture Soil Moisture & Commute Safety Matrix */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Agri Soil Card */}
-        <div className="p-4 rounded-3xl bg-white border border-emerald-200/80 shadow-sm space-y-2">
+        <div className="p-4 rounded-3xl bg-white/85 backdrop-blur-md border border-emerald-200/80 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-1.5 font-bold text-xs text-emerald-800">
               <Wheat className="w-4 h-4 text-emerald-600" />
@@ -854,7 +854,7 @@ export default function MobileDashboard({
         </div>
 
         {/* Urban Commute & Rain Gear Card */}
-        <div className="p-4 rounded-3xl bg-white border border-sky-200/80 shadow-sm space-y-2">
+        <div className="p-4 rounded-3xl bg-white/85 backdrop-blur-md border border-sky-200/80 shadow-2xs space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-1.5 font-bold text-xs text-sky-800">
               <Car className="w-4 h-4 text-sky-600" />
@@ -875,25 +875,25 @@ export default function MobileDashboard({
       </div>
 
       {/* 🌾 SMART AGRI SEED & CROP ADVISORY CARD */}
-      <div className="bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-900 text-white border border-emerald-500/30 rounded-3xl p-4 sm:p-5 shadow-lg space-y-3 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-emerald-50/90 via-teal-50/80 to-sky-50/70 text-slate-800 border border-emerald-200/90 rounded-3xl p-4 sm:p-5 shadow-2xs space-y-3 relative overflow-hidden backdrop-blur-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
-            <div className="p-2 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <div className="p-2 rounded-2xl bg-emerald-100/90 text-emerald-700 border border-emerald-200">
               <Wheat className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-black text-white">
+              <h3 className="text-xs sm:text-sm font-black text-slate-900">
                 {activeLanguage === 'ta' ? '🌾 விவசாய விதை & பயிர் வழிகாட்டி' : '🌾 Smart Climate Seed & Crop Selection'}
               </h3>
-              <p className="text-[10px] text-emerald-200/80">
+              <p className="text-[10px] text-emerald-800 font-medium">
                 {activeLanguage === 'ta' ? 'இந்த தட்பவெப்பநிலைக்கு உகந்த விதைகள் & விதைப்பு நேரம்' : 'Recommended seeds & sowing window based on current weather'}
               </p>
             </div>
           </div>
           <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border ${
             cropSeedAdvisory?.sowingStatus === 'Optimal'
-              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
-              : 'bg-amber-500/20 text-amber-300 border-amber-400/30'
+              ? 'bg-emerald-100/90 text-emerald-800 border-emerald-300/80'
+              : 'bg-amber-100/90 text-amber-800 border-amber-300/80'
           }`}>
             {cropSeedAdvisory?.sowingStatusLabel || 'Optimal Sowing'}
           </span>
@@ -902,19 +902,19 @@ export default function MobileDashboard({
         {/* Recommended Seed Varieties Matrix */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {(cropSeedAdvisory?.recommendedSeeds || []).slice(0, 2).map((seed, idx) => (
-            <div key={idx} className="p-3 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md space-y-1">
+            <div key={idx} className="p-3 rounded-2xl bg-white/85 hover:bg-white border border-emerald-100/90 shadow-2xs space-y-1 transition-all">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-emerald-300">
+                <span className="text-xs font-black text-emerald-900">
                   {activeLanguage === 'ta' ? seed.cropTa : seed.cropEn}
                 </span>
-                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-900/60 text-emerald-200 border border-emerald-500/30">
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100/90 text-emerald-800 border border-emerald-200">
                   {seed.suitability}
                 </span>
               </div>
-              <div className="text-[10px] text-white font-medium">
-                <strong>{activeLanguage === 'ta' ? 'ரகங்கள்:' : 'Varieties:'}</strong> {seed.variety}
+              <div className="text-[10px] text-slate-800 font-medium">
+                <strong className="text-emerald-950">{activeLanguage === 'ta' ? 'ரகங்கள்:' : 'Varieties:'}</strong> {seed.variety}
               </div>
-              <p className="text-[10px] text-slate-300 line-clamp-2">
+              <p className="text-[10px] text-slate-600 line-clamp-2">
                 {activeLanguage === 'ta' ? seed.reasonTa : seed.reasonEn}
               </p>
             </div>
@@ -922,13 +922,13 @@ export default function MobileDashboard({
         </div>
 
         {/* Action button to ask AI Chat for more farming guidance */}
-        <div className="flex items-center justify-between pt-1 border-t border-white/10">
-          <span className="text-[10px] text-emerald-200 font-medium">
-            {activeLanguage === 'ta' ? 'மண் ஈரப்பதம்:' : 'Topsoil Moisture:'} <strong>{cropSeedAdvisory?.soilMoisturePercent || 25}%</strong>
+        <div className="flex items-center justify-between pt-1 border-t border-emerald-200/60">
+          <span className="text-[10px] text-emerald-900 font-medium">
+            {activeLanguage === 'ta' ? 'மண் ஈரப்பதம்:' : 'Topsoil Moisture:'} <strong className="text-emerald-950">{cropSeedAdvisory?.soilMoisturePercent || 25}%</strong>
           </span>
           <button
             onClick={() => onOpenChat && onOpenChat(activeLanguage === 'ta' ? 'இந்த வானிலைக்கு எந்த விதை விதைக்கலாம்? விவசாய ஆலோசனை கூறவும்' : 'Which seeds should I sow in this climate? Give crop advice')}
-            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center space-x-1.5 transition-all shadow-md cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center space-x-1.5 transition-all shadow-2xs cursor-pointer hover:shadow-xs"
           >
             <span>{activeLanguage === 'ta' ? 'AI விவசாய ஆலோசனை' : 'Ask AI Crop Advice'}</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -937,7 +937,7 @@ export default function MobileDashboard({
       </div>
 
       {/* 5. Live Weather Doppler Radar Card */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 shadow-sm space-y-2.5">
+      <div className="bg-white/85 backdrop-blur-md border border-sky-100/90 rounded-3xl p-4 shadow-2xs space-y-2.5 hover:border-sky-200 transition-all">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Radio className="w-4 h-4 text-emerald-600 animate-pulse" />
@@ -1002,14 +1002,14 @@ export default function MobileDashboard({
               <div
                 key={al.id || idx}
                 onClick={onOpenAlerts}
-                className={`p-3.5 rounded-2xl border shadow-xs flex items-start space-x-3 cursor-pointer transition-all hover:scale-[1.01] ${
+                className={`p-3.5 rounded-2xl border shadow-2xs flex items-start space-x-3 cursor-pointer transition-all hover:scale-[1.01] ${
                   al.level === 'red'
-                    ? 'bg-rose-50/70 border-rose-200 text-rose-900'
+                    ? 'bg-rose-50/85 border-rose-200 text-rose-900'
                     : al.level === 'orange'
-                    ? 'bg-orange-50/70 border-orange-200 text-orange-900'
+                    ? 'bg-orange-50/85 border-orange-200 text-orange-900'
                     : al.level === 'yellow'
-                    ? 'bg-amber-50/70 border-amber-200 text-amber-900'
-                    : 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                    ? 'bg-amber-50/85 border-amber-200 text-amber-900'
+                    : 'bg-emerald-50/85 border-emerald-200 text-emerald-900'
                 }`}
               >
                 <div className={`p-2 rounded-xl flex-shrink-0 ${
@@ -1033,7 +1033,7 @@ export default function MobileDashboard({
               </div>
             ))
           ) : (
-            <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-emerald-900 flex items-center space-x-3">
+            <div className="p-3.5 rounded-2xl bg-emerald-50/85 border border-emerald-200 text-emerald-900 flex items-center space-x-3 shadow-2xs">
               <div className="p-2 rounded-xl bg-emerald-600 text-white">
                 <ShieldAlert className="w-4 h-4" />
               </div>
@@ -1051,7 +1051,7 @@ export default function MobileDashboard({
       </div>
 
       {/* 7. 24-Hour Hourly Forecast Slider with Interactive Metric Switcher */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 shadow-sm space-y-3">
+      <div className="bg-white/85 backdrop-blur-md border border-sky-100/90 rounded-3xl p-4 shadow-2xs space-y-3 hover:border-sky-200 transition-all">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5">
             <Clock className="w-4 h-4 text-sky-600" />
@@ -1061,11 +1061,11 @@ export default function MobileDashboard({
           </div>
 
           {/* Metric Switcher Tabs */}
-          <div className="flex items-center space-x-1 bg-slate-100 p-0.5 rounded-xl text-[10px] font-bold text-slate-600">
+          <div className="flex items-center space-x-1 bg-sky-100/70 p-0.5 rounded-xl text-[10px] font-bold text-slate-600">
             <button
               onClick={() => setActiveHourlyMetric('temp')}
               className={`px-2 py-0.5 rounded-lg transition-all ${
-                activeHourlyMetric === 'temp' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+                activeHourlyMetric === 'temp' ? 'bg-white text-sky-700 shadow-2xs' : 'hover:text-slate-900'
               }`}
             >
               °C
@@ -1073,7 +1073,7 @@ export default function MobileDashboard({
             <button
               onClick={() => setActiveHourlyMetric('rain')}
               className={`px-2 py-0.5 rounded-lg transition-all ${
-                activeHourlyMetric === 'rain' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+                activeHourlyMetric === 'rain' ? 'bg-white text-sky-700 shadow-2xs' : 'hover:text-slate-900'
               }`}
             >
               Rain %
@@ -1081,7 +1081,7 @@ export default function MobileDashboard({
             <button
               onClick={() => setActiveHourlyMetric('wind')}
               className={`px-2 py-0.5 rounded-lg transition-all ${
-                activeHourlyMetric === 'wind' ? 'bg-white text-sky-700 shadow-xs' : 'hover:text-slate-900'
+                activeHourlyMetric === 'wind' ? 'bg-white text-sky-700 shadow-2xs' : 'hover:text-slate-900'
               }`}
             >
               Wind
@@ -1096,8 +1096,8 @@ export default function MobileDashboard({
               key={idx}
               className={`flex-shrink-0 w-16 p-2 rounded-2xl border text-center space-y-1 transition-all ${
                 idx === 0
-                  ? 'bg-sky-50 border-sky-300 text-sky-900 shadow-xs'
-                  : 'bg-slate-50/70 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  ? 'bg-sky-100/80 border-sky-300 text-sky-950 shadow-2xs'
+                  : 'bg-sky-50/50 border-sky-100/80 text-slate-700 hover:bg-sky-50'
               }`}
             >
               <div className="text-[10px] font-bold text-slate-500">{h.hourLabel}</div>
@@ -1115,7 +1115,7 @@ export default function MobileDashboard({
               <div className="text-[9px] font-bold text-sky-600 font-mono">
                 {h.hRainProb}%
               </div>
-              <div className="w-full bg-slate-200 h-1 rounded-full overflow-hidden">
+              <div className="w-full bg-sky-200/70 h-1 rounded-full overflow-hidden">
                 <div
                   className="bg-sky-500 h-full rounded-full"
                   style={{ width: `${Math.max(10, h.hRainProb)}%` }}
@@ -1127,7 +1127,7 @@ export default function MobileDashboard({
       </div>
 
       {/* 8. 7-Day Extended Forecast */}
-      <div className="bg-white border border-slate-200/90 rounded-3xl p-4 shadow-sm space-y-2.5">
+      <div className="bg-white/85 backdrop-blur-md border border-sky-100/90 rounded-3xl p-4 shadow-2xs space-y-2.5 hover:border-sky-200 transition-all">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5">
             <TrendingUp className="w-4 h-4 text-indigo-600" />
@@ -1138,7 +1138,7 @@ export default function MobileDashboard({
           <span className="text-[10px] text-slate-400 font-medium">ECMWF / GFS</span>
         </div>
 
-        <div className="space-y-2 divide-y divide-slate-100">
+        <div className="space-y-2 divide-y divide-sky-100/70">
           {next7Days.map((d, idx) => (
             <div key={idx} className="pt-2 flex items-center justify-between text-xs">
               <span className="font-bold text-slate-800 w-16">{d.dayLabel}</span>

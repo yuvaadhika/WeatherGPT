@@ -9,41 +9,46 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #f8fafc;
+  background-color: #eef6fc;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.6) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(241, 245, 249, 0.8) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(186, 230, 253, 0.45) 0px, transparent 55%),
+    radial-gradient(at 100% 0%, rgba(224, 242, 254, 0.5) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(219, 234, 254, 0.4) 0px, transparent 60%);
   background-attachment: fixed;
   color: #1e293b;
   font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Glassmorphism & Soft Light Card Classes */
+/* Glassmorphism & Soft Mild Weather Blue Card Classes */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(240, 248, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  border: 1px solid rgba(186, 230, 253, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(186, 230, 253, 0.25);
 }
 
 .glass-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(219, 234, 254, 0.85);
+  box-shadow: 0 2px 10px -1px rgba(186, 230, 253, 0.2);
 }
 
 .glass-card-hover {
   transition: all 0.2s ease;
 }
 .glass-card-hover:hover {
-  background: #ffffff;
-  border-color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.96);
+  border-color: #93c5fd;
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.15);
 }
 
 .glass-input {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #bfdbfe;
 }
 
 /* Custom Scrollbars */
@@ -52,14 +57,14 @@ body {
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #eef6fc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #bfdbfe;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #93c5fd;
 }
 
 /* Leaflet Map Customization for Light Theme */

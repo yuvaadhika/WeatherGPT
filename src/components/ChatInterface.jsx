@@ -214,7 +214,7 @@ export default function ChatInterface({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
               <button
                 onClick={() => handleSendMessage(t.chat?.promptRainQuery || 'Will it rain in Chennai over the next 48 hours?')}
-                className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-sky-300 transition-all group shadow-sm"
+                className="p-3.5 rounded-2xl bg-white/85 hover:bg-white border border-sky-100/90 hover:border-sky-300 transition-all group shadow-2xs"
               >
                 <div className="flex items-center space-x-2 text-sky-600 font-semibold text-xs">
                   <CloudRain className="w-4 h-4" />
@@ -227,7 +227,7 @@ export default function ChatInterface({
 
               <button
                 onClick={() => handleSendMessage(t.chat?.promptFarmerQuery || 'Agricultural crop advisory for paddy and soil moisture status')}
-                className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-emerald-300 transition-all group shadow-sm"
+                className="p-3.5 rounded-2xl bg-white/85 hover:bg-white border border-emerald-100/90 hover:border-emerald-300 transition-all group shadow-2xs"
               >
                 <div className="flex items-center space-x-2 text-emerald-600 font-semibold text-xs">
                   <Wheat className="w-4 h-4" />
@@ -240,7 +240,7 @@ export default function ChatInterface({
 
               <button
                 onClick={() => handleSendMessage(t.chat?.promptAviationQuery || 'Aviation weather briefing: METAR, cloud ceiling and crosswinds')}
-                className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-blue-300 transition-all group shadow-sm"
+                className="p-3.5 rounded-2xl bg-white/85 hover:bg-white border border-sky-100/90 hover:border-sky-300 transition-all group shadow-2xs"
               >
                 <div className="flex items-center space-x-2 text-blue-600 font-semibold text-xs">
                   <Plane className="w-4 h-4" />
@@ -253,7 +253,7 @@ export default function ChatInterface({
 
               <button
                 onClick={() => handleSendMessage(t.chat?.promptMarineQuery || 'Marine high-seas advisory and wave height for fishermen')}
-                className="p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-amber-300 transition-all group shadow-sm"
+                className="p-3.5 rounded-2xl bg-white/85 hover:bg-white border border-amber-100/90 hover:border-amber-300 transition-all group shadow-2xs"
               >
                 <div className="flex items-center space-x-2 text-amber-600 font-semibold text-xs">
                   <Anchor className="w-4 h-4" />
@@ -292,9 +292,9 @@ export default function ChatInterface({
 
               {/* Bubble */}
               <div
-                className={`rounded-2xl p-4 shadow-sm text-xs sm:text-sm leading-relaxed max-w-[88%] ${
+                className={`rounded-2xl p-4 shadow-2xs text-xs sm:text-sm leading-relaxed max-w-[88%] ${
                   isAi
-                    ? 'bg-white border border-slate-200 text-slate-800'
+                    ? 'bg-white/90 backdrop-blur-md border border-sky-100/90 text-slate-800'
                     : 'bg-sky-600 text-white font-normal'
                 }`}
               >

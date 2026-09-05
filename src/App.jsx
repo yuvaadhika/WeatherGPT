@@ -280,15 +280,15 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen w-screen flex bg-[#f8fafc] text-slate-800 overflow-hidden font-sans">
+    <div className="h-screen w-screen flex bg-gradient-to-b from-[#eef6fc] via-[#f2f8fe] to-[#e8f4fd] text-slate-800 overflow-hidden font-sans">
       {/* 1. Desktop Left Sidebar (Visible on Tablet/Desktop, Drawer on Mobile) */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#f8fbff]/95 backdrop-blur-xl border-r border-sky-100 flex flex-col justify-between transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-slate-200">
+        <div className="p-4 border-b border-sky-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
               <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-md font-bold">
@@ -539,9 +539,9 @@ export default function App() {
         </div>
 
         {/* Sidebar Footer Controls */}
-        <div className="p-3 border-t border-slate-200 space-y-2 bg-slate-50">
+        <div className="p-3 border-t border-sky-100 space-y-2 bg-sky-50/50">
           {/* 10 Languages Selector */}
-          <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-2xl px-2.5 py-1.5 shadow-sm">
+          <div className="flex items-center space-x-2 bg-white/90 border border-sky-200/70 rounded-2xl px-2.5 py-1.5 shadow-2xs">
             <Globe className="w-4 h-4 text-sky-600 flex-shrink-0" />
             <select
               value={activeLanguage}
@@ -559,16 +559,16 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsExportOpen(true)}
-              className="flex-1 py-2 px-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-sm cursor-pointer"
+              className="flex-1 py-2 px-2 rounded-xl bg-white/90 hover:bg-white border border-sky-200/70 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer hover:border-sky-300"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 text-sky-600" />
               <span>{t.sidebar?.bulletin || 'Bulletin'}</span>
             </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="flex-1 py-2 px-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-sm cursor-pointer"
+              className="flex-1 py-2 px-2 rounded-xl bg-white/90 hover:bg-white border border-sky-200/70 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer hover:border-sky-300"
             >
-              <Settings className="w-3.5 h-3.5" />
+              <Settings className="w-3.5 h-3.5 text-slate-500" />
               <span>{t.sidebar?.apiKeys || 'API Keys'}</span>
             </button>
           </div>
@@ -576,7 +576,7 @@ export default function App() {
       </aside>
 
       {/* 2. Main Content Canvas */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#f8fafc]">
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent">
         {/* Top Navbar */}
         <Header
           activeLanguage={activeLanguage}
