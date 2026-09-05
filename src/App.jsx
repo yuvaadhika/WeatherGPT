@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import WeatherAlertBanner from './components/WeatherAlertBanner';
+import MobileDashboard from './components/MobileDashboard';
+import BottomNavBar from './components/BottomNavBar';
+import ImpactRiskEngineModal from './components/ImpactRiskEngineModal';
+import EarlyWarningsView from './components/EarlyWarningsView';
 import ChatInterface from './components/ChatInterface';
 import WeatherRadarMap from './components/WeatherRadarMap';
 import DecisionSupportModes from './components/DecisionSupportModes';
@@ -12,6 +16,7 @@ import {
   fetchNWPForecast,
   fetchAirQuality,
   evaluateSevereWeatherAlerts,
+  calculateImpactRiskScore,
   reverseGeocode,
   getWeatherDescription,
   getLocalizedPlaceName
@@ -45,15 +50,18 @@ import {
   Bell,
   BellRing,
   Activity,
-  Layers
+  Layers,
+  Home,
+  Mic
 } from 'lucide-react';
 import { notificationService } from './services/notificationService';
 
 export default function App() {
   const [activeLanguage, setActiveLanguage] = useState('en');
-  const [activeView, setActiveView] = useState('chat'); // 'chat' | 'radar' | 'decision' | 'climate'
+  const [activeView, setActiveView] = useState('home'); // 'home' | 'radar' | 'alerts' | 'chat' | 'decision' | 'climate'
   const [activeSector, setActiveSector] = useState('agriculture');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isXaiOpen, setIsXaiOpen] = useState(false);
 
   const [currentLocation, setCurrentLocation] = useState({
     name: 'Chennai',
@@ -69,6 +77,7 @@ export default function App() {
   const [weatherData, setWeatherData] = useState(null);
   const [aqiData, setAqiData] = useState(null);
   const [alerts, setAlerts] = useState([]);
+  const [riskData, setRiskData] = useState(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -81,7 +90,7 @@ export default function App() {
     setIsAlertModalOpen(true);
   };
 
-  // Dispatch multi-channel weather alerts (Push + SMS + Email) whenever severe alert is detected
+  // Multi-channel weather alerts when severe alert is detected
   useEffect(() => {
     if (alerts && alerts.length > 0 && notificationsEnabled) {
       const severeAlert = alerts.find((a) => a.level === 'red' || a.level === 'orange');
@@ -105,7 +114,6 @@ export default function App() {
 
   const [chatMessages, setChatMessages] = useState(() => getInitialWelcome(activeLanguage));
 
-  // Automatically update welcome message when language changes if no user message has been sent
   useEffect(() => {
     setChatMessages((prev) => {
       const hasUserMessage = prev.some((m) => m.sender === 'user');
@@ -152,39 +160,38 @@ export default function App() {
     detectUserLocation(activeLanguage);
   }, []);
 
-  // When active language switches, automatically update current location city & state names into that language
+  // Update localized city name on language switch
   useEffect(() => {
     if (currentLocation?.latitude && currentLocation?.longitude) {
       const raw = currentLocation.rawName || currentLocation.name || 'Chennai';
       const rawAdm = currentLocation.rawAdmin1 || currentLocation.admin1 || 'Tamil Nadu';
       const rawCnt = currentLocation.rawCountry || currentLocation.country || 'India';
-      
+
       const localName = getLocalizedPlaceName(raw, activeLanguage) || currentLocation.name;
       const localState = getLocalizedPlaceName(rawAdm, activeLanguage) || currentLocation.admin1;
       const localCountry = getLocalizedPlaceName(rawCnt, activeLanguage) || currentLocation.country;
 
-      setCurrentLocation(prev => ({
+      setCurrentLocation((prev) => ({
         ...prev,
         name: localName,
         admin1: localState,
         country: localCountry,
         rawName: raw,
         rawAdmin1: rawAdm,
-        rawCountry: rawCnt
+        rawCountry: rawCnt,
       }));
 
-      // In the background, fetch Nominatim localized name for smaller towns/villages
       reverseGeocode(currentLocation.latitude, currentLocation.longitude, activeLanguage)
         .then((loc) => {
           if (loc && loc.name) {
-            setCurrentLocation(prev => ({
+            setCurrentLocation((prev) => ({
               ...prev,
               name: loc.name,
               admin1: loc.admin1,
               country: loc.country,
               rawName: loc.rawName || prev.rawName,
               rawAdmin1: loc.rawAdmin1 || prev.rawAdmin1,
-              rawCountry: loc.rawCountry || prev.rawCountry
+              rawCountry: loc.rawCountry || prev.rawCountry,
             }));
           }
         })
@@ -208,6 +215,9 @@ export default function App() {
 
         const computedAlerts = evaluateSevereWeatherAlerts(nwp, aqi, activeLanguage);
         setAlerts(computedAlerts);
+
+        const computedRisk = calculateImpactRiskScore(nwp, aqi, activeLanguage);
+        setRiskData(computedRisk);
       } catch (err) {
         console.error('Failed to load weather data:', err);
       } finally {
@@ -221,17 +231,16 @@ export default function App() {
     };
   }, [currentLocation]);
 
-  // Re-evaluate alerts whenever activeLanguage changes
   useEffect(() => {
     if (weatherData && aqiData) {
       const recomputedAlerts = evaluateSevereWeatherAlerts(weatherData, aqiData, activeLanguage);
       setAlerts(recomputedAlerts);
+      const recomputedRisk = calculateImpactRiskScore(weatherData, aqiData, activeLanguage);
+      setRiskData(recomputedRisk);
     }
   }, [activeLanguage, weatherData, aqiData]);
 
   const topAlert = alerts.length > 0 ? alerts[0] : null;
-  const current = weatherData?.current || {};
-  const wmo = getWeatherDescription(current.weather_code || 0, activeLanguage);
 
   const handlePromptChat = (query) => {
     setActiveView('chat');
@@ -241,7 +250,7 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen flex bg-[#f8fafc] text-slate-800 overflow-hidden font-sans">
-      {/* 1. Sleek Left Sidebar */}
+      {/* 1. Desktop Left Sidebar (Visible on Tablet/Desktop, Drawer on Mobile) */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -251,21 +260,21 @@ export default function App() {
         <div className="p-4 border-b border-slate-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-xl bg-sky-500 flex items-center justify-center text-white shadow-sm font-bold">
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-md font-bold">
                 <Sun className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="font-bold text-base tracking-tight text-slate-900">
+                <h1 className="font-extrabold text-base tracking-tight text-slate-900">
                   {t.sidebar?.appTitle || 'WeatherGPT'}
                 </h1>
-                <span className="text-[10px] text-sky-600 font-semibold tracking-wide">
+                <span className="text-[10px] text-sky-600 font-bold tracking-wide">
                   {t.sidebar?.liveWeatherRadar || 'Live Weather & Radar'}
                 </span>
               </div>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 md:hidden"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 md:hidden"
             >
               <X className="w-5 h-5" />
             </button>
@@ -274,7 +283,7 @@ export default function App() {
           {/* New Query / Clear Chat Button */}
           <button
             onClick={handleNewChat}
-            className="w-full mt-4 py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-medium text-xs flex items-center justify-center space-x-2 transition-all shadow-sm"
+            className="w-full mt-4 py-2.5 px-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs flex items-center justify-center space-x-2 transition-all shadow-sm cursor-pointer"
           >
             <PlusCircle className="w-4 h-4" />
             <span>{t.sidebar?.newWeatherSearch || 'New Weather Search'}</span>
@@ -283,32 +292,51 @@ export default function App() {
 
         {/* Navigation & Suite Shortcuts */}
         <div className="flex-1 overflow-y-auto p-3 space-y-4">
-          {/* Main Views */}
+          {/* Main Navigation Views */}
           <div className="space-y-1">
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
               {t.sidebar?.weatherStudio || 'Weather Studio'}
             </div>
+
+            {/* 1. Home Dashboard */}
+            <button
+              onClick={() => {
+                setActiveView('home');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+                activeView === 'home'
+                  ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <Home className="w-4 h-4 text-sky-600" />
+              <span>{activeLanguage === 'ta' ? 'முகப்பு டாஷ்போர்டு' : 'Home Dashboard'}</span>
+            </button>
+
+            {/* 2. Forecast & Assistant */}
             <button
               onClick={() => {
                 setActiveView('chat');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
                 activeView === 'chat'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               <MessageSquare className="w-4 h-4 text-sky-600" />
-              <span>{t.sidebar?.forecastAssistant || 'Forecast & Assistant'}</span>
+              <span>{t.sidebar?.forecastAssistant || 'Forecast & AI Chatbot'}</span>
             </button>
 
+            {/* 3. Live Doppler Radar Map */}
             <button
               onClick={() => {
                 setActiveView('radar');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
                 activeView === 'radar'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -318,12 +346,34 @@ export default function App() {
               <span>{t.sidebar?.liveRadarMap || 'Live Doppler Radar Map'}</span>
             </button>
 
+            {/* 4. Early Warnings & Disaster Hub */}
+            <button
+              onClick={() => {
+                setActiveView('alerts');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+                activeView === 'alerts'
+                  ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <ShieldAlert className="w-4 h-4 text-rose-600" />
+              <span>{activeLanguage === 'ta' ? 'முன்னெச்சரிக்கை மையம்' : 'Early Warnings & Alerts'}</span>
+              {alerts.length > 0 && (
+                <span className="ml-auto px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[9px] font-black">
+                  {alerts.length}
+                </span>
+              )}
+            </button>
+
+            {/* 5. Climate Trends */}
             <button
               onClick={() => {
                 setActiveView('climate');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
                 activeView === 'climate'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -336,7 +386,7 @@ export default function App() {
 
           {/* Decision Support Suites */}
           <div className="space-y-1">
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
               {t.sidebar?.sectorAdvisories || 'Sector Advisories'}
             </div>
             {[
@@ -355,7 +405,7 @@ export default function App() {
                     setActiveView('decision');
                     setSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                  className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
                     isSelected
                       ? 'bg-sky-50 text-sky-700 border border-sky-200'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -368,27 +418,32 @@ export default function App() {
             })}
           </div>
 
-          {/* 3 Active Feeds Info Box */}
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] space-y-1.5">
-            <div className="font-semibold text-slate-700 flex items-center justify-between">
-              <span>{t.sidebar?.liveDataStreams || 'Live Data Streams'}</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+          {/* Explainable AI Banner */}
+          <div
+            onClick={() => setIsXaiOpen(true)}
+            className="p-3 rounded-2xl bg-gradient-to-br from-sky-50 to-indigo-50/60 border border-sky-200 text-xs space-y-1.5 cursor-pointer hover:border-sky-300 transition-all shadow-xs"
+          >
+            <div className="font-bold text-sky-900 flex items-center space-x-1.5">
+              <Sparkles className="w-4 h-4 text-sky-600" />
+              <span>{activeLanguage === 'ta' ? 'விளக்கக்கூடிய AI (XAI)' : 'Explainable AI Engine'}</span>
             </div>
-            <p className="text-slate-500 text-[10px] leading-relaxed whitespace-pre-line">
-              {t.sidebar?.dataFeeds || '• Open-Meteo GFS / ECMWF\n• Air Quality WAQI PM2.5\n• RainViewer Radar GIS'}
+            <p className="text-[10px] text-sky-800 leading-relaxed">
+              {activeLanguage === 'ta'
+                ? `தற்போதைய இடர் குறியீடு: ${riskData?.score || 75}/100. காரணிகளை அறிய கிளிக் செய்யவும்.`
+                : `Current Hazard Risk: ${riskData?.score || 75}/100. Click to inspect XAI factor decomposition.`}
             </p>
           </div>
         </div>
 
         {/* Sidebar Footer Controls */}
         <div className="p-3 border-t border-slate-200 space-y-2 bg-slate-50">
-          {/* 10 Languages Selector - Clean single symbol */}
-          <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-sm">
+          {/* 10 Languages Selector */}
+          <div className="flex items-center space-x-2 bg-white border border-slate-200 rounded-2xl px-2.5 py-1.5 shadow-sm">
             <Globe className="w-4 h-4 text-sky-600 flex-shrink-0" />
             <select
               value={activeLanguage}
               onChange={(e) => setActiveLanguage(e.target.value)}
-              className="w-full bg-transparent text-xs font-medium text-slate-700 focus:outline-none cursor-pointer"
+              className="w-full bg-transparent text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
             >
               {SUPPORTED_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code} className="bg-white text-slate-800">
@@ -401,14 +456,14 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsExportOpen(true)}
-              className="flex-1 py-1.5 px-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs flex items-center justify-center space-x-1.5 transition-all shadow-sm"
+              className="flex-1 py-2 px-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-sm cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>{t.sidebar?.bulletin || 'Bulletin'}</span>
             </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="flex-1 py-1.5 px-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs flex items-center justify-center space-x-1.5 transition-all shadow-sm"
+              className="flex-1 py-2 px-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-sm cursor-pointer"
             >
               <Settings className="w-3.5 h-3.5" />
               <span>{t.sidebar?.apiKeys || 'API Keys'}</span>
@@ -437,16 +492,39 @@ export default function App() {
         />
 
         {/* View Content Area */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-5 flex flex-col max-w-6xl w-full mx-auto">
-          {/* Active Hazard Early Warning Banner */}
-          <WeatherAlertBanner
-            activeLanguage={activeLanguage}
-            alerts={alerts}
-            notificationsEnabled={notificationsEnabled}
-            onToggleNotifications={handleToggleNotifications}
-            onOpenAlertModal={() => setIsAlertModalOpen(true)}
-          />
-          {/* Main View: Clean AI Chat (Preserved across view transitions) */}
+        <div className="flex-1 overflow-y-auto p-2 sm:p-4 md:p-5 flex flex-col max-w-5xl w-full mx-auto relative">
+          {/* Active Hazard Early Warning Banner (on non-home screens) */}
+          {activeView !== 'home' && (
+            <WeatherAlertBanner
+              activeLanguage={activeLanguage}
+              alerts={alerts}
+              notificationsEnabled={notificationsEnabled}
+              onToggleNotifications={handleToggleNotifications}
+              onOpenAlertModal={() => setIsAlertModalOpen(true)}
+            />
+          )}
+
+          {/* VIEW 1: Modern Mobile Dashboard (Default Showcase) */}
+          {activeView === 'home' && (
+            <MobileDashboard
+              activeLanguage={activeLanguage}
+              currentLocation={currentLocation}
+              weatherData={weatherData}
+              aqiData={aqiData}
+              alerts={alerts}
+              riskData={riskData}
+              onOpenRadar={() => setActiveView('radar')}
+              onOpenChat={() => setActiveView('chat')}
+              onOpenAlerts={() => setActiveView('alerts')}
+              onOpenXAI={() => setIsXaiOpen(true)}
+              onOpenAlertModal={() => setIsAlertModalOpen(true)}
+              onDetectLocation={detectUserLocation}
+              onSelectCity={(city) => setCurrentLocation(city)}
+              notificationsEnabled={notificationsEnabled}
+            />
+          )}
+
+          {/* VIEW 2: Clean AI Chat (Preserved state across navigation) */}
           <div className={activeView === 'chat' ? 'flex-1 flex flex-col min-h-0' : 'hidden'}>
             <ChatInterface
               activeLanguage={activeLanguage}
@@ -466,18 +544,33 @@ export default function App() {
             />
           </div>
 
-          {/* Specialized View: Live GIS Radar */}
+          {/* VIEW 3: Early Warnings & Disaster Command Center */}
+          {activeView === 'alerts' && (
+            <EarlyWarningsView
+              activeLanguage={activeLanguage}
+              alerts={alerts}
+              riskData={riskData}
+              currentLocation={currentLocation}
+              onOpenXAI={() => setIsXaiOpen(true)}
+              onOpenAlertModal={() => setIsAlertModalOpen(true)}
+              notificationsEnabled={notificationsEnabled}
+            />
+          )}
+
+          {/* VIEW 4: Specialized Live GIS Radar */}
           {activeView === 'radar' && (
-            <div className="space-y-3">
+            <div className="space-y-3 pb-20">
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
+                  onClick={() => setActiveView('home')}
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-bold cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>{t.radar?.backToForecast || 'Back to Forecast'}</span>
+                  <span>{activeLanguage === 'ta' ? 'முகப்புக்குச் செல்' : 'Back to Home'}</span>
                 </button>
-                <span className="text-xs text-slate-500">{t.radar?.subtitle || 'Live Satellite & Radar Stream'}</span>
+                <span className="text-xs text-slate-500 font-medium">
+                  {t.radar?.subtitle || 'Live Satellite & Radar Stream'}
+                </span>
               </div>
               <WeatherRadarMap
                 activeLanguage={activeLanguage}
@@ -488,18 +581,20 @@ export default function App() {
             </div>
           )}
 
-          {/* Specialized View: Decision Support Suites */}
+          {/* VIEW 5: Decision Support Suites (Agriculture, Marine, Aviation, Smart City) */}
           {activeView === 'decision' && (
-            <div className="space-y-3">
+            <div className="space-y-3 pb-20">
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
+                  onClick={() => setActiveView('home')}
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-bold cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>{t.decision?.backToForecast || 'Back to Forecast'}</span>
+                  <span>{activeLanguage === 'ta' ? 'முகப்புக்குச் செல்' : 'Back to Home'}</span>
                 </button>
-                <span className="text-xs text-slate-500">{t.decision?.decisionTitle || 'Decision Support Advisory'}</span>
+                <span className="text-xs text-slate-500 font-medium">
+                  {t.decision?.decisionTitle || 'Decision Support Advisory'}
+                </span>
               </div>
               <DecisionSupportModes
                 activeLanguage={activeLanguage}
@@ -513,18 +608,20 @@ export default function App() {
             </div>
           )}
 
-          {/* Specialized View: Climate Trends */}
+          {/* VIEW 6: Climate Trends */}
           {activeView === 'climate' && (
-            <div className="space-y-3">
+            <div className="space-y-3 pb-20">
               <div className="flex items-center justify-between">
                 <button
-                  onClick={() => setActiveView('chat')}
-                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-medium"
+                  onClick={() => setActiveView('home')}
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-bold cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>{t.climate?.backToForecast || 'Back to Forecast'}</span>
+                  <span>{activeLanguage === 'ta' ? 'முகப்புக்குச் செல்' : 'Back to Home'}</span>
                 </button>
-                <span className="text-xs text-slate-500">{t.climate?.title || '7-Day & Historical Weather Analytics'}</span>
+                <span className="text-xs text-slate-500 font-medium">
+                  {t.climate?.title || '7-Day & Historical Weather Analytics'}
+                </span>
               </div>
               <ClimateAnalyticsChart
                 activeLanguage={activeLanguage}
@@ -534,14 +631,45 @@ export default function App() {
             </div>
           )}
         </div>
+
+        {/* Floating Quick Voice / Chat Assistant Button (When on non-chat views) */}
+        {activeView !== 'chat' && (
+          <button
+            onClick={() => setActiveView('chat')}
+            className="fixed bottom-16 right-4 sm:bottom-6 sm:right-6 z-30 p-3.5 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 text-white shadow-xl shadow-sky-600/30 hover:scale-110 active:scale-95 transition-all flex items-center space-x-2 cursor-pointer group"
+            title="Talk with WeatherGPT Voice Assistant"
+          >
+            <Mic className="w-5 h-5 group-hover:animate-bounce" />
+            <span className="text-xs font-bold hidden sm:inline">
+              {activeLanguage === 'ta' ? 'குரல் உதவி' : 'Voice Assistant'}
+            </span>
+          </button>
+        )}
+
+        {/* 5-Tab Mobile Bottom Navigation Bar (Always visible on mobile & tablets) */}
+        <BottomNavBar
+          activeView={activeView}
+          setActiveView={setActiveView}
+          activeLanguage={activeLanguage}
+          alertCount={alerts.length}
+        />
       </div>
 
-      {/* Modals */}
+      {/* Modals & Drawers */}
+      <ImpactRiskEngineModal
+        isOpen={isXaiOpen}
+        onClose={() => setIsXaiOpen(false)}
+        activeLanguage={activeLanguage}
+        riskData={riskData}
+        currentLocationName={currentLocation?.name || 'Chennai'}
+      />
+
       <ApiKeyModal
         activeLanguage={activeLanguage}
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
+
       <ReportExportModal
         activeLanguage={activeLanguage}
         isOpen={isExportOpen}
@@ -551,6 +679,7 @@ export default function App() {
         aqiData={aqiData}
         alerts={alerts}
       />
+
       <AlertNotificationModal
         activeLanguage={activeLanguage}
         isOpen={isAlertModalOpen}

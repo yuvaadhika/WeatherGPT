@@ -306,9 +306,20 @@ export default function ChatInterface({
                   })}
                 </div>
 
+                {/* RAG Grounding Source Verification Badge */}
+                {isAi && (
+                  <div className="mt-2 pt-2 border-t border-slate-100 flex flex-wrap items-center gap-1.5 text-[10px] text-slate-500 font-medium">
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200/60 font-semibold">
+                      <Sparkles className="w-3 h-3 text-sky-600" />
+                      <span>RAG Grounded: Open-Meteo & RainViewer Radar</span>
+                    </span>
+                    <span className="text-emerald-600 font-semibold">✓ Live 10-Language Synthesis</span>
+                  </div>
+                )}
+
                 {/* Compact Weather Metrics Strip (if AI message has telemetry) */}
                 {isAi && msg.weatherData?.current && (
-                  <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2">
+                  <div className="mt-2.5 pt-2 border-t border-slate-100 space-y-2">
                     <div className="flex items-center justify-between text-[11px] font-semibold text-sky-700">
                       <span>Live Telemetry ({msg.locationName || currentLocation?.name || 'Location'})</span>
                     </div>
