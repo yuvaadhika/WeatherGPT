@@ -14,6 +14,10 @@ import ReportExportModal from './components/ReportExportModal';
 import AlertNotificationModal from './components/AlertNotificationModal';
 import OnboardingPermissionModal from './components/OnboardingPermissionModal';
 import AlphabeticalLocationModal from './components/AlphabeticalLocationModal';
+import RouteWeatherPlanner from './components/RouteWeatherPlanner';
+import EventWeatherScore from './components/EventWeatherScore';
+import CommunityWeatherSpotter from './components/CommunityWeatherSpotter';
+import DisasterEmergencySOS from './components/DisasterEmergencySOS';
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -54,13 +58,16 @@ import {
   Activity,
   Layers,
   Home,
-  Mic
+  Mic,
+  Navigation,
+  Heart,
+  Users
 } from 'lucide-react';
 import { notificationService } from './services/notificationService';
 
 export default function App() {
   const [activeLanguage, setActiveLanguage] = useState('en');
-  const [activeView, setActiveView] = useState('home'); // 'home' | 'radar' | 'alerts' | 'chat' | 'decision' | 'climate'
+  const [activeView, setActiveView] = useState('home'); // 'home' | 'radar' | 'alerts' | 'chat' | 'decision' | 'climate' | 'route' | 'event' | 'spotter' | 'sos'
   const [activeSector, setActiveSector] = useState('agriculture');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isXaiOpen, setIsXaiOpen] = useState(false);
@@ -236,6 +243,9 @@ export default function App() {
 
         const computedRisk = calculateImpactRiskScore(nwp, aqi, activeLanguage);
         setRiskData(computedRisk);
+
+        // Run autonomous predictive before-awareness alert engine
+        notificationService.predictEarlyHazardAndNotify(nwp, aqi, currentLocation.name, activeLanguage);
       } catch (err) {
         console.error('Failed to load weather data:', err);
       } finally {
@@ -255,6 +265,9 @@ export default function App() {
       setAlerts(recomputedAlerts);
       const recomputedRisk = calculateImpactRiskScore(weatherData, aqiData, activeLanguage);
       setRiskData(recomputedRisk);
+
+      // Autonomous predictive check on language switch / data update
+      notificationService.predictEarlyHazardAndNotify(weatherData, aqiData, currentLocation.name, activeLanguage);
     }
   }, [activeLanguage, weatherData, aqiData]);
 
@@ -292,7 +305,7 @@ export default function App() {
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 md:hidden"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 md:hidden cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -322,7 +335,7 @@ export default function App() {
                 setActiveView('home');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
                 activeView === 'home'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -338,7 +351,7 @@ export default function App() {
                 setActiveView('chat');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
                 activeView === 'chat'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -354,7 +367,7 @@ export default function App() {
                 setActiveView('radar');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
                 activeView === 'radar'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -370,7 +383,7 @@ export default function App() {
                 setActiveView('alerts');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
                 activeView === 'alerts'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -391,7 +404,7 @@ export default function App() {
                 setActiveView('climate');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
                 activeView === 'climate'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -399,6 +412,78 @@ export default function App() {
             >
               <TrendingUp className="w-4 h-4 text-indigo-600" />
               <span>{t.sidebar?.climateTrends || 'Climate & 7-Day Trends'}</span>
+            </button>
+          </div>
+
+          {/* ✨ NEW: 4 AI INNOVATION TOOLS SECTION */}
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider px-2.5 mb-1.5 flex items-center space-x-1">
+              <Sparkles className="w-3 h-3 text-amber-500" />
+              <span>{activeLanguage === 'ta' ? '🚀 புதிய கண்டுபிடிப்புகள்' : '🚀 AI Innovation Suite'}</span>
+            </div>
+
+            {/* Tool 1: Route Planner */}
+            <button
+              onClick={() => {
+                setActiveView('route');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
+                activeView === 'route'
+                  ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <Navigation className="w-4 h-4 text-sky-600" />
+              <span>{activeLanguage === 'ta' ? '🚗 பயணப் பாதை வானிலை' : '🚗 Route Weather Planner'}</span>
+            </button>
+
+            {/* Tool 2: Event & Wedding Score */}
+            <button
+              onClick={() => {
+                setActiveView('event');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
+                activeView === 'event'
+                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <Heart className="w-4 h-4 text-rose-500" />
+              <span>{activeLanguage === 'ta' ? '🎪 சுபகாரிய விழா கணிப்பு' : '🎪 Event & Wedding Score'}</span>
+            </button>
+
+            {/* Tool 3: Community Spotter */}
+            <button
+              onClick={() => {
+                setActiveView('spotter');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
+                activeView === 'spotter'
+                  ? 'bg-teal-50 text-teal-700 border border-teal-200'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              <Users className="w-4 h-4 text-teal-600" />
+              <span>{activeLanguage === 'ta' ? '📍 மக்கள் நேரடி சமூகம்' : '📍 Community Sky Spotter'}</span>
+            </button>
+
+            {/* Tool 4: Emergency SOS */}
+            <button
+              onClick={() => {
+                setActiveView('sos');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
+                activeView === 'sos'
+                  ? 'bg-rose-100 text-rose-900 border border-rose-300 font-bold'
+                  : 'text-rose-600 hover:bg-rose-50 hover:text-rose-900'
+              }`}
+            >
+              <ShieldAlert className="w-4 h-4 text-rose-600 animate-pulse" />
+              <span>{activeLanguage === 'ta' ? '🚨 புயல் வெள்ள SOS மையம்' : '🚨 Disaster SOS & Alerts'}</span>
             </button>
           </div>
 
@@ -423,7 +508,7 @@ export default function App() {
                     setActiveView('decision');
                     setSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+                  className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-sky-50 text-sky-700 border border-sky-200'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -540,6 +625,10 @@ export default function App() {
               onDetectLocation={detectUserLocation}
               onSelectCity={(city) => setCurrentLocation(city)}
               onOpenLocationModal={() => setIsLocationModalOpen(true)}
+              onOpenRoutePlanner={() => setActiveView('route')}
+              onOpenEventScore={() => setActiveView('event')}
+              onOpenSpotter={() => setActiveView('spotter')}
+              onOpenEmergencySOS={() => setActiveView('sos')}
               notificationsEnabled={notificationsEnabled}
             />
           )}
@@ -647,6 +736,101 @@ export default function App() {
                 activeLanguage={activeLanguage}
                 weatherData={weatherData}
                 currentLocation={currentLocation}
+              />
+            </div>
+          )}
+
+          {/* ✨ VIEW 7: Smart Travel & Route Weather Planner */}
+          {activeView === 'route' && (
+            <div className="space-y-3 pb-20">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setActiveView('home')}
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-bold cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>{activeLanguage === 'ta' ? 'முகப்புக்குச் செல்' : 'Back to Home'}</span>
+                </button>
+                <span className="text-xs text-slate-500 font-medium">
+                  {activeLanguage === 'ta' ? 'நெடுஞ்சாலை வழித்தட வானிலை' : 'Highway Waypoint Weather'}
+                </span>
+              </div>
+              <RouteWeatherPlanner
+                activeLanguage={activeLanguage}
+                currentLocation={currentLocation}
+              />
+            </div>
+          )}
+
+          {/* ✨ VIEW 8: Event & Wedding Feasibility Score */}
+          {activeView === 'event' && (
+            <div className="space-y-3 pb-20">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setActiveView('home')}
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-bold cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>{activeLanguage === 'ta' ? 'முகப்புக்குச் செல்' : 'Back to Home'}</span>
+                </button>
+                <span className="text-xs text-slate-500 font-medium">
+                  {activeLanguage === 'ta' ? 'நிகழ்வு சாத்தியக்கூறு கணிப்பான்' : 'Event Weather Feasibility'}
+                </span>
+              </div>
+              <EventWeatherScore
+                activeLanguage={activeLanguage}
+                currentLocation={currentLocation}
+                weatherData={weatherData}
+                aqiData={aqiData}
+              />
+            </div>
+          )}
+
+          {/* ✨ VIEW 9: Hyperlocal Community Weather Spotter */}
+          {activeView === 'spotter' && (
+            <div className="space-y-3 pb-20">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setActiveView('home')}
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-bold cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>{activeLanguage === 'ta' ? 'முகப்புக்குச் செல்' : 'Back to Home'}</span>
+                </button>
+                <span className="text-xs text-slate-500 font-medium">
+                  {activeLanguage === 'ta' ? 'மக்கள் நேரடி வானிலை சமூகம்' : 'Crowdsourced Ground Spotter'}
+                </span>
+              </div>
+              <CommunityWeatherSpotter
+                activeLanguage={activeLanguage}
+                currentLocation={currentLocation}
+              />
+            </div>
+          )}
+
+          {/* ✨ VIEW 10: Cyclone & Flood Emergency SOS Hub */}
+          {activeView === 'sos' && (
+            <div className="space-y-3 pb-20">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setActiveView('home')}
+                  className="flex items-center space-x-1.5 text-xs text-sky-600 hover:text-sky-700 font-bold cursor-pointer"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>{activeLanguage === 'ta' ? 'முகப்புக்குச் செல்' : 'Back to Home'}</span>
+                </button>
+                <span className="text-xs text-slate-500 font-medium">
+                  {activeLanguage === 'ta' ? 'அவசர பேரிடர் தற்காப்பு மையம்' : 'Emergency Disaster SOS Hub'}
+                </span>
+              </div>
+              <DisasterEmergencySOS
+                activeLanguage={activeLanguage}
+                currentLocation={currentLocation}
+                weatherData={weatherData}
+                aqiData={aqiData}
+                alerts={alerts}
+                notificationsEnabled={notificationsEnabled}
+                onOpenAlertModal={() => setIsAlertModalOpen(true)}
               />
             </div>
           )}

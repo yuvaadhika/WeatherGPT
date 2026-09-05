@@ -59,6 +59,10 @@ export default function MobileDashboard({
   onDetectLocation,
   onSelectCity,
   onOpenLocationModal,
+  onOpenRoutePlanner,
+  onOpenEventScore,
+  onOpenSpotter,
+  onOpenEmergencySOS,
   notificationsEnabled
 }) {
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
@@ -588,6 +592,120 @@ export default function MobileDashboard({
             </div>
           </div>
         )}
+      </div>
+
+      {/* ✨ 3. AI INNOVATION SUITE (4 Killer Features: Route Planner, Event Score, Spotter, SOS Hub) */}
+      <div className="bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 text-white border border-sky-500/30 rounded-3xl p-4 sm:p-5 shadow-lg space-y-3 relative overflow-hidden">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            <h3 className="text-xs sm:text-sm font-black text-white tracking-tight">
+              {activeLanguage === 'ta' ? '🚀 புதிய AI வானிலை கண்டுபிடிப்புகள்' : '🚀 AI Innovation & Decision Suite'}
+            </h3>
+          </div>
+          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30">
+            4 New Tools
+          </span>
+        </div>
+
+        {/* 4 Interactive Feature Launcher Cards */}
+        <div className="grid grid-cols-2 gap-2.5">
+          {/* Tool 1: Route Planner */}
+          <button
+            onClick={() => onOpenRoutePlanner && onOpenRoutePlanner()}
+            className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-xs"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-base p-1.5 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-400/30">
+                🚗
+              </span>
+              <span className="text-[9px] font-bold text-sky-300 bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-500/30">
+                Route GIS
+              </span>
+            </div>
+            <div>
+              <div className="text-xs font-black text-white group-hover:text-sky-300 transition-colors flex items-center space-x-1">
+                <span>{activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை' : 'Route Planner'}</span>
+                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-[10px] text-slate-300 line-clamp-2 mt-0.5">
+                {activeLanguage === 'ta' ? 'நெடுஞ்சாலை மழை & புறப்படும் நேரம்' : 'Highway rain forecast & safe travel hours.'}
+              </p>
+            </div>
+          </button>
+
+          {/* Tool 2: Event Weather Score */}
+          <button
+            onClick={() => onOpenEventScore && onOpenEventScore()}
+            className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-xs"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-base p-1.5 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-400/30">
+                🎪
+              </span>
+              <span className="text-[9px] font-bold text-rose-300 bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-500/30">
+                Score
+              </span>
+            </div>
+            <div>
+              <div className="text-xs font-black text-white group-hover:text-rose-300 transition-colors flex items-center space-x-1">
+                <span>{activeLanguage === 'ta' ? 'சுபகாரிய விழா கணிப்பு' : 'Event Score'}</span>
+                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-[10px] text-slate-300 line-clamp-2 mt-0.5">
+                {activeLanguage === 'ta' ? 'திருமணம் & பந்தல் காற்று சாத்தியக்கூறு' : 'Wedding, sports & pandal rain risk.'}
+              </p>
+            </div>
+          </button>
+
+          {/* Tool 3: Community Spotter */}
+          <button
+            onClick={() => onOpenSpotter && onOpenSpotter()}
+            className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/15 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-xs"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-base p-1.5 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-400/30">
+                📍
+              </span>
+              <span className="text-[9px] font-bold text-teal-300 bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-500/30">
+                Live Feed
+              </span>
+            </div>
+            <div>
+              <div className="text-xs font-black text-white group-hover:text-teal-300 transition-colors flex items-center space-x-1">
+                <span>{activeLanguage === 'ta' ? 'மக்கள் நேரடி சமூகம்' : 'Live Spotter'}</span>
+                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-[10px] text-slate-300 line-clamp-2 mt-0.5">
+                {activeLanguage === 'ta' ? 'தெரு வாரியாக தண்ணீர் தேக்கம் & மழை' : 'Citizen-verified street waterlogging & rain.'}
+              </p>
+            </div>
+          </button>
+
+          {/* Tool 4: Emergency SOS */}
+          <button
+            onClick={() => onOpenEmergencySOS && onOpenEmergencySOS()}
+            className="p-3 rounded-2xl bg-rose-600/25 hover:bg-rose-600/35 backdrop-blur-md border border-rose-400/40 text-left transition-all group flex flex-col justify-between space-y-2 cursor-pointer shadow-xs"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-base p-1.5 rounded-xl bg-rose-500/30 text-rose-300 border border-rose-400/40 animate-pulse">
+                🚨
+              </span>
+              <span className="text-[9px] font-black text-rose-200 bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-500/40">
+                SOS & Alert
+              </span>
+            </div>
+            <div>
+              <div className="text-xs font-black text-white group-hover:text-rose-300 transition-colors flex items-center space-x-1">
+                <span>{activeLanguage === 'ta' ? 'புயல் வெள்ள SOS' : 'Disaster SOS'}</span>
+                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-[10px] text-rose-200/90 line-clamp-2 mt-0.5">
+                {activeLanguage === 'ta' ? 'முன்கூட்டிய எச்சரிக்கை & அவசர எண்கள்' : 'Predictive before-awareness & 1-tap SOS.'}
+              </p>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* 4. 4 Live Weather Telemetry Badges (2x2 Grid) */}
