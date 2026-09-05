@@ -13,6 +13,7 @@ import ApiKeyModal from './components/ApiKeyModal';
 import ReportExportModal from './components/ReportExportModal';
 import AlertNotificationModal from './components/AlertNotificationModal';
 import OnboardingPermissionModal from './components/OnboardingPermissionModal';
+import AlphabeticalLocationModal from './components/AlphabeticalLocationModal';
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -84,6 +85,7 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
     // Show on first visit
     return localStorage.getItem('weather_onboarding_shown') !== 'true';
@@ -505,6 +507,7 @@ export default function App() {
           onToggleNotifications={handleToggleNotifications}
           onTestNotification={() => notificationService.sendTestAlert(currentLocation.name)}
           onOpenAlertModal={() => setIsAlertModalOpen(true)}
+          onOpenLocationModal={() => setIsLocationModalOpen(true)}
         />
 
         {/* View Content Area */}
@@ -536,6 +539,7 @@ export default function App() {
               onOpenAlertModal={() => setIsAlertModalOpen(true)}
               onDetectLocation={detectUserLocation}
               onSelectCity={(city) => setCurrentLocation(city)}
+              onOpenLocationModal={() => setIsLocationModalOpen(true)}
               notificationsEnabled={notificationsEnabled}
             />
           )}
@@ -711,6 +715,21 @@ export default function App() {
         setActiveLanguage={setActiveLanguage}
         onAllowPermissions={handleAllowPermissions}
         onSkip={() => localStorage.setItem('weather_onboarding_shown', 'true')}
+      />
+
+      <AlphabeticalLocationModal
+        isOpen={isLocationModalOpen}
+        onClose={() => setIsLocationModalOpen(false)}
+        activeLanguage={activeLanguage}
+        currentLocation={currentLocation}
+        onSelectLocation={(loc) => {
+          setCurrentLocation(loc);
+          setIsLocationModalOpen(false);
+        }}
+        onDetectGps={(lang) => {
+          detectUserLocation(lang);
+          setIsLocationModalOpen(false);
+        }}
       />
     </div>
   );

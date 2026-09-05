@@ -29,7 +29,8 @@ export default function Header({
   notificationsEnabled,
   onToggleNotifications,
   onTestNotification,
-  onOpenAlertModal
+  onOpenAlertModal,
+  onOpenLocationModal
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -39,10 +40,13 @@ export default function Header({
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      if (onOpenLocationModal) onOpenLocationModal();
+      return;
+    }
     setIsSearching(true);
     try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=5&language=${activeLanguage}&format=json`);
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=6&language=${activeLanguage}&format=json`);
       const data = await res.json();
       setSearchResults(data.results || []);
     } catch (err) {
@@ -70,26 +74,26 @@ export default function Header({
   return (
     <header className="w-full border-b border-slate-200 bg-white/90 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0 z-30 shadow-sm">
       {/* Left: Mobile Menu & Location */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-2 sm:space-x-3">
         <button
           onClick={onOpenSidebar}
-          className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 md:hidden"
+          className="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Current Location Pill */}
+        {/* Current Location Pill & Directory Opener */}
         <button
-          onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
-          title={t.header?.detectGps || 'Auto-detect GPS Location'}
-          className="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-100/90 border border-slate-200 hover:border-sky-500/50 text-xs font-medium text-slate-800 transition-all shadow-sm cursor-pointer"
+          onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
+          title={activeLanguage === 'ta' ? 'அனைத்து இடங்களையும் (A-Z) காண்க' : 'Browse All Places Directory (A-Z)'}
+          className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100/90 hover:bg-sky-50 border border-slate-200 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-sm cursor-pointer group"
         >
-          <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
-          <span className="truncate max-w-[120px] sm:max-w-[180px] font-semibold">
+          <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
+          <span className="truncate max-w-[110px] sm:max-w-[170px] font-bold text-slate-900 group-hover:text-sky-700">
             {displayLocationName}
           </span>
-          <span className="text-[10px] text-sky-600 font-semibold hidden sm:inline">
-            ({activeLanguage === 'ta' ? 'ஜிபிஎஸ்' : activeLanguage === 'hi' ? 'जीपीएस' : activeLanguage === 'te' ? 'జీపీఎస్' : 'GPS'})
+          <span className="text-[10px] text-sky-600 font-semibold px-1.5 py-0.2 rounded bg-sky-100/80 border border-sky-200">
+            A-Z ▾
           </span>
         </button>
       </div>
@@ -100,17 +104,30 @@ export default function Header({
           <input
             type="text"
             value={searchQuery}
+            onClick={() => {
+              if (onOpenLocationModal) onOpenLocationModal();
+            }}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={t.header?.searchPlaceholder || 'Search any city, village...'}
-            className="w-full pl-8 pr-16 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all shadow-sm"
+            placeholder={activeLanguage === 'ta' ? 'அனைத்து இடங்கள் (A-Z) தேடுக...' : 'Search all places (A-Z directory)...'}
+            className="w-full pl-8 pr-20 py-1.5 text-xs bg-slate-50 hover:bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all shadow-sm cursor-pointer"
           />
           <Search className="absolute left-2.5 top-2 w-3.5 h-3.5 text-slate-400" />
-          <button
-            type="submit"
-            className="absolute right-1 top-1 px-2.5 py-0.5 text-[10px] font-semibold bg-sky-600 hover:bg-sky-500 text-white rounded-lg transition-colors"
-          >
-            {isSearching ? (t.header?.searching || '...') : (t.header?.searchBtn || 'Search')}
-          </button>
+          <div className="absolute right-1 top-1 flex items-center space-x-1">
+            <button
+              type="button"
+              onClick={() => onOpenLocationModal && onOpenLocationModal()}
+              className="px-2 py-0.5 text-[10px] font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors cursor-pointer"
+              title="Open Alphabetical A-Z Places Directory"
+            >
+              A-Z
+            </button>
+            <button
+              type="submit"
+              className="px-2.5 py-0.5 text-[10px] font-semibold bg-sky-600 hover:bg-sky-500 text-white rounded-lg transition-colors cursor-pointer"
+            >
+              {isSearching ? (t.header?.searching || '...') : (t.header?.searchBtn || 'Search')}
+            </button>
+          </div>
         </form>
 
         {/* Search Results Dropdown */}

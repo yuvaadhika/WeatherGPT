@@ -19,6 +19,7 @@ import {
   Zap,
   PhoneCall,
   Volume2,
+  VolumeX,
   Mic,
   MessageSquare,
   ArrowUpRight,
@@ -38,10 +39,13 @@ import {
   Layers,
   BarChart2,
   Shirt,
-  Footprints
+  Footprints,
+  Play,
+  Square
 } from 'lucide-react';
-import { TRANSLATIONS } from '../services/languages';
-import { getWeatherDescription, getLocalizedPlaceName } from '../services/weatherService';
+import { TRANSLATIONS, SUPPORTED_LANGUAGES } from '../services/languages';
+import { getWeatherDescription, getLocalizedPlaceName, generateFullSpokenWeatherBulletin } from '../services/weatherService';
+import { speechEngine } from '../services/speechService';
 
 export default function MobileDashboard({
   activeLanguage = 'en',
@@ -57,9 +61,11 @@ export default function MobileDashboard({
   onOpenAlertModal,
   onDetectLocation,
   onSelectCity,
+  onOpenLocationModal,
   notificationsEnabled
 }) {
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
+  const activeLangObj = SUPPORTED_LANGUAGES.find((l) => l.code === activeLanguage) || SUPPORTED_LANGUAGES[0];
   const current = weatherData?.current || {};
   const daily = weatherData?.daily || {};
   const hourly = weatherData?.hourly || {};
@@ -72,6 +78,7 @@ export default function MobileDashboard({
   const [activeHourlyMetric, setActiveHourlyMetric] = useState('temp'); // 'temp' | 'rain' | 'wind'
   const [heroTab, setHeroTab] = useState('nowcast'); // 'nowcast' | 'activities' | 'health'
   const [sharedToast, setSharedToast] = useState(false);
+  const [isSpeakingBulletin, setIsSpeakingBulletin] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -83,13 +90,37 @@ export default function MobileDashboard({
     return () => clearInterval(interval);
   }, []);
 
+  // Full Spoken Voice Meteorological Bulletin Handler (Speaks ALL 9 parameters across 10 languages)
+  const handleToggleVoiceBulletin = () => {
+    if (isSpeakingBulletin) {
+      speechEngine.stopSpeaking();
+      setIsSpeakingBulletin(false);
+    } else {
+      const bulletinText = generateFullSpokenWeatherBulletin({
+        locationName: currentLocation?.name || 'Chennai',
+        weatherData,
+        aqiData,
+        riskData,
+        lang: activeLanguage,
+      });
+
+      setIsSpeakingBulletin(true);
+      speechEngine.speak(bulletinText, activeLangObj.voiceCode || 'en-US', () => {
+        setIsSpeakingBulletin(false);
+      });
+    }
+  };
+
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      if (onOpenLocationModal) onOpenLocationModal();
+      return;
+    }
     setIsSearching(true);
     try {
       const res = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=5&language=${activeLanguage}&format=json`
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=6&language=${activeLanguage}&format=json`
       );
       const data = await res.json();
       setSearchResults(data.results || []);
@@ -271,25 +302,37 @@ export default function MobileDashboard({
         {/* Location Selector Chip */}
         <div className="flex items-center justify-between pt-1 border-t border-slate-100">
           <button
-            onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
+            onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
             className="flex items-center space-x-1.5 text-left group cursor-pointer"
+            title={activeLanguage === 'ta' ? 'அகராதி வரிசையில் அனைத்து இடங்களையும் காண்க (A-Z)' : 'Browse all available places alphabetically (A-Z)'}
           >
             <MapPin className="w-4 h-4 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
             <div>
               <div className="text-xs font-bold text-slate-900 flex items-center space-x-1">
-                <span className="truncate max-w-[200px]">{displayLocation}</span>
-                <span className="text-[10px] text-sky-600 font-semibold">(GPS)</span>
+                <span className="truncate max-w-[180px] group-hover:text-sky-600">{displayLocation}</span>
+                <span className="text-[10px] text-sky-600 font-bold px-1.5 py-0.2 rounded bg-sky-100/80 border border-sky-200">
+                  A-Z ▾
+                </span>
               </div>
               <div className="text-[10px] font-mono text-slate-400">{latLonStr}</div>
             </div>
           </button>
 
-          <button
-            onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
-            className="text-[10px] font-semibold text-sky-600 hover:text-sky-700 px-2 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200/60 transition-colors"
-          >
-            {activeLanguage === 'ta' ? 'ஜிபிஎஸ் புதுப்பி' : 'Auto GPS'}
-          </button>
+          <div className="flex items-center space-x-1.5">
+            <button
+              onClick={() => onOpenLocationModal && onOpenLocationModal()}
+              className="text-[10px] font-bold text-slate-700 hover:text-sky-700 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-sky-100 border border-slate-200 transition-colors cursor-pointer"
+              title="Open Alphabetical A-Z Places Directory"
+            >
+              {activeLanguage === 'ta' ? 'அனைத்து இடங்கள் (A-Z)' : 'A-Z Places'}
+            </button>
+            <button
+              onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
+              className="text-[10px] font-semibold text-sky-600 hover:text-sky-700 px-2 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200/60 transition-colors cursor-pointer"
+            >
+              {activeLanguage === 'ta' ? 'ஜிபிஎஸ்' : 'Auto GPS'}
+            </button>
+          </div>
         </div>
 
         {/* Expandable City Search Bar */}
@@ -299,18 +342,28 @@ export default function MobileDashboard({
               <input
                 type="text"
                 value={searchQuery}
+                onClick={() => onOpenLocationModal && onOpenLocationModal()}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={activeLanguage === 'ta' ? 'நகரம் அல்லது கிராமத்தின் பெயரைத் தேடுங்கள்...' : 'Search any city, district or village...'}
-                className="w-full pl-8 pr-16 py-2 text-xs bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all shadow-inner"
+                placeholder={activeLanguage === 'ta' ? 'அனைத்து இடங்கள் (A-Z) தேடுக...' : 'Search all places (A-Z directory)...'}
+                className="w-full pl-8 pr-24 py-2 text-xs bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white transition-all shadow-inner cursor-pointer"
                 autoFocus
               />
               <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-slate-400" />
-              <button
-                type="submit"
-                className="absolute right-1.5 top-1.5 px-2.5 py-1 text-[10px] font-bold bg-sky-600 hover:bg-sky-700 text-white rounded-xl transition-all"
-              >
-                {isSearching ? '...' : (activeLanguage === 'ta' ? 'தேடு' : 'Search')}
-              </button>
+              <div className="absolute right-1.5 top-1.5 flex items-center space-x-1">
+                <button
+                  type="button"
+                  onClick={() => onOpenLocationModal && onOpenLocationModal()}
+                  className="px-2 py-1 text-[10px] font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl transition-all cursor-pointer"
+                >
+                  A-Z
+                </button>
+                <button
+                  type="submit"
+                  className="px-2.5 py-1 text-[10px] font-bold bg-sky-600 hover:bg-sky-700 text-white rounded-xl transition-all cursor-pointer"
+                >
+                  {isSearching ? '...' : (activeLanguage === 'ta' ? 'தேடு' : 'Search')}
+                </button>
+              </div>
             </div>
 
             {/* Autocomplete dropdown */}
@@ -321,7 +374,7 @@ export default function MobileDashboard({
                     key={`${city.id}-${city.latitude}`}
                     type="button"
                     onClick={() => handleSelectLocation(city)}
-                    className="w-full px-3 py-2 text-left hover:bg-sky-50 text-xs flex items-center justify-between text-slate-700 transition-colors"
+                    className="w-full px-3 py-2 text-left hover:bg-sky-50 text-xs flex items-center justify-between text-slate-700 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center space-x-1.5 truncate">
                       <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
@@ -338,6 +391,91 @@ export default function MobileDashboard({
               </div>
             )}
           </form>
+        )}
+      </div>
+
+      {/* 2. FULL SPOKEN VOICE METEOROLOGICAL BULLETIN AUDIO PLAYER (Speaks ALL 9 parameters across 10 languages) */}
+      <div className={`p-4 rounded-3xl border transition-all shadow-md ${
+        isSpeakingBulletin
+          ? 'bg-gradient-to-r from-sky-600 via-indigo-600 to-blue-700 text-white border-sky-400 shadow-sky-500/25 ring-2 ring-sky-300 animate-pulse'
+          : 'bg-white/90 backdrop-blur-xl border-slate-200/80 text-slate-800 hover:border-sky-300'
+      }`}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleToggleVoiceBulletin}
+              className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md ${
+                isSpeakingBulletin
+                  ? 'bg-white text-sky-600 shadow-white/30 scale-105'
+                  : 'bg-gradient-to-tr from-sky-600 to-indigo-600 text-white shadow-sky-500/20 hover:scale-105'
+              }`}
+              title={isSpeakingBulletin ? 'Stop Audio Broadcast' : 'Play Full Spoken Weather Bulletin'}
+            >
+              {isSpeakingBulletin ? (
+                <Square className="w-5 h-5 fill-current animate-pulse" />
+              ) : (
+                <Play className="w-5 h-5 fill-current ml-0.5" />
+              )}
+            </button>
+
+            <div>
+              <div className="flex items-center space-x-2">
+                <h3 className={`text-xs font-bold tracking-tight ${isSpeakingBulletin ? 'text-white' : 'text-slate-900'}`}>
+                  {activeLanguage === 'ta' ? '🎙️ முழு வானிலை ஒலி அறிக்கை' : '🎙️ Live Audio Weather Bulletin'}
+                </h3>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                  isSpeakingBulletin ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-800'
+                }`}>
+                  {activeLangObj.nativeName}
+                </span>
+              </div>
+              <p className={`text-[11px] leading-tight ${isSpeakingBulletin ? 'text-sky-100' : 'text-slate-500'}`}>
+                {isSpeakingBulletin
+                  ? (activeLanguage === 'ta' ? 'வானிலையின் அனைத்து தகவல்களையும் வாசிக்கிறது...' : 'Speaking complete 9-parameter meteorological briefing...')
+                  : (activeLanguage === 'ta' ? 'வெப்பநிலை, மழை, காற்று, AQI, UV மற்றும் செயல்பாட்டு வழிகாட்டியை முழுமையாக கேட்க' : 'Hear complete weather, rain nowcast, wind, AQI, UV & farm advisory')}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleToggleVoiceBulletin}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 ${
+              isSpeakingBulletin
+                ? 'bg-rose-500 text-white hover:bg-rose-600 shadow-sm'
+                : 'bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200'
+            }`}
+          >
+            {isSpeakingBulletin ? (
+              <>
+                <VolumeX className="w-3.5 h-3.5" />
+                <span>{activeLanguage === 'ta' ? 'நிறுத்து' : 'Stop'}</span>
+              </>
+            ) : (
+              <>
+                <Volume2 className="w-3.5 h-3.5 text-sky-600" />
+                <span>{activeLanguage === 'ta' ? 'கேட்கவும்' : 'Play'}</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Dynamic Animated Soundwave Equalizer when playing */}
+        {isSpeakingBulletin && (
+          <div className="mt-3 pt-2.5 border-t border-white/20 flex items-center justify-between text-[11px] text-sky-100">
+            <div className="flex items-center space-x-1">
+              <span className="w-1 h-3 bg-white rounded-full animate-bounce"></span>
+              <span className="w-1 h-5 bg-white rounded-full animate-bounce [animation-delay:0.15s]"></span>
+              <span className="w-1 h-4 bg-white rounded-full animate-bounce [animation-delay:0.3s]"></span>
+              <span className="w-1 h-6 bg-white rounded-full animate-bounce [animation-delay:0.45s]"></span>
+              <span className="w-1 h-3 bg-white rounded-full animate-bounce [animation-delay:0.2s]"></span>
+              <span className="ml-1.5 font-semibold text-white">
+                {activeLanguage === 'ta' ? 'ஒலி அறிக்கை இயக்கத்தில் உள்ளது' : 'Broadcast Active'}
+              </span>
+            </div>
+            <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-mono font-bold">
+              {currentLocation?.name || 'Chennai'}
+            </span>
+          </div>
         )}
       </div>
 

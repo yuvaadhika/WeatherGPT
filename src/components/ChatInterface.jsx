@@ -28,7 +28,7 @@ import {
 import { weatherAI } from '../services/aiService';
 import { speechEngine } from '../services/speechService';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
-import { getWeatherDescription } from '../services/weatherService';
+import { getWeatherDescription, generateFullSpokenWeatherBulletin } from '../services/weatherService';
 
 export default function ChatInterface({
   activeLanguage = 'en',
@@ -165,13 +165,22 @@ export default function ChatInterface({
     }
   };
 
-  const handleSpeak = (msgId, text) => {
+  const handleSpeak = (msgId, text, msgWeatherData = null) => {
     if (speakingMsgId === msgId) {
       speechEngine.stopSpeaking();
       setSpeakingMsgId(null);
     } else {
       setSpeakingMsgId(msgId);
-      speechEngine.speak(text, activeLangObj.voiceCode || 'en-US', () => {
+      let textToSpeak = text;
+      if (msgWeatherData?.current) {
+        textToSpeak = generateFullSpokenWeatherBulletin({
+          locationName: currentLocation?.name || 'Chennai',
+          weatherData: msgWeatherData,
+          aqiData: aqiData,
+          lang: activeLanguage,
+        });
+      }
+      speechEngine.speak(textToSpeak, activeLangObj.voiceCode || 'en-US', () => {
         setSpeakingMsgId(null);
       });
     }
@@ -383,7 +392,7 @@ export default function ChatInterface({
                     <span className="font-mono text-[10px] text-slate-400">{msg.timestamp}</span>
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => handleSpeak(msg.id, msg.text)}
+                        onClick={() => handleSpeak(msg.id, msg.text, msg.weatherData)}
                         title={isSpeakingThis ? (t.chat?.voiceStop || 'Stop Voice') : (t.chat?.voiceSpeak || 'Read Aloud')}
                         className={`p-1 rounded-lg hover:bg-slate-100 flex items-center space-x-1 transition-colors ${
                           isSpeakingThis ? 'text-sky-600 font-semibold' : 'text-slate-500 hover:text-slate-800'

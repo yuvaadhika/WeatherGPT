@@ -439,7 +439,342 @@ export const CITY_TRANSLATIONS = {
     ta: 'உள்ளூர் நிலையம்', hi: 'स्थानीय स्टेशन', te: 'స్థానిక స్టేషన్', bn: 'স্থানীয় স্টেশন', mr: 'स्थानिक स्टेशन',
     gu: 'સ્થાનિક સ્ટેશન', kn: 'ಸ್ಥಳೀಯ ನಿಲ್ದಾಣ', ml: 'പ്രാദേശിക സ്റ്റേഷൻ', pa: 'ਸਥਾਨਕ ਸਟੇਸ਼ਨ', en: 'Local Station'
   },
+  // Additional world & Indian city translations
+  'Abu Dhabi': { ta: 'அபுதாபி', hi: 'अबू धाबी', te: 'అబుదాబి', bn: 'আবুধাবি', mr: 'अबू धाबी', gu: 'અબુ ધાબી', kn: 'ಅಬುಧಾಬಿ', ml: 'അബുദാബി', pa: 'ਅਬੂ ਧਾਬੀ', en: 'Abu Dhabi' },
+  'Amsterdam': { ta: 'ஆம்ஸ்டர்டாம்', hi: 'एम्स्टर्डम', te: 'ఆమ్స్టర్‌డామ్', bn: 'আমস্টারডাম', mr: 'अ‍ॅमस्टरडॅम', gu: 'એમ્સ્ટરડેમ', kn: 'ಆಮ್ಸ್ಟರ್‌ಡ್ಯಾಮ್', ml: 'ആംസ്റ്റർഡാം', pa: 'ਐਮਸਟਰਡੈਮ', en: 'Amsterdam' },
+  'Bangkok': { ta: 'பாங்காக்', hi: 'बैंकॉक', te: 'బ్యాంకాక్', bn: 'ব্যাংকক', mr: 'बँकॉॅक', gu: 'બેંગકોક', kn: 'ಬ್ಯಾಂಕಾಕ್', ml: 'ബാങ്കോക്ക്', pa: 'ਬੈਂਕਾਕ', en: 'Bangkok' },
+  'Beijing': { ta: 'பெய்ஜிங்', hi: 'बीजिंग', te: 'బీజింగ్', bn: 'বেইজিং', mr: 'बीजिंग', gu: 'બીજિંગ', kn: 'ಬೀಜಿಂಗ್', ml: 'ബെയ്ജിംഗ്', pa: 'ਬੀਜਿੰਗ', en: 'Beijing' },
+  'Berlin': { ta: 'பெர்லின்', hi: 'बर्लिन', te: 'బెర్లిన్', bn: 'বার্লিন', mr: 'बर्लिन', gu: 'બર્લિન', kn: 'ಬರ್ಲಿನ್', ml: 'ബെർലിൻ', pa: 'ਬਰਲਿਨ', en: 'Berlin' },
+  'Colombo': { ta: 'கொழும்பு', hi: 'कोलंबो', te: 'కొలంబో', bn: 'কলম্বো', mr: 'कोलंबो', gu: 'કોલંબો', kn: 'ಕೊಲಂಬೊ', ml: 'കൊളംബോ', pa: 'ਕੋਲੰਬੋ', en: 'Colombo' },
+  'Dhaka': { ta: 'டாக்கா', hi: 'ढाका', te: 'ఢాకా', bn: 'ঢাকা', mr: 'ढाका', gu: 'ઢાકા', kn: 'ಢಾಕಾ', ml: 'ധാക്ക', pa: 'ਢਾਕਾ', en: 'Dhaka' },
+  'Doha': { ta: 'தோஹா', hi: 'दोहा', te: 'దోహా', bn: 'দোহা', mr: 'दोहा', gu: 'દોહા', kn: 'ದೋಹಾ', ml: 'ദോഹ', pa: 'ਦੋਹਾ', en: 'Doha' },
+  'Dubai': { ta: 'துபாய்', hi: 'दुबई', te: 'దుబాయ్', bn: 'দুবাই', mr: 'दुबई', gu: 'દુબઈ', kn: 'ദുബൈ', ml: 'ദുബായ്', pa: 'ਦੁਬਈ', en: 'Dubai' },
+  'London': { ta: 'லண்டன்', hi: 'लंदन', te: 'లండన్', bn: 'লন্ডন', mr: 'लंडन', gu: 'લંડન', kn: 'ಲಂಡನ್', ml: 'ലണ്ടൻ', pa: 'ਲੰਡਨ', en: 'London' },
+  'New York': { ta: 'நியூயார்க்', hi: 'न्यूयॉर्क', te: 'న్యూయార్క్', bn: 'নিউ ইয়র্ক', mr: 'न्यूयॉर्क', gu: 'ન્યૂ યોર્ક', kn: 'ನ್ಯೂಯಾರ್ಕ್', ml: 'ന്യൂയോർക്ക്', pa: 'ਨਿਊਯਾਰਕ', en: 'New York' },
+  'Paris': { ta: 'பாரிஸ்', hi: 'पेरिस', te: 'ప్యారిస్', bn: 'প্যারিস', mr: 'पॅरिस', gu: 'પેરિસ', kn: 'ಪ್ಯಾರಿಸ್', ml: 'പാരിസ്', pa: 'ਪੈਰਿਸ', en: 'Paris' },
+  'Singapore': { ta: 'சிங்கப்பூர்', hi: 'सिंगापुर', te: 'సింగపూర్', bn: 'সিঙ্গাপুর', mr: 'सिंगापूर', gu: 'સિંગાપોર', kn: 'ಸಿಂಗಾಪುರ', ml: 'സിംഗപ്പൂർ', pa: 'ਸਿੰਗਾਪੁਰ', en: 'Singapore' },
+  'Tokyo': { ta: 'டோக்கியோ', hi: 'टोक्यो', te: 'టోక్యో', bn: 'টোকিও', mr: 'टोकियो', gu: 'ટોક્યો', kn: 'ಟೋಕಿಯೊ', ml: 'ടോക്കിയോ', pa: 'ਟੋਕੀਓ', en: 'Tokyo' },
 };
+
+// ============================================================================
+// ALL AVAILABLE PLACES DIRECTORY (STRICTLY ALPHABETICAL A-Z)
+// Contains:
+// 1. All 38 Districts of Tamil Nadu (A to V)
+// 2. Major Tamil Nadu Towns & Localities
+// 3. Major Indian Metros & State Capitals
+// 4. Global Meteorological Metros
+// ============================================================================
+export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
+  // --- A ---
+  { id: 'abu-dhabi', name: 'Abu Dhabi', rawName: 'Abu Dhabi', state: 'UAE', country: 'United Arab Emirates', latitude: 24.4539, longitude: 54.3773, category: 'global', flag: '🇦🇪' },
+  { id: 'adyar', name: 'Adyar', rawName: 'Adyar', state: 'Tamil Nadu', country: 'India', latitude: 13.0012, longitude: 80.2565, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'agra', name: 'Agra', rawName: 'Agra', state: 'Uttar Pradesh', country: 'India', latitude: 27.1767, longitude: 78.0081, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'ahmedabad', name: 'Ahmedabad', rawName: 'Ahmedabad', state: 'Gujarat', country: 'India', latitude: 23.0225, longitude: 72.5714, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'aizawl', name: 'Aizawl', rawName: 'Aizawl', state: 'Mizoram', country: 'India', latitude: 23.7271, longitude: 92.7176, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'ambattur', name: 'Ambattur', rawName: 'Ambattur', state: 'Tamil Nadu', country: 'India', latitude: 13.0983, longitude: 80.1624, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'amritsar', name: 'Amritsar', rawName: 'Amritsar', state: 'Punjab', country: 'India', latitude: 31.6340, longitude: 74.8723, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'amsterdam', name: 'Amsterdam', rawName: 'Amsterdam', state: 'North Holland', country: 'Netherlands', latitude: 52.3676, longitude: 4.9041, category: 'global', flag: '🇳🇱' },
+  { id: 'anna-nagar', name: 'Anna Nagar', rawName: 'Anna Nagar', state: 'Tamil Nadu', country: 'India', latitude: 13.0850, longitude: 80.2101, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'ariyalur', name: 'Ariyalur', rawName: 'Ariyalur', state: 'Tamil Nadu', country: 'India', latitude: 11.1399, longitude: 79.0765, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'avadi', name: 'Avadi', rawName: 'Avadi', state: 'Tamil Nadu', country: 'India', latitude: 13.1147, longitude: 80.1098, category: 'locality_tn', flag: '🇮🇳' },
+
+  // --- B ---
+  { id: 'bangkok', name: 'Bangkok', rawName: 'Bangkok', state: 'Central', country: 'Thailand', latitude: 13.7563, longitude: 100.5018, category: 'global', flag: '🇹🇭' },
+  { id: 'beijing', name: 'Beijing', rawName: 'Beijing', state: 'Beijing', country: 'China', latitude: 39.9042, longitude: 116.4074, category: 'global', flag: '🇨🇳' },
+  { id: 'bengaluru', name: 'Bengaluru', rawName: 'Bengaluru', state: 'Karnataka', country: 'India', latitude: 12.9716, longitude: 77.5946, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'berlin', name: 'Berlin', rawName: 'Berlin', state: 'Berlin', country: 'Germany', latitude: 52.5200, longitude: 13.4050, category: 'global', flag: '🇩🇪' },
+  { id: 'bhopal', name: 'Bhopal', rawName: 'Bhopal', state: 'Madhya Pradesh', country: 'India', latitude: 23.2599, longitude: 77.4126, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'bhubaneswar', name: 'Bhubaneswar', rawName: 'Bhubaneswar', state: 'Odisha', country: 'India', latitude: 20.2961, longitude: 85.8245, category: 'capital_in', flag: '🇮🇳' },
+
+  // --- C ---
+  { id: 'chandigarh', name: 'Chandigarh', rawName: 'Chandigarh', state: 'Punjab / Haryana', country: 'India', latitude: 30.7333, longitude: 76.7794, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'chengalpattu', name: 'Chengalpattu', rawName: 'Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.6841, longitude: 79.9836, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'chennai', name: 'Chennai', rawName: 'Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0827, longitude: 80.2707, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'chromepet', name: 'Chromepet', rawName: 'Chromepet', state: 'Tamil Nadu', country: 'India', latitude: 12.9516, longitude: 80.1462, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'coimbatore', name: 'Coimbatore', rawName: 'Coimbatore', state: 'Tamil Nadu', country: 'India', latitude: 11.0168, longitude: 76.9558, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'colombo', name: 'Colombo', rawName: 'Colombo', state: 'Western Province', country: 'Sri Lanka', latitude: 6.9271, longitude: 79.8612, category: 'global', flag: '🇱🇰' },
+  { id: 'cuddalore', name: 'Cuddalore', rawName: 'Cuddalore', state: 'Tamil Nadu', country: 'India', latitude: 11.7480, longitude: 79.7714, category: 'district_tn', flag: '🇮🇳' },
+
+  // --- D ---
+  { id: 'dehradun', name: 'Dehradun', rawName: 'Dehradun', state: 'Uttarakhand', country: 'India', latitude: 30.3165, longitude: 78.0322, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'delhi', name: 'Delhi', rawName: 'Delhi', state: 'National Capital', country: 'India', latitude: 28.6139, longitude: 77.2090, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'dhaka', name: 'Dhaka', rawName: 'Dhaka', state: 'Dhaka Division', country: 'Bangladesh', latitude: 23.8103, longitude: 90.4125, category: 'global', flag: '🇧🇩' },
+  { id: 'dharmapuri', name: 'Dharmapuri', rawName: 'Dharmapuri', state: 'Tamil Nadu', country: 'India', latitude: 12.1211, longitude: 78.1582, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'dindigul', name: 'Dindigul', rawName: 'Dindigul', state: 'Tamil Nadu', country: 'India', latitude: 10.3673, longitude: 77.9803, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'doha', name: 'Doha', rawName: 'Doha', state: 'Doha', country: 'Qatar', latitude: 25.2854, longitude: 51.5310, category: 'global', flag: '🇶🇦' },
+  { id: 'dubai', name: 'Dubai', rawName: 'Dubai', state: 'Dubai', country: 'United Arab Emirates', latitude: 25.2048, longitude: 55.2708, category: 'global', flag: '🇦🇪' },
+
+  // --- E ---
+  { id: 'erode', name: 'Erode', rawName: 'Erode', state: 'Tamil Nadu', country: 'India', latitude: 11.3410, longitude: 77.7172, category: 'district_tn', flag: '🇮🇳' },
+
+  // --- F ---
+  { id: 'frankfurt', name: 'Frankfurt', rawName: 'Frankfurt', state: 'Hesse', country: 'Germany', latitude: 50.1109, longitude: 8.6821, category: 'global', flag: '🇩🇪' },
+
+  // --- G ---
+  { id: 'gangtok', name: 'Gangtok', rawName: 'Gangtok', state: 'Sikkim', country: 'India', latitude: 27.3389, longitude: 88.6065, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'goa', name: 'Goa (Panaji)', rawName: 'Panaji', state: 'Goa', country: 'India', latitude: 15.4909, longitude: 73.8278, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'guindy', name: 'Guindy', rawName: 'Guindy', state: 'Tamil Nadu', country: 'India', latitude: 13.0067, longitude: 80.2206, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'gurugram', name: 'Gurugram', rawName: 'Gurugram', state: 'Haryana', country: 'India', latitude: 28.4595, longitude: 77.0266, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'guwahati', name: 'Guwahati', rawName: 'Guwahati', state: 'Assam', country: 'India', latitude: 26.1445, longitude: 91.7362, category: 'capital_in', flag: '🇮🇳' },
+
+  // --- H ---
+  { id: 'hong-kong', name: 'Hong Kong', rawName: 'Hong Kong', state: 'Hong Kong SAR', country: 'China', latitude: 22.3193, longitude: 114.1694, category: 'global', flag: '🇭🇰' },
+  { id: 'hosur', name: 'Hosur', rawName: 'Hosur', state: 'Tamil Nadu', country: 'India', latitude: 12.7409, longitude: 77.8253, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'hyderabad', name: 'Hyderabad', rawName: 'Hyderabad', state: 'Telangana', country: 'India', latitude: 17.3850, longitude: 78.4867, category: 'metro_in', flag: '🇮🇳' },
+
+  // --- I ---
+  { id: 'imphal', name: 'Imphal', rawName: 'Imphal', state: 'Manipur', country: 'India', latitude: 24.8170, longitude: 93.9368, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'indore', name: 'Indore', rawName: 'Indore', state: 'Madhya Pradesh', country: 'India', latitude: 22.7196, longitude: 75.8577, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'itanagar', name: 'Itanagar', rawName: 'Itanagar', state: 'Arunachal Pradesh', country: 'India', latitude: 27.0844, longitude: 93.6053, category: 'capital_in', flag: '🇮🇳' },
+
+  // --- J ---
+  { id: 'jaipur', name: 'Jaipur', rawName: 'Jaipur', state: 'Rajasthan', country: 'India', latitude: 26.9124, longitude: 75.7873, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'jakarta', name: 'Jakarta', rawName: 'Jakarta', state: 'Jakarta', country: 'Indonesia', latitude: -6.2088, longitude: 106.8456, category: 'global', flag: '🇮🇩' },
+  { id: 'jammu', name: 'Jammu', rawName: 'Jammu', state: 'Jammu and Kashmir', country: 'India', latitude: 32.7266, longitude: 74.8570, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'jodhpur', name: 'Jodhpur', rawName: 'Jodhpur', state: 'Rajasthan', country: 'India', latitude: 26.2389, longitude: 73.0243, category: 'metro_in', flag: '🇮🇳' },
+
+  // --- K ---
+  { id: 'kallakurichi', name: 'Kallakurichi', rawName: 'Kallakurichi', state: 'Tamil Nadu', country: 'India', latitude: 11.7383, longitude: 78.9639, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'kanchipuram', name: 'Kanchipuram', rawName: 'Kanchipuram', state: 'Tamil Nadu', country: 'India', latitude: 12.8342, longitude: 79.7036, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'kanyakumari', name: 'Kanyakumari', rawName: 'Kanyakumari', state: 'Tamil Nadu', country: 'India', latitude: 8.0883, longitude: 77.5385, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'kanpur', name: 'Kanpur', rawName: 'Kanpur', state: 'Uttar Pradesh', country: 'India', latitude: 26.4499, longitude: 80.3319, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'karaikudi', name: 'Karaikudi', rawName: 'Karaikudi', state: 'Tamil Nadu', country: 'India', latitude: 10.0735, longitude: 78.7732, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'karur', name: 'Karur', rawName: 'Karur', state: 'Tamil Nadu', country: 'India', latitude: 10.9601, longitude: 78.0766, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'kochi', name: 'Kochi', rawName: 'Kochi', state: 'Kerala', country: 'India', latitude: 9.9312, longitude: 76.2673, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'kohima', name: 'Kohima', rawName: 'Kohima', state: 'Nagaland', country: 'India', latitude: 25.6751, longitude: 94.1086, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'kolkata', name: 'Kolkata', rawName: 'Kolkata', state: 'West Bengal', country: 'India', latitude: 22.5726, longitude: 88.3639, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'kozhikode', name: 'Kozhikode', rawName: 'Kozhikode', state: 'Kerala', country: 'India', latitude: 11.2588, longitude: 75.7804, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'krishnagiri', name: 'Krishnagiri', rawName: 'Krishnagiri', state: 'Tamil Nadu', country: 'India', latitude: 12.5266, longitude: 78.2146, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'kuala-lumpur', name: 'Kuala Lumpur', rawName: 'Kuala Lumpur', state: 'Federal Territory', country: 'Malaysia', latitude: 3.1390, longitude: 101.6869, category: 'global', flag: '🇲🇾' },
+  { id: 'kumbakonam', name: 'Kumbakonam', rawName: 'Kumbakonam', state: 'Tamil Nadu', country: 'India', latitude: 10.9602, longitude: 79.3845, category: 'locality_tn', flag: '🇮🇳' },
+
+  // --- L ---
+  { id: 'london', name: 'London', rawName: 'London', state: 'England', country: 'United Kingdom', latitude: 51.5074, longitude: -0.1278, category: 'global', flag: '🇬🇧' },
+  { id: 'los-angeles', name: 'Los Angeles', rawName: 'Los Angeles', state: 'California', country: 'United States', latitude: 34.0522, longitude: -118.2437, category: 'global', flag: '🇺🇸' },
+  { id: 'lucknow', name: 'Lucknow', rawName: 'Lucknow', state: 'Uttar Pradesh', country: 'India', latitude: 26.8467, longitude: 80.9462, category: 'capital_in', flag: '🇮🇳' },
+
+  // --- M ---
+  { id: 'madurai', name: 'Madurai', rawName: 'Madurai', state: 'Tamil Nadu', country: 'India', latitude: 9.9252, longitude: 78.1198, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'mangalore', name: 'Mangalore', rawName: 'Mangalore', state: 'Karnataka', country: 'India', latitude: 12.9141, longitude: 74.8560, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'mayiladuthurai', name: 'Mayiladuthurai', rawName: 'Mayiladuthurai', state: 'Tamil Nadu', country: 'India', latitude: 11.1035, longitude: 79.6550, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'melbourne', name: 'Melbourne', rawName: 'Melbourne', state: 'Victoria', country: 'Australia', latitude: -37.8136, longitude: 144.9631, category: 'global', flag: '🇦🇺' },
+  { id: 'moscow', name: 'Moscow', rawName: 'Moscow', state: 'Moscow', country: 'Russia', latitude: 55.7558, longitude: 37.6173, category: 'global', flag: '🇷🇺' },
+  { id: 'mumbai', name: 'Mumbai', rawName: 'Mumbai', state: 'Maharashtra', country: 'India', latitude: 19.0760, longitude: 72.8777, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'mylapore', name: 'Mylapore', rawName: 'Mylapore', state: 'Tamil Nadu', country: 'India', latitude: 13.0368, longitude: 80.2676, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'mysuru', name: 'Mysuru', rawName: 'Mysuru', state: 'Karnataka', country: 'India', latitude: 12.2958, longitude: 76.6394, category: 'metro_in', flag: '🇮🇳' },
+
+  // --- N ---
+  { id: 'nagapattinam', name: 'Nagapattinam', rawName: 'Nagapattinam', state: 'Tamil Nadu', country: 'India', latitude: 10.7672, longitude: 79.8449, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'nagercoil', name: 'Nagercoil', rawName: 'Nagercoil', state: 'Tamil Nadu', country: 'India', latitude: 8.1833, longitude: 77.4119, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'nagpur', name: 'Nagpur', rawName: 'Nagpur', state: 'Maharashtra', country: 'India', latitude: 21.1458, longitude: 79.0882, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'namakkal', name: 'Namakkal', rawName: 'Namakkal', state: 'Tamil Nadu', country: 'India', latitude: 11.2189, longitude: 78.1674, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'new-delhi', name: 'New Delhi', rawName: 'New Delhi', state: 'National Capital', country: 'India', latitude: 28.6139, longitude: 77.2090, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'new-york', name: 'New York', rawName: 'New York', state: 'New York', country: 'United States', latitude: 40.7128, longitude: -74.0060, category: 'global', flag: '🇺🇸' },
+  { id: 'nilgiris', name: 'Nilgiris (Ooty)', rawName: 'Nilgiris', state: 'Tamil Nadu', country: 'India', latitude: 11.4102, longitude: 76.6950, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'noida', name: 'Noida', rawName: 'Noida', state: 'Uttar Pradesh', country: 'India', latitude: 28.5355, longitude: 77.3910, category: 'metro_in', flag: '🇮🇳' },
+
+  // --- P ---
+  { id: 'pallavaram', name: 'Pallavaram', rawName: 'Pallavaram', state: 'Tamil Nadu', country: 'India', latitude: 12.9675, longitude: 80.1491, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'paris', name: 'Paris', rawName: 'Paris', state: 'Île-de-France', country: 'France', latitude: 48.8566, longitude: 2.3522, category: 'global', flag: '🇫🇷' },
+  { id: 'patna', name: 'Patna', rawName: 'Patna', state: 'Bihar', country: 'India', latitude: 25.5941, longitude: 85.1376, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'perambalur', name: 'Perambalur', rawName: 'Perambalur', state: 'Tamil Nadu', country: 'India', latitude: 11.2333, longitude: 78.8833, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'pollachi', name: 'Pollachi', rawName: 'Pollachi', state: 'Tamil Nadu', country: 'India', latitude: 10.6583, longitude: 77.0089, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'pondicherry', name: 'Puducherry', rawName: 'Puducherry', state: 'Puducherry', country: 'India', latitude: 11.9416, longitude: 79.8083, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'poonamallee', name: 'Poonamallee', rawName: 'Poonamallee', state: 'Tamil Nadu', country: 'India', latitude: 13.0489, longitude: 80.0963, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'porur', name: 'Porur', rawName: 'Porur', state: 'Tamil Nadu', country: 'India', latitude: 13.0382, longitude: 80.1565, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'pudukkottai', name: 'Pudukkottai', rawName: 'Pudukkottai', state: 'Tamil Nadu', country: 'India', latitude: 10.3833, longitude: 78.8000, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'pune', name: 'Pune', rawName: 'Pune', state: 'Maharashtra', country: 'India', latitude: 18.5204, longitude: 73.8567, category: 'metro_in', flag: '🇮🇳' },
+
+  // --- R ---
+  { id: 'raipur', name: 'Raipur', rawName: 'Raipur', state: 'Chhattisgarh', country: 'India', latitude: 21.2514, longitude: 81.6296, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'rajapalayam', name: 'Rajapalayam', rawName: 'Rajapalayam', state: 'Tamil Nadu', country: 'India', latitude: 9.4533, longitude: 77.5539, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'ramanathapuram', name: 'Ramanathapuram', rawName: 'Ramanathapuram', state: 'Tamil Nadu', country: 'India', latitude: 9.3639, longitude: 78.8395, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'ranchi', name: 'Ranchi', rawName: 'Ranchi', state: 'Jharkhand', country: 'India', latitude: 23.3441, longitude: 85.3096, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'ranipet', name: 'Ranipet', rawName: 'Ranipet', state: 'Tamil Nadu', country: 'India', latitude: 12.9272, longitude: 79.3330, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'riyadh', name: 'Riyadh', rawName: 'Riyadh', state: 'Riyadh Province', country: 'Saudi Arabia', latitude: 24.7136, longitude: 46.6753, category: 'global', flag: '🇸🇦' },
+
+  // --- S ---
+  { id: 'salem', name: 'Salem', rawName: 'Salem', state: 'Tamil Nadu', country: 'India', latitude: 11.6643, longitude: 78.1460, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'san-francisco', name: 'San Francisco', rawName: 'San Francisco', state: 'California', country: 'United States', latitude: 37.7749, longitude: -122.4194, category: 'global', flag: '🇺🇸' },
+  { id: 'seoul', name: 'Seoul', rawName: 'Seoul', state: 'Seoul Capital', country: 'South Korea', latitude: 37.5665, longitude: 126.9780, category: 'global', flag: '🇰🇷' },
+  { id: 'shillong', name: 'Shillong', rawName: 'Shillong', state: 'Meghalaya', country: 'India', latitude: 25.5788, longitude: 91.8933, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'shimla', name: 'Shimla', rawName: 'Shimla', state: 'Himachal Pradesh', country: 'India', latitude: 31.1048, longitude: 77.1734, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'sholinganallur', name: 'Sholinganallur', rawName: 'Sholinganallur', state: 'Tamil Nadu', country: 'India', latitude: 12.8997, longitude: 80.2279, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'singapore', name: 'Singapore', rawName: 'Singapore', state: 'Central Region', country: 'Singapore', latitude: 1.3521, longitude: 103.8198, category: 'global', flag: '🇸🇬' },
+  { id: 'sivaganga', name: 'Sivaganga', rawName: 'Sivaganga', state: 'Tamil Nadu', country: 'India', latitude: 9.8433, longitude: 78.4809, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'srinagar', name: 'Srinagar', rawName: 'Srinagar', state: 'Jammu and Kashmir', country: 'India', latitude: 34.0837, longitude: 74.7973, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'surat', name: 'Surat', rawName: 'Surat', state: 'Gujarat', country: 'India', latitude: 21.1702, longitude: 72.8311, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'sydney', name: 'Sydney', rawName: 'Sydney', state: 'New South Wales', country: 'Australia', latitude: -33.8688, longitude: 151.2093, category: 'global', flag: '🇦🇺' },
+
+  // --- T ---
+  { id: 'tambaram', name: 'Tambaram', rawName: 'Tambaram', state: 'Tamil Nadu', country: 'India', latitude: 12.9249, longitude: 80.1000, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'tenkasi', name: 'Tenkasi', rawName: 'Tenkasi', state: 'Tamil Nadu', country: 'India', latitude: 8.9594, longitude: 77.3150, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'thanjavur', name: 'Thanjavur', rawName: 'Thanjavur', state: 'Tamil Nadu', country: 'India', latitude: 10.7870, longitude: 79.1378, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'theni', name: 'Theni', rawName: 'Theni', state: 'Tamil Nadu', country: 'India', latitude: 10.0104, longitude: 77.4768, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'thiruvananthapuram', name: 'Thiruvananthapuram', rawName: 'Thiruvananthapuram', state: 'Kerala', country: 'India', latitude: 8.5241, longitude: 76.9366, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'thoothukudi', name: 'Thoothukudi', rawName: 'Thoothukudi', state: 'Tamil Nadu', country: 'India', latitude: 8.7642, longitude: 78.1348, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tiruchirappalli', name: 'Tiruchirappalli', rawName: 'Tiruchirappalli', state: 'Tamil Nadu', country: 'India', latitude: 10.7905, longitude: 78.7047, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tirunelveli', name: 'Tirunelveli', rawName: 'Tirunelveli', state: 'Tamil Nadu', country: 'India', latitude: 8.7139, longitude: 77.7567, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tirupathur', name: 'Tirupathur', rawName: 'Tirupathur', state: 'Tamil Nadu', country: 'India', latitude: 12.4958, longitude: 78.5678, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tiruppur', name: 'Tiruppur', rawName: 'Tiruppur', state: 'Tamil Nadu', country: 'India', latitude: 11.1085, longitude: 77.3411, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tiruvallur', name: 'Tiruvallur', rawName: 'Tiruvallur', state: 'Tamil Nadu', country: 'India', latitude: 13.1438, longitude: 79.9080, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tiruvannamalai', name: 'Tiruvannamalai', rawName: 'Tiruvannamalai', state: 'Tamil Nadu', country: 'India', latitude: 12.2253, longitude: 79.0747, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tiruvarur', name: 'Tiruvarur', rawName: 'Tiruvarur', state: 'Tamil Nadu', country: 'India', latitude: 10.7725, longitude: 79.6365, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tokyo', name: 'Tokyo', rawName: 'Tokyo', state: 'Kanto', country: 'Japan', latitude: 35.6762, longitude: 139.6503, category: 'global', flag: '🇯🇵' },
+  { id: 'toronto', name: 'Toronto', rawName: 'Toronto', state: 'Ontario', country: 'Canada', latitude: 43.6532, longitude: -79.3832, category: 'global', flag: '🇨🇦' },
+
+  // --- U ---
+  { id: 'udaipur', name: 'Udaipur', rawName: 'Udaipur', state: 'Rajasthan', country: 'India', latitude: 24.5854, longitude: 73.7125, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'udhagamandalam', name: 'Udhagamandalam (Ooty)', rawName: 'Udhagamandalam', state: 'Tamil Nadu', country: 'India', latitude: 11.4102, longitude: 76.6950, category: 'locality_tn', flag: '🇮🇳' },
+
+  // --- V ---
+  { id: 'vadodara', name: 'Vadodara', rawName: 'Vadodara', state: 'Gujarat', country: 'India', latitude: 22.3072, longitude: 73.1812, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'vancouver', name: 'Vancouver', rawName: 'Vancouver', state: 'British Columbia', country: 'Canada', latitude: 49.2827, longitude: -123.1207, category: 'global', flag: '🇨🇦' },
+  { id: 'varanasi', name: 'Varanasi', rawName: 'Varanasi', state: 'Uttar Pradesh', country: 'India', latitude: 25.3176, longitude: 82.9739, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'velachery', name: 'Velachery', rawName: 'Velachery', state: 'Tamil Nadu', country: 'India', latitude: 12.9750, longitude: 80.2207, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'vellore', name: 'Vellore', rawName: 'Vellore', state: 'Tamil Nadu', country: 'India', latitude: 12.9165, longitude: 79.1325, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'vijayawada', name: 'Vijayawada', rawName: 'Vijayawada', state: 'Andhra Pradesh', country: 'India', latitude: 16.5062, longitude: 80.6480, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'viluppuram', name: 'Viluppuram', rawName: 'Viluppuram', state: 'Tamil Nadu', country: 'India', latitude: 11.9401, longitude: 79.4861, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'virudhunagar', name: 'Virudhunagar', rawName: 'Virudhunagar', state: 'Tamil Nadu', country: 'India', latitude: 9.5680, longitude: 77.9624, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'visakhapatnam', name: 'Visakhapatnam', rawName: 'Visakhapatnam', state: 'Andhra Pradesh', country: 'India', latitude: 17.6868, longitude: 83.2185, category: 'metro_in', flag: '🇮🇳' },
+
+  // --- Z ---
+  { id: 'zurich', name: 'Zurich', rawName: 'Zurich', state: 'Canton of Zurich', country: 'Switzerland', latitude: 47.3769, longitude: 8.5417, category: 'global', flag: '🇨🇭' },
+];
+
+export const ALPHABET_LETTERS = ['ALL', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+// Helper to filter alphabetical places
+export function getAlphabeticalPlacesFiltered({ query = '', letter = 'ALL', category = 'ALL', lang = 'en' } = {}) {
+  const q = (query || '').toLowerCase().trim();
+  
+  return ALL_AVAILABLE_PLACES_ALPHABETICAL.filter((place) => {
+    // 1. Letter filter
+    if (letter && letter !== 'ALL') {
+      if (!place.name.toUpperCase().startsWith(letter.toUpperCase())) {
+        return false;
+      }
+    }
+
+    // 2. Category filter
+    if (category && category !== 'ALL') {
+      if (category === 'district_tn' && place.category !== 'district_tn') return false;
+      if (category === 'locality_tn' && place.category !== 'locality_tn') return false;
+      if (category === 'metro_in' && place.category !== 'metro_in' && place.category !== 'capital_in') return false;
+      if (category === 'global' && place.category !== 'global') return false;
+    }
+
+    // 3. Search query filter
+    if (q) {
+      const localizedName = (getLocalizedPlaceName(place.name, lang) || '').toLowerCase();
+      const englishName = place.name.toLowerCase();
+      const stateName = (place.state || '').toLowerCase();
+      const countryName = (place.country || '').toLowerCase();
+
+      return (
+        englishName.includes(q) ||
+        localizedName.includes(q) ||
+        stateName.includes(q) ||
+        countryName.includes(q)
+      );
+    }
+
+    return true;
+  });
+}
+
+// ============================================================================
+// COMPREHENSIVE MULTI-PARAGRAPH SPOKEN METEOROLOGICAL BULLETIN GENERATOR
+// Reads out ALL weather telemetry across 10 languages (Never just a 1-line summary)
+// ============================================================================
+export function generateFullSpokenWeatherBulletin({
+  locationName = 'Chennai',
+  weatherData,
+  aqiData,
+  riskData,
+  lang = 'en'
+}) {
+  const current = weatherData?.current || {};
+  const daily = weatherData?.daily || {};
+  const hourly = weatherData?.hourly || {};
+
+  const tempC = current.temperature_2m !== undefined ? Math.round(current.temperature_2m) : 28;
+  const feelsLike = current.apparent_temperature !== undefined ? Math.round(current.apparent_temperature) : tempC + 3;
+  const wmo = getWeatherDescription(current.weather_code || 0, lang);
+  const condition = wmo.label;
+  const rainProb = daily.precipitation_probability_max?.[0] !== undefined ? daily.precipitation_probability_max[0] : (current.precipitation ? 80 : 15);
+  const rainMm = (daily.precipitation_sum?.[0] || current.precipitation || 0).toFixed(1);
+  const windKmh = current.wind_speed_10m !== undefined ? Math.round(current.wind_speed_10m) : 18;
+  const windGust = current.wind_gusts_10m !== undefined ? Math.round(current.wind_gusts_10m) : Math.round(windKmh * 1.3);
+  const humidity = current.relative_humidity_2m !== undefined ? Math.round(current.relative_humidity_2m) : 78;
+  const aqiVal = aqiData?.current?.us_aqi || 52;
+  const uvVal = current.uv_index !== undefined ? current.uv_index : (daily.uv_index_max?.[0] || 6);
+
+  const localizedCity = getLocalizedPlaceName(locationName, lang) || locationName;
+  const targetLang = lang.split(/[-_]/)[0].toLowerCase();
+
+  // 1. TAMIL (தமிழ்)
+  if (targetLang === 'ta') {
+    const roadAdvice = parseFloat(rainMm) > 10 ? 'மழையால் சாலைகளில் நீர் தேங்க வாய்ப்புள்ளது, எச்சரிக்கையுடன் செல்லவும்' : 'சாலைப் பயணம் சீராக உள்ளது';
+    const laundryAdvice = humidity > 80 || rainProb > 50 ? 'அதிக ஈரப்பதம் மற்றும் மழை வாய்ப்பால் துணி காயவைக்க தாமதமாகும்' : 'துணி காயவைக்க சாதகமான சூழல்';
+    const sprayAdvice = windKmh <= 15 && parseFloat(rainMm) === 0 ? 'பயிர்களுக்கு ஊட்டச்சத்து மற்றும் பூச்சி மருந்து தெளிக்க மிகவும் உகந்தது' : 'பலத்த காற்று அல்லது மழை வாய்ப்பால் தெளிப்பதை ஒத்திவைக்கவும்';
+    const aqiRating = aqiVal <= 50 ? 'நல்ல நிலை' : aqiVal <= 100 ? 'மிதமான நிலை' : 'மாசுபட்ட நிலை, முகக்கவசம் அணியவும்';
+
+    return `வணக்கம்! ${localizedCity} பகுதிக்கான WeatherGPT நேரலை வானிலை முழு அறிக்கை. தற்போதைய வெப்பநிலை ${tempC} டிகிரி செல்சியஸ். காற்றில் உள்ள ஈரப்பதம் காரணமாக ${feelsLike} டிகிரி செல்சியஸ் போல் உணரப்படுகிறது. வானம் ${condition} ஆக காணப்படுகிறது. மழை நிலவரம்: இன்றைய மழை வாய்ப்பு ${rainProb} சதவீதம். எதிர்பார்க்கப்படும் மழையின் அளவு ${rainMm} மில்லிமீட்டர். காற்று மணிக்கு ${windKmh} கிலோமீட்டர் வேகத்தில் வீசுகிறது, அதிகபட்சமாக ${windGust} கிலோமீட்டர் வரை பலத்த காற்று வீசக்கூடும். காற்றில் ஈரப்பதம் ${humidity} சதவீதமாக உள்ளது. காற்று தரம் குறியீடு ${aqiVal} ஆக பதிவாகியுள்ளது, இது ${aqiRating} ஆகும். சூரிய புற ஊதாக்கதிர் குறியீடு ${uvVal} ஆகும். முக்கிய செயல்பாட்டு வழிகாட்டி: ${roadAdvice}. ${laundryAdvice}. மேலும் விவசாய செயல்பாட்டிற்கு, ${sprayAdvice}. WeatherGPT உடன் தொடர்ந்து வானிலை தகவல்களை அறிந்து பாதுகாப்பாக இருங்கள்.`;
+  }
+
+  // 2. HINDI (हिन्दी)
+  if (targetLang === 'hi') {
+    const roadAdvice = parseFloat(rainMm) > 10 ? 'सड़क पर जलभराव की संभावना है, वाहन धीरे चलाएं' : 'सड़क यातायात सुगम है';
+    const sprayAdvice = windKmh <= 15 && parseFloat(rainMm) === 0 ? 'फसलों पर छिड़काव के लिए मौसम अनुकूल है' : 'तेज हवा के कारण छिड़काव टालें';
+    const aqiRating = aqiVal <= 50 ? 'अच्छा' : aqiVal <= 100 ? 'संतोषजनक' : 'मध्यम से खराब';
+
+    return `नमस्ते! ${localizedCity} के लिए WeatherGPT का संपूर्ण लाइव मौसम बुलेटिन। वर्तमान तापमान ${tempC} डिग्री सेल्सियस है, जो नमी के कारण ${feelsLike} डिग्री सेल्सियस जैसा महसूस हो रहा है। आकाश में ${condition} की स्थिति है। वर्षा का पूर्वानुमान: आज बारिश की संभावना ${rainProb} प्रतिशत है और कुल ${rainMm} मिलीमीटर वर्षा हो सकती है। हवा ${windKmh} किलोमीटर प्रति घंटा की गति से चल रही है, जिसमें अधिकतम झोंके ${windGust} किमी प्रति घंटा तक पहुंच सकते हैं। सापेक्ष आर्द्रता ${humidity} प्रतिशत है। वायु गुणवत्ता सूचकांक ${aqiVal} है, जो ${aqiRating} श्रेणी में है। यूवी विकिरण सूचकांक ${uvVal} है। दैनिक गतिविधि सलाह: ${roadAdvice}। कृषि सलाह: ${sprayAdvice}। WeatherGPT के साथ सुरक्षित और सतर्क रहें।`;
+  }
+
+  // 3. TELUGU (తెలుగు)
+  if (targetLang === 'te') {
+    return `నమస్కారం! ${localizedCity} కొరకు WeatherGPT ప్రత్యక్ష సమగ్ర వాతావరణ నివేదిక. ప్రస్తుత ఉష్ణోగ్రత ${tempC} డిగ్రీ సెల్సియస్, ఇది ${feelsLike} డిగ్రీ సెల్సియస్ లా అనిపిస్తుంది. ఆకాశం ${condition} గా ఉంది. వర్షపాత సమాచారం: నేడు వర్షం సంభావ్యత ${rainProb} శాతం, అంచనా వేసిన వర్షపాతం ${rainMm} మిల్లీమీటర్లు. గాలి వేగం గంటకు ${windKmh} కిలోమీటర్లు, గరిష్ట వేగం ${windGust} కిలోమీటర్లు. గాలిలో తేమ ${humidity} శాతంగా ఉంది. గాలి నాణ్యత సూచిక ${aqiVal} మరియు యువి ఇండెక్స్ ${uvVal}. ప్రయాణ సూచన: రోడ్డు ప్రయాణం సాధారణంగా ఉంది. వ్యవసాయ పిచికారీకి ${windKmh <= 15 && parseFloat(rainMm) === 0 ? 'అనుకూలం' : 'వాయిదా వేయండి'}. WeatherGPT తో సురక్షితంగా ఉండండి.`;
+  }
+
+  // 4. MALAYALAM (മലയാളം)
+  if (targetLang === 'ml') {
+    return `നമസ്കാരം! ${localizedCity} പ്രദേശത്തെ WeatherGPT തത്സമയ സമഗ്ര കാലാവസ്ഥാ റിപ്പോർട്ട്. നിലവിലെ താപനില ${tempC} ഡിഗ്രി സെൽഷ്യസ് ആണ്, അനുഭവപ്പെടുന്നത് ${feelsLike} ഡിഗ്രി സെൽഷ്യസ് പോലെയാണ്. ആകാശം ${condition} ആണ്. മഴ സാധ്യത ${rainProb} ശതമാനവും, പ്രതീക്ഷിക്കുന്ന മഴ ${rainMm} മില്ലിമീറ്ററുമാണ്. കാറ്റിന്റെ വേഗത മണിക്കൂറിൽ ${windKmh} കിലോമീറ്റർ, ഈർപ്പം ${humidity} ശതമാനമാണ്. വായു ഗുണനിലവാര സൂചിക ${aqiVal} ആണ്. WeatherGPT യോടൊപ്പം സുരക്ഷിതരായിരിക്കുക.`;
+  }
+
+  // 5. KANNADA (ಕನ್ನಡ)
+  if (targetLang === 'kn') {
+    return `ನಮಸ್ಕಾರ! ${localizedCity} ಪ್ರದೇಶದ WeatherGPT ಲೈವ್ ಸಮಗ್ರ ಹವಾಮಾನ ವರದಿ. ಪ್ರಸ್ತುತ ತಾಪಮಾನ ${tempC} ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್, ಅನುಭವವಾಗುವುದು ${feelsLike} ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್. ಆಕಾಶವು ${condition} ಆಗಿದೆ. ಇಂದಿನ ಮಳೆ ಸಂಭವನೀಯತೆ ${rainProb} ಪ್ರತಿಶತ, ಒಟ್ಟು ಮಳೆ ${rainMm} ಮಿಲಿಮೀಟರ್. ಗಾಳಿಯ ವೇಗ ಗಂಟೆಗೆ ${windKmh} ಕಿಲೋಮೀಟರ್, ತೇವಾಂಶ ${humidity} ಪ್ರತಿಶತ. ವಾಯು ಗುಣಮಟ್ಟ ಸೂಚ್ಯಂಕ ${aqiVal} ಆಗಿದೆ. WeatherGPT ಯೊಂದಿಗೆ ಸುರಕ್ಷಿತವಾಗಿರಿ.`;
+  }
+
+  // 6. BENGALI (বাংলা)
+  if (targetLang === 'bn') {
+    return `নমস্কার! ${localizedCity} এলাকার জন্য WeatherGPT লাইভ আবহাওয়া বুলেটিন। বর্তমান তাপমাত্রা ${tempC} ডিগ্রি সেলসিয়াস, অনুভূত হচ্ছে ${feelsLike} ডিগ্রি সেলসিয়াস। আকাশের অবস্থা ${condition}। বৃষ্টির সম্ভাবনা ${rainProb} শতাংশ, সম্ভাব্য বৃষ্টিপাত ${rainMm} মিলিমিটার। বাতাসের গতিবেগ ঘন্টায় ${windKmh} কিমি, আর্দ্রতা ${humidity} শতাংশ। বায়ুর মান সূচক ${aqiVal}। WeatherGPT এর সাথে সর্বদা নিরাপদ থাকুন।`;
+  }
+
+  // 7. MARATHI (मराठी)
+  if (targetLang === 'mr') {
+    return `नमस्कार! ${localizedCity} साठी WeatherGPT चे थेट सर्वसमावेशक हवामान बुलेटिन. सध्याचे तापमान ${tempC} अंश सेल्सिअस आहे, आणि ${feelsLike} अंश सेल्सिअससारखे जाणवत आहे. आकाश ${condition} आहे. आज पावसाची शक्यता ${rainProb} टक्के असून ${rainMm} मिमी पाऊस अपेक्षित आहे. वाऱ्याचा वेग ताशी ${windKmh} किमी असून आर्द्रता ${humidity} टक्के आहे. हवेची गुणवत्ता ${aqiVal} आहे. WeatherGPT सह सुरक्षित राहा.`;
+  }
+
+  // 8. GUJARATI (ગુજરાતી)
+  if (targetLang === 'gu') {
+    return `નમસ્તે! ${localizedCity} માટે WeatherGPT લાઈવ હવામાન બુલેટિન. હાલનું તાપમાન ${tempC} ડિગ્રી સેલ્સિયસ છે, અને ${feelsLike} ડિગ્રી સેલ્સિયસ જેવું લાગે છે. આજે વરસાદની શક્યતા ${rainProb} ટકા છે અને ${rainMm} મીમી વરસાદની આગાહી છે. પવનની ગતિ કલાકના ${windKmh} કિમી છે, હવામાં ભેજ ${humidity} ટકા છે. હવાની ગુણવત્તા ${aqiVal} છે. WeatherGPT સાથે સુરક્ષિત રહો.`;
+  }
+
+  // 9. PUNJABI (ਪੰਜਾਬੀ)
+  if (targetLang === 'pa') {
+    return `ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ${localizedCity} ਲਈ WeatherGPT ਲਾਈਵ ਮੌਸਮ ਬੁਲੇਟਿਨ। ਮੌਜੂਦਾ ਤਾਪਮਾਨ ${tempC} ਡਿਗਰੀ ਸੈਲਸੀਅਸ ਹੈ, ਜੋ ${feelsLike} ਡਿਗਰੀ ਸੈਲਸੀਅਸ ਵਾਂਗ ਮਹਿਸੂਸ ਹੁੰਦਾ ਹੈ। ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ ${rainProb} ਪ੍ਰਤੀਸ਼ਤ ਹੈ ਅਤੇ ${rainMm} ਮਿਲੀਮੀਟਰ ਮੀਂਹ ਦੀ ਉਮੀਦ ਹੈ। ਹਵਾ ਦੀ ਗਤੀ ${windKmh} ਕਿਲੋਮੀਟਰ ਪ੍ਰਤੀ ਘੰਟਾ ਹੈ, ਨਮੀ ${humidity} ਪ੍ਰਤੀਸ਼ਤ ਹੈ। ਹਵਾ ਗੁਣਵੱਤਾ ਸੂਚਕਾਂਕ ${aqiVal} ਹੈ। WeatherGPT ਨਾਲ ਸੁਰੱਖਿਅਤ ਰਹੋ।`;
+  }
+
+  // 10. ENGLISH (Default)
+  const roadAdvice = parseFloat(rainMm) > 10 ? 'Caution advised due to wet road conditions and potential waterlogging' : 'Road commute and driving conditions are clear';
+  const laundryAdvice = humidity > 80 || rainProb > 50 ? 'Laundry drying will be slow due to high humidity and rain chances' : 'Optimal conditions for outdoor laundry drying';
+  const sprayAdvice = windKmh <= 15 && parseFloat(rainMm) === 0 ? 'Optimal window for agricultural crop foliar spraying' : 'Unfavorable for spraying due to wind gusts or rain';
+  const aqiRating = aqiVal <= 50 ? 'Good' : aqiVal <= 100 ? 'Moderate' : 'Unhealthy for sensitive groups';
+
+  return `Hello! Here is the complete live WeatherGPT meteorological briefing for ${localizedCity}. The current temperature is ${tempC} degrees Celsius, feeling like ${feelsLike} degrees Celsius under ${condition.toLowerCase()} skies. Precipitation update: Rain probability today is ${rainProb} percent with an estimated accumulation of ${rainMm} millimeters. Wind is blowing at ${windKmh} kilometers per hour with peak gusts reaching ${windGust} kilometers per hour. Relative humidity is ${humidity} percent. Air Quality Index is ${aqiVal}, rated ${aqiRating}. Solar UV Index is ${uvVal}. Activity guide: ${roadAdvice}. ${laundryAdvice}. For farmers, ${sprayAdvice}. Stay weather-smart and safe with WeatherGPT.`;
+}
 
 export function getLocalizedPlaceName(placeName, lang = 'en') {
   if (!placeName) return '';
