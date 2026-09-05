@@ -596,7 +596,7 @@ export default function App() {
         />
 
         {/* View Content Area */}
-        <div className={`flex-1 flex flex-col max-w-5xl w-full mx-auto relative min-h-0 ${activeView === 'chat' ? 'overflow-hidden p-0 sm:p-4 h-full' : 'overflow-y-auto p-2 sm:p-4 md:p-5'}`}>
+        <div className={`flex-1 flex flex-col max-w-5xl w-full mx-auto relative min-h-0 ${activeView === 'chat' ? 'overflow-hidden px-1 sm:px-4 pt-1 sm:pt-4 pb-[76px] sm:pb-3 h-full' : 'overflow-y-auto p-2 sm:p-4 md:p-5 pb-20'}`}>
           {/* Active Hazard Early Warning Banner (on non-home screens) */}
           {activeView !== 'home' && activeView !== 'chat' && (
             <WeatherAlertBanner

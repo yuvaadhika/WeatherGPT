@@ -441,7 +441,7 @@ export default function ChatInterface({
       </div>
 
       {/* Floating Bottom Input Bar & Active Voice Equalizer (Elevated above mobile bottom nav bar) */}
-      <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-2 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] sm:pb-4 z-30 flex-shrink-0">
+      <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-2 pb-2 sm:pb-3 z-30 flex-shrink-0">
         {/* Active Speaking Indicator Equalizer Banner */}
         {speakingMsgId && (
           <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white px-3.5 py-2.5 rounded-2xl flex items-center justify-between shadow-xl mb-2 border border-sky-500/40 animate-fadeIn">
@@ -530,7 +530,7 @@ export default function ChatInterface({
             e.preventDefault();
             handleSendMessage();
           }}
-          className="relative flex items-center bg-white/95 backdrop-blur-xl border border-sky-300/80 rounded-2xl shadow-xl p-1.5 focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-200/60 transition-all"
+          className="relative flex items-center bg-white border-2 border-sky-400/90 rounded-2xl shadow-xl p-1.5 focus-within:border-sky-600 focus-within:ring-2 focus-within:ring-sky-200 transition-all"
         >
           {/* Voice Input Mic */}
           <button
