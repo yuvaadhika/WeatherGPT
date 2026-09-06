@@ -53,7 +53,6 @@ export default function AuthScreen({
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Filter out any obsolete dummy accounts if present
           const cleaned = parsed.filter(a => a.email && !a.email.includes('example.com'));
           setSavedGoogleAccounts(cleaned);
         } else {
@@ -68,18 +67,68 @@ export default function AuthScreen({
     }
   }, []);
 
+  // Google OAuth 2.0 Client Trigger
+  const triggerOfficialGoogleOAuth = () => {
+    if (typeof window !== 'undefined' && window.google?.accounts?.oauth2) {
+      try {
+        const GOOGLE_CLIENT_ID =
+          import.meta.env?.VITE_GOOGLE_CLIENT_ID ||
+          '1047648398188-469b0s6g2b0o8d207tghc5d60v60k46f.apps.googleusercontent.com';
+
+        const client = window.google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid',
+          prompt: 'select_account',
+          callback: async (tokenResponse) => {
+            if (tokenResponse?.access_token) {
+              setIsLoading(true);
+              try {
+                const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                });
+                const profile = await res.json();
+                if (profile?.email) {
+                  handleCompleteGoogleLogin(profile.email, profile.name || profile.given_name, profile.picture);
+                  return;
+                }
+              } catch (err) {
+                console.warn('Google userinfo fetch error:', err);
+              }
+            }
+          },
+          error_callback: (error) => {
+            console.warn('Google OAuth prompt error:', error);
+            // Fallback to in-app Google modal
+            setIsAddingNewGoogleAccount(savedGoogleAccounts.length === 0);
+            setIsGoogleModalOpen(true);
+          }
+        });
+
+        client.requestAccessToken({ prompt: 'select_account' });
+        return true;
+      } catch (e) {
+        console.warn('Google initTokenClient exception:', e);
+      }
+    }
+    return false;
+  };
+
   const handleOpenGoogleSignIn = () => {
     setError('');
     setGoogleError('');
     setGoogleEmailInput('');
     setGoogleNameInput('');
     setSelectedGoogleEmail('');
-    // If user has saved accounts on their device, show the account picker; otherwise show the email entry form
-    setIsAddingNewGoogleAccount(savedGoogleAccounts.length === 0);
-    setIsGoogleModalOpen(true);
+
+    // First attempt official Google popup with select_account
+    const launched = triggerOfficialGoogleOAuth();
+    if (!launched) {
+      setIsAddingNewGoogleAccount(savedGoogleAccounts.length === 0);
+      setIsGoogleModalOpen(true);
+    }
   };
 
-  const handleCompleteGoogleLogin = (userEmail, userName) => {
+  const handleCompleteGoogleLogin = (userEmail, userName, avatarUrl = '') => {
     const cleanEmail = (userEmail || '').trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes('@')) {
       setGoogleError(
@@ -108,7 +157,7 @@ export default function AuthScreen({
         name: cleanName,
         email: cleanEmail,
         avatarType: 'google',
-        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=0284c7,0ea5e9,38bdf8`,
+        avatar: avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=0284c7,0ea5e9,38bdf8`,
         provider: 'Google 🌐',
         role: 'Pro Member',
         joinedAt: new Date().toISOString()
@@ -117,7 +166,7 @@ export default function AuthScreen({
       // Save to saved accounts list for fast 1-click access
       try {
         const existing = savedGoogleAccounts.filter((a) => a.email !== cleanEmail);
-        const updated = [{ name: cleanName, email: cleanEmail }, ...existing].slice(0, 6);
+        const updated = [{ name: cleanName, email: cleanEmail, avatar: googleUser.avatar }, ...existing].slice(0, 6);
         setSavedGoogleAccounts(updated);
         localStorage.setItem('weathergpt_saved_google_accounts', JSON.stringify(updated));
       } catch (e) {
@@ -142,10 +191,9 @@ export default function AuthScreen({
   const handleRemoveSavedAccount = (e, emailToRemove) => {
     e.stopPropagation();
     const updated = savedGoogleAccounts.filter((a) => a.email !== emailToRemove);
-    const finalAccounts = updated.length > 0 ? updated : DEFAULT_GOOGLE_ACCOUNTS;
-    setSavedGoogleAccounts(finalAccounts);
+    setSavedGoogleAccounts(updated);
     try {
-      localStorage.setItem('weathergpt_saved_google_accounts', JSON.stringify(finalAccounts));
+      localStorage.setItem('weathergpt_saved_google_accounts', JSON.stringify(updated));
     } catch (err) {
       console.warn(err);
     }
