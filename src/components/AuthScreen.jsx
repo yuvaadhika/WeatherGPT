@@ -67,16 +67,14 @@ export default function AuthScreen({
     }
   }, []);
 
-  // Google OAuth 2.0 Client Trigger
+  // Google OAuth 2.0 Client Trigger (only if configured with a valid Google Cloud Client ID)
   const triggerOfficialGoogleOAuth = () => {
-    if (typeof window !== 'undefined' && window.google?.accounts?.oauth2) {
+    const customClientId = import.meta.env?.VITE_GOOGLE_CLIENT_ID;
+    // Only attempt external Google OAuth popup if a valid user-provided Google Client ID exists
+    if (customClientId && typeof window !== 'undefined' && window.google?.accounts?.oauth2) {
       try {
-        const GOOGLE_CLIENT_ID =
-          import.meta.env?.VITE_GOOGLE_CLIENT_ID ||
-          '1047648398188-469b0s6g2b0o8d207tghc5d60v60k46f.apps.googleusercontent.com';
-
         const client = window.google.accounts.oauth2.initTokenClient({
-          client_id: GOOGLE_CLIENT_ID,
+          client_id: customClientId,
           scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid',
           prompt: 'select_account',
           callback: async (tokenResponse) => {
@@ -98,7 +96,6 @@ export default function AuthScreen({
           },
           error_callback: (error) => {
             console.warn('Google OAuth prompt error:', error);
-            // Fallback to in-app Google modal
             setIsAddingNewGoogleAccount(savedGoogleAccounts.length === 0);
             setIsGoogleModalOpen(true);
           }
@@ -120,7 +117,7 @@ export default function AuthScreen({
     setGoogleNameInput('');
     setSelectedGoogleEmail('');
 
-    // First attempt official Google popup with select_account
+    // If Google Client ID is configured, launch GIS; otherwise open seamless in-app Google dialog
     const launched = triggerOfficialGoogleOAuth();
     if (!launched) {
       setIsAddingNewGoogleAccount(savedGoogleAccounts.length === 0);
