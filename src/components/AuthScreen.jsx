@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sun,
   CloudSun,
   CloudRain,
   Sparkles,
@@ -10,11 +9,9 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
-  ShieldCheck,
   Globe,
   Radio,
-  Wheat,
-  Zap
+  Wheat
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { userRegistryService } from '../services/userRegistryService';
@@ -136,27 +133,27 @@ export default function AuthScreen({
       <div className="absolute top-[35%] right-[15%] w-[320px] h-[320px] rounded-full bg-cyan-100/40 blur-[90px] pointer-events-none"></div>
 
       {/* Top Bar: Brand + Multi-Language Selector */}
-      <header className="relative z-10 w-full max-w-5xl mx-auto px-4 py-4 sm:py-5 flex items-center justify-between">
-        <div className="flex items-center space-x-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 via-cyan-400 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
-            <CloudSun className="w-6 h-6 text-white" />
+      <header className="relative z-10 w-full max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
+        <div className="flex items-center space-x-2 sm:space-x-2.5 min-w-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-sky-500 via-cyan-400 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-sky-500/20 flex-shrink-0">
+            <CloudSun className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center space-x-1.5">
-              <span className="font-extrabold text-lg tracking-tight text-slate-900">WeatherGPT</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">
-                Live Forecast
+              <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 truncate">WeatherGPT</span>
+              <span className="hidden xs:inline text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-sky-100 text-sky-800 border border-sky-200 flex-shrink-0">
+                Live
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium">
+            <p className="hidden sm:block text-[11px] text-slate-500 font-medium truncate">
               {activeLanguage === 'ta' ? 'அதிநவீன நேரடி வானிலை தளம்' : 'Hyperlocal Weather Intelligence'}
             </p>
           </div>
         </div>
 
         {/* Language Selector Dropdown */}
-        <div className="flex items-center space-x-1.5 bg-white/85 hover:bg-white border border-sky-200/80 rounded-2xl px-3 py-1.5 shadow-2xs transition-all">
-          <Globe className="w-4 h-4 text-sky-600 flex-shrink-0" />
+        <div className="flex-shrink-0 flex items-center space-x-1.5 bg-white/90 hover:bg-white border border-sky-200/90 rounded-xl px-2.5 py-1.5 shadow-2xs transition-all">
+          <Globe className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
           <select
             value={activeLanguage}
             onChange={(e) => setActiveLanguage && setActiveLanguage(e.target.value)}
@@ -164,7 +161,7 @@ export default function AuthScreen({
           >
             {SUPPORTED_LANGUAGES.map((l) => (
               <option key={l.code} value={l.code} className="bg-white text-slate-800 font-medium">
-                {l.nativeName} ({l.name})
+                {l.nativeName}
               </option>
             ))}
           </select>
@@ -173,24 +170,15 @@ export default function AuthScreen({
 
       {/* Main Authentication Card */}
       <main className="relative z-10 w-full max-w-md mx-auto px-4 py-2 flex-1 flex flex-col justify-center items-center">
-        <div className="w-full bg-white/90 backdrop-blur-2xl border border-sky-100/90 rounded-3xl p-6 sm:p-8 shadow-xl shadow-sky-900/5 space-y-5">
+        <div className="w-full bg-white/90 backdrop-blur-2xl border border-sky-100/90 rounded-3xl p-6 sm:p-7 shadow-xl shadow-sky-900/5 space-y-4">
           
-          {/* Header Title with Weather Badge */}
-          <div className="text-center space-y-1.5">
-            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-[11px] font-bold mb-1 shadow-2xs">
-              <CloudSun className="w-3.5 h-3.5 text-sky-600" />
-              <span>{activeLanguage === 'ta' ? 'வானிலை தகவல்களை எளிதாக அணுகவும்' : 'Clean & Simple Weather Access'}</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+          {/* Streamlined Header Title */}
+          <div className="text-center pt-1">
+            <h2 className="text-2xl font-black tracking-tight text-slate-900">
               {mode === 'signin'
-                ? (activeLanguage === 'ta' ? 'வணக்கம்! மீண்டும் வருக' : 'Welcome Back')
-                : (activeLanguage === 'ta' ? 'புதிய கணக்கு தொடங்குங்கள்' : 'Create an Account')}
+                ? (activeLanguage === 'ta' ? 'உள்நுழைக' : 'Sign In')
+                : (activeLanguage === 'ta' ? 'புதிய கணக்கு' : 'Create Account')}
             </h2>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              {mode === 'signin'
-                ? (activeLanguage === 'ta' ? 'நேரடி ரேடார் மற்றும் முன்னறிவிப்புகளைப் பெற உள்நுழையவும்' : 'Sign in to access live radar, alerts & 7-day forecast')
-                : (activeLanguage === 'ta' ? 'இலவசமாக இணைந்து நேரடி முன்னறிவிப்புகளைப் பெறுங்கள்' : 'Join free for live Doppler radar, storm SOS & crop advisories')}
-            </p>
           </div>
 
           {/* Google Sign In Button */}
@@ -346,8 +334,8 @@ export default function AuthScreen({
               </div>
             </div>
 
-            {/* Remember Me */}
-            <div className="flex items-center justify-between pt-1">
+            {/* Remember Me (Clean, SSL Secured removed) */}
+            <div className="flex items-center pt-1">
               <label className="flex items-center space-x-2 text-xs text-slate-600 cursor-pointer">
                 <input
                   type="checkbox"
@@ -357,11 +345,6 @@ export default function AuthScreen({
                 />
                 <span>{activeLanguage === 'ta' ? 'என்னை நினைவில் கொள்க' : 'Remember me'}</span>
               </label>
-
-              <span className="text-[10px] text-emerald-600 font-semibold flex items-center space-x-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>SSL Secured</span>
-              </span>
             </div>
 
             {/* Submit CTA */}
@@ -381,7 +364,7 @@ export default function AuthScreen({
             </button>
           </form>
 
-          {/* Quick Demo / Guest Access Button */}
+          {/* Quick Demo / Guest Access Button with matching User icon */}
           <div className="pt-2 border-t border-slate-100 text-center space-y-2">
             <button
               type="button"
@@ -389,8 +372,8 @@ export default function AuthScreen({
               disabled={isLoading}
               className="w-full py-2.5 px-3 rounded-2xl bg-sky-50 hover:bg-sky-100/80 border border-sky-200/80 text-sky-800 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
             >
-              <Zap className="w-3.5 h-3.5 text-amber-500" />
-              <span>{activeLanguage === 'ta' ? '⚡ விருந்தினராக தொடரவும் (Guest Mode)' : '⚡ Continue as Guest'}</span>
+              <User className="w-4 h-4 text-sky-600" />
+              <span>{activeLanguage === 'ta' ? 'விருந்தினராக தொடரவும்' : 'Continue as Guest'}</span>
             </button>
           </div>
         </div>
