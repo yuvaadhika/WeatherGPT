@@ -11,11 +11,30 @@ import {
   Radio,
   Navigation,
   ArrowRight,
-  ShieldAlert
+  ShieldAlert,
+  Zap,
+  Search,
+  RotateCw,
+  Compass
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { notificationService } from '../services/notificationService';
-import { reverseGeocode } from '../services/weatherService';
+import { reverseGeocode, getLocalizedPlaceName } from '../services/weatherService';
+
+const POPULAR_TN_DISTRICTS = [
+  { name: 'Chennai', ta: 'சென்னை', lat: 13.0827, lon: 80.2707, admin: 'Tamil Nadu' },
+  { name: 'Coimbatore', ta: 'கோயம்புத்தூர்', lat: 11.0168, lon: 76.9558, admin: 'Tamil Nadu' },
+  { name: 'Madurai', ta: 'மதுரை', lat: 9.9252, lon: 78.1198, admin: 'Tamil Nadu' },
+  { name: 'Tiruchirappalli', ta: 'திருச்சிராப்பள்ளி', lat: 10.7905, lon: 78.7047, admin: 'Tamil Nadu' },
+  { name: 'Salem', ta: 'சேலம்', lat: 11.6643, lon: 78.1460, admin: 'Tamil Nadu' },
+  { name: 'Tirunelveli', ta: 'திருநெல்வேலி', lat: 8.7139, lon: 77.7567, admin: 'Tamil Nadu' },
+  { name: 'Erode', ta: 'ஈரோடு', lat: 11.3410, lon: 77.7172, admin: 'Tamil Nadu' },
+  { name: 'Vellore', ta: 'வேலூர்', lat: 12.9165, lon: 79.1325, admin: 'Tamil Nadu' },
+  { name: 'Thanjavur', ta: 'தஞ்சாவூர்', lat: 10.7870, lon: 79.1378, admin: 'Tamil Nadu' },
+  { name: 'Kanyakumari', ta: 'கன்னியாகுமரி', lat: 8.0883, lon: 77.5385, admin: 'Tamil Nadu' },
+  { name: 'Tiruppur', ta: 'திருப்பூர்', lat: 11.1085, lon: 77.3411, admin: 'Tamil Nadu' },
+  { name: 'Dindigul', ta: 'திண்டுக்கல்', lat: 10.3673, lon: 77.9803, admin: 'Tamil Nadu' },
+];
 
 export default function OnboardingPermissionModal({
   isOpen,
@@ -30,6 +49,9 @@ export default function OnboardingPermissionModal({
   const [isRequesting, setIsRequesting] = useState(false);
   const [gpsStatus, setGpsStatus] = useState(''); // 'prompting' | 'resolving' | 'error' | ''
   const [gpsErrorMsg, setGpsErrorMsg] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   if (!isOpen) return null;
 
@@ -73,14 +95,14 @@ export default function OnboardingPermissionModal({
           if (err2.code === 1) {
             setGpsErrorMsg(
               activeLanguage === 'ta'
-                ? 'உங்கள் உலாவியில் இருப்பிட அனுமதி நிராகரிக்கப்பட்டுள்ளது. முகவரிப் பட்டியில் உள்ள 🔒 ஐகானைத் தட்டி "Allow Location" செய்யவும்.'
-                : 'Location permission was denied in your browser. Click the 🔒 lock icon in the address bar to Allow Location.'
+                ? 'உங்கள் உலாவியில் ஜிபிஎஸ் அனுமதி ஆஃப் செய்யப்பட்டுள்ளது. கீழே உள்ள ஏதேனும் ஒரு வழியில் உடனடியாக ஆன் செய்து தொடரலாம்:'
+                : 'Browser GPS is turned off or blocked. Use any quick option below to enable location and proceed:'
             );
           } else {
             setGpsErrorMsg(
               activeLanguage === 'ta'
-                ? 'ஜிபிஎஸ் சிக்னல் பெற முடியவில்லை. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.'
-                : 'Could not acquire GPS fix. Please ensure device location is turned ON.'
+                ? 'ஜிபிஎஸ் சிக்னல் பெற முடியவில்லை. கீழே உள்ள உடனடி வழியைப் பயன்படுத்தி தொடரவும்:'
+                : 'Could not acquire GPS fix. Choose any instant option below to proceed:'
             );
           }
           setIsRequesting(false);
@@ -130,6 +152,104 @@ export default function OnboardingPermissionModal({
     }
   };
 
+  // 1-Click Instant Network / IP Location Detector (Bypasses browser GPS block)
+  const handleAutoDetectNetwork = async () => {
+    setIsRequesting(true);
+    setGpsErrorMsg('');
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      if (res.ok) {
+        const ipData = await res.json();
+        if (ipData && ipData.latitude && ipData.longitude) {
+          const loc = await reverseGeocode(ipData.latitude, ipData.longitude, activeLanguage);
+          const finalLoc = loc || {
+            name: ipData.city || 'Your Location',
+            rawName: ipData.city || 'Your Location',
+            admin1: ipData.region || '',
+            rawAdmin1: ipData.region || '',
+            country: ipData.country_name || 'India',
+            rawCountry: ipData.country_name || 'India',
+            latitude: ipData.latitude,
+            longitude: ipData.longitude,
+          };
+          try {
+            localStorage.setItem('weathergpt_saved_location', JSON.stringify(finalLoc));
+          } catch {}
+          if (onAllowPermissions) {
+            await onAllowPermissions(true, enableAlerts, finalLoc);
+          }
+          setIsRequesting(false);
+          onClose();
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Network location detection error:', err);
+    }
+
+    // Default fallback
+    const def = {
+      name: 'Chennai',
+      rawName: 'Chennai',
+      admin1: 'Tamil Nadu',
+      rawAdmin1: 'Tamil Nadu',
+      country: 'India',
+      rawCountry: 'India',
+      latitude: 13.0827,
+      longitude: 80.2707,
+    };
+    if (onAllowPermissions) {
+      await onAllowPermissions(true, enableAlerts, def);
+    }
+    setIsRequesting(false);
+    onClose();
+  };
+
+  // 1-Tap Quick Select Place & Proceed to Alerts
+  const handleSelectPlace = async (place) => {
+    const localizedName = activeLanguage === 'ta' && place.ta ? place.ta : (getLocalizedPlaceName(place.name, activeLanguage) || place.name);
+    const finalLoc = {
+      name: localizedName,
+      rawName: place.name,
+      admin1: place.admin || 'Tamil Nadu',
+      rawAdmin1: place.admin || 'Tamil Nadu',
+      country: 'India',
+      rawCountry: 'India',
+      latitude: place.lat,
+      longitude: place.lon,
+    };
+
+    try {
+      localStorage.setItem('weathergpt_saved_location', JSON.stringify(finalLoc));
+    } catch {}
+
+    if (onAllowPermissions) {
+      await onAllowPermissions(true, enableAlerts, finalLoc);
+    }
+    onClose();
+  };
+
+  // Search places
+  const handleSearchPlaces = async (query) => {
+    setSearchQuery(query);
+    if (!query.trim() || query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=${activeLanguage}&format=json`);
+      if (res.ok) {
+        const data = await res.json();
+        setSearchResults(data.results || []);
+      }
+    } catch (e) {
+      console.warn(e);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const handleDismiss = () => {
     if (onSkip) onSkip();
     onClose();
@@ -137,9 +257,9 @@ export default function OnboardingPermissionModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn">
-      <div className="bg-white border border-slate-200/90 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-scaleUp text-slate-800">
+      <div className="bg-white border border-slate-200/90 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-scaleUp text-slate-800 max-h-[92vh] flex flex-col">
         {/* Top Gradient Banner */}
-        <div className="p-5 bg-gradient-to-tr from-sky-600 via-indigo-600 to-cyan-500 text-white relative overflow-hidden">
+        <div className="p-4 sm:p-5 bg-gradient-to-tr from-sky-600 via-indigo-600 to-cyan-500 text-white relative overflow-hidden flex-shrink-0">
           <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
 
           <div className="flex items-center justify-between">
@@ -174,19 +294,19 @@ export default function OnboardingPermissionModal({
             </div>
           </div>
 
-          <p className="text-xs text-sky-100 mt-3 leading-relaxed font-medium">
+          <p className="text-xs text-sky-100 mt-2.5 leading-relaxed font-medium">
             {activeLanguage === 'ta'
-              ? 'உங்கள் பகுதிக்குரிய துல்லியமான நேரடி மழைப்பொழிவு, புயல் மற்றும் வெள்ள முன்னெச்சரிக்கைகளைப் பெற அனுமதிகளை இயக்கவும்.'
+              ? 'உங்கள் பகுதிக்குரிய துல்லியமான நேரடி மழைப்பொழிவு, புயல் மற்றும் வெள்ள முன்னெச்சரிக்கைகளைப் பெற அனுமதியை இயக்கவும்.'
               : 'Enable GPS & extreme weather alerts to receive hyperlocal forecasts and automated flood/cyclone warnings.'}
           </p>
         </div>
 
-        {/* Content & Permission Toggles */}
-        <div className="p-5 space-y-4">
+        {/* Content & Permission Toggles (Scrollable) */}
+        <div className="p-4 sm:p-5 space-y-3.5 overflow-y-auto flex-1 min-h-0">
           {/* Permission 1: GPS Location */}
           <div
             onClick={() => setEnableLocation(!enableLocation)}
-            className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start space-x-3 ${
+            className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start space-x-3 ${
               enableLocation
                 ? 'bg-sky-50/80 border-sky-300 shadow-xs'
                 : 'bg-slate-50 border-slate-200 opacity-60'
@@ -198,7 +318,7 @@ export default function OnboardingPermissionModal({
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-slate-900">
-                  {activeLanguage === 'ta' ? 'துல்லியமான ஜிபிஎஸ் இருப்பிடம் (GPS Location)' : 'Hyperlocal GPS Location'}
+                  {activeLanguage === 'ta' ? 'துல்லியமான நேரடி இருப்பிடம் (Live Location)' : 'Hyperlocal Live Location'}
                 </h4>
                 <input
                   type="checkbox"
@@ -209,8 +329,8 @@ export default function OnboardingPermissionModal({
               </div>
               <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
                 {activeLanguage === 'ta'
-                  ? 'உங்கள் கிராமம்/நகரத்தின் நேரடி வானிலை மற்றும் டாப்ளர் ரேடார் வரைபடத்தைக் காட்டுகிறது.'
-                  : 'Delivers pinpoint local temperature, rain chances, and Doppler radar echoes for your exact village/city.'}
+                  ? 'உங்கள் ஊரின் நேரடி வானிலை மற்றும் டாப்ளர் ரேடார் வரைபடத்தைக் காட்டுகிறது.'
+                  : 'Delivers pinpoint local temperature, rain chances, and Doppler radar echoes for your place.'}
               </p>
             </div>
           </div>
@@ -218,7 +338,7 @@ export default function OnboardingPermissionModal({
           {/* Permission 2: Extreme Weather Alerts */}
           <div
             onClick={() => setEnableAlerts(!enableAlerts)}
-            className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start space-x-3 ${
+            className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start space-x-3 ${
               enableAlerts
                 ? 'bg-rose-50/80 border-rose-300 shadow-xs'
                 : 'bg-slate-50 border-slate-200 opacity-60'
@@ -241,15 +361,15 @@ export default function OnboardingPermissionModal({
               </div>
               <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
                 {activeLanguage === 'ta'
-                  ? 'திடீர் கனமழை, சூறாவளி காற்று மற்றும் வெள்ள அபாய எச்சரிக்கை அறிவிப்புகளை உடனுக்குடன் அனுப்புகிறது.'
-                  : 'Sends instant browser & push sirens before severe thunderstorms, flash floods, or high winds occur.'}
+                  ? 'திடீர் கனமழை, புயல், மின்னல் மற்றும் வெள்ள அபாய எச்சரிக்கைகளை உடனுக்குடன் அனுப்புகிறது.'
+                  : 'Sends instant sirens before severe thunderstorms, flash floods, or high winds occur.'}
               </p>
             </div>
           </div>
 
           {/* Browser Permission Guidance Banner while Requesting */}
           {isRequesting && (
-            <div className="p-3.5 rounded-2xl bg-sky-500/10 border-2 border-sky-500/40 text-sky-900 animate-pulse space-y-1 text-center">
+            <div className="p-3.5 rounded-2xl bg-sky-500/10 border-2 border-sky-500/40 text-sky-900 animate-pulse space-y-1.5 text-center">
               <div className="flex items-center justify-center space-x-2 font-black text-xs text-sky-700">
                 <Navigation className="w-4 h-4 animate-spin text-sky-600" />
                 <span>
@@ -258,36 +378,105 @@ export default function OnboardingPermissionModal({
                     : '1. Tap "Allow" on the browser popup at top'}
                 </span>
               </div>
-              <p className="text-[11px] text-sky-800 font-medium">
+              <p className="text-[11px] text-sky-800 font-medium leading-relaxed">
                 {activeLanguage === 'ta'
-                  ? 'நேரடி ஜிபிஎஸ் வானிலை பெற "Allow only for this website" என்பதைத் தேர்ந்தெடுக்கவும்.'
+                  ? 'நேரடி ஜிபிஎஸ் பெற "Allow only for this website" அல்லது "Allow while using site" என்பதைத் தேர்ந்தெடுக்கவும்.'
                   : 'Select "Allow only for this site" or "While using site" to lock onto your live coordinates.'}
               </p>
             </div>
           )}
 
-          {/* Error / Denied Diagnostic Banner */}
-          {gpsErrorMsg && (
-            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 space-y-2">
+          {/* ⚡ ACTIVE LOCATION RESOLVER (When location is off or permission was denied) */}
+          {(gpsErrorMsg || gpsStatus === 'error') && (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-50 to-rose-50 border border-amber-200 text-slate-800 space-y-3 animate-fadeIn">
               <div className="flex items-start space-x-2">
                 <ShieldAlert className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
-                <p className="text-xs font-semibold leading-relaxed">{gpsErrorMsg}</p>
+                <div>
+                  <h5 className="text-xs font-bold text-rose-950">
+                    {activeLanguage === 'ta' ? 'இருப்பிடம் ஆஃப் செய்யப்பட்டுள்ளது' : 'Location Permission Denied / Off'}
+                  </h5>
+                  <p className="text-[11px] text-slate-700 leading-snug mt-0.5">
+                    {activeLanguage === 'ta'
+                      ? 'கீழே உள்ள ஏதேனும் ஒரு வழியில் உடனடியாக உங்கள் இருப்பிடத்தை ஆன் செய்து அடுத்த எச்சரிக்கை திரைக்கு செல்லலாம்:'
+                      : 'Choose any instant access method below to enable location and jump to Alert Setup:'}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center space-x-2 pt-1">
+
+              {/* Action 1: 1-Click Auto-Detect via Network (Instant & No block) */}
+              <button
+                type="button"
+                onClick={handleAutoDetectNetwork}
+                disabled={isRequesting}
+                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white text-xs font-black shadow-md shadow-sky-600/20 flex items-center justify-center space-x-2 transition-all cursor-pointer"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-300" />
+                <span>
+                  {activeLanguage === 'ta'
+                    ? '⚡ நேரடி இருப்பிடத்தை உடனே இயக்கு (Auto-Detect Live)'
+                    : '⚡ Instant Auto-Detect Live Location & Proceed'}
+                </span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Action 2: Retry Browser GPS */}
+              <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   onClick={handleGrant}
-                  className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                  className="flex-1 py-2 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-bold flex items-center justify-center space-x-1.5 transition-all cursor-pointer shadow-2xs"
                 >
-                  {activeLanguage === 'ta' ? '🔄 மீண்டும் முயற்சி செய்' : '🔄 Retry GPS'}
+                  <RotateCw className="w-3.5 h-3.5 text-sky-600" />
+                  <span>{activeLanguage === 'ta' ? '🔄 ஜிபிஎஸ் அனுமதி மீண்டும் கேள்' : '🔄 Retry Browser GPS'}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={handleDismiss}
-                  className="px-3 py-1.5 rounded-xl bg-white border border-rose-200 text-slate-700 text-xs font-medium hover:bg-rose-50 transition-all cursor-pointer"
-                >
-                  {activeLanguage === 'ta' ? 'இயல்பு நிலையில் தொடரவும்' : 'Continue with Default'}
-                </button>
+              </div>
+
+              {/* Action 3: Quick 1-Tap Popular Districts */}
+              <div className="pt-1 space-y-1.5 border-t border-amber-200/60">
+                <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
+                  <span>{activeLanguage === 'ta' ? '📍 அல்லது உங்கள் மாவட்டத்தை 1-கிளிக் செய்யவும்:' : '📍 Or select your district (1-tap):'}</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pt-0.5">
+                  {POPULAR_TN_DISTRICTS.map((dist) => (
+                    <button
+                      key={dist.name}
+                      type="button"
+                      onClick={() => handleSelectPlace(dist)}
+                      className="px-2.5 py-1 rounded-xl bg-white hover:bg-sky-600 hover:text-white border border-sky-200 text-slate-800 text-[11px] font-bold transition-all cursor-pointer shadow-2xs hover:shadow-xs"
+                    >
+                      {activeLanguage === 'ta' ? dist.ta : dist.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action 4: Quick Search Any City / Village */}
+              <div className="relative pt-1">
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchPlaces(e.target.value)}
+                    placeholder={activeLanguage === 'ta' ? 'உங்கள் ஊரின் பெயரை தட்டச்சு செய்க...' : 'Search your town / village...'}
+                    className="w-full pl-7 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 shadow-2xs"
+                  />
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2" />
+                </div>
+                {searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 divide-y divide-slate-100 max-h-36 overflow-y-auto">
+                    {searchResults.map((item) => (
+                      <button
+                        key={`${item.id}-${item.latitude}`}
+                        type="button"
+                        onClick={() => handleSelectPlace({ name: item.name, lat: item.latitude, lon: item.longitude, admin: item.admin1 })}
+                        className="w-full px-3 py-2 text-left hover:bg-sky-50 text-xs flex items-center justify-between text-slate-800 cursor-pointer"
+                      >
+                        <span className="font-bold text-slate-900">{item.name}</span>
+                        <span className="text-[10px] text-slate-500">{item.admin1 || item.country}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -300,14 +489,14 @@ export default function OnboardingPermissionModal({
             </div>
             <p className="text-[10px] text-slate-400 pl-5 leading-tight">
               {activeLanguage === 'ta'
-                ? 'உங்கள் இருப்பிடத் தகவல்கள் சேமிக்கப்படாது, வானிலை தகவலுக்கு மட்டுமே பயன்படும்.'
-                : 'No tracking. Telemetry calculations happen directly on-device.'}
+                ? 'உங்கள் இருப்பிடத் தகவல்கள் சேமிக்கப்படாது, நேரடி வானிலை தகவலுக்கு மட்டுமே பயன்படும்.'
+                : 'No tracking. Weather calculations happen directly on-device.'}
             </p>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center space-x-2">
+        <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-100 flex items-center space-x-2 flex-shrink-0">
           <button
             onClick={handleDismiss}
             className="flex-1 py-2.5 px-3 rounded-2xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
