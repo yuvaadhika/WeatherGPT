@@ -80,15 +80,24 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isXaiOpen, setIsXaiOpen] = useState(false);
 
-  const [currentLocation, setCurrentLocation] = useState({
-    name: 'Chennai',
-    rawName: 'Chennai',
-    admin1: 'Tamil Nadu',
-    rawAdmin1: 'Tamil Nadu',
-    country: 'India',
-    rawCountry: 'India',
-    latitude: 13.0827,
-    longitude: 80.2707,
+  const [currentLocation, setCurrentLocation] = useState(() => {
+    try {
+      const saved = localStorage.getItem('weathergpt_saved_location');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.latitude && parsed.longitude) return parsed;
+      }
+    } catch {}
+    return {
+      name: 'Chennai',
+      rawName: 'Chennai',
+      admin1: 'Tamil Nadu',
+      rawAdmin1: 'Tamil Nadu',
+      country: 'India',
+      rawCountry: 'India',
+      latitude: 13.0827,
+      longitude: 80.2707,
+    };
   });
 
   const [weatherData, setWeatherData] = useState(null);
@@ -102,7 +111,6 @@ export default function App() {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
-    // Show on first visit
     return localStorage.getItem('weather_onboarding_shown') !== 'true';
   });
   const [initialChatQuery, setInitialChatQuery] = useState('');
@@ -118,15 +126,25 @@ export default function App() {
     setIsAlertModalOpen(true);
   };
 
-  const handleAllowPermissions = async (allowLocation, allowAlerts) => {
+  const handleAllowPermissions = async (allowLocation, allowAlerts, resolvedLoc) => {
     localStorage.setItem('weather_onboarding_shown', 'true');
     setIsOnboardingOpen(false);
-    if (allowLocation) {
+
+    if (resolvedLoc && resolvedLoc.latitude && resolvedLoc.longitude) {
+      setCurrentLocation(resolvedLoc);
+      try {
+        localStorage.setItem('weathergpt_saved_location', JSON.stringify(resolvedLoc));
+      } catch {}
+    } else if (allowLocation) {
       detectUserLocation(activeLanguage);
     }
+
     if (allowAlerts) {
       setNotificationsEnabled(true);
-      notificationService.sendTestAlert(currentLocation?.name || 'Your Location');
+      try {
+        await notificationService.requestBrowserPermission();
+      } catch {}
+      notificationService.sendTestAlert(resolvedLoc?.name || currentLocation?.name || 'Your Location');
       setIsAlertModalOpen(true);
     }
   };
@@ -183,32 +201,38 @@ export default function App() {
           const lon = position.coords.longitude;
           try {
             const loc = await reverseGeocode(lat, lon, targetLang);
-            if (loc && loc.name) {
-              setCurrentLocation(loc);
-            } else {
-              setCurrentLocation({
-                name: 'Live GPS Location',
-                rawName: 'Live GPS Location',
-                admin1: '',
-                country: 'India',
-                latitude: lat,
-                longitude: lon,
-              });
-            }
-          } catch (e) {
-            console.warn('Reverse geocode error:', e);
-            setCurrentLocation({
+            const finalLoc = loc && loc.name ? loc : {
               name: 'Live GPS Location',
               rawName: 'Live GPS Location',
               admin1: '',
+              rawAdmin1: '',
               country: 'India',
+              rawCountry: 'India',
               latitude: lat,
               longitude: lon,
-            });
+            };
+            setCurrentLocation(finalLoc);
+            try {
+              localStorage.setItem('weathergpt_saved_location', JSON.stringify(finalLoc));
+            } catch {}
+          } catch (e) {
+            console.warn('Reverse geocode error:', e);
           }
         },
         (err) => {
-          console.warn('Geolocation denied or slow, using IP location fallback:', err);
+          console.warn('Geolocation prompt deferred or timed out:', err);
+          // If we already have a saved location, keep it and do not overwrite with generic IP!
+          try {
+            const saved = localStorage.getItem('weathergpt_saved_location');
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed && parsed.latitude) {
+                setCurrentLocation(parsed);
+                return;
+              }
+            }
+          } catch {}
+          // Only fallback to IP if no location exists
           fetch('https://ipapi.co/json/')
             .then((res) => res.json())
             .then(async (ipData) => {
@@ -216,39 +240,21 @@ export default function App() {
                 const loc = await reverseGeocode(ipData.latitude, ipData.longitude, targetLang);
                 if (loc) {
                   setCurrentLocation(loc);
-                } else {
-                  setCurrentLocation({
-                    name: ipData.city || 'Your Location',
-                    rawName: ipData.city || 'Your Location',
-                    admin1: ipData.region || '',
-                    rawAdmin1: ipData.region || '',
-                    country: ipData.country_name || 'India',
-                    rawCountry: ipData.country_name || 'India',
-                    latitude: ipData.latitude,
-                    longitude: ipData.longitude,
-                  });
                 }
               }
             })
             .catch(console.warn);
         },
-        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
       );
-    } else {
-      fetch('https://ipapi.co/json/')
-        .then((res) => res.json())
-        .then(async (ipData) => {
-          if (ipData && ipData.latitude && ipData.longitude) {
-            const loc = await reverseGeocode(ipData.latitude, ipData.longitude, targetLang);
-            if (loc) setCurrentLocation(loc);
-          }
-        })
-        .catch(console.warn);
     }
   };
 
   useEffect(() => {
-    detectUserLocation(activeLanguage);
+    const saved = localStorage.getItem('weathergpt_saved_location');
+    if (!saved) {
+      detectUserLocation(activeLanguage);
+    }
   }, []);
 
   // Update localized city name on language switch
