@@ -504,11 +504,11 @@ export default function App() {
             </button>
           </div>
 
-          {/* ✨ NEW: 4 AI INNOVATION TOOLS SECTION */}
+          {/* AI INNOVATION TOOLS SECTION */}
           <div className="space-y-1">
             <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider px-2.5 mb-1.5 flex items-center space-x-1">
               <Sparkles className="w-3 h-3 text-amber-500" />
-              <span>{activeLanguage === 'ta' ? '🚀 புதிய கண்டுபிடிப்புகள்' : '🚀 AI Innovation Suite'}</span>
+              <span>{activeLanguage === 'ta' ? 'புதிய கண்டுபிடிப்புகள்' : 'AI Innovation Suite'}</span>
             </div>
 
             {/* Tool 1: Route Planner */}
@@ -524,7 +524,7 @@ export default function App() {
               }`}
             >
               <Navigation className="w-4 h-4 text-sky-600" />
-              <span>{activeLanguage === 'ta' ? '🚗 பயணப் பாதை வானிலை' : '🚗 Route Weather Planner'}</span>
+              <span>{activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை' : 'Route Weather Planner'}</span>
             </button>
 
             {/* Tool 2: Event & Wedding Score */}
@@ -540,7 +540,7 @@ export default function App() {
               }`}
             >
               <Heart className="w-4 h-4 text-rose-500" />
-              <span>{activeLanguage === 'ta' ? '🎪 சுபகாரிய விழா கணிப்பு' : '🎪 Event & Wedding Score'}</span>
+              <span>{activeLanguage === 'ta' ? 'சுபகாரிய விழா கணிப்பு' : 'Event & Wedding Score'}</span>
             </button>
 
             {/* Tool 3: Community Spotter */}
@@ -556,7 +556,7 @@ export default function App() {
               }`}
             >
               <Users className="w-4 h-4 text-teal-600" />
-              <span>{activeLanguage === 'ta' ? '📍 மக்கள் நேரடி சமூகம்' : '📍 Community Sky Spotter'}</span>
+              <span>{activeLanguage === 'ta' ? 'மக்கள் நேரடி சமூகம்' : 'Community Sky Spotter'}</span>
             </button>
 
             {/* Tool 4: Emergency SOS */}
@@ -572,7 +572,7 @@ export default function App() {
               }`}
             >
               <ShieldAlert className="w-4 h-4 text-rose-600 animate-pulse" />
-              <span>{activeLanguage === 'ta' ? '🚨 புயல் வெள்ள SOS மையம்' : '🚨 Disaster SOS & Alerts'}</span>
+              <span>{activeLanguage === 'ta' ? 'புயல் வெள்ள SOS மையம்' : 'Disaster SOS & Alerts'}</span>
             </button>
           </div>
 
@@ -582,10 +582,10 @@ export default function App() {
               {t.sidebar?.sectorAdvisories || 'Sector Advisories'}
             </div>
             {[
-              { id: 'agriculture', label: t.sidebar?.agriculture || '🌾 Farmers & Agriculture', icon: Wheat },
-              { id: 'aviation', label: t.sidebar?.aviation || '✈️ Aviation METAR / TAF', icon: Plane },
-              { id: 'marine', label: t.sidebar?.marine || '🌊 Marine & Fishermen', icon: Anchor },
-              { id: 'smartCity', label: t.sidebar?.smartCity || '🏙️ Smart City & Disaster', icon: Building2 },
+              { id: 'agriculture', label: t.sidebar?.agriculture || 'Farmers & Agriculture', icon: Wheat },
+              { id: 'aviation', label: t.sidebar?.aviation || 'Aviation METAR / TAF', icon: Plane },
+              { id: 'marine', label: t.sidebar?.marine || 'Marine & Fishermen', icon: Anchor },
+              { id: 'smartCity', label: t.sidebar?.smartCity || 'Smart City & Disaster', icon: Building2 },
             ].map((s) => {
               const Icon = s.icon;
               const isSelected = activeView === 'decision' && activeSector === s.id;
