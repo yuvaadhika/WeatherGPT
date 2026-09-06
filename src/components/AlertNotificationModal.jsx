@@ -191,6 +191,14 @@ export default function AlertNotificationModal({
   const [highlightSettings, setHighlightSettings] = useState(false);
   const [showSpotlightGuide, setShowSpotlightGuide] = useState(false);
   const [justGranted, setJustGranted] = useState(false);
+  const [deviceTab, setDeviceTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const ua = navigator.userAgent || '';
+      if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+      if (/Android/i.test(ua)) return 'android';
+    }
+    return 'android';
+  });
 
   const txt = ALERT_MODAL_I18N[activeLanguage] || ALERT_MODAL_I18N.en;
 
@@ -1038,26 +1046,26 @@ export default function AlertNotificationModal({
         </div>
       </div>
 
-      {/* 🚀 FULLSCREEN BLINKING SPOTLIGHT OVERLAY (Points directly to Address Bar 🔒 icon) */}
+      {/* 🚀 FULLSCREEN BLINKING SPOTLIGHT OVERLAY (Click-through backdrop with Phone & PC Guides) */}
       {showSpotlightGuide && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-md flex flex-col items-start justify-start p-3 sm:p-6 text-white animate-fadeIn overflow-y-auto">
-          {/* Top Pointer Beam Pointing Directly UP to Browser Address Bar */}
-          <div className="w-full flex flex-col items-start relative animate-bounce mt-1 sm:mt-2">
-            <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 via-rose-500 to-amber-600 text-white px-4 py-2.5 rounded-2xl shadow-2xl border-2 border-amber-300 font-black text-xs sm:text-sm">
+        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-start p-3 sm:p-5 text-white animate-fadeIn overflow-y-auto pointer-events-auto">
+          {/* Top Floating Pointer Banner Pointing UP to Address Bar */}
+          <div className="w-full max-w-md flex flex-col items-start relative animate-bounce mt-1 mb-2">
+            <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 via-rose-500 to-amber-600 text-white px-4 py-2 rounded-2xl shadow-2xl border-2 border-amber-300 font-black text-xs sm:text-sm">
               <span className="text-xl animate-ping">⬆️</span>
               <span className="text-xl">🔒</span>
               <span>
                 {activeLanguage === 'ta'
                   ? '1. மேலே உள்ள பிரவுசர் முகவரிப் பட்டியில் 🔒 ஐகானை அழுத்தவும்'
-                  : '1. Click the 🔒 Lock Icon in your Address Bar at the top'}
+                  : '1. Click 🔒 Lock Icon in your Address Bar at the top'}
               </span>
             </div>
             {/* Animated Light Beam */}
-            <div className="ml-8 w-1 h-8 bg-gradient-to-b from-amber-400 to-transparent"></div>
+            <div className="ml-8 w-1 h-5 bg-gradient-to-b from-amber-400 to-transparent"></div>
           </div>
 
-          {/* Central Animated Interactive Guide Card */}
-          <div className="self-center bg-slate-900/95 border-2 border-amber-400 rounded-3xl p-5 sm:p-6 max-w-md w-full mt-3 shadow-2xl space-y-4 text-center">
+          {/* Central Interactive Device Guide Card */}
+          <div className="bg-slate-900/98 border-2 border-amber-400 rounded-3xl p-5 max-w-md w-full shadow-2xl space-y-3.5 text-center">
             {justGranted ? (
               <div className="py-6 space-y-2 animate-scaleUp text-emerald-400">
                 <CheckCircle2 className="w-16 h-16 mx-auto text-emerald-400 animate-bounce" />
@@ -1070,48 +1078,132 @@ export default function AlertNotificationModal({
               </div>
             ) : (
               <>
-                {/* Blinking Target Beacon */}
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-amber-300 flex items-center justify-center animate-pulse shadow-lg">
-                  <BellRing className="w-7 h-7 animate-spin" />
-                </div>
-
-                <div>
-                  <h3 className="text-base font-extrabold text-white">
-                    {activeLanguage === 'ta'
-                      ? 'பிரவுசர் அமைப்புகளில் அறிவிப்பை ஆன் செய்யவும்'
-                      : 'Enable Notifications in Browser Settings'}
-                  </h3>
-                  <p className="text-xs text-amber-200/90 mt-1 leading-relaxed">
-                    {activeLanguage === 'ta'
-                      ? 'பிரவுசரின் மேல் இடது மூலையில் உள்ள 🔒 ஐகானைக் கிளிக் செய்து "Notifications" என்பதை "Allow" செய்யவும்.'
-                      : 'Click the 🔒 lock icon at top-left of the URL bar and change Notifications to "Allow".'}
-                  </p>
-                </div>
-
-                {/* Simulated Setting Mockup */}
-                <div className="bg-slate-800 p-3.5 rounded-2xl border border-slate-700 space-y-2 text-left shadow-inner font-mono text-xs">
-                  <div className="flex items-center space-x-2 text-slate-400 text-[11px] pb-1 border-b border-slate-700">
-                    <span>🔒 Site Permissions</span>
-                    <span className="text-amber-400 font-sans ml-auto font-bold animate-pulse">👈 Select Here</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="flex items-center space-x-2 font-sans font-semibold text-slate-200">
-                      <Bell className="w-4 h-4 text-amber-400" />
-                      <span>Notifications</span>
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                  <div className="flex items-center space-x-2 text-left">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 flex items-center justify-center animate-pulse">
+                      <BellRing className="w-4 h-4" />
                     </div>
-                    <div className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-emerald-500/25 border border-emerald-400 text-emerald-300 font-black text-xs animate-pulse">
-                      <span>ALLOW</span>
-                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <div>
+                      <h3 className="text-xs font-black text-white">
+                        {activeLanguage === 'ta' ? 'போன் / பிரவுசர் அமைப்புகளில் ஆன் செய்யவும்' : 'Turn ON in Phone / Browser Settings'}
+                      </h3>
+                      <span className="text-[10px] text-amber-300">
+                        {activeLanguage === 'ta' ? 'உங்கள் சாதனத்தை தேர்வு செய்யவும்:' : 'Select your device below:'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowSpotlightGuide(false)}
+                    className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Device Selector Tabs: Android | iPhone | Desktop */}
+                <div className="grid grid-cols-3 gap-1.5 bg-slate-800/90 p-1 rounded-2xl border border-slate-700 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setDeviceTab('android')}
+                    className={`py-1.5 px-2 rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                      deviceTab === 'android'
+                        ? 'bg-gradient-to-r from-amber-500 to-rose-600 text-white shadow-sm'
+                        : 'bg-slate-700/80 hover:bg-slate-700 text-slate-300'
+                    }`}
+                  >
+                    <span>🤖 Android</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeviceTab('ios')}
+                    className={`py-1.5 px-2 rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                      deviceTab === 'ios'
+                        ? 'bg-gradient-to-r from-amber-500 to-rose-600 text-white shadow-sm'
+                        : 'bg-slate-700/80 hover:bg-slate-700 text-slate-300'
+                    }`}
+                  >
+                    <span>🍎 iPhone</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeviceTab('pc')}
+                    className={`py-1.5 px-2 rounded-xl transition-all flex items-center justify-center space-x-1 cursor-pointer ${
+                      deviceTab === 'pc'
+                        ? 'bg-gradient-to-r from-amber-500 to-rose-600 text-white shadow-sm'
+                        : 'bg-slate-700/80 hover:bg-slate-700 text-slate-300'
+                    }`}
+                  >
+                    <span>💻 PC / Mac</span>
+                  </button>
+                </div>
+
+                {/* Animated Mobile Phone Step Mockup */}
+                <div className="bg-slate-800/90 p-3 rounded-2xl border border-slate-700 space-y-2 text-left text-xs font-sans">
+                  {/* Step 1 */}
+                  <div className="flex items-start space-x-2.5">
+                    <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5 animate-pulse">
+                      1
+                    </span>
+                    <div>
+                      <p className="text-white font-bold">
+                        {deviceTab === 'ios'
+                          ? (activeLanguage === 'ta' ? 'சஃபாரி முகவரிப் பட்டியில் உள்ள "aA" ஐகானைத் தட்டவும்' : 'Tap the "aA" icon in your Safari address bar')
+                          : deviceTab === 'pc'
+                          ? (activeLanguage === 'ta' ? 'முகவரிப் பட்டியில் உள்ள 🔒 பூட்டு ஐகானைக் கிளிக் செய்யவும்' : 'Click the 🔒 lock icon at top-left of the address bar')
+                          : (activeLanguage === 'ta' ? 'பிரவுசரின் மேல் உள்ள 🔒 அல்லது ⋮ பட்டனை அழுத்தவும்' : 'Tap 🔒 Lock or ⋮ Menu beside the URL in your browser')}
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        {deviceTab === 'ios'
+                          ? (activeLanguage === 'ta' ? 'திரையின் கீழே அல்லது மேலே உள்ள இணையதள முகவரியில் இருக்கும்.' : 'Located directly in the Safari URL bar at top/bottom.')
+                          : (activeLanguage === 'ta' ? 'முகவரிப் பட்டிக்கு அருகில் இருக்கும்.' : 'Located right next to the website address.')}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="flex items-start space-x-2.5">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5 animate-pulse">
+                      2
+                    </span>
+                    <div className="w-full">
+                      <p className="text-white font-bold">
+                        {deviceTab === 'ios'
+                          ? (activeLanguage === 'ta' ? '"Website Settings" ➔ "Notifications" ➔ "Allow" என மாற்றவும்' : 'Tap "Website Settings" ➔ Set "Notifications" to Allow')
+                          : (activeLanguage === 'ta' ? '"Permissions" ➔ "Notifications" ➔ "ALLOW" என மாற்றவும்' : 'Tap "Permissions" ➔ Set "Notifications" to ALLOW')}
+                      </p>
+                      <div className="mt-1 flex items-center justify-between bg-slate-900/80 p-1.5 px-2 rounded-xl border border-slate-700">
+                        <span className="text-[11px] text-slate-300 font-semibold">🔔 Notifications</span>
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-black text-[10px] animate-pulse">
+                          ALLOW 🟢
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="flex items-start space-x-2.5">
+                    <span className="w-5 h-5 rounded-full bg-sky-500 text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                      3
+                    </span>
+                    <div>
+                      <p className="text-white font-bold">
+                        {activeLanguage === 'ta'
+                          ? 'கீழே உள்ள "சரிபார்" பட்டனை அழுத்தவும்'
+                          : 'Tap "Verify & Turn ON" below to activate'}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="pt-2 flex flex-col gap-2">
+                <div className="space-y-2 pt-1">
                   <button
                     type="button"
                     onClick={handleVerifyPermission}
-                    className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-600 hover:from-emerald-600 hover:to-sky-700 text-white font-black text-xs shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 cursor-pointer transition-all animate-pulse"
+                    className="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-600 hover:from-emerald-600 hover:to-sky-700 text-white font-black text-xs shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 cursor-pointer transition-all animate-pulse"
                   >
                     <RefreshCw className="w-4 h-4" />
                     <span>
@@ -1121,12 +1213,26 @@ export default function AlertNotificationModal({
                     </span>
                   </button>
 
+                  {/* Fallback Option: Instant SMS & Email Alerts (No browser push needed) */}
                   <button
                     type="button"
-                    onClick={() => setShowSpotlightGuide(false)}
-                    className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer transition-colors"
+                    onClick={() => {
+                      setActiveTab('sms');
+                      setShowSpotlightGuide(false);
+                      showToast(
+                        activeLanguage === 'ta'
+                          ? '📱 உங்கள் மொபைல் எண்ணை உள்ளிட்டு SMS எச்சரிக்கைகளை இயக்கவும்!'
+                          : '📱 Enter your phone number to receive instant SMS alerts!'
+                      );
+                    }}
+                    className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-300 text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer transition-colors"
                   >
-                    {activeLanguage === 'ta' ? 'மூடு (Close)' : 'Close'}
+                    <Smartphone className="w-3.5 h-3.5 text-sky-400" />
+                    <span>
+                      {activeLanguage === 'ta'
+                        ? '📱 SMS & மின்னஞ்சல் எச்சரிக்கைகளைப் பயன்படுத்து (Instant SMS)'
+                        : '📱 Use Mobile SMS & Email Alerts Instead'}
+                    </span>
                   </button>
                 </div>
               </>
