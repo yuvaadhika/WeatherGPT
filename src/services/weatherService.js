@@ -840,55 +840,92 @@ export async function searchLocation(query, lang = 'en') {
 // Reverse Geocode from lat/long coordinates with robust multi-level name extraction
 export async function reverseGeocode(lat, lon, lang = 'en') {
   const targetLang = typeof lang === 'string' ? lang : 'en';
+
+  // Method 1: BigDataCloud client-side reverse geocoding (fast, accurate, no CORS restrictions)
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12&addressdetails=1&accept-language=${targetLang},en;q=0.8`, {
-      headers: { 'User-Agent': 'WeatherGPT-App/1.0' }
-    });
-    if (!res.ok) throw new Error('Reverse geocoding failed');
-    const data = await res.json();
+    const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=${targetLang}`);
+    if (res.ok) {
+      const data = await res.json();
+      const rawCity = data.locality ||
+                      data.city ||
+                      data.principalSubdivision ||
+                      data.localityInfo?.administrative?.[3]?.name ||
+                      data.localityInfo?.administrative?.[2]?.name ||
+                      '';
+      if (rawCity) {
+        const rawState = data.principalSubdivision || '';
+        const rawCountry = data.countryName || 'India';
 
-    const addr = data.address || {};
-    const rawCity = addr.city ||
-                    addr.town ||
-                    addr.suburb ||
-                    addr.neighbourhood ||
-                    addr.village ||
-                    addr.municipality ||
-                    addr.county ||
-                    addr.state_district ||
-                    data.name ||
-                    'Chennai';
+        const city = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
+        const state = getLocalizedPlaceName(rawState, targetLang) || rawState;
+        const country = getLocalizedPlaceName(rawCountry, targetLang) || rawCountry;
 
-    const rawState = addr.state || 'Tamil Nadu';
-    const rawCountry = addr.country || 'India';
-
-    const city = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
-    const state = getLocalizedPlaceName(rawState, targetLang) || rawState;
-    const country = getLocalizedPlaceName(rawCountry, targetLang) || rawCountry;
-
-    return {
-      name: city,
-      admin1: state,
-      country: country,
-      rawName: rawCity,
-      rawAdmin1: rawState,
-      rawCountry: rawCountry,
-      latitude: lat,
-      longitude: lon,
-    };
-  } catch (err) {
-    console.warn('Fallback reverse geocode:', err);
-    return {
-      name: getLocalizedPlaceName('Chennai', targetLang),
-      admin1: getLocalizedPlaceName('Tamil Nadu', targetLang),
-      country: getLocalizedPlaceName('India', targetLang),
-      rawName: 'Chennai',
-      rawAdmin1: 'Tamil Nadu',
-      rawCountry: 'India',
-      latitude: lat,
-      longitude: lon,
-    };
+        return {
+          name: city,
+          admin1: state,
+          country: country,
+          rawName: rawCity,
+          rawAdmin1: rawState,
+          rawCountry: rawCountry,
+          latitude: lat,
+          longitude: lon,
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('BigDataCloud reverse geocode error:', e);
   }
+
+  // Method 2: Nominatim OpenStreetMap
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12&addressdetails=1&accept-language=${targetLang},en;q=0.8`);
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      const rawCity = addr.city ||
+                      addr.town ||
+                      addr.suburb ||
+                      addr.neighbourhood ||
+                      addr.village ||
+                      addr.municipality ||
+                      addr.county ||
+                      addr.state_district ||
+                      data.name ||
+                      '';
+      if (rawCity) {
+        const rawState = addr.state || '';
+        const rawCountry = addr.country || 'India';
+
+        const city = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
+        const state = getLocalizedPlaceName(rawState, targetLang) || rawState;
+        const country = getLocalizedPlaceName(rawCountry, targetLang) || rawCountry;
+
+        return {
+          name: city,
+          admin1: state,
+          country: country,
+          rawName: rawCity,
+          rawAdmin1: rawState,
+          rawCountry: rawCountry,
+          latitude: lat,
+          longitude: lon,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Nominatim reverse geocode error:', err);
+  }
+
+  return {
+    name: getLocalizedPlaceName('Live Location', targetLang) || 'Live Location',
+    admin1: '',
+    country: 'India',
+    rawName: 'Live Location',
+    rawAdmin1: '',
+    rawCountry: 'India',
+    latitude: lat,
+    longitude: lon,
+  };
 }
 
 // SOURCE 1: Fetch comprehensive NWP Weather Forecast
