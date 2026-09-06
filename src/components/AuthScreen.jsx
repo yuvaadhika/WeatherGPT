@@ -135,9 +135,11 @@ export default function AuthScreen({
       {/* Top Bar: Brand + Multi-Language Selector */}
       <header className="relative z-10 w-full max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
         <div className="flex items-center space-x-2 sm:space-x-2.5 min-w-0">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-sky-500 via-cyan-400 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-sky-500/20 flex-shrink-0">
-            <CloudSun className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-          </div>
+          <img
+            src="/wyndra-logo.png"
+            alt="WYNDRA Weather Intelligence"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl object-cover shadow-md shadow-sky-500/20 border border-sky-200/60 flex-shrink-0"
+          />
           <div className="min-w-0">
             <div className="flex items-center space-x-1.5">
               <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 truncate">WeatherGPT</span>

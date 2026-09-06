@@ -378,9 +378,11 @@ export default function App() {
         <div className="p-4 border-b border-sky-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center text-white shadow-md font-bold">
-                <Sun className="w-5 h-5" />
-              </div>
+              <img
+                src="/wyndra-logo.png"
+                alt="WYNDRA Logo"
+                className="w-9 h-9 rounded-xl object-cover shadow-md border border-sky-200/60 flex-shrink-0"
+              />
               <div>
                 <h1 className="font-extrabold text-base tracking-tight text-slate-900">
                   {t.sidebar?.appTitle || 'WeatherGPT'}
