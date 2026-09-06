@@ -381,7 +381,7 @@ export default function App() {
               <img
                 src="/wyndra-logo.png"
                 alt="WYNDRA Logo"
-                className="w-9 h-9 rounded-xl object-cover shadow-md border border-sky-200/60 flex-shrink-0"
+                className="w-10 h-10 object-contain flex-shrink-0 drop-shadow-sm"
               />
               <div>
                 <h1 className="font-extrabold text-base tracking-tight text-slate-900">

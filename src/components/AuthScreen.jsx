@@ -138,7 +138,7 @@ export default function AuthScreen({
           <img
             src="/wyndra-logo.png"
             alt="WYNDRA Weather Intelligence"
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl object-cover shadow-md shadow-sky-500/20 border border-sky-200/60 flex-shrink-0"
+            className="w-9 h-9 sm:w-11 sm:h-11 object-contain flex-shrink-0 drop-shadow-sm"
           />
           <div className="min-w-0">
             <div className="flex items-center space-x-1.5">
