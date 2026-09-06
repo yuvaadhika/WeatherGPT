@@ -224,7 +224,7 @@ export default function AdminUserRegistryModal({
                     autoFocus
                     value={adminUsername}
                     onChange={(e) => setAdminUsername(e.target.value)}
-                    placeholder="wyndra"
+                    placeholder="xxxx"
                     className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-300 focus:border-sky-500 focus:bg-white text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all shadow-inner font-medium"
                   />
                 </div>
