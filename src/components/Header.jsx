@@ -9,7 +9,8 @@ import {
   User,
   LogOut,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Flower2
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getLocalizedPlaceName } from '../services/weatherService';
@@ -235,15 +236,15 @@ export default function Header({
               className="flex items-center space-x-1.5 p-1 sm:px-2.5 sm:py-1 rounded-xl bg-white/90 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 transition-all shadow-2xs cursor-pointer"
               title={currentUser.name || 'User Account'}
             >
-              {currentUser.avatar ? (
+              {currentUser.avatarType === 'guest' && currentUser.avatar?.startsWith('http') ? (
                 <img
                   src={currentUser.avatar}
                   alt={currentUser.name}
                   className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-sky-300"
                 />
               ) : (
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-sky-600 text-white flex items-center justify-center text-[10px] font-bold">
-                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-pink-400 via-rose-400 to-amber-300 text-white flex items-center justify-center shadow-2xs">
+                  <Flower2 className="w-3.5 h-3.5 text-white" />
                 </div>
               )}
               <span className="text-xs font-bold text-slate-800 hidden sm:inline max-w-[80px] truncate">
@@ -256,22 +257,22 @@ export default function Header({
             {userDropdownOpen && (
               <div className="absolute right-0 top-full mt-1.5 w-56 bg-white/95 backdrop-blur-xl border border-sky-100 rounded-2xl shadow-xl p-3 z-50 divide-y divide-sky-100 space-y-2 animate-fadeIn">
                 <div className="flex items-center space-x-2.5 pb-2">
-                  {currentUser.avatar ? (
+                  {currentUser.avatarType === 'guest' && currentUser.avatar?.startsWith('http') ? (
                     <img
                       src={currentUser.avatar}
                       alt={currentUser.name}
                       className="w-8 h-8 rounded-full object-cover border border-sky-300"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center text-xs font-bold">
-                      {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-400 via-rose-400 to-amber-300 text-white flex items-center justify-center shadow-xs">
+                      <Flower2 className="w-5 h-5 text-white" />
                     </div>
                   )}
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-slate-900 truncate">{currentUser.name}</p>
                     <p className="text-[10px] text-slate-500 truncate">{currentUser.email}</p>
-                    <span className="inline-block mt-0.5 text-[9px] font-semibold px-1.5 py-0.2 rounded bg-sky-100 text-sky-800">
-                      {currentUser.role || 'Member'}
+                    <span className="inline-block mt-0.5 text-[9px] font-semibold px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                      🌸 {currentUser.role || 'Member'}
                     </span>
                   </div>
                 </div>

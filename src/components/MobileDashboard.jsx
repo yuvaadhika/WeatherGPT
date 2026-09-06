@@ -219,25 +219,25 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* 3. HERO WEATHER GLASS CARD (Ultra-Modern, Clean & Eye-Catching) */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1e4976] via-[#153a61] to-[#0c233c] text-white p-5 sm:p-6 shadow-xl shadow-sky-950/20 space-y-4 border border-sky-400/20">
-        {/* Subtle Decorative Background Glows */}
-        <div className="absolute top-[-20%] right-[-10%] w-48 h-48 rounded-full bg-cyan-400/20 blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-[-20%] left-[-10%] w-48 h-48 rounded-full bg-sky-500/20 blur-3xl pointer-events-none"></div>
+      {/* 3. HERO WEATHER GLASS CARD (Mild, Soft & Pleasant Palette) */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#e0f1fe] via-[#ecf6fe] to-[#f4f9ff] text-slate-800 p-5 sm:p-6 shadow-md shadow-sky-900/5 space-y-4 border border-sky-200/90">
+        {/* Subtle Mild Ambient Background Glows */}
+        <div className="absolute top-[-20%] right-[-10%] w-48 h-48 rounded-full bg-cyan-200/30 blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-[-20%] left-[-10%] w-48 h-48 rounded-full bg-sky-200/30 blur-3xl pointer-events-none"></div>
 
         {/* Top Hero Row */}
         <div className="flex items-center justify-between relative z-10">
           <div className="space-y-0.5">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-cyan-300">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-sky-700">
               {activeLanguage === 'ta' ? 'நேரடி வானிலை' : 'Live Conditions'}
             </span>
-            <h2 className="text-lg font-black tracking-tight text-white flex items-center space-x-1.5">
+            <h2 className="text-lg font-black tracking-tight text-slate-900 flex items-center space-x-1.5">
               <span>{displayLocation}</span>
             </h2>
           </div>
 
-          <div className="flex items-center space-x-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/15 text-[11px] font-bold text-sky-100">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <div className="flex items-center space-x-1.5 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-sky-200/80 text-[11px] font-bold text-sky-800 shadow-2xs">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>{rainProbNow > 40 ? `🌧️ ${rainProbNow}% Rain` : `☀️ ${wmo.label}`}</span>
           </div>
         </div>
@@ -246,35 +246,35 @@ export default function MobileDashboard({
         <div className="flex items-baseline justify-between relative z-10">
           <div>
             <div className="flex items-baseline">
-              <span className="text-5xl sm:text-6xl font-black tracking-tighter text-white">
+              <span className="text-5xl sm:text-6xl font-black tracking-tighter text-slate-900">
                 {tempC}
               </span>
-              <span className="text-2xl sm:text-3xl font-light text-cyan-300 ml-1">°C</span>
+              <span className="text-2xl sm:text-3xl font-light text-sky-600 ml-1">°C</span>
             </div>
-            <p className="text-xs sm:text-sm font-semibold text-cyan-100/90 mt-1">
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
               {wmo.label} • {activeLanguage === 'ta' ? `உணர்வு ${feelsLike}°C` : `Feels like ${feelsLike}°C`}
             </p>
           </div>
 
           {/* High / Low & Quick Stats */}
           <div className="text-right space-y-1">
-            <div className="text-xs font-mono font-bold text-sky-200">
-              H: <span className="text-white font-extrabold">{todayMax}°</span> • L: <span className="text-white font-extrabold">{todayMin}°</span>
+            <div className="text-xs font-mono font-bold text-slate-500">
+              H: <span className="text-slate-900 font-extrabold">{todayMax}°</span> • L: <span className="text-slate-900 font-extrabold">{todayMin}°</span>
             </div>
-            <div className="text-[11px] text-cyan-200/80 font-medium">
+            <div className="text-[11px] text-slate-600 font-medium">
               💨 {windKmh} km/h • 💧 {humidity}%
             </div>
-            <div className="text-[10px] text-emerald-300 font-bold">
+            <div className="text-[10px] text-emerald-700 font-extrabold">
               AQI {aqiVal} (Good)
             </div>
           </div>
         </div>
 
         {/* Quick 1-Tap Action Pills */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 relative z-10">
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-sky-200/60 relative z-10">
           <button
             onClick={() => onOpenChat && onOpenChat()}
-            className="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 text-white text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-md cursor-pointer group"
+            className="py-2.5 px-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-sm cursor-pointer group"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300 group-hover:rotate-12 transition-transform" />
             <span>{activeLanguage === 'ta' ? 'AI அரட்டை வழிகாட்டி' : 'Ask AI Weather Assistant'}</span>
@@ -282,9 +282,9 @@ export default function MobileDashboard({
 
           <button
             onClick={onOpenRadar}
-            className="py-2.5 px-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
+            className="py-2.5 px-3 rounded-2xl bg-white/95 hover:bg-white border border-sky-200/80 text-sky-800 text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-2xs cursor-pointer"
           >
-            <Radio className="w-3.5 h-3.5 text-emerald-400" />
+            <Radio className="w-3.5 h-3.5 text-emerald-600" />
             <span>{activeLanguage === 'ta' ? 'டாப்ளர் ரேடார் வரைபடம்' : 'Live Doppler Radar'}</span>
           </button>
         </div>
