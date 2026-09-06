@@ -9,7 +9,7 @@ import ChatInterface from './components/ChatInterface';
 import WeatherRadarMap from './components/WeatherRadarMap';
 import DecisionSupportModes from './components/DecisionSupportModes';
 import ClimateAnalyticsChart from './components/ClimateAnalyticsChart';
-import ApiKeyModal from './components/ApiKeyModal';
+import AuthScreen from './components/AuthScreen';
 import ReportExportModal from './components/ReportExportModal';
 import AlertNotificationModal from './components/AlertNotificationModal';
 import OnboardingPermissionModal from './components/OnboardingPermissionModal';
@@ -48,7 +48,6 @@ import {
   Plane,
   Anchor,
   Building2,
-  Settings,
   Download,
   PlusCircle,
   ChevronLeft,
@@ -66,6 +65,15 @@ import {
 import { notificationService } from './services/notificationService';
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem('weathergpt_auth_user') || sessionStorage.getItem('weathergpt_auth_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const [activeLanguage, setActiveLanguage] = useState('en');
   const [activeView, setActiveView] = useState('home'); // 'home' | 'radar' | 'alerts' | 'chat' | 'decision' | 'climate' | 'route' | 'event' | 'spotter' | 'sos'
   const [activeSector, setActiveSector] = useState('agriculture');
@@ -89,7 +97,6 @@ export default function App() {
   const [riskData, setRiskData] = useState(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(true);
 
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [exportReportParams, setExportReportParams] = useState(null);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
@@ -100,6 +107,12 @@ export default function App() {
   });
   const [initialChatQuery, setInitialChatQuery] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => notificationService.hasAnyChannelActive());
+
+  const handleSignOut = () => {
+    localStorage.removeItem('weathergpt_auth_user');
+    sessionStorage.removeItem('weathergpt_auth_user');
+    setCurrentUser(null);
+  };
 
   const handleToggleNotifications = async () => {
     setIsAlertModalOpen(true);
@@ -279,6 +292,16 @@ export default function App() {
     setInitialChatQuery(query);
     setSidebarOpen(false);
   };
+
+  if (!currentUser) {
+    return (
+      <AuthScreen
+        onLogin={(user) => setCurrentUser(user)}
+        activeLanguage={activeLanguage}
+        setActiveLanguage={setActiveLanguage}
+      />
+    );
+  }
 
   return (
     <div className="h-screen w-screen flex bg-gradient-to-b from-[#eef6fc] via-[#f2f8fe] to-[#e8f4fd] text-slate-800 overflow-hidden font-sans">
@@ -560,17 +583,10 @@ export default function App() {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setIsExportOpen(true)}
-              className="flex-1 py-2 px-2 rounded-xl bg-white/90 hover:bg-white border border-sky-200/70 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer hover:border-sky-300"
+              className="w-full py-2 px-3 rounded-xl bg-white/90 hover:bg-white border border-sky-200/70 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer hover:border-sky-300"
             >
               <Download className="w-3.5 h-3.5 text-sky-600" />
-              <span>{t.sidebar?.bulletin || 'Bulletin'}</span>
-            </button>
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="flex-1 py-2 px-2 rounded-xl bg-white/90 hover:bg-white border border-sky-200/70 text-slate-700 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer hover:border-sky-300"
-            >
-              <Settings className="w-3.5 h-3.5 text-slate-500" />
-              <span>{t.sidebar?.apiKeys || 'API Keys'}</span>
+              <span>{t.sidebar?.bulletin || 'Export Weather Bulletin'}</span>
             </button>
           </div>
         </div>
@@ -584,7 +600,6 @@ export default function App() {
           setActiveLanguage={setActiveLanguage}
           currentLocation={currentLocation}
           onSelectLocation={(loc) => setCurrentLocation(loc)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenExport={() => setIsExportOpen(true)}
           topAlert={topAlert}
           onDetectLocation={detectUserLocation}
@@ -594,6 +609,8 @@ export default function App() {
           onTestNotification={() => notificationService.sendTestAlert(currentLocation.name)}
           onOpenAlertModal={() => setIsAlertModalOpen(true)}
           onOpenLocationModal={() => setIsLocationModalOpen(true)}
+          currentUser={currentUser}
+          onSignOut={handleSignOut}
         />
 
         {/* View Content Area */}
@@ -871,12 +888,6 @@ export default function App() {
         activeLanguage={activeLanguage}
         riskData={riskData}
         currentLocationName={currentLocation?.name || 'Chennai'}
-      />
-
-      <ApiKeyModal
-        activeLanguage={activeLanguage}
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
       />
 
       <ReportExportModal

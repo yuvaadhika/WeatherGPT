@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Menu,
   MapPin,
   Search,
-  Radio,
-  Settings,
-  Download,
-  CheckCircle2,
-  Compass,
   Bell,
   BellRing,
-  BellOff,
-  Globe
+  Globe,
+  User,
+  LogOut,
+  Sparkles,
+  ChevronDown
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getLocalizedPlaceName } from '../services/weatherService';
@@ -21,22 +19,34 @@ export default function Header({
   setActiveLanguage,
   currentLocation,
   onSelectLocation,
-  onOpenSettings,
   onOpenExport,
   topAlert,
   onDetectLocation,
   onOpenSidebar,
   notificationsEnabled,
   onToggleNotifications,
-  onTestNotification,
   onOpenAlertModal,
-  onOpenLocationModal
+  onOpenLocationModal,
+  currentUser,
+  onSignOut
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
@@ -72,33 +82,34 @@ export default function Header({
     : (t.header?.detecting || 'Detecting...');
 
   return (
-    <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/90 backdrop-blur-xl px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0 z-30 shadow-2xs">
+    <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/95 backdrop-blur-xl px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-3 flex-shrink-0 z-30 shadow-2xs">
       {/* Left: Mobile Menu & Location */}
-      <div className="flex items-center space-x-2 sm:space-x-3">
+      <div className="flex items-center space-x-1.5 sm:space-x-2.5 min-w-0">
         <button
           onClick={onOpenSidebar}
-          className="p-2 rounded-xl bg-white/80 border border-sky-200/70 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer hover:border-sky-300"
+          className="p-1.5 sm:p-2 rounded-xl bg-white/90 border border-sky-200/70 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer hover:border-sky-300"
+          title="Open Navigation"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         {/* Current Location Pill & Directory Opener */}
         <button
           onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
           title={activeLanguage === 'ta' ? 'அனைத்து இடங்களையும் (A-Z) காண்க' : 'Browse All Places Directory (A-Z)'}
-          className="flex items-center space-x-1.5 sm:space-x-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/85 hover:bg-sky-50 border border-sky-200/70 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group"
+          className="flex items-center space-x-1 sm:space-x-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group min-w-0"
         >
           <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="truncate max-w-[110px] sm:max-w-[170px] font-bold text-slate-900 group-hover:text-sky-700">
+          <span className="truncate max-w-[95px] xs:max-w-[130px] sm:max-w-[180px] font-bold text-slate-900 group-hover:text-sky-700">
             {displayLocationName}
           </span>
-          <span className="text-[10px] text-sky-600 font-semibold px-1.5 py-0.2 rounded bg-sky-100/90 border border-sky-200">
+          <span className="text-[9px] sm:text-[10px] text-sky-600 font-bold px-1 py-0.2 rounded bg-sky-100/90 border border-sky-200 flex-shrink-0">
             A-Z ▾
           </span>
         </button>
       </div>
 
-      {/* Center: Search City Bar */}
+      {/* Center: Search City Bar (Tablet/Desktop) */}
       <div className="relative flex-1 max-w-sm hidden sm:block">
         <form onSubmit={handleSearchSubmit} className="relative">
           <input
@@ -142,7 +153,7 @@ export default function Header({
                 <button
                   key={`${item.id}-${item.latitude}`}
                   onClick={() => handleSelectCity(item)}
-                  className="w-full px-3 py-2 text-left hover:bg-slate-50 text-xs flex items-center justify-between text-slate-700 transition-colors"
+                  className="w-full px-3 py-2 text-left hover:bg-slate-50 text-xs flex items-center justify-between text-slate-700 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center space-x-1.5 truncate">
                     <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
@@ -159,14 +170,14 @@ export default function Header({
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
         {/* Language Selector in Header */}
-        <div className="flex items-center space-x-1.5 bg-slate-100/90 border border-slate-200 hover:border-sky-400 rounded-xl px-2 py-1 shadow-sm transition-all">
+        <div className="flex items-center space-x-1 bg-white/90 border border-slate-200 hover:border-sky-400 rounded-xl px-1.5 sm:px-2 py-1 shadow-2xs transition-all">
           <Globe className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
           <select
             value={activeLanguage}
             onChange={(e) => setActiveLanguage(e.target.value)}
-            className="bg-transparent text-[11px] font-semibold text-slate-700 focus:outline-none cursor-pointer pr-1"
+            className="bg-transparent text-[11px] font-bold text-slate-700 focus:outline-none cursor-pointer max-w-[65px] sm:max-w-none"
             title="Choose Language (10 Languages Supported)"
           >
             {SUPPORTED_LANGUAGES.map((l) => (
@@ -180,11 +191,11 @@ export default function Header({
         {/* Weather Alert Push & SMS / Email Notification Bell */}
         <button
           onClick={onOpenAlertModal || onToggleNotifications}
-          title="Configure Alerts & Notification Channels (SMS, Email, Push)"
-          className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1.5 transition-all shadow-sm ${
+          title="Configure Weather Alerts & Notifications"
+          className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1.5 transition-all shadow-2xs cursor-pointer ${
             notificationsEnabled
               ? 'bg-sky-50 border-sky-300 text-sky-700 hover:bg-sky-100'
-              : 'bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-800'
+              : 'bg-white/90 border-slate-200 text-slate-500 hover:text-slate-800'
           }`}
         >
           {notificationsEnabled ? (
@@ -197,21 +208,88 @@ export default function Header({
           </span>
         </button>
 
-        {/* Early Warning Status Pill */}
+        {/* Top Warning Badge if Active */}
         {topAlert && (
-          <div className={`px-2.5 py-1 rounded-xl text-[11px] font-medium border flex items-center space-x-1.5 ${
-            topAlert.level === 'red'
-              ? 'bg-rose-50 border-rose-200 text-rose-700'
-              : topAlert.level === 'orange'
-              ? 'bg-amber-50 border-amber-200 text-amber-700'
-              : topAlert.level === 'yellow'
-              ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
-              : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-          }`}>
+          <div
+            onClick={onOpenAlertModal}
+            className={`hidden sm:flex px-2 py-1 rounded-xl text-[10px] font-bold border items-center space-x-1 cursor-pointer ${
+              topAlert.level === 'red'
+                ? 'bg-rose-50 border-rose-200 text-rose-700'
+                : topAlert.level === 'orange'
+                ? 'bg-amber-50 border-amber-200 text-amber-700'
+                : topAlert.level === 'yellow'
+                ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+            }`}
+          >
             <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
-            <span className="text-[10px] font-semibold">
-              {topAlert.level.toUpperCase()} {t.header?.alertWarningBadge || 'Alert'}
-            </span>
+            <span>{topAlert.level.toUpperCase()} Alert</span>
+          </div>
+        )}
+
+        {/* Logged In User Profile Pill & Dropdown */}
+        {currentUser && (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="flex items-center space-x-1.5 p-1 sm:px-2.5 sm:py-1 rounded-xl bg-white/90 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 transition-all shadow-2xs cursor-pointer"
+              title={currentUser.name || 'User Account'}
+            >
+              {currentUser.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-sky-300"
+                />
+              ) : (
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-sky-600 text-white flex items-center justify-center text-[10px] font-bold">
+                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+              )}
+              <span className="text-xs font-bold text-slate-800 hidden sm:inline max-w-[80px] truncate">
+                {currentUser.name?.split(' ')[0] || 'User'}
+              </span>
+              <ChevronDown className="w-3 h-3 text-slate-400 hidden sm:inline" />
+            </button>
+
+            {/* Profile Dropdown Menu */}
+            {userDropdownOpen && (
+              <div className="absolute right-0 top-full mt-1.5 w-56 bg-white/95 backdrop-blur-xl border border-sky-100 rounded-2xl shadow-xl p-3 z-50 divide-y divide-sky-100 space-y-2 animate-fadeIn">
+                <div className="flex items-center space-x-2.5 pb-2">
+                  {currentUser.avatar ? (
+                    <img
+                      src={currentUser.avatar}
+                      alt={currentUser.name}
+                      className="w-8 h-8 rounded-full object-cover border border-sky-300"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center text-xs font-bold">
+                      {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-900 truncate">{currentUser.name}</p>
+                    <p className="text-[10px] text-slate-500 truncate">{currentUser.email}</p>
+                    <span className="inline-block mt-0.5 text-[9px] font-semibold px-1.5 py-0.2 rounded bg-sky-100 text-sky-800">
+                      {currentUser.role || 'Member'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      if (onSignOut) onSignOut();
+                    }}
+                    className="w-full py-1.5 px-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center space-x-2 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>{activeLanguage === 'ta' ? 'வெளியேறு (Sign Out)' : 'Sign Out'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
