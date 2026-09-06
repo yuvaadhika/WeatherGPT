@@ -295,11 +295,11 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center space-x-2.5">
             <div className="p-2.5 rounded-2xl bg-sky-50 text-sky-600 border border-sky-200 shadow-xs">
-              <Route className="w-5 h-5" />
+              <Navigation className="w-5 h-5 text-sky-600" />
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                {activeLanguage === 'ta' ? '🚗 பயணப் பாதை வானிலை & நெடுஞ்சாலை வழிகாட்டி' : '🚗 Smart Travel & Route Weather Planner'}
+                {activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை & நெடுஞ்சாலை வழிகாட்டி' : 'Smart Travel & Route Weather Planner'}
               </h2>
               <p className="text-xs text-slate-500">
                 {activeLanguage === 'ta'
@@ -486,10 +486,10 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
               : 'bg-rose-100 text-rose-800'
           }`}>
             {overallSafetyScore >= 80
-              ? (activeLanguage === 'ta' ? '✅ பயணத்திற்கு உகந்தது' : '✅ Optimal Highway Driving')
+              ? (activeLanguage === 'ta' ? 'பயணத்திற்கு உகந்தது' : 'Optimal Highway Driving')
               : overallSafetyScore >= 60
-              ? (activeLanguage === 'ta' ? '⚠️ மிதமான மழை எச்சரிக்கை' : '⚠️ Caution Advised')
-              : (activeLanguage === 'ta' ? '⛔ அதிக அபாயம் / ஒத்திவைக்கவும்' : '⛔ High Hazard Risk')}
+              ? (activeLanguage === 'ta' ? 'மிதமான மழை எச்சரிக்கை' : 'Caution Advised')
+              : (activeLanguage === 'ta' ? 'அதிக அபாயம் / ஒத்திவைக்கவும்' : 'High Hazard Risk')}
           </span>
         </div>
 

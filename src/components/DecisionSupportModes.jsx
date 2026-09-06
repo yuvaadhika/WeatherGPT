@@ -71,6 +71,7 @@ export default function DecisionSupportModes({
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
+          const cleanLabel = (tab.label || '').replace(/^[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F600}-\u{1F64F}\s]+/u, '');
           return (
             <button
               key={tab.id}
@@ -78,13 +79,14 @@ export default function DecisionSupportModes({
                 setActiveTab(tab.id);
                 if (onSelectSector) onSelectSector(tab.id);
               }}
-              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
+              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                 isActive
                   ? 'bg-sky-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200 border border-slate-200'
               }`}
             >
-              <span>{tab.label}</span>
+              <Icon className="w-4 h-4 flex-shrink-0" />
+              <span>{cleanLabel || tab.label}</span>
             </button>
           );
         })}
@@ -134,7 +136,7 @@ export default function DecisionSupportModes({
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
               <div className="text-[11px] text-slate-500 font-medium">{d.agri?.sprayWindow || 'Foliar Spray Window'}</div>
               <div className={`text-sm font-bold mt-1.5 ${agriAdvisory.sprayCondition === 'Favorable' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                {agriAdvisory.sprayCondition === 'Favorable' ? (d.agri?.sprayOptimal || '✅ Optimal') : (d.agri?.sprayHold || '⚠️ Hold Spray')}
+                {agriAdvisory.sprayCondition === 'Favorable' ? (d.agri?.sprayOptimal || 'Optimal') : (d.agri?.sprayHold || 'Hold Spray')}
               </div>
               <div className="text-[10px] text-slate-400 mt-0.5">{d.agri?.sprayConditionDesc || 'Wind & rain evaluated'}</div>
             </div>
@@ -376,11 +378,17 @@ export default function DecisionSupportModes({
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
             <div className="text-xs font-bold text-slate-900 uppercase tracking-wider">{d.marine?.tideInfo || 'Astronomical Tide Tables'}</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 shadow-sm">
-                🌊 <span className="font-semibold text-sky-700">{d.marine?.highTide || 'High Tide'}:</span> {marineBriefing.tideInfo.nextHighTide}
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 shadow-sm flex items-center space-x-1.5">
+                <Waves className="w-4 h-4 text-sky-600 flex-shrink-0" />
+                <div>
+                  <span className="font-semibold text-sky-700">{d.marine?.highTide || 'High Tide'}:</span> {marineBriefing.tideInfo.nextHighTide}
+                </div>
               </div>
-              <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 shadow-sm">
-                🏖️ <span className="font-semibold text-sky-700">{d.marine?.lowTide || 'Low Tide'}:</span> {marineBriefing.tideInfo.nextLowTide}
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200 text-slate-700 shadow-sm flex items-center space-x-1.5">
+                <Waves className="w-4 h-4 text-teal-600 flex-shrink-0" />
+                <div>
+                  <span className="font-semibold text-sky-700">{d.marine?.lowTide || 'Low Tide'}:</span> {marineBriefing.tideInfo.nextLowTide}
+                </div>
               </div>
             </div>
           </div>

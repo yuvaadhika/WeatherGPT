@@ -86,8 +86,8 @@ export default function DisasterEmergencySOS({
       id: `manual-before-awareness-${Date.now()}`,
       level: threatData?.level || 'red',
       title: activeLanguage === 'ta'
-        ? `🚨 முன்கூட்டிய பேரிடர் எச்சரிக்கை (${locName})`
-        : `🚨 Early Predictive Disaster Warning (${locName})`,
+        ? `முன்கூட்டிய பேரிடர் எச்சரிக்கை (${locName})`
+        : `Early Predictive Disaster Warning (${locName})`,
       message: threatData?.message || (activeLanguage === 'ta'
         ? `அடுத்த 3 மணி நேரத்தில் ${locName} பகுதியில் தீவிர மழை & வெள்ள அபாயம் கணிக்கப்பட்டுள்ளது.`
         : `Severe rainfall and flash waterlogging predicted over ${locName} in next 3 hours.`),
@@ -129,7 +129,7 @@ export default function DisasterEmergencySOS({
             <div>
               <div className="flex items-center space-x-2">
                 <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
-                  {activeLanguage === 'ta' ? '🚨 புயல் & வெள்ள அவசர பேரிடர் தற்காப்பு மையம்' : '🚨 Cyclone & Flood Emergency SOS Hub'}
+                  {activeLanguage === 'ta' ? 'புயல் & வெள்ள அவசர பேரிடர் தற்காப்பு மையம்' : 'Cyclone & Flood Emergency SOS Hub'}
                 </h2>
               </div>
               <p className="text-xs text-rose-200/80 font-medium">
@@ -234,7 +234,7 @@ export default function DisasterEmergencySOS({
               </div>
 
               <span className="text-xs font-bold px-2.5 py-1 rounded-xl bg-white border border-slate-200 text-slate-700 group-hover:bg-rose-600 group-hover:text-white transition-colors">
-                {activeLanguage === 'ta' ? 'அழை' : 'Call'} 📞
+                {activeLanguage === 'ta' ? 'அழை' : 'Call'}
               </span>
             </a>
           ))}

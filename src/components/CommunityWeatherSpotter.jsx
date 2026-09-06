@@ -152,7 +152,7 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                {activeLanguage === 'ta' ? '📍 மக்கள் நேரடி வானிலை சமூகம்' : '📍 Hyperlocal Community Weather Spotter'}
+                {activeLanguage === 'ta' ? 'மக்கள் நேரடி வானிலை சமூகம்' : 'Hyperlocal Community Weather Spotter'}
               </h2>
               <p className="text-xs text-slate-500">
                 {activeLanguage === 'ta'
@@ -220,8 +220,9 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
 
           {/* Submit Button */}
           <div className="flex items-center justify-between pt-1">
-            <span className="text-[10px] text-slate-400">
-              📍 {currentLocation?.name || 'Local Area'}
+            <span className="text-[10px] text-slate-400 flex items-center space-x-1">
+              <MapPin className="w-3 h-3 text-slate-400" />
+              <span>{currentLocation?.name || 'Local Area'}</span>
             </span>
             <button
               type="submit"

@@ -249,11 +249,11 @@ export default function EventWeatherScore({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center space-x-2.5">
             <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-pink-50 to-rose-50 text-rose-600 border border-rose-200 shadow-xs">
-              <Sparkles className="w-5 h-5 text-rose-600" />
+              <Heart className="w-5 h-5 text-rose-600" />
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                {activeLanguage === 'ta' ? '🎪 சுபகாரிய & விழா வானிலை சாத்தியக்கூறு கணிப்பான்' : '🎪 Event & Wedding Feasibility Weather Score'}
+                {activeLanguage === 'ta' ? 'சுபகாரிய & விழா வானிலை சாத்தியக்கூறு கணிப்பான்' : 'Event & Wedding Feasibility Weather Score'}
               </h2>
               <p className="text-xs text-slate-500">
                 {activeLanguage === 'ta'
@@ -429,10 +429,10 @@ export default function EventWeatherScore({
               : 'bg-rose-100 text-rose-800'
           }`}>
             {feasibilityScore >= 80
-              ? (activeLanguage === 'ta' ? '✅ சுபகாரியத்திற்கு மிகச் சிறந்தது' : '✅ Highly Suitable for Outdoor')
+              ? (activeLanguage === 'ta' ? 'சுபகாரியத்திற்கு மிகச் சிறந்தது' : 'Highly Suitable for Outdoor')
               : feasibilityScore >= 60
-              ? (activeLanguage === 'ta' ? '⚠️ சில முன்னெச்சரிக்கைகள் தேவை' : '⚠️ Minor Precautions Advised')
-              : (activeLanguage === 'ta' ? '⛔ மழை / காற்று அபாயம்' : '⛔ High Weather Disruption Risk')}
+              ? (activeLanguage === 'ta' ? 'சில முன்னெச்சரிக்கைகள் தேவை' : 'Minor Precautions Advised')
+              : (activeLanguage === 'ta' ? 'மழை / காற்று அபாயம்' : 'High Weather Disruption Risk')}
           </span>
         </div>
 
@@ -452,7 +452,7 @@ export default function EventWeatherScore({
               <span className="text-[10px] text-slate-400 font-bold block">Max Wind</span>
               <span className="text-xl font-black text-slate-900">{eventMetrics.maxWind} km/h</span>
               <span className="text-[9px] text-slate-500 block">
-                {eventMetrics.maxWind > selectedType.windThreshold ? '⚠️ Gusty' : '✅ Calm'}
+                {eventMetrics.maxWind > selectedType.windThreshold ? 'Gusty' : 'Calm'}
               </span>
             </div>
           </div>
