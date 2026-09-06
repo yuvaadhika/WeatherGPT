@@ -228,7 +228,12 @@ export default function MobileDashboard({
 
           <div className="flex items-center space-x-1.5 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-sky-200/80 text-[11px] font-bold text-sky-800 shadow-2xs">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>{rainProbNow > 40 ? `🌧️ ${rainProbNow}% Rain` : `☀️ ${wmo.label}`}</span>
+            {rainProbNow > 40 ? (
+              <CloudRain className="w-3.5 h-3.5 text-sky-600" />
+            ) : (
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+            )}
+            <span>{rainProbNow > 40 ? `${rainProbNow}% Rain` : wmo.label}</span>
           </div>
         </div>
 
@@ -251,8 +256,16 @@ export default function MobileDashboard({
             <div className="text-xs font-mono font-bold text-slate-500">
               H: <span className="text-slate-900 font-extrabold">{todayMax}°</span> • L: <span className="text-slate-900 font-extrabold">{todayMin}°</span>
             </div>
-            <div className="text-[11px] text-slate-600 font-medium">
-              💨 {windKmh} km/h • 💧 {humidity}%
+            <div className="text-[11px] text-slate-600 font-medium flex items-center justify-end space-x-2">
+              <span className="flex items-center space-x-1">
+                <Wind className="w-3 h-3 text-slate-400" />
+                <span>{windKmh} km/h</span>
+              </span>
+              <span>•</span>
+              <span className="flex items-center space-x-1">
+                <Droplets className="w-3 h-3 text-sky-500" />
+                <span>{humidity}%</span>
+              </span>
             </div>
             <div className="text-[10px] text-emerald-700 font-extrabold">
               AQI {aqiVal} (Good)
@@ -280,27 +293,32 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* 4. CLEAN CATEGORY SEGMENTED TABS (Sleek, No-Clutter Switcher) */}
+      {/* 4. CLEAN CATEGORY SEGMENTED TABS (Sleek, No-Clutter Switcher with Professional Icons) */}
       <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 scrollbar-none text-xs font-bold text-slate-600">
         {[
-          { id: 'hourly', label: activeLanguage === 'ta' ? '⚡ 24h முன்னறிவிப்பு' : '⚡ 24h Hourly' },
-          { id: '7day', label: activeLanguage === 'ta' ? '📅 7-நாள் வானிலை' : '📅 7-Day Trend' },
-          { id: 'tools', label: activeLanguage === 'ta' ? '🚀 AI கண்டுபிடிப்புகள்' : '🚀 AI Innovation' },
-          { id: 'agri', label: activeLanguage === 'ta' ? '🌾 விவசாய வழிகாட்டி' : '🌾 Agri & Soil' },
-          { id: 'health', label: activeLanguage === 'ta' ? '🩺 காற்று & ஆரோக்கியம்' : '🩺 AQI & Health' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-2 rounded-2xl flex-shrink-0 transition-all cursor-pointer ${
-              activeTab === tab.id
-                ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
-                : 'bg-white/85 hover:bg-white text-slate-700 border border-sky-100 hover:border-sky-300'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+          { id: 'hourly', label: activeLanguage === 'ta' ? '24h முன்னறிவிப்பு' : '24h Hourly', icon: Clock },
+          { id: '7day', label: activeLanguage === 'ta' ? '7-நாள் வானிலை' : '7-Day Trend', icon: TrendingUp },
+          { id: 'tools', label: activeLanguage === 'ta' ? 'AI கருவிகள்' : 'AI Innovation', icon: Sparkles },
+          { id: 'agri', label: activeLanguage === 'ta' ? 'விவசாய வழிகாட்டி' : 'Agri & Soil', icon: Wheat },
+          { id: 'health', label: activeLanguage === 'ta' ? 'காற்று தரம்' : 'AQI & Health', icon: Activity },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-2 rounded-2xl flex-shrink-0 transition-all cursor-pointer flex items-center space-x-1.5 ${
+                isActive
+                  ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
+                  : 'bg-white/85 hover:bg-white text-slate-700 border border-sky-100 hover:border-sky-300'
+              }`}
+            >
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-sky-600'}`} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* TAB CONTENT 1: 24-HOUR HOURLY FORECAST SLIDER */}
@@ -421,7 +439,7 @@ export default function MobileDashboard({
             <div className="flex items-center space-x-1.5">
               <Sparkles className="w-4 h-4 text-sky-600" />
               <h3 className="text-xs font-bold text-slate-900">
-                {activeLanguage === 'ta' ? '🚀 AI புதிய கண்டுபிடிப்புகள்' : '🚀 AI Innovation Suite'}
+                {activeLanguage === 'ta' ? 'AI புதிய கண்டுபிடிப்புகள்' : 'AI Innovation Suite'}
               </h3>
             </div>
             <span className="text-[10px] text-slate-500 font-medium">4 Intelligent Tools</span>
@@ -434,8 +452,8 @@ export default function MobileDashboard({
               className="p-3.5 rounded-3xl bg-white/90 hover:bg-white border border-sky-200/80 hover:border-sky-400 text-left transition-all shadow-2xs space-y-2 cursor-pointer group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-lg p-1.5 rounded-xl bg-sky-100 text-sky-700 border border-sky-200">
-                  🚗
+                <span className="p-2 rounded-xl bg-sky-100 text-sky-700 border border-sky-200 inline-flex items-center justify-center">
+                  <Navigation className="w-4 h-4 text-sky-600" />
                 </span>
                 <span className="text-[9px] font-bold text-sky-700 bg-sky-100/90 px-1.5 py-0.5 rounded">
                   GIS
@@ -457,8 +475,8 @@ export default function MobileDashboard({
               className="p-3.5 rounded-3xl bg-white/90 hover:bg-white border border-rose-200/80 hover:border-rose-400 text-left transition-all shadow-2xs space-y-2 cursor-pointer group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-lg p-1.5 rounded-xl bg-rose-100 text-rose-700 border border-rose-200">
-                  🎪
+                <span className="p-2 rounded-xl bg-rose-100 text-rose-700 border border-rose-200 inline-flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-rose-500" />
                 </span>
                 <span className="text-[9px] font-bold text-rose-700 bg-rose-100/90 px-1.5 py-0.5 rounded">
                   Score
@@ -480,8 +498,8 @@ export default function MobileDashboard({
               className="p-3.5 rounded-3xl bg-white/90 hover:bg-white border border-teal-200/80 hover:border-teal-400 text-left transition-all shadow-2xs space-y-2 cursor-pointer group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-lg p-1.5 rounded-xl bg-teal-100 text-teal-700 border border-teal-200">
-                  📍
+                <span className="p-2 rounded-xl bg-teal-100 text-teal-700 border border-teal-200 inline-flex items-center justify-center">
+                  <Users className="w-4 h-4 text-teal-600" />
                 </span>
                 <span className="text-[9px] font-bold text-teal-700 bg-teal-100/90 px-1.5 py-0.5 rounded">
                   Feed
@@ -503,8 +521,8 @@ export default function MobileDashboard({
               className="p-3.5 rounded-3xl bg-rose-50/90 hover:bg-rose-100/90 border border-rose-300 text-left transition-all shadow-2xs space-y-2 cursor-pointer group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-lg p-1.5 rounded-xl bg-rose-200 text-rose-800 border border-rose-300 animate-pulse">
-                  🚨
+                <span className="p-2 rounded-xl bg-rose-200 text-rose-800 border border-rose-300 inline-flex items-center justify-center">
+                  <ShieldAlert className="w-4 h-4 text-rose-600 animate-pulse" />
                 </span>
                 <span className="text-[9px] font-black text-rose-800 bg-rose-200/80 px-1.5 py-0.5 rounded">
                   SOS
@@ -531,7 +549,7 @@ export default function MobileDashboard({
               <Wheat className="w-5 h-5 text-emerald-600" />
               <div>
                 <h3 className="text-xs sm:text-sm font-black text-slate-900">
-                  {activeLanguage === 'ta' ? '🌾 விவசாய விதை & பயிர் வழிகாட்டி' : '🌾 Smart Climate Seed & Crop Selection'}
+                  {activeLanguage === 'ta' ? 'விவசாய விதை & பயிர் வழிகாட்டி' : 'Smart Climate Seed & Crop Selection'}
                 </h3>
                 <p className="text-[10px] text-emerald-700 font-medium">
                   {activeLanguage === 'ta' ? 'மண் ஈரப்பதம் மற்றும் விதைப்பு நேரம்' : 'Recommended sowing window based on current weather'}

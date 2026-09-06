@@ -63,11 +63,11 @@ export default function DecisionSupportModes({
       {/* Sector Selection Tabs */}
       <div className="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-sky-100">
         {[
-          { id: 'agriculture', label: d.tabs?.agriculture || '🌾 Agriculture & Farmers', icon: Wheat },
-          { id: 'aviation', label: d.tabs?.aviation || '✈️ Aviation METAR / TAF', icon: Plane },
-          { id: 'marine', label: d.tabs?.marine || '🌊 Marine & Fishermen', icon: Anchor },
-          { id: 'smartCity', label: d.tabs?.smartCity || '🏙️ Smart City & Disaster', icon: Building2 },
-          { id: 'climate', label: d.tabs?.climate || '📊 Climate Trend Analytics', icon: TrendingUp },
+          { id: 'agriculture', label: d.tabs?.agriculture || 'Agriculture & Farmers', icon: Wheat },
+          { id: 'aviation', label: d.tabs?.aviation || 'Aviation METAR / TAF', icon: Plane },
+          { id: 'marine', label: d.tabs?.marine || 'Marine & Fishermen', icon: Anchor },
+          { id: 'smartCity', label: d.tabs?.smartCity || 'Smart City & Disaster', icon: Building2 },
+          { id: 'climate', label: d.tabs?.climate || 'Climate Trend Analytics', icon: TrendingUp },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
