@@ -96,6 +96,12 @@ const ALERT_MODAL_I18N = {
     emailSentToast: (email) => `📧 Test Email bulletin dispatched to ${email}!`,
     pushSentToast: (loc) => `🔔 Live Push alert dispatched to browser for ${loc}!`,
     logsClearedToast: 'Delivery logs cleared.',
+    guideTitle: 'Turn ON in Browser Settings (Quick Guide)',
+    guideStep1: 'Click the 🔒 Lock icon on the left of your address bar (top-left)',
+    guideStep2: 'Change "Notifications" setting to ALLOW',
+    guideStep3: 'Click the button below to verify & activate',
+    verifyBtn: '🔄 Verify & Turn ON Notifications',
+    retryPromptBtn: '🔔 Re-Prompt Browser Permission',
   },
   ta: {
     title: 'எச்சரிக்கை & அறிவிப்பு அமைப்புகள்',
@@ -160,6 +166,12 @@ const ALERT_MODAL_I18N = {
     emailSentToast: (email) => `📧 சோதனை மின்னஞ்சல் அறிக்கை ${email} முகவரிக்கு அனுப்பப்பட்டது!`,
     pushSentToast: (loc) => `🔔 ${loc} இடத்திற்கான நேரலை புஷ் எச்சரிக்கை திரையில் அனுப்பப்பட்டது!`,
     logsClearedToast: 'எச்சரிக்கை பதிவுகள் அழிக்கப்பட்டன.',
+    guideTitle: 'பிரவுசர் அமைப்புகளில் ஆன் செய்வது எப்படி? (வழிகாட்டி)',
+    guideStep1: 'பிரவுசரின் மேல் இடது மூலையில் உள்ள 🔒 பூட்டு ஐகானைக் கிளிக் செய்யவும்',
+    guideStep2: '"Notifications / அறிவிப்புகள்" என்பதை "Allow / அனுமதி" என மாற்றவும்',
+    guideStep3: 'கீழே உள்ள "சரிபார் & இயக்கு" பட்டனை அழுத்தவும்',
+    verifyBtn: '🔄 சரிபார்த்து உடனே இயக்கு (Verify & Turn ON)',
+    retryPromptBtn: '🔔 மீண்டும் அனுமதி கேள்',
   }
 };
 
@@ -176,6 +188,7 @@ export default function AlertNotificationModal({
   const [toastMessage, setToastMessage] = useState(null);
   const [isTesting, setIsTesting] = useState(false);
   const [pushPermission, setPushPermission] = useState(() => notificationService.getPermission());
+  const [highlightSettings, setHighlightSettings] = useState(false);
 
   const txt = ALERT_MODAL_I18N[activeLanguage] || ALERT_MODAL_I18N.en;
 
@@ -187,11 +200,40 @@ export default function AlertNotificationModal({
     }
   }, [isOpen]);
 
+  // Auto-detect when user toggles permission in browser lock icon / settings
+  useEffect(() => {
+    const checkPermissionOnFocus = () => {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        const current = Notification.permission;
+        setPushPermission(current);
+        if (current === 'granted') {
+          setSettings((prev) => {
+            if (!prev.push.enabled) {
+              const updated = { ...prev, push: { ...prev.push, enabled: true } };
+              handleSave(updated);
+              showToast(txt.pushGrantedToast);
+              notificationService.sendTestAlert(currentLocationName);
+              return updated;
+            }
+            return prev;
+          });
+        }
+      }
+    };
+
+    window.addEventListener('focus', checkPermissionOnFocus);
+    const interval = setInterval(checkPermissionOnFocus, 1500);
+    return () => {
+      window.removeEventListener('focus', checkPermissionOnFocus);
+      clearInterval(interval);
+    };
+  }, [currentLocationName]);
+
   if (!isOpen) return null;
 
   const showToast = (msg, type = 'success') => {
     setToastMessage({ text: msg, type });
-    setTimeout(() => setToastMessage(null), 4000);
+    setTimeout(() => setToastMessage(null), 4500);
   };
 
   const handleSave = (updatedSettings) => {
@@ -202,6 +244,7 @@ export default function AlertNotificationModal({
 
   // Push Permission Request
   const handleRequestPushPermission = async () => {
+    setHighlightSettings(true);
     const perm = await notificationService.requestPermission();
     setPushPermission(perm);
     if (perm === 'granted') {
@@ -213,8 +256,30 @@ export default function AlertNotificationModal({
       notificationService.sendTestAlert(currentLocationName);
       showToast(txt.pushGrantedToast);
       setLogs(notificationService.getDeliveryLogs());
+      setHighlightSettings(false);
     } else {
       showToast(txt.pushWarningToast, 'warning');
+    }
+  };
+
+  // Manual Verify Permission
+  const handleVerifyPermission = () => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      const current = Notification.permission;
+      setPushPermission(current);
+      if (current === 'granted') {
+        const updated = {
+          ...settings,
+          push: { ...settings.push, enabled: true },
+        };
+        handleSave(updated);
+        notificationService.sendTestAlert(currentLocationName);
+        showToast(txt.pushGrantedToast);
+        setLogs(notificationService.getDeliveryLogs());
+      } else {
+        setHighlightSettings(true);
+        showToast(txt.pushWarningToast, 'warning');
+      }
     }
   };
 
@@ -747,13 +812,103 @@ export default function AlertNotificationModal({
                   {pushPermission !== 'granted' && (
                     <button
                       onClick={handleRequestPushPermission}
-                      className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-sm transition-all"
+                      className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
                     >
                       {txt.allowPermissions}
                     </button>
                   )}
                 </div>
               </div>
+
+              {/* ✨ BLINKING VISUAL SETTINGS GUIDE (When permission is denied or needs change) */}
+              {pushPermission !== 'granted' && (
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-sky-500/10 border-2 border-amber-400 text-slate-800 space-y-3.5 shadow-md relative overflow-hidden animate-fadeIn">
+                  {/* Glowing ambient pulse */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                  <div className="flex items-center space-x-2 text-xs font-black text-amber-900">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-600"></span>
+                    </span>
+                    <span>{txt.guideTitle}</span>
+                  </div>
+
+                  {/* Visual Browser Mockup Bar with Blinking Lock */}
+                  <div className="bg-slate-900 text-slate-100 p-3 rounded-xl border border-slate-700 space-y-2 text-xs font-mono shadow-inner">
+                    <div className="flex items-center space-x-2 bg-slate-800/90 px-2.5 py-1.5 rounded-lg border border-slate-600/80">
+                      {/* Blinking Pulsing Lock Icon */}
+                      <div className="relative flex items-center justify-center p-1 rounded-md bg-amber-500/30 border border-amber-400 animate-pulse text-amber-300">
+                        <span className="text-sm">🔒</span>
+                        <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-90"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-slate-300 font-sans truncate flex-1">
+                        https://weather-gpt-yuvi.vercel.app/
+                      </span>
+                      <span className="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded font-bold uppercase animate-bounce">
+                        👈 Click Here
+                      </span>
+                    </div>
+
+                    {/* Dropdown permissions mockup */}
+                    <div className="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/80 flex items-center justify-between font-sans text-xs">
+                      <div className="flex items-center space-x-2">
+                        <Bell className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                        <span className="text-slate-200 font-semibold">Notifications</span>
+                      </div>
+                      <div className="flex items-center space-x-1.5 px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-bold text-[11px] animate-pulse">
+                        <span>ALLOW</span>
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3 Step Instruction Pills with Blinking Badges */}
+                  <div className="space-y-1.5 text-xs text-slate-700 font-medium">
+                    <div className="flex items-start space-x-2">
+                      <span className="w-4 h-4 rounded-full bg-amber-600 text-white font-black text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5 animate-pulse">
+                        1
+                      </span>
+                      <span>{txt.guideStep1}</span>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <span className="w-4 h-4 rounded-full bg-emerald-600 text-white font-black text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5 animate-pulse">
+                        2
+                      </span>
+                      <span>{txt.guideStep2}</span>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <span className="w-4 h-4 rounded-full bg-sky-600 text-white font-black text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        3
+                      </span>
+                      <span>{txt.guideStep3}</span>
+                    </div>
+                  </div>
+
+                  {/* Interactive Action Buttons */}
+                  <div className="pt-1 flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={handleVerifyPermission}
+                      className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-black shadow-md shadow-emerald-600/20 flex items-center justify-center space-x-1.5 transition-all cursor-pointer animate-pulse"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>{txt.verifyBtn}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRequestPushPermission}
+                      className="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center justify-center space-x-1 transition-all cursor-pointer shadow-2xs"
+                    >
+                      <Bell className="w-3.5 h-3.5 text-sky-600" />
+                      <span>{txt.retryPromptBtn}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Sound Settings */}
               <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-3">
