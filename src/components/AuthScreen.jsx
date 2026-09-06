@@ -35,56 +35,36 @@ export default function AuthScreen({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Pre-seeded Google accounts on device for instant 1-click OAuth selection
-  const DEFAULT_GOOGLE_ACCOUNTS = [
-    {
-      name: 'Yuva Adhika',
-      email: 'yuvaadhika58@gmail.com',
-      avatarBg: 'bg-gradient-to-tr from-sky-600 via-blue-600 to-indigo-600',
-      badge: 'Admin & Lead'
-    },
-    {
-      name: 'Yuva Personal',
-      email: 'yuvaadhika.personal@gmail.com',
-      avatarBg: 'bg-gradient-to-tr from-cyan-600 via-teal-600 to-emerald-600',
-      badge: 'Google Account'
-    },
-    {
-      name: 'WeatherGPT User',
-      email: 'user.weathergpt@gmail.com',
-      avatarBg: 'bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600',
-      badge: 'Standard Account'
-    }
-  ];
-
-  // Dynamic Google Sign In State
+  // Dynamic Google Sign In State - Strictly user's own device accounts
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const [googleEmailInput, setGoogleEmailInput] = useState('');
   const [googleNameInput, setGoogleNameInput] = useState('');
   const [googleError, setGoogleError] = useState('');
-  const [savedGoogleAccounts, setSavedGoogleAccounts] = useState(DEFAULT_GOOGLE_ACCOUNTS);
+  const [savedGoogleAccounts, setSavedGoogleAccounts] = useState([]);
   const [isAddingNewGoogleAccount, setIsAddingNewGoogleAccount] = useState(false);
   const [selectedGoogleEmail, setSelectedGoogleEmail] = useState('');
 
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
 
-  // Load any previously saved Google accounts on this device
+  // Load only accounts that THIS specific user has previously logged into on this device
   useEffect(() => {
     try {
       const stored = localStorage.getItem('weathergpt_saved_google_accounts');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setSavedGoogleAccounts(parsed);
+          // Filter out any obsolete dummy accounts if present
+          const cleaned = parsed.filter(a => a.email && !a.email.includes('example.com'));
+          setSavedGoogleAccounts(cleaned);
         } else {
-          setSavedGoogleAccounts(DEFAULT_GOOGLE_ACCOUNTS);
-          localStorage.setItem('weathergpt_saved_google_accounts', JSON.stringify(DEFAULT_GOOGLE_ACCOUNTS));
+          setSavedGoogleAccounts([]);
         }
       } else {
-        localStorage.setItem('weathergpt_saved_google_accounts', JSON.stringify(DEFAULT_GOOGLE_ACCOUNTS));
+        setSavedGoogleAccounts([]);
       }
     } catch (e) {
       console.warn('Failed to load saved Google accounts', e);
+      setSavedGoogleAccounts([]);
     }
   }, []);
 
@@ -94,7 +74,8 @@ export default function AuthScreen({
     setGoogleEmailInput('');
     setGoogleNameInput('');
     setSelectedGoogleEmail('');
-    setIsAddingNewGoogleAccount(false);
+    // If user has saved accounts on their device, show the account picker; otherwise show the email entry form
+    setIsAddingNewGoogleAccount(savedGoogleAccounts.length === 0);
     setIsGoogleModalOpen(true);
   };
 

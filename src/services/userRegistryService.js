@@ -22,61 +22,8 @@ function getClientDeviceInfo() {
   return { device, browser };
 }
 
-// Initial seed data so accessor database starts with rich context
-const INITIAL_SEED_USERS = [
-  {
-    id: 'usr-google-001',
-    name: 'Yuva Adhika',
-    email: 'yuvaadhika58@gmail.com',
-    provider: 'Google 🌐',
-    role: 'Lead Accessor & Admin',
-    timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
-    formattedTime: new Date(Date.now() - 3600000 * 2).toLocaleString(),
-    device: 'Windows PC 🖥️',
-    browser: 'Chrome',
-    loginCount: 14,
-    status: 'Active Now 🟢'
-  },
-  {
-    id: 'usr-email-002',
-    name: 'Dr. S. K. Narayanan',
-    email: 'narayanan.agri@tnaur.in',
-    provider: 'Email Signup ✉️',
-    role: 'Agro Researcher',
-    timestamp: new Date(Date.now() - 3600000 * 8).toISOString(),
-    formattedTime: new Date(Date.now() - 3600000 * 8).toLocaleString(),
-    device: 'Android Phone 🤖',
-    browser: 'Chrome Mobile',
-    loginCount: 5,
-    status: 'Offline'
-  },
-  {
-    id: 'usr-google-003',
-    name: 'Kavitha Ramasamy',
-    email: 'kavitha.ram92@gmail.com',
-    provider: 'Google 🌐',
-    role: 'Standard Member',
-    timestamp: new Date(Date.now() - 3600000 * 18).toISOString(),
-    formattedTime: new Date(Date.now() - 3600000 * 18).toLocaleString(),
-    device: 'iPhone 🍎',
-    browser: 'Safari',
-    loginCount: 3,
-    status: 'Offline'
-  },
-  {
-    id: 'usr-guest-004',
-    name: 'Guest User (Salem)',
-    email: 'guest_salem@weathergpt.ai',
-    provider: 'Guest Access 👤',
-    role: 'Guest',
-    timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
-    formattedTime: new Date(Date.now() - 3600000 * 24).toLocaleString(),
-    device: 'Android Phone 🤖',
-    browser: 'Chrome Mobile',
-    loginCount: 1,
-    status: 'Offline'
-  }
-];
+// Initial seed users: empty by default so only real authenticated users on this device are tracked
+const INITIAL_SEED_USERS = [];
 
 class UserRegistryService {
   constructor() {
