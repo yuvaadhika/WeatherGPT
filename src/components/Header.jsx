@@ -243,8 +243,8 @@ export default function Header({
                   className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-sky-300"
                 />
               ) : (
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-pink-400 via-rose-400 to-amber-300 text-white flex items-center justify-center shadow-2xs">
-                  <Flower2 className="w-3.5 h-3.5 text-white" />
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-sky-600 via-cyan-500 to-indigo-600 text-white flex items-center justify-center font-black text-[10px] sm:text-xs shadow-2xs">
+                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}
               <span className="text-xs font-bold text-slate-800 hidden sm:inline max-w-[80px] truncate">
@@ -264,15 +264,15 @@ export default function Header({
                       className="w-8 h-8 rounded-full object-cover border border-sky-300"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-400 via-rose-400 to-amber-300 text-white flex items-center justify-center shadow-xs">
-                      <Flower2 className="w-5 h-5 text-white" />
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 via-cyan-500 to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-xs">
+                      {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
                     </div>
                   )}
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-slate-900 truncate">{currentUser.name}</p>
                     <p className="text-[10px] text-slate-500 truncate">{currentUser.email}</p>
-                    <span className="inline-block mt-0.5 text-[9px] font-semibold px-1.5 py-0.2 rounded bg-rose-50 text-rose-700 border border-rose-200">
-                      🌸 {currentUser.role || 'Member'}
+                    <span className="inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-sky-50 text-sky-700 border border-sky-200">
+                      {currentUser.role || 'Member'}
                     </span>
                   </div>
                 </div>

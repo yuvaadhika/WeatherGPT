@@ -120,12 +120,14 @@ export default function App() {
 
   const handleAllowPermissions = async (allowLocation, allowAlerts) => {
     localStorage.setItem('weather_onboarding_shown', 'true');
+    setIsOnboardingOpen(false);
     if (allowLocation) {
       detectUserLocation(activeLanguage);
     }
     if (allowAlerts) {
       setNotificationsEnabled(true);
-      notificationService.sendTestAlert(currentLocation.name || 'Your Location');
+      notificationService.sendTestAlert(currentLocation?.name || 'Your Location');
+      setIsAlertModalOpen(true);
     }
   };
 
@@ -174,24 +176,74 @@ export default function App() {
 
   const detectUserLocation = (lang) => {
     const targetLang = typeof lang === 'string' && lang ? lang : activeLanguage;
-    if (navigator.geolocation) {
+    if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
           try {
             const loc = await reverseGeocode(lat, lon, targetLang);
-            if (loc) {
+            if (loc && loc.name) {
               setCurrentLocation(loc);
+            } else {
+              setCurrentLocation({
+                name: 'Live GPS Location',
+                rawName: 'Live GPS Location',
+                admin1: '',
+                country: 'India',
+                latitude: lat,
+                longitude: lon,
+              });
             }
           } catch (e) {
             console.warn('Reverse geocode error:', e);
+            setCurrentLocation({
+              name: 'Live GPS Location',
+              rawName: 'Live GPS Location',
+              admin1: '',
+              country: 'India',
+              latitude: lat,
+              longitude: lon,
+            });
           }
         },
         (err) => {
-          console.warn('Geolocation denied/unavailable:', err);
-        }
+          console.warn('Geolocation denied or slow, using IP location fallback:', err);
+          fetch('https://ipapi.co/json/')
+            .then((res) => res.json())
+            .then(async (ipData) => {
+              if (ipData && ipData.latitude && ipData.longitude) {
+                const loc = await reverseGeocode(ipData.latitude, ipData.longitude, targetLang);
+                if (loc) {
+                  setCurrentLocation(loc);
+                } else {
+                  setCurrentLocation({
+                    name: ipData.city || 'Your Location',
+                    rawName: ipData.city || 'Your Location',
+                    admin1: ipData.region || '',
+                    rawAdmin1: ipData.region || '',
+                    country: ipData.country_name || 'India',
+                    rawCountry: ipData.country_name || 'India',
+                    latitude: ipData.latitude,
+                    longitude: ipData.longitude,
+                  });
+                }
+              }
+            })
+            .catch(console.warn);
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
       );
+    } else {
+      fetch('https://ipapi.co/json/')
+        .then((res) => res.json())
+        .then(async (ipData) => {
+          if (ipData && ipData.latitude && ipData.longitude) {
+            const loc = await reverseGeocode(ipData.latitude, ipData.longitude, targetLang);
+            if (loc) setCurrentLocation(loc);
+          }
+        })
+        .catch(console.warn);
     }
   };
 

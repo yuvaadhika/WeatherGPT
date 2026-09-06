@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   Sun,
+  CloudSun,
   CloudRain,
   Sparkles,
   Lock,
@@ -13,8 +14,7 @@ import {
   Globe,
   Radio,
   Wheat,
-  Zap,
-  Flower2
+  Zap
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 
@@ -41,8 +41,8 @@ export default function AuthScreen({
       const googleUser = {
         name: 'Yuva Adhika',
         email: 'yuvaadhika@gmail.com',
-        avatarType: 'flower',
-        avatar: 'flower_blossom',
+        avatarType: 'initials',
+        avatar: '',
         provider: 'google',
         role: 'Pro Member',
         joinedAt: new Date().toISOString()
@@ -54,7 +54,7 @@ export default function AuthScreen({
       }
       setIsLoading(false);
       onLogin(googleUser);
-    }, 500);
+    }, 450);
   };
 
   const handleSubmit = (e) => {
@@ -81,8 +81,8 @@ export default function AuthScreen({
       const authUser = {
         name: mode === 'signup' ? name.trim() : (email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'WeatherGPT Member'),
         email: email.trim(),
-        avatarType: 'flower',
-        avatar: 'flower_blossom',
+        avatarType: 'initials',
+        avatar: '',
         provider: 'email',
         role: 'Standard Member',
         joinedAt: new Date().toISOString()
@@ -95,7 +95,7 @@ export default function AuthScreen({
       }
       setIsLoading(false);
       onLogin(authUser);
-    }, 450);
+    }, 400);
   };
 
   const handleGuestLogin = () => {
@@ -120,14 +120,14 @@ export default function AuthScreen({
     <div className="min-h-screen w-screen flex flex-col justify-between bg-gradient-to-br from-[#edf6fd] via-[#f7faff] to-[#e6f1fc] text-slate-800 relative overflow-x-hidden font-sans select-none">
       {/* Subtle Mild Ambient Background Clouds & Glows */}
       <div className="absolute top-[-10%] left-[-5%] w-[450px] h-[450px] rounded-full bg-sky-200/40 blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-5%] w-[480px] h-[480px] rounded-full bg-rose-100/40 blur-[120px] pointer-events-none"></div>
-      <div className="absolute top-[35%] right-[15%] w-[320px] h-[320px] rounded-full bg-amber-100/40 blur-[90px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-5%] w-[480px] h-[480px] rounded-full bg-blue-100/40 blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-[35%] right-[15%] w-[320px] h-[320px] rounded-full bg-cyan-100/40 blur-[90px] pointer-events-none"></div>
 
       {/* Top Bar: Brand + Multi-Language Selector */}
       <header className="relative z-10 w-full max-w-5xl mx-auto px-4 py-4 sm:py-5 flex items-center justify-between">
         <div className="flex items-center space-x-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-400 via-cyan-400 to-rose-300 flex items-center justify-center text-white shadow-md shadow-sky-400/20">
-            <Flower2 className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 via-cyan-400 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+            <CloudSun className="w-6 h-6 text-white" />
           </div>
           <div>
             <div className="flex items-center space-x-1.5">
@@ -137,7 +137,7 @@ export default function AuthScreen({
               </span>
             </div>
             <p className="text-[11px] text-slate-500 font-medium">
-              {activeLanguage === 'ta' ? 'அதிநவீன வானிலை நுண்ணறிவு தளம்' : 'Hyperlocal Weather Intelligence'}
+              {activeLanguage === 'ta' ? 'அதிநவீன நேரடி வானிலை தளம்' : 'Hyperlocal Weather Intelligence'}
             </p>
           </div>
         </div>
@@ -163,10 +163,10 @@ export default function AuthScreen({
       <main className="relative z-10 w-full max-w-md mx-auto px-4 py-2 flex-1 flex flex-col justify-center items-center">
         <div className="w-full bg-white/90 backdrop-blur-2xl border border-sky-100/90 rounded-3xl p-6 sm:p-8 shadow-xl shadow-sky-900/5 space-y-5">
           
-          {/* Header Title with Flower Blossom Badge */}
+          {/* Header Title with Weather Badge */}
           <div className="text-center space-y-1.5">
-            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold mb-1 shadow-2xs">
-              <Flower2 className="w-3.5 h-3.5 text-rose-500" />
+            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-[11px] font-bold mb-1 shadow-2xs">
+              <CloudSun className="w-3.5 h-3.5 text-sky-600" />
               <span>{activeLanguage === 'ta' ? 'வானிலை தகவல்களை எளிதாக அணுகவும்' : 'Clean & Simple Weather Access'}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
@@ -389,7 +389,7 @@ export default function AuthScreen({
             { icon: Radio, text: activeLanguage === 'ta' ? 'டாப்ளர் ரேடார்' : 'Doppler Radar' },
             { icon: CloudRain, text: activeLanguage === 'ta' ? 'மழை முன்னறிவிப்பு' : 'Rain Nowcast' },
             { icon: Wheat, text: activeLanguage === 'ta' ? 'விவசாய வழிகாட்டி' : 'Farmer Advisory' },
-            { icon: Flower2, text: activeLanguage === 'ta' ? '10 மொழிகள்' : '10 Languages' },
+            { icon: Sparkles, text: activeLanguage === 'ta' ? '10 மொழிகள்' : '10 Languages' },
           ].map((item, idx) => {
             const Icon = item.icon;
             return (
