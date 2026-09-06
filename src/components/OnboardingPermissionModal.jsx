@@ -261,35 +261,35 @@ export default function OnboardingPermissionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn">
       <div className="bg-white border border-slate-200/90 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-scaleUp text-slate-800 max-h-[92vh] flex flex-col">
-        {/* Top Gradient Banner */}
-        <div className="p-4 sm:p-5 bg-gradient-to-tr from-sky-600 via-indigo-600 to-cyan-500 text-white relative overflow-hidden flex-shrink-0">
-          <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        {/* Top Mild Header Banner */}
+        <div className="p-4 sm:p-5 bg-gradient-to-br from-[#ebf5fe] via-[#f5f9ff] to-[#e8f3fc] border-b border-sky-100 text-slate-800 relative overflow-hidden flex-shrink-0">
+          <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-sky-200/30 rounded-full blur-2xl pointer-events-none"></div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-inner">
-                <Navigation className="w-5 h-5 animate-bounce" />
+              <div className="w-10 h-10 rounded-2xl bg-white border border-sky-200/80 flex items-center justify-center text-sky-600 shadow-2xs">
+                <Navigation className="w-5 h-5 text-sky-600 animate-bounce" />
               </div>
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                  WeatherGPT AI • SIH 2026
+                <span className="text-[10px] font-bold tracking-wide bg-sky-100/90 text-sky-800 border border-sky-200/80 px-2.5 py-0.5 rounded-full">
+                  WeatherGPT
                 </span>
-                <h3 className="text-base sm:text-lg font-black tracking-tight mt-0.5">
+                <h3 className="text-base sm:text-lg font-black tracking-tight text-slate-900 mt-1">
                   {activeLanguage === 'ta' ? 'வானிலை & எச்சரிக்கை அனுமதி' : 'Enable Live Weather & Alerts'}
                 </h3>
               </div>
             </div>
 
             {/* Language Switcher in Modal */}
-            <div className="flex items-center space-x-1 bg-black/20 backdrop-blur-md px-2 py-1 rounded-xl border border-white/20">
-              <Globe className="w-3.5 h-3.5 text-sky-200" />
+            <div className="flex items-center space-x-1 bg-white/90 border border-sky-200/80 px-2.5 py-1 rounded-xl shadow-2xs">
+              <Globe className="w-3.5 h-3.5 text-sky-600" />
               <select
                 value={activeLanguage}
                 onChange={(e) => setActiveLanguage && setActiveLanguage(e.target.value)}
-                className="bg-transparent text-[11px] font-bold text-white focus:outline-none cursor-pointer"
+                className="bg-transparent text-[11px] font-bold text-slate-700 focus:outline-none cursor-pointer"
               >
                 {SUPPORTED_LANGUAGES.map((l) => (
-                  <option key={l.code} value={l.code} className="bg-slate-900 text-white">
+                  <option key={l.code} value={l.code} className="bg-white text-slate-800">
                     {l.nativeName}
                   </option>
                 ))}
@@ -297,7 +297,7 @@ export default function OnboardingPermissionModal({
             </div>
           </div>
 
-          <p className="text-xs text-sky-100 mt-2.5 leading-relaxed font-medium">
+          <p className="text-xs text-slate-600 mt-2.5 leading-relaxed font-medium">
             {activeLanguage === 'ta'
               ? 'உங்கள் பகுதிக்குரிய துல்லியமான நேரடி மழைப்பொழிவு, புயல் மற்றும் வெள்ள முன்னெச்சரிக்கைகளைப் பெற அனுமதியை இயக்கவும்.'
               : 'Enable GPS & extreme weather alerts to receive hyperlocal forecasts and automated flood/cyclone warnings.'}
