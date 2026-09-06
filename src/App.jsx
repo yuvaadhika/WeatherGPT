@@ -18,6 +18,7 @@ import RouteWeatherPlanner from './components/RouteWeatherPlanner';
 import EventWeatherScore from './components/EventWeatherScore';
 import CommunityWeatherSpotter from './components/CommunityWeatherSpotter';
 import DisasterEmergencySOS from './components/DisasterEmergencySOS';
+import AdminUserRegistryModal from './components/AdminUserRegistryModal';
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -110,6 +111,7 @@ export default function App() {
   const [exportReportParams, setExportReportParams] = useState(null);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
     return localStorage.getItem('weather_onboarding_shown') !== 'true';
   });
@@ -670,6 +672,7 @@ export default function App() {
           onTestNotification={() => notificationService.sendTestAlert(currentLocation.name)}
           onOpenAlertModal={() => setIsAlertModalOpen(true)}
           onOpenLocationModal={() => setIsLocationModalOpen(true)}
+          onOpenAdminDatabase={() => setIsAdminModalOpen(true)}
           currentUser={currentUser}
           onSignOut={handleSignOut}
         />
@@ -996,6 +999,12 @@ export default function App() {
           detectUserLocation(lang);
           setIsLocationModalOpen(false);
         }}
+      />
+
+      <AdminUserRegistryModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        activeLanguage={activeLanguage}
       />
     </div>
   );

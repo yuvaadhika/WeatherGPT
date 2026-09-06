@@ -10,7 +10,9 @@ import {
   LogOut,
   Sparkles,
   ChevronDown,
-  Flower2
+  Flower2,
+  Database,
+  Shield
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getLocalizedPlaceName } from '../services/weatherService';
@@ -28,6 +30,7 @@ export default function Header({
   onToggleNotifications,
   onOpenAlertModal,
   onOpenLocationModal,
+  onOpenAdminDatabase,
   currentUser,
   onSignOut
 }) {
@@ -277,7 +280,19 @@ export default function Header({
                   </div>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 space-y-1">
+                  {/* Accessor-only Database Option */}
+                  <button
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      if (onOpenAdminDatabase) onOpenAdminDatabase();
+                    }}
+                    className="w-full py-1.5 px-2 rounded-xl text-xs font-bold text-sky-700 hover:bg-sky-50 flex items-center space-x-2 transition-colors cursor-pointer"
+                  >
+                    <Database className="w-3.5 h-3.5 text-sky-600" />
+                    <span>{activeLanguage === 'ta' ? '🔐 அணுகல் தரவுத்தளம்' : '🔐 Accessor Database'}</span>
+                  </button>
+
                   <button
                     onClick={() => {
                       setUserDropdownOpen(false);

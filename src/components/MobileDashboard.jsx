@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Radio,
   Clock,
-  Compass,
   Zap,
   PhoneCall,
   Volume2,
@@ -163,15 +162,6 @@ export default function MobileDashboard({
         </button>
 
         <div className="flex items-center space-x-1.5">
-          <button
-            onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
-            className="p-1.5 sm:px-2.5 sm:py-1 rounded-xl bg-white/90 hover:bg-sky-50 border border-sky-200/80 text-sky-700 text-[11px] font-bold flex items-center space-x-1 transition-all shadow-2xs cursor-pointer"
-            title="Auto-detect current GPS location"
-          >
-            <Compass className="w-3.5 h-3.5 text-sky-600" />
-            <span className="hidden xs:inline">{activeLanguage === 'ta' ? 'ஜிபிஎஸ்' : 'GPS'}</span>
-          </button>
-
           <button
             onClick={handleShareWeather}
             className="p-1.5 sm:px-2.5 sm:py-1 rounded-xl bg-white/90 hover:bg-sky-50 border border-sky-200/80 text-slate-700 text-[11px] font-bold flex items-center space-x-1 transition-all shadow-2xs cursor-pointer"

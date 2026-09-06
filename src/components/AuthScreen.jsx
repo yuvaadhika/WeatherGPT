@@ -17,6 +17,7 @@ import {
   Zap
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
+import { userRegistryService } from '../services/userRegistryService';
 
 export default function AuthScreen({
   onLogin,
@@ -40,13 +41,17 @@ export default function AuthScreen({
     setTimeout(() => {
       const googleUser = {
         name: 'Yuva Adhika',
-        email: 'yuvaadhika@gmail.com',
+        email: 'yuvaadhika58@gmail.com',
         avatarType: 'initials',
         avatar: '',
         provider: 'google',
         role: 'Pro Member',
         joinedAt: new Date().toISOString()
       };
+      
+      // Store in Accessor Database
+      userRegistryService.recordUserSession(googleUser, 'google');
+
       if (rememberMe) {
         localStorage.setItem('weathergpt_auth_user', JSON.stringify(googleUser));
       } else {
@@ -83,10 +88,13 @@ export default function AuthScreen({
         email: email.trim(),
         avatarType: 'initials',
         avatar: '',
-        provider: 'email',
+        provider: mode === 'signup' ? 'email_signup' : 'email_signin',
         role: 'Standard Member',
         joinedAt: new Date().toISOString()
       };
+
+      // Store in Accessor Database
+      userRegistryService.recordUserSession(authUser, mode === 'signup' ? 'email_signup' : 'email_signin');
 
       if (rememberMe) {
         localStorage.setItem('weathergpt_auth_user', JSON.stringify(authUser));
@@ -102,7 +110,7 @@ export default function AuthScreen({
     setIsLoading(true);
     setTimeout(() => {
       const guestUser = {
-        name: activeLanguage === 'ta' ? 'விருந்தினர்' : 'Guest User',
+        name: activeLanguage === 'ta' ? 'விருந்தினர் (Guest)' : 'Guest User',
         email: 'guest@weathergpt.ai',
         avatarType: 'guest',
         avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=GuestWeatherGPT',
@@ -110,6 +118,10 @@ export default function AuthScreen({
         role: 'Guest Access',
         joinedAt: new Date().toISOString()
       };
+
+      // Store in Accessor Database
+      userRegistryService.recordUserSession(guestUser, 'guest');
+
       localStorage.setItem('weathergpt_auth_user', JSON.stringify(guestUser));
       setIsLoading(false);
       onLogin(guestUser);
