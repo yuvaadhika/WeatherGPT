@@ -189,6 +189,8 @@ export default function AlertNotificationModal({
   const [isTesting, setIsTesting] = useState(false);
   const [pushPermission, setPushPermission] = useState(() => notificationService.getPermission());
   const [highlightSettings, setHighlightSettings] = useState(false);
+  const [showSpotlightGuide, setShowSpotlightGuide] = useState(false);
+  const [justGranted, setJustGranted] = useState(false);
 
   const txt = ALERT_MODAL_I18N[activeLanguage] || ALERT_MODAL_I18N.en;
 
@@ -207,6 +209,7 @@ export default function AlertNotificationModal({
         const current = Notification.permission;
         setPushPermission(current);
         if (current === 'granted') {
+          setJustGranted(true);
           setSettings((prev) => {
             if (!prev.push.enabled) {
               const updated = { ...prev, push: { ...prev.push, enabled: true } };
@@ -217,12 +220,16 @@ export default function AlertNotificationModal({
             }
             return prev;
           });
+          setTimeout(() => {
+            setShowSpotlightGuide(false);
+            setJustGranted(false);
+          }, 1600);
         }
       }
     };
 
     window.addEventListener('focus', checkPermissionOnFocus);
-    const interval = setInterval(checkPermissionOnFocus, 1500);
+    const interval = setInterval(checkPermissionOnFocus, 1000);
     return () => {
       window.removeEventListener('focus', checkPermissionOnFocus);
       clearInterval(interval);
@@ -257,7 +264,9 @@ export default function AlertNotificationModal({
       showToast(txt.pushGrantedToast);
       setLogs(notificationService.getDeliveryLogs());
       setHighlightSettings(false);
+      setShowSpotlightGuide(false);
     } else {
+      setShowSpotlightGuide(true);
       showToast(txt.pushWarningToast, 'warning');
     }
   };
@@ -268,6 +277,7 @@ export default function AlertNotificationModal({
       const current = Notification.permission;
       setPushPermission(current);
       if (current === 'granted') {
+        setJustGranted(true);
         const updated = {
           ...settings,
           push: { ...settings.push, enabled: true },
@@ -276,8 +286,13 @@ export default function AlertNotificationModal({
         notificationService.sendTestAlert(currentLocationName);
         showToast(txt.pushGrantedToast);
         setLogs(notificationService.getDeliveryLogs());
+        setTimeout(() => {
+          setShowSpotlightGuide(false);
+          setJustGranted(false);
+        }, 1500);
       } else {
         setHighlightSettings(true);
+        setShowSpotlightGuide(true);
         showToast(txt.pushWarningToast, 'warning');
       }
     }
@@ -1016,12 +1031,109 @@ export default function AlertNotificationModal({
           </div>
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs transition-colors shadow-sm"
+            className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-semibold text-xs transition-colors shadow-sm cursor-pointer"
           >
             {txt.done}
           </button>
         </div>
       </div>
+
+      {/* 🚀 FULLSCREEN BLINKING SPOTLIGHT OVERLAY (Points directly to Address Bar 🔒 icon) */}
+      {showSpotlightGuide && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-md flex flex-col items-start justify-start p-3 sm:p-6 text-white animate-fadeIn overflow-y-auto">
+          {/* Top Pointer Beam Pointing Directly UP to Browser Address Bar */}
+          <div className="w-full flex flex-col items-start relative animate-bounce mt-1 sm:mt-2">
+            <div className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 via-rose-500 to-amber-600 text-white px-4 py-2.5 rounded-2xl shadow-2xl border-2 border-amber-300 font-black text-xs sm:text-sm">
+              <span className="text-xl animate-ping">⬆️</span>
+              <span className="text-xl">🔒</span>
+              <span>
+                {activeLanguage === 'ta'
+                  ? '1. மேலே உள்ள பிரவுசர் முகவரிப் பட்டியில் 🔒 ஐகானை அழுத்தவும்'
+                  : '1. Click the 🔒 Lock Icon in your Address Bar at the top'}
+              </span>
+            </div>
+            {/* Animated Light Beam */}
+            <div className="ml-8 w-1 h-8 bg-gradient-to-b from-amber-400 to-transparent"></div>
+          </div>
+
+          {/* Central Animated Interactive Guide Card */}
+          <div className="self-center bg-slate-900/95 border-2 border-amber-400 rounded-3xl p-5 sm:p-6 max-w-md w-full mt-3 shadow-2xl space-y-4 text-center">
+            {justGranted ? (
+              <div className="py-6 space-y-2 animate-scaleUp text-emerald-400">
+                <CheckCircle2 className="w-16 h-16 mx-auto text-emerald-400 animate-bounce" />
+                <h3 className="text-lg font-black text-white">
+                  {activeLanguage === 'ta' ? 'அனுமதி இயக்கப்பட்டது!' : 'Permission Activated!'}
+                </h3>
+                <p className="text-xs text-emerald-300">
+                  {activeLanguage === 'ta' ? 'அறிவிப்புகள் வெற்றிகரமாக இணைக்கப்பட்டுள்ளன.' : 'Push notifications are now active.'}
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Blinking Target Beacon */}
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-amber-300 flex items-center justify-center animate-pulse shadow-lg">
+                  <BellRing className="w-7 h-7 animate-spin" />
+                </div>
+
+                <div>
+                  <h3 className="text-base font-extrabold text-white">
+                    {activeLanguage === 'ta'
+                      ? 'பிரவுசர் அமைப்புகளில் அறிவிப்பை ஆன் செய்யவும்'
+                      : 'Enable Notifications in Browser Settings'}
+                  </h3>
+                  <p className="text-xs text-amber-200/90 mt-1 leading-relaxed">
+                    {activeLanguage === 'ta'
+                      ? 'பிரவுசரின் மேல் இடது மூலையில் உள்ள 🔒 ஐகானைக் கிளிக் செய்து "Notifications" என்பதை "Allow" செய்யவும்.'
+                      : 'Click the 🔒 lock icon at top-left of the URL bar and change Notifications to "Allow".'}
+                  </p>
+                </div>
+
+                {/* Simulated Setting Mockup */}
+                <div className="bg-slate-800 p-3.5 rounded-2xl border border-slate-700 space-y-2 text-left shadow-inner font-mono text-xs">
+                  <div className="flex items-center space-x-2 text-slate-400 text-[11px] pb-1 border-b border-slate-700">
+                    <span>🔒 Site Permissions</span>
+                    <span className="text-amber-400 font-sans ml-auto font-bold animate-pulse">👈 Select Here</span>
+                  </div>
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center space-x-2 font-sans font-semibold text-slate-200">
+                      <Bell className="w-4 h-4 text-amber-400" />
+                      <span>Notifications</span>
+                    </div>
+                    <div className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-emerald-500/25 border border-emerald-400 text-emerald-300 font-black text-xs animate-pulse">
+                      <span>ALLOW</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="pt-2 flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={handleVerifyPermission}
+                    className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-600 hover:from-emerald-600 hover:to-sky-700 text-white font-black text-xs shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 cursor-pointer transition-all animate-pulse"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    <span>
+                      {activeLanguage === 'ta'
+                        ? '🔄 ஆன் செய்துவிட்டேன் - சரிபார் (Verify & Activate)'
+                        : '🔄 I Enabled It - Verify & Activate'}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowSpotlightGuide(false)}
+                    className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    {activeLanguage === 'ta' ? 'மூடு (Close)' : 'Close'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
