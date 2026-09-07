@@ -10,6 +10,7 @@ import {
   getWeatherDescription,
   getLocalizedPlaceName
 } from './weatherService';
+import { dbService } from './dbService';
 
 // 🌐 Universal Multi-Language & Tanglish Auto-Detector Engine
 // Detects Tamil script, Indic Unicode scripts, Tanglish Romanized phonetics, and English queries
@@ -319,7 +320,10 @@ export class WeatherAIAgent {
   constructor() {
     this.hfApiKey = '';
     this.geminiApiKey = '';
+    this.openaiApiKey = '';
+    this.llamaApiKey = '';
     this.openWeatherApiKey = '';
+    this.selectedModel = 'hybrid'; // 'gemini' | 'openai' | 'llama' | 'hybrid'
     this.loadKeys();
   }
 
@@ -327,11 +331,25 @@ export class WeatherAIAgent {
     if (typeof window !== 'undefined') {
       this.hfApiKey = localStorage.getItem('weathergpt_hf_key') || '';
       this.geminiApiKey = localStorage.getItem('weathergpt_gemini_key') || '';
+      this.openaiApiKey = localStorage.getItem('weathergpt_openai_key') || '';
+      this.llamaApiKey = localStorage.getItem('weathergpt_llama_key') || '';
       this.openWeatherApiKey = localStorage.getItem('weathergpt_openweather_key') || '';
+      this.selectedModel = localStorage.getItem('weathergpt_selected_model') || 'hybrid';
     }
   }
 
-  saveKeys({ hfKey, geminiKey, openWeatherKey }) {
+  setModel(model) {
+    this.selectedModel = model;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('weathergpt_selected_model', model);
+    }
+  }
+
+  getModel() {
+    return this.selectedModel;
+  }
+
+  saveKeys({ hfKey, geminiKey, openaiKey, llamaKey, openWeatherKey, model }) {
     if (typeof window !== 'undefined') {
       if (hfKey !== undefined) {
         this.hfApiKey = hfKey;
@@ -341,11 +359,105 @@ export class WeatherAIAgent {
         this.geminiApiKey = geminiKey;
         localStorage.setItem('weathergpt_gemini_key', geminiKey);
       }
+      if (openaiKey !== undefined) {
+        this.openaiApiKey = openaiKey;
+        localStorage.setItem('weathergpt_openai_key', openaiKey);
+      }
+      if (llamaKey !== undefined) {
+        this.llamaApiKey = llamaKey;
+        localStorage.setItem('weathergpt_llama_key', llamaKey);
+      }
       if (openWeatherKey !== undefined) {
         this.openWeatherApiKey = openWeatherKey;
         localStorage.setItem('weathergpt_openweather_key', openWeatherKey);
       }
+      if (model !== undefined) {
+        this.selectedModel = model;
+        localStorage.setItem('weathergpt_selected_model', model);
+      }
     }
+  }
+
+  // Active OpenAI GPT-4o inference engine
+  async callOpenAI({ prompt, systemPrompt }) {
+    if (!this.openaiApiKey) throw new Error('No OpenAI API key provided');
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.openaiApiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.4,
+        max_tokens: 800,
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `OpenAI request failed (${res.status})`);
+    }
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content;
+  }
+
+  // Active Google Gemini 2.0 / 1.5 Flash inference engine
+  async callGemini({ prompt, systemPrompt }) {
+    if (!this.geminiApiKey) throw new Error('No Gemini API key provided');
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: `${systemPrompt}\n\nUser Question: ${prompt}` }]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 800,
+        }
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Gemini request failed (${res.status})`);
+    }
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+  }
+
+  // Active Meta Llama 3.3 70B inference engine (via Groq / OpenRouter)
+  async callLlama({ prompt, systemPrompt }) {
+    if (!this.llamaApiKey) throw new Error('No Llama/Groq API key provided');
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.llamaApiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.4,
+        max_tokens: 800,
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Llama request failed (${res.status})`);
+    }
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content;
   }
 
   // Parse location and intent from conversational query
@@ -593,19 +705,75 @@ export class WeatherAIAgent {
       const marineBriefing = generateMarineBriefing(nwpData, targetLangForData);
 
       // Generate localized conversational message
-      const responseText = this.synthesizeNaturalLanguageResponse({
-        query,
-        locName,
-        domain,
-        timeframe,
-        isRainInquiry,
-        nwpData,
-        aqiData,
-        alerts,
-        agriAdvisory,
-        aviationBriefing,
-        marineBriefing,
-        lang: effectiveLang
+      let responseText = '';
+      let modelUsedLabel = 'Hybrid Neural RAG';
+
+      const current = nwpData?.current || {};
+      const daily = nwpData?.daily || {};
+      const rainProb = daily?.precipitation_probability_max?.[0] ?? current.precipitation ?? 0;
+      const temp = current.temperature_2m ?? 28;
+      const humidity = current.relative_humidity_2m ?? 70;
+      const wind = current.wind_speed_10m ?? 12;
+      const aqi = aqiData?.current?.us_aqi || 50;
+
+      const ragSystemPrompt = `You are WeatherGPT, an advanced Meteorological AI Assistant. Answer accurately using this LIVE GROUNDED DATA:
+Location: ${locName}
+Current Temperature: ${temp}°C (Feels like: ${current.apparent_temperature || temp}°C)
+Humidity: ${humidity}%
+Wind Speed: ${wind} km/h (Direction: ${current.wind_direction_10m || 0}°)
+Rain Probability: ${rainProb}% | Accumulation: ${daily?.precipitation_sum?.[0] || 0} mm
+AQI: ${aqi} (US AQI Standard)
+Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}
+Respond in the language matching the user's prompt (Detected: ${effectiveLang}). Be clear, accurate, and provide actionable advisories.`;
+
+      if (this.selectedModel === 'openai' && this.openaiApiKey) {
+        try {
+          responseText = await this.callOpenAI({ prompt: query, systemPrompt: ragSystemPrompt });
+          modelUsedLabel = 'OpenAI GPT-4o-mini';
+        } catch (e) {
+          console.warn('OpenAI call failed, falling back to synthesis:', e);
+        }
+      } else if (this.selectedModel === 'gemini' && this.geminiApiKey) {
+        try {
+          responseText = await this.callGemini({ prompt: query, systemPrompt: ragSystemPrompt });
+          modelUsedLabel = 'Google Gemini 1.5 Flash';
+        } catch (e) {
+          console.warn('Gemini call failed, falling back to synthesis:', e);
+        }
+      } else if (this.selectedModel === 'llama' && this.llamaApiKey) {
+        try {
+          responseText = await this.callLlama({ prompt: query, systemPrompt: ragSystemPrompt });
+          modelUsedLabel = 'Meta Llama 3.3 70B';
+        } catch (e) {
+          console.warn('Llama call failed, falling back to synthesis:', e);
+        }
+      }
+
+      if (!responseText) {
+        responseText = this.synthesizeNaturalLanguageResponse({
+          query,
+          locName,
+          domain,
+          timeframe,
+          isRainInquiry,
+          nwpData,
+          aqiData,
+          alerts,
+          agriAdvisory,
+          aviationBriefing,
+          marineBriefing,
+          lang: effectiveLang
+        });
+        modelUsedLabel = 'Smart Hybrid Neural RAG';
+      }
+
+      // Persist session to MongoDB time-series
+      dbService.persistChatSession({
+        id: `msg-${Date.now()}`,
+        sender: 'ai',
+        text: responseText,
+        detectedLanguage: effectiveLang,
+        modelUsed: modelUsedLabel
       });
 
       return {
@@ -620,8 +788,9 @@ export class WeatherAIAgent {
         agriAdvisory,
         aviationBriefing,
         marineBriefing,
+        modelUsed: modelUsedLabel,
         sources: [
-          'Open-Meteo High-Resolution NWP (GFS / ECMWF)',
+          'Open-Meteo High-Resolution NWP (GFS / WRF / ECMWF)',
           'WAQI Global Air Quality Telemetry',
           'RainViewer Real-Time Radar & Satellite GIS Stream'
         ]

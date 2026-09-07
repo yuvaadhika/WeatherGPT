@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weathergpt-deployment
+  labels:
+    app: weathergpt
+    tier: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: weathergpt
+  template:
+    metadata:
+      labels:
+        app: weathergpt
+    spec:
+      containers:
+      - name: weathergpt-app
+        image: weathergpt:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+        env:
+        - name: PORT
+          value: "8000"
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              name: weathergpt-secrets
+              key: postgres-url
+        - name: MONGO_URL
+          valueFrom:
+            secretKeyRef:
+              name: weathergpt-secrets
+              key: mongo-url
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: weathergpt-service
+spec:
+  type: ClusterIP
+  selector:
+    app: weathergpt
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: weathergpt-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: weathergpt-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: weathergpt-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - weather-gpt.ai
+    secretName: weathergpt-tls
+  rules:
+  - host: weather-gpt.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: weathergpt-service
+            port:
+              number: 80

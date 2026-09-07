@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # WeatherGPT Core Application (FastAPI + React Frontend)
+  weathergpt-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - POSTGRES_URL=postgresql://postgres:weatherpass@postgres:5432/weathergpt_db
+      - MONGO_URL=mongodb://mongodb:27017/weathergpt_timeseries
+      - MQTT_BROKER=mqtt://mosquitto:1883
+    depends_on:
+      - postgres
+      - mongodb
+      - mosquitto
+    restart: always
+
+  # PostgreSQL with PostGIS Spatial Database
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=weatherpass
+      - POSTGRES_DB=weathergpt_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  # MongoDB Time-Series & Document Database
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    restart: always
+
+  # Eclipse Mosquitto MQTT Broker (IoT Telemetry & WIS2.0)
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    restart: always
+
+volumes:
+  pgdata:
+  mongodata:

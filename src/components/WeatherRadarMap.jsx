@@ -188,7 +188,20 @@ export default function WeatherRadarMap({
         </div>
 
         {/* Playback & Layer Controls */}
-        <div className="flex items-center space-x-1.5 text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
+          {/* Layer Mode Picker */}
+          <select
+            value={activeLayerType}
+            onChange={(e) => setActiveLayerType(e.target.value)}
+            className="px-2 py-1 bg-sky-50 border border-sky-300 rounded-xl text-sky-800 text-[11px] font-bold focus:outline-none shadow-2xs"
+          >
+            <option value="radar">🌧️ Doppler Radar (dBZ)</option>
+            <option value="satellite">☁️ Satellite Infrared</option>
+            <option value="wrf">🌐 WRF 3km Mesoscale Grid</option>
+            <option value="lightning">⚡ Live Lightning Strikes</option>
+            <option value="both">🛰️ Multi-Layer Composite</option>
+          </select>
+
           {/* Play/Pause Button */}
           <button
             onClick={() => setIsPlaying(!isPlaying)}
@@ -211,7 +224,7 @@ export default function WeatherRadarMap({
           <select
             value={colorScheme}
             onChange={(e) => setColorScheme(Number(e.target.value))}
-            className="px-2 py-1 bg-white border border-slate-200 rounded-xl text-slate-700 text-[11px] focus:outline-none shadow-sm"
+            className="px-2 py-1 bg-white border border-slate-200 rounded-xl text-slate-700 text-[11px] focus:outline-none shadow-sm hidden sm:inline"
           >
             <option value={2}>Doppler Standard</option>
             <option value={1}>RainViewer HD</option>

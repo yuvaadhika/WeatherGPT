@@ -61,6 +61,7 @@ export default function ChatInterface({
   const [speakingMsgId, setSpeakingMsgId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [autoSpeak, setAutoSpeak] = useState(true);
+  const [selectedModel, setSelectedModel] = useState(() => weatherAI.getModel() || 'hybrid');
 
   const messagesEndRef = useRef(null);
 
@@ -347,7 +348,10 @@ export default function ChatInterface({
                   <div className="mt-2 pt-2 border-t border-slate-100 flex flex-wrap items-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200/60 font-semibold">
                       <Sparkles className="w-3 h-3 text-sky-600" />
-                      <span>RAG Grounded: Open-Meteo & RainViewer Radar</span>
+                      <span>{msg.modelUsed || 'Hybrid Neural RAG'}</span>
+                    </span>
+                    <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                      <span>NWP: GFS & WRF 3km</span>
                     </span>
                     <span className="text-emerald-600 font-semibold">✓ Live 10-Language Synthesis</span>
                   </div>
@@ -549,8 +553,61 @@ export default function ChatInterface({
           </div>
         )}
 
-        {/* Quick Prompt Bar + Auto-Voice Toggle */}
-        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2 mb-1 text-xs">
+        {/* LLM Model Switcher Bar + Quick Prompt Bar + Auto-Voice Toggle */}
+        <div className="flex flex-col gap-1.5 pb-2 mb-1 text-xs">
+          {/* Active LLM Model Selector Tabs */}
+          <div className="flex items-center justify-between gap-1 overflow-x-auto">
+            <div className="flex items-center space-x-1 overflow-x-auto flex-shrink-0">
+              <span className="text-[10px] font-bold text-slate-500 uppercase mr-0.5 hidden xs:inline">Model:</span>
+              {[
+                { id: 'hybrid', label: '⚡ Smart RAG' },
+                { id: 'gemini', label: '✨ Gemini 2.0' },
+                { id: 'openai', label: '🧠 OpenAI GPT' },
+                { id: 'llama', label: '🦙 Meta Llama' },
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedModel(m.id);
+                    weatherAI.setModel(m.id);
+                  }}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all whitespace-nowrap cursor-pointer ${
+                    selectedModel === m.id
+                      ? 'bg-sky-600 text-white shadow-2xs'
+                      : 'bg-white/80 hover:bg-white text-slate-600 border border-slate-200'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Auto-Voice Response Toggle Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (autoSpeak && speakingMsgId) {
+                  speechEngine.stopSpeaking();
+                  setSpeakingMsgId(null);
+                }
+                setAutoSpeak(!autoSpeak);
+              }}
+              className={`flex-shrink-0 px-2.5 py-0.5 rounded-lg text-[10px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${
+                autoSpeak
+                  ? 'bg-sky-50 text-sky-700 border border-sky-300 shadow-2xs'
+                  : 'bg-slate-100 text-slate-500 border border-slate-200 hover:text-slate-800'
+              }`}
+              title={autoSpeak ? 'Auto Voice: ON (AI will speak all outputs aloud)' : 'Auto Voice: OFF (AI text only)'}
+            >
+              {autoSpeak ? <Volume2 className="w-3 h-3 text-sky-600 animate-pulse" /> : <VolumeX className="w-3 h-3 text-slate-400" />}
+              <span className="whitespace-nowrap">
+                {autoSpeak ? (activeLanguage === 'ta' ? 'குரல்: ஆன்' : 'Voice: ON') : (activeLanguage === 'ta' ? 'குரல்: ஆஃப்' : 'Voice: OFF')}
+              </span>
+            </button>
+          </div>
+
+          {/* Quick Pre-Built Queries */}
           <div className="flex items-center space-x-1.5 overflow-x-auto">
             {[
               t.chat?.promptRainQuery,
@@ -561,35 +618,12 @@ export default function ChatInterface({
               <button
                 key={idx}
                 onClick={() => handleSendMessage(prompt)}
-                className="flex-shrink-0 px-2.5 py-1 rounded-full bg-white/90 hover:bg-white text-slate-600 border border-slate-200 text-[11px] transition-all truncate max-w-[200px] shadow-2xs cursor-pointer"
+                className="flex-shrink-0 px-2.5 py-0.5 rounded-full bg-white/90 hover:bg-white text-slate-600 border border-slate-200 text-[10px] transition-all truncate max-w-[200px] shadow-2xs cursor-pointer"
               >
                 {prompt}
               </button>
             ))}
           </div>
-
-          {/* Auto-Voice Response Toggle Button */}
-          <button
-            type="button"
-            onClick={() => {
-              if (autoSpeak && speakingMsgId) {
-                speechEngine.stopSpeaking();
-                setSpeakingMsgId(null);
-              }
-              setAutoSpeak(!autoSpeak);
-            }}
-            className={`flex-shrink-0 px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${
-              autoSpeak
-                ? 'bg-sky-50 text-sky-700 border border-sky-300 shadow-xs'
-                : 'bg-slate-100 text-slate-500 border border-slate-200 hover:text-slate-800'
-            }`}
-            title={autoSpeak ? 'Auto Voice: ON (AI will speak all outputs aloud)' : 'Auto Voice: OFF (AI text only)'}
-          >
-            {autoSpeak ? <Volume2 className="w-3.5 h-3.5 text-sky-600 animate-pulse" /> : <VolumeX className="w-3.5 h-3.5" />}
-            <span className="whitespace-nowrap">
-              {autoSpeak ? (activeLanguage === 'ta' ? 'குரல்: ஆன்' : 'Voice: ON') : (activeLanguage === 'ta' ? 'குரல்: ஆஃப்' : 'Voice: OFF')}
-            </span>
-          </button>
         </div>
 
         {/* Input box */}

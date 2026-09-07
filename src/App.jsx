@@ -19,6 +19,7 @@ import EventWeatherScore from './components/EventWeatherScore';
 import CommunityWeatherSpotter from './components/CommunityWeatherSpotter';
 import DisasterEmergencySOS from './components/DisasterEmergencySOS';
 import AdminUserRegistryModal from './components/AdminUserRegistryModal';
+import TechStackModal from './components/TechStackModal';
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -61,7 +62,8 @@ import {
   Mic,
   Navigation,
   Heart,
-  Users
+  Users,
+  Cpu
 } from 'lucide-react';
 import { notificationService } from './services/notificationService';
 
@@ -112,6 +114,7 @@ export default function App() {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isTechStackModalOpen, setIsTechStackModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
     return localStorage.getItem('weather_onboarding_shown') !== 'true';
   });
@@ -574,6 +577,21 @@ export default function App() {
               <ShieldAlert className="w-4 h-4 text-rose-600 animate-pulse" />
               <span>{activeLanguage === 'ta' ? 'புயல் வெள்ள SOS மையம்' : 'Disaster SOS & Alerts'}</span>
             </button>
+
+            {/* Tool 5: Problem Statement Tech Stack Matrix */}
+            <button
+              onClick={() => {
+                setIsTechStackModalOpen(true);
+                setSidebarOpen(false);
+              }}
+              className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 shadow-2xs"
+            >
+              <Cpu className="w-4 h-4 text-emerald-600" />
+              <span>{activeLanguage === 'ta' ? 'PS கருவிகள் மேட்ரிக்ஸ்' : 'PS Tools & Architecture'}</span>
+              <span className="ml-auto text-[9px] px-1.5 py-0.2 rounded bg-emerald-200 text-emerald-900 font-black">
+                PS 100%
+              </span>
+            </button>
           </div>
 
           {/* Decision Support Suites */}
@@ -675,6 +693,7 @@ export default function App() {
           onOpenAlertModal={() => setIsAlertModalOpen(true)}
           onOpenLocationModal={() => setIsLocationModalOpen(true)}
           onOpenAdminDatabase={() => setIsAdminModalOpen(true)}
+          onOpenTechStackModal={() => setIsTechStackModalOpen(true)}
           currentUser={currentUser}
           onSignOut={handleSignOut}
         />
@@ -1006,6 +1025,12 @@ export default function App() {
       <AdminUserRegistryModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
+        activeLanguage={activeLanguage}
+      />
+
+      <TechStackModal
+        isOpen={isTechStackModalOpen}
+        onClose={() => setIsTechStackModalOpen(false)}
         activeLanguage={activeLanguage}
       />
     </div>
