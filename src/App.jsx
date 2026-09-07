@@ -63,7 +63,8 @@ import {
   Navigation,
   Heart,
   Users,
-  Cpu
+  Cpu,
+  LogOut
 } from 'lucide-react';
 import { notificationService } from './services/notificationService';
 
@@ -680,6 +681,30 @@ export default function App() {
               <span>{t.sidebar?.bulletin || 'Export Weather Bulletin'}</span>
             </button>
           </div>
+
+          {/* User Account & Sign Out in Sidebar */}
+          {currentUser && (
+            <div className="pt-2 border-t border-sky-200/60 flex items-center justify-between">
+              <div className="flex items-center space-x-2 min-w-0">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs shadow-xs flex-shrink-0">
+                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-900 truncate">{currentUser.name}</p>
+                  <p className="text-[10px] text-slate-500 truncate">{currentUser.email || 'Member'}</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSignOut}
+                title={activeLanguage === 'ta' ? 'வெளியேறு (Sign Out)' : 'Sign Out'}
+                className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors cursor-pointer flex-shrink-0 flex items-center space-x-1"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 

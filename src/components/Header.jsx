@@ -12,7 +12,8 @@ import {
   ChevronDown,
   Flower2,
   Database,
-  Shield
+  Shield,
+  Cpu
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getLocalizedPlaceName } from '../services/weatherService';
