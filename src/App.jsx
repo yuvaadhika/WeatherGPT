@@ -358,14 +358,22 @@ export default function App() {
 
   if (!currentUser) {
     return (
-      <AuthScreen
-        onLogin={(user) => {
-          setCurrentUser(user);
-          setIsOnboardingOpen(true);
-        }}
-        activeLanguage={activeLanguage}
-        setActiveLanguage={setActiveLanguage}
-      />
+      <>
+        <AuthScreen
+          onLogin={(user) => {
+            setCurrentUser(user);
+            setIsOnboardingOpen(true);
+          }}
+          activeLanguage={activeLanguage}
+          setActiveLanguage={setActiveLanguage}
+          onOpenTechStack={() => setIsTechStackModalOpen(true)}
+        />
+        <TechStackModal
+          isOpen={isTechStackModalOpen}
+          onClose={() => setIsTechStackModalOpen(false)}
+          activeLanguage={activeLanguage}
+        />
+      </>
     );
   }
 
