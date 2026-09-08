@@ -37,32 +37,35 @@ export function detectLanguageFromQuery(query, defaultLang = 'en') {
 
   // 2. Comprehensive Tanglish Detection (Conversational Tamil written in English alphabets)
   const tanglishKeywords = [
-    // Rain verbs and descriptors
-    /\b(mazhai|malai|mazha|thooral|varuma|varum|varudhu|varuthu|peyyuma|peiyuma|peiyum|peyyum|kottuma|adikkuma|adikkum|adikuma|adikum)\b/i,
-    // Existence and state markers
+    // Tamil Question words (e.g. epdi, eppadi, enna, yenna, eppo, enga, etc.)
+    /\b(eppadi|epdi|epudee|epadi|eppidi|epdiyiruku|eppadiiruku|eppadiirruku|epdiirruku|epdiiruku|yenna|yethana|yeppo|yenga|yaaru|yedhu|ennapa|ennada)\b/i,
+    /\b(enna|ethana|eppo|ippo|enga|yar|edhu)\b/i,
+    // Tamil Verbs & State markers (e.g. irukku, iruku, varuma, peyyuma, sollunga, etc.)
     /\b(irukku|erukku|iruku|eruku|irruku|erruku|irukkaa|erukkaa|irukkuma|erukkuma|irukkum|erukkum|irukka|eruka|irundha|erundha|irukudhu|irukkudhu|irundhadhu)\b/i,
-    // Question & interrogative words
-    /\b(eppadi|epdi|epudee|epadi|eppidi|epdiyiruku|eppadiiruku|eppadiirruku|epdiirruku|enna|yenna|ethana|yethana|eppo|yeppo|ippo|enga|yenga|yar|yaaru|edhu|yedhu)\b/i,
-    // Conversational dialogue tokens
+    /\b(mazhai|malai|mazha|thooral|varuma|varum|varudhu|varuthu|peyyuma|peiyuma|peiyum|peyyum|kottuma|adikkuma|adikkum|adikuma|adikum)\b/i,
     /\b(solla|sollu|sollunga|solunga|sollungalen|solra|solradhu|sonna|sonnanga|sonnadhu|ketta|kettanga|kudutha|kudu|kudunga|kudungalen|kelunga|keka|kekuran|pesu|paaru|parkalam|paarkalam|theerpu)\b/i,
-    // Time & day indicators
-    /\b(iniku|inniku|innikku|innaiku|nalaiku|naalaiku|naalaikku|naalai|nethu|netthu|indha|intha|enta|antha|andha|ippodhiki|ippodhaiykku)\b/i,
-    // Farming & agriculture
-    /\b(vidhai|vitha|vithai|seed|payir|vivasaayam|vivasayam|vivasayi|panlama|pannalama|podalama|podanum|podalaama|podunga|vaikanum|vaikalam|vacha|thelikkalam|marundhu|uram|paasanam)\b/i,
     // Daily needs, weather elements & atmosphere
     /\b(veliya|veetula|kaathu|kaatru|veiyil|veyil|vanam|megam|kulir|thaneer|thanneer|thanni|oothe|aagum|aaguma|theriyuma|kidaikkuma|puriyuma|mudiyuma|mudiyum|vellam|puyal)\b/i,
+    // Farming & agriculture in Tamil
+    /\b(vidhai|vitha|vithai|payir|vivasaayam|vivasayam|vivasayi|panlama|pannalama|podalama|podanum|podalaama|podunga|vaikanum|vaikalam|vacha|thelikkalam|marundhu|uram|paasanam)\b/i,
+    // Time & day indicators in Tamil
+    /\b(iniku|inniku|innikku|innaiku|nalaiku|naalaiku|naalaikku|naalai|nethu|netthu)\b/i,
     // Personal pronouns & qualifiers
     /\b(ennaku|enakku|ungala|ungalluku|ungalukku|romba|konjam|paathu|pathu|paathuttu|pathuttu|pannu|pannalam|thappu|mathiri|maathiri|maari|mari)\b/i,
-    // Umbrella, travel & lifestyle
-    /\b(kudai|koda|umbrella thevaya|umbrella theva|thevaya|theva|thevai|thevaiya|thevapadum|thevapaduma|pogalama|pogalaama|polama|thuni|kaayuma|thittam)\b/i,
-    // Affirmations & speech markers
-    /\b(aana|analum|aama|illa|illaye|illaya|seri|sari|okva|supera|semma|nalla|nallava|yedhavadhu|edhavadhu|appo|nu|dhu|paa|daa|ma|nga)\b/i,
-    // Standalone grammatical particles
-    /\b(la|le|kku|ku|oda|laa|daa|paa)\b/i,
-    // Suffix locative attachments on any words (e.g. chengalpattula, veetula, oodula, chennaikku)
-    /\b\w+(?:la|le|kku|ku|oda|laa|daa|paa|nga|aana|nu)\b/i,
-    // All 38 Tamil Nadu districts & major towns (with optional suffixes)
-    /\b(chengalpattu|chengalpet|chennai|madras|coimbatore|kovai|madurai|trichy|tiruchirappalli|salem|ooty|nilgiris|nellai|tirunelveli|vellore|thanjavur|tanjore|erode|tiruppur|dindigul|cuddalore|kanchipuram|villupuram|tiruvannamalai|dharmapuri|krishnagiri|hosur|namakkal|karur|perambalur|ariyalur|nagapattinam|mayiladuthurai|tiruvarur|pudukkottai|sivaganga|ramanathapuram|virudhunagar|theni|tenkasi|ranipet|tirupattur|kallakurichi|tambaram|avadi|ambattur|velachery|guindy|porur|chromepet|pallavaram|poonamallee|puducherry|pondicherry|kanyakumari|nagercoil)(?:la|le|kku|ku|il|oda|laa)?\b/i
+    // Umbrella & clothing in Tanglish (e.g. kudai thevaya, thuni kaayuma)
+    /\b(kudai|koda|thevaya|theva|thevai|thevaiya|thevapadum|thevapaduma|pogalama|pogalaama|polama|thuni|kaayuma)\b/i,
+    // Conversational markers
+    /\b(aana|analum|aama|illa|illaye|illaya|seri|sari|okva|supera|semma|nalla|nallava|yedhavadhu|edhavadhu)\b/i,
+    // Contextual Tanglish pairs (e.g. "climate epdi", "weather la", "chengalpattu la", "umbrella thevaya")
+    /\b(climate|weather|today|tomorrow)\s+(la|le|kku|ku|epdi|eppadi|iruku|irruku|irukku|varuma|varum)\b/i,
+    /\b(epdi|eppadi|epadi|eppidi)\s+(climate|weather|today|tomorrow)\b/i,
+    /\b(la|le)\s+(epdi|eppadi|iruku|irruku|irukku|climate|weather|mazhai|malai|varuma)\b/i,
+    /\b(umbrella)\s+(theva|thevaya|thevai|thevaiya|thevapadum|venuma)\b/i,
+    /\b(theva|thevaya|thevai|thevaiya|venuma)\s+(umbrella|kudai)\b/i,
+    // Tamil Nadu City / Locality WITH Tamil locative suffix attached (e.g. chengalpattula, chennaile, maduraila, etc.)
+    /\b(chengalpattu|chengalpet|chennai|madras|coimbatore|kovai|madurai|trichy|tiruchirappalli|salem|ooty|nilgiris|nellai|tirunelveli|vellore|thanjavur|tanjore|erode|tiruppur|dindigul|cuddalore|kanchipuram|villupuram|tiruvannamalai|dharmapuri|krishnagiri|hosur|namakkal|karur|perambalur|ariyalur|nagapattinam|mayiladuthurai|tiruvarur|pudukkottai|sivaganga|ramanathapuram|virudhunagar|theni|tenkasi|ranipet|tirupattur|kallakurichi|tambaram|avadi|ambattur|velachery|guindy|porur|chromepet|pallavaram|poonamallee|puducherry|pondicherry|kanyakumari|nagercoil)(?:la|le|kku|ku|oda|laa|il)\b/i,
+    // Tamil Nadu City followed by locative particle / Tamil verb (e.g. "chengalpattu la", "chennai kku", "madurai epdi")
+    /\b(chengalpattu|chengalpet|chennai|madras|coimbatore|kovai|madurai|trichy|tiruchirappalli|salem|ooty|nilgiris|nellai|tirunelveli|vellore|thanjavur|tanjore|erode|tiruppur|dindigul|cuddalore|kanchipuram|villupuram|tiruvannamalai|dharmapuri|krishnagiri|hosur|namakkal|karur|perambalur|ariyalur|nagapattinam|mayiladuthurai|tiruvarur|pudukkottai|sivaganga|ramanathapuram|virudhunagar|theni|tenkasi|ranipet|tirupattur|kallakurichi|tambaram|avadi|ambattur|velachery|guindy|porur|chromepet|pallavaram|poonamallee|puducherry|pondicherry|kanyakumari|nagercoil)\s+(la|le|kku|ku|oda|laa|il|epdi|eppadi|iruku|irruku|irukku|mazhai|malai|varuma)\b/i
   ];
 
   for (const pattern of tanglishKeywords) {
@@ -71,8 +74,8 @@ export function detectLanguageFromQuery(query, defaultLang = 'en') {
     }
   }
 
-  // If user explicitly picked Tamil in UI and typed in Roman script
-  if (defaultLang === 'ta' || defaultLang === 'tanglish') {
+  // If user explicitly picked Tamil in UI and typed in Roman script without full English words
+  if (defaultLang === 'tanglish') {
     return 'tanglish';
   }
 
