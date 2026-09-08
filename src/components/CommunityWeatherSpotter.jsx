@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Users,
   MapPin,
@@ -15,7 +15,11 @@ import {
   ThumbsUp,
   Share2,
   AlertCircle,
-  Plus
+  Plus,
+  Camera,
+  Image as ImageIcon,
+  X,
+  RotateCw
 } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
 import { getLocalizedPlaceName } from '../services/weatherService';
@@ -36,8 +40,89 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
   const [selectedCat, setSelectedCat] = useState(SPOTTER_CATEGORIES[0]);
   const [localityText, setLocalityText] = useState('');
   const [noteText, setNoteText] = useState('');
+  const [spotterImage, setSpotterImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedToast, setSubmittedToast] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [facingMode, setFacingMode] = useState('environment');
+  const [cameraError, setCameraError] = useState('');
+
+  const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+
+  // Stop camera stream
+  const stopCameraStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => stopCameraStream();
+  }, []);
+
+  const handleOpenCamera = async (mode = facingMode) => {
+    setCameraError('');
+    setIsCameraOpen(true);
+    try {
+      stopCameraStream();
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera access not supported');
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: mode, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      setCameraError(
+        activeLanguage === 'ta'
+          ? 'கேமராவை அணுக முடியவில்லை. படத்தைப் பதிவேற்றவும்.'
+          : 'Could not access camera. Please upload an image file.'
+      );
+    }
+  };
+
+  const handleCloseCamera = () => {
+    stopCameraStream();
+    setIsCameraOpen(false);
+    setCameraError('');
+  };
+
+  const handleToggleFacingMode = () => {
+    const nextMode = facingMode === 'environment' ? 'user' : 'environment';
+    setFacingMode(nextMode);
+    handleOpenCamera(nextMode);
+  };
+
+  const handleCaptureSnapshot = () => {
+    if (!videoRef.current) return;
+    try {
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      setSpotterImage(canvas.toDataURL('image/jpeg', 0.85));
+      handleCloseCamera();
+    } catch (err) {
+      console.error('Camera capture failed:', err);
+    }
+  };
+
+  const handleImageFile = (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => setSpotterImage(e.target?.result);
+    reader.readAsDataURL(file);
+  };
 
   // Initialize and load crowdsourced reports
   useEffect(() => {
@@ -109,6 +194,7 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
       locality: localityText.trim(),
       category: selectedCat.id,
       note: noteText.trim() || (activeLanguage === 'ta' ? 'உள்ளூர் வானிலை நிலவரம் பதிவு செய்யப்பட்டது.' : 'Ground weather verified by resident.'),
+      image: spotterImage || null,
       timestamp: activeLanguage === 'ta' ? 'சற்றுமுன்' : 'Just now',
       upvotes: 1,
       verified: true,
@@ -122,6 +208,7 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
 
     setLocalityText('');
     setNoteText('');
+    setSpotterImage(null);
     setIsSubmitting(false);
     setSubmittedToast(true);
     setTimeout(() => setSubmittedToast(false), 3000);
@@ -143,6 +230,19 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-4 pb-20 animate-fadeIn">
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImageFile(file);
+          e.target.value = '';
+        }}
+        accept="image/*"
+        className="hidden"
+      />
+
       {/* 1. Header Card */}
       <div className="bg-gradient-to-br from-white via-teal-50/40 to-sky-50/30 border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
@@ -218,12 +318,56 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Image Preview Bar */}
+          {spotterImage && (
+            <div className="flex items-center justify-between p-2 rounded-xl bg-teal-50/80 border border-teal-200 text-xs">
+              <div className="flex items-center space-x-2">
+                <img src={spotterImage} alt="Spotter Preview" className="w-10 h-10 object-cover rounded-lg border border-teal-300" />
+                <span className="text-[11px] font-semibold text-teal-900">
+                  {activeLanguage === 'ta' ? 'படம் இணைக்கப்பட்டுள்ளது' : 'Photo attached'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSpotterImage(null)}
+                className="p-1 rounded-lg hover:bg-teal-100 text-teal-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          {/* Submit & Photo Controls */}
           <div className="flex items-center justify-between pt-1">
-            <span className="text-[10px] text-slate-400 flex items-center space-x-1">
-              <MapPin className="w-3 h-3 text-slate-400" />
-              <span>{currentLocation?.name || 'Local Area'}</span>
-            </span>
+            <div className="flex items-center space-x-2">
+              <span className="text-[10px] text-slate-400 flex items-center space-x-1">
+                <MapPin className="w-3 h-3 text-slate-400" />
+                <span>{currentLocation?.name || 'Local Area'}</span>
+              </span>
+
+              {/* Live Camera Button */}
+              <button
+                type="button"
+                onClick={() => handleOpenCamera()}
+                className="px-2.5 py-1 rounded-xl text-[11px] font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200/80 flex items-center space-x-1 transition-all cursor-pointer"
+                title="Open Camera"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>{activeLanguage === 'ta' ? 'கேமரா' : 'Camera'}</span>
+              </button>
+
+              {/* Gallery Image Button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-2.5 py-1 rounded-xl text-[11px] font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200/80 flex items-center space-x-1 transition-all cursor-pointer"
+                title="Upload Photo"
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>{activeLanguage === 'ta' ? 'படம்' : 'Photo'}</span>
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={!localityText.trim() || isSubmitting}
@@ -296,6 +440,17 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
                   {rep.note}
                 </p>
 
+                {/* Optional Attached Photo */}
+                {rep.image && (
+                  <div className="pt-1">
+                    <img
+                      src={rep.image}
+                      alt="Spotter condition capture"
+                      className="max-h-48 rounded-xl object-cover border border-slate-200 shadow-2xs"
+                    />
+                  </div>
+                )}
+
                 {/* Footer action bar */}
                 <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-xs">
                   <div className="flex items-center space-x-1 text-[10px] text-emerald-700 font-semibold">
@@ -316,6 +471,84 @@ export default function CommunityWeatherSpotter({ activeLanguage = 'en', current
           })}
         </div>
       </div>
+
+      {/* Live Camera Modal for Community Spotter */}
+      {isCameraOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+          <div className="relative w-full max-w-lg bg-slate-900 border border-teal-500/40 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="p-3 sm:p-4 bg-slate-900 flex items-center justify-between border-b border-slate-800 text-white">
+              <div className="flex items-center space-x-2">
+                <Camera className="w-4 h-4 text-teal-400" />
+                <span className="font-bold text-xs sm:text-sm">
+                  {activeLanguage === 'ta' ? 'நேரடி வானிலை கேமரா' : 'Live Spotter Camera'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseCamera}
+                className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="relative bg-black aspect-4/3 sm:aspect-16/10 flex items-center justify-center overflow-hidden">
+              {cameraError ? (
+                <div className="p-6 text-center text-rose-300 text-xs space-y-3">
+                  <p>{cameraError}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCloseCamera();
+                      fileInputRef.current?.click();
+                    }}
+                    className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl transition-all cursor-pointer"
+                  >
+                    {activeLanguage === 'ta' ? 'படத்தை பதிவேற்று' : 'Upload from Device'}
+                  </button>
+                </div>
+              ) : (
+                <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+              )}
+            </div>
+
+            {!cameraError && (
+              <div className="p-4 bg-slate-900 flex items-center justify-around border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={handleToggleFacingMode}
+                  className="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer flex flex-col items-center space-y-1"
+                >
+                  <RotateCw className="w-4 h-4" />
+                  <span className="text-[9px] font-semibold">{activeLanguage === 'ta' ? 'மாற்று' : 'Flip'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCaptureSnapshot}
+                  className="w-16 h-16 rounded-full bg-white hover:bg-slate-100 border-4 border-teal-500 flex items-center justify-center shadow-lg shadow-teal-500/30 active:scale-90 transition-all cursor-pointer group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-teal-600 group-hover:bg-teal-500 flex items-center justify-center text-white">
+                    <Camera className="w-6 h-6" />
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleCloseCamera();
+                    fileInputRef.current?.click();
+                  }}
+                  className="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer flex flex-col items-center space-y-1"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  <span className="text-[9px] font-semibold">{activeLanguage === 'ta' ? 'கோப்பு' : 'Gallery'}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

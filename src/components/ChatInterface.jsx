@@ -29,6 +29,7 @@ import {
   Printer,
   Camera,
   Image as ImageIcon,
+  RotateCw,
   X
 } from 'lucide-react';
 import { weatherAI } from '../services/aiService';
@@ -70,8 +71,89 @@ export default function ChatInterface({
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageMimeType, setImageMimeType] = useState('image/jpeg');
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [facingMode, setFacingMode] = useState('environment'); // 'environment' | 'user'
+  const [cameraError, setCameraError] = useState('');
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
   const messagesEndRef = useRef(null);
+
+  // Stop camera stream on unmount or close
+  const stopCameraStream = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopCameraStream();
+    };
+  }, []);
+
+  // Open Live Camera
+  const handleOpenCamera = async (mode = facingMode) => {
+    setCameraError('');
+    setIsCameraOpen(true);
+    try {
+      stopCameraStream();
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera access is not supported by your browser.');
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: mode,
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      console.warn('Camera error:', err);
+      setCameraError(
+        activeLanguage === 'ta'
+          ? 'கேமராவை அணுக முடியவில்லை. தயவுசெய்து கேமரா அனுமதியை சரிபார்க்கவும் அல்லது File Upload பயன்படுத்தவும்.'
+          : 'Could not access camera. Please allow camera permissions or upload an image file.'
+      );
+    }
+  };
+
+  const handleCloseCamera = () => {
+    stopCameraStream();
+    setIsCameraOpen(false);
+    setCameraError('');
+  };
+
+  const handleToggleFacingMode = () => {
+    const nextMode = facingMode === 'environment' ? 'user' : 'environment';
+    setFacingMode(nextMode);
+    handleOpenCamera(nextMode);
+  };
+
+  const handleCaptureSnapshot = () => {
+    if (!videoRef.current) return;
+    try {
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      setSelectedImage(dataUrl);
+      setImageMimeType('image/jpeg');
+      handleCloseCamera();
+    } catch (err) {
+      console.error('Snapshot capture failed:', err);
+    }
+  };
 
   // Initial welcome greeting - update if no user messages exist yet
   useEffect(() => {
@@ -717,7 +799,7 @@ export default function ChatInterface({
           </button>
         </div>
 
-        {/* Hidden file input for camera/gallery */}
+        {/* Hidden file input for gallery upload */}
         <input
           type="file"
           ref={fileInputRef}
@@ -734,18 +816,28 @@ export default function ChatInterface({
           }}
           className="relative flex items-center bg-white border-2 border-sky-400/90 rounded-2xl shadow-xl p-1.5 focus-within:border-sky-600 focus-within:ring-2 focus-within:ring-sky-200 transition-all"
         >
-          {/* Image Upload / Camera Button */}
+          {/* Live Camera Button */}
+          <button
+            type="button"
+            onClick={() => handleOpenCamera()}
+            title={activeLanguage === 'ta' ? 'நேரடி கேமரா (Live Camera Capture)' : 'Open Live Camera (Take Photo)'}
+            className="p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer mr-1 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs"
+          >
+            <Camera className="w-4 h-4" />
+          </button>
+
+          {/* Gallery / File Upload Button */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            title={activeLanguage === 'ta' ? 'வானிலை படம் இணைக்கவும் (Image Query)' : 'Attach Weather Photo (Vision Query)'}
+            title={activeLanguage === 'ta' ? 'படத்தை பதிவேற்றவும் (Upload from Gallery)' : 'Upload from Gallery / Files'}
             className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer mr-1 ${
               selectedImage
                 ? 'bg-sky-600 text-white shadow-md'
                 : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs'
             }`}
           >
-            <Camera className="w-4 h-4" />
+            <ImageIcon className="w-4 h-4" />
           </button>
 
           {/* Voice Input Mic */}
@@ -772,7 +864,7 @@ export default function ChatInterface({
                 ? (activeLanguage === 'ta' ? 'படத்தைப் பற்றி கேளுங்கள் அல்லது Send அழுத்தவும்...' : 'Ask about this photo or press Send for Vision AI...')
                 : isListening
                 ? (t.chat?.voiceListening || 'Listening...')
-                : (t.chat?.inputPlaceholder || 'Ask WeatherGPT or upload sky/crop photo...')
+                : (activeLanguage === 'ta' ? 'வானிலை பற்றி கேளுங்கள் அல்லது கேமரா/படத்தை இணைக்கவும்...' : 'Ask WeatherGPT, take camera photo, or upload image...')
             }
             className="flex-1 bg-transparent px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
           />
@@ -785,9 +877,9 @@ export default function ChatInterface({
           {/* Send Button */}
           <button
             type="submit"
-            disabled={!inputQuery.trim() || isLoading}
+            disabled={(!inputQuery.trim() && !selectedImage) || isLoading}
             className={`p-2.5 rounded-xl font-medium flex items-center justify-center transition-all flex-shrink-0 cursor-pointer ${
-              inputQuery.trim() && !isLoading
+              (inputQuery.trim() || selectedImage) && !isLoading
                 ? 'bg-sky-600 text-white hover:bg-sky-700 shadow-sm'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed'
             }`}
@@ -796,6 +888,120 @@ export default function ChatInterface({
           </button>
         </form>
       </div>
+
+      {/* 📸 LIVE CAMERA CAPTURE MODAL */}
+      {isCameraOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+          <div className="relative w-full max-w-lg bg-slate-900 border border-sky-500/40 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+            {/* Modal Top Bar */}
+            <div className="p-3 sm:p-4 bg-slate-900/95 flex items-center justify-between border-b border-slate-800 text-white z-10">
+              <div className="flex items-center space-x-2">
+                <Camera className="w-4 h-4 text-sky-400" />
+                <span className="font-bold text-xs sm:text-sm">
+                  {activeLanguage === 'ta' ? 'நேரடி வானிலை கேமரா (Live Weather Camera)' : 'Live Weather Vision Camera'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseCamera}
+                className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Video Viewfinder Container */}
+            <div className="relative bg-black aspect-4/3 sm:aspect-16/10 flex items-center justify-center overflow-hidden">
+              {cameraError ? (
+                <div className="p-6 text-center text-rose-300 text-xs sm:text-sm space-y-3">
+                  <p>{cameraError}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleCloseCamera();
+                      fileInputRef.current?.click();
+                    }}
+                    className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl transition-all cursor-pointer inline-flex items-center space-x-1.5"
+                  >
+                    <ImageIcon className="w-4 h-4" />
+                    <span>{activeLanguage === 'ta' ? 'கோப்பிலிருந்து பதிவேற்று' : 'Upload from Device'}</span>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+                  {/* HUD Scanner Overlay */}
+                  <div className="absolute inset-4 pointer-events-none border border-sky-400/40 rounded-2xl flex flex-col justify-between p-3">
+                    <div className="flex justify-between items-start">
+                      <span className="text-[10px] font-mono text-sky-400 font-bold bg-slate-900/80 px-2 py-0.5 rounded border border-sky-400/30">
+                        METEOROLOGICAL SCANNER [LIVE]
+                      </span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+                    </div>
+                    <div className="text-center">
+                      <span className="text-[10px] text-white/90 bg-slate-900/80 px-3 py-1 rounded-full border border-white/20">
+                        {activeLanguage === 'ta' ? 'வானம் அல்லது பயிரை திரைக்குள் கொண்டு வாருங்கள்' : 'Align Sky, Clouds or Farm in viewfinder'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-end text-[9px] font-mono text-slate-400">
+                      <span>AI VISION READY</span>
+                      <span>{facingMode === 'environment' ? 'REAR SENSOR' : 'FRONT SENSOR'}</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Camera Controls Bar */}
+            {!cameraError && (
+              <div className="p-4 bg-slate-900 flex items-center justify-around border-t border-slate-800">
+                {/* Flip Camera Button */}
+                <button
+                  type="button"
+                  onClick={handleToggleFacingMode}
+                  className="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer flex flex-col items-center space-y-1"
+                  title="Switch Camera"
+                >
+                  <RotateCw className="w-4 h-4" />
+                  <span className="text-[9px] font-semibold">{activeLanguage === 'ta' ? 'மாற்று' : 'Flip'}</span>
+                </button>
+
+                {/* Shutter Capture Button */}
+                <button
+                  type="button"
+                  onClick={handleCaptureSnapshot}
+                  className="w-16 h-16 rounded-full bg-white hover:bg-slate-100 border-4 border-sky-500 flex items-center justify-center shadow-lg shadow-sky-500/30 active:scale-90 transition-all cursor-pointer group"
+                  title="Take Photo"
+                >
+                  <div className="w-12 h-12 rounded-full bg-sky-600 group-hover:bg-sky-500 flex items-center justify-center text-white transition-colors">
+                    <Camera className="w-6 h-6" />
+                  </div>
+                </button>
+
+                {/* Gallery Fallback in Camera Modal */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleCloseCamera();
+                    fileInputRef.current?.click();
+                  }}
+                  className="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer flex flex-col items-center space-y-1"
+                  title="Upload from gallery"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                  <span className="text-[9px] font-semibold">{activeLanguage === 'ta' ? 'கோப்பு' : 'Gallery'}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
