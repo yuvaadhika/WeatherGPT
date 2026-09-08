@@ -3,7 +3,14 @@
 // Operates with Zero Network / Cell Tower Down / Disaster Blackout Conditions
 // ============================================================================
 
-import { detectLanguageFromQuery, resolveTamilAndTanglishCityName } from './aiService';
+import {
+  detectLanguageFromQuery,
+  resolveTamilAndTanglishCityName,
+  classifyQueryIntent,
+  getGreetingResponse,
+  getGratitudeResponse,
+  getOffTopicResponse
+} from './aiService';
 import { getWeatherDescription, getLocalizedPlaceName } from './weatherService';
 
 const VAULT_STORAGE_KEY = 'weathergpt_offline_disaster_vault_v1';
@@ -167,10 +174,40 @@ class OfflineDisasterVaultService {
 
   // Answer user queries completely OFFLINE using Edge Intelligence & Disaster Knowledge Vault
   processOfflineQuery(query, activeLanguage = 'en', currentLocation = null) {
-    const q = (query || '').trim().toLowerCase();
+    const q = (query || '').trim();
     const effectiveLang = detectLanguageFromQuery(q, activeLanguage);
     const isTanglish = effectiveLang === 'tanglish';
     const isTamil = effectiveLang === 'ta' || isTanglish;
+
+    // 🛑 Intent Classification in Offline Engine
+    const { intent } = classifyQueryIntent(q, false);
+
+    if (intent === 'GREETING') {
+      return {
+        text: getGreetingResponse(effectiveLang),
+        isOffline: true,
+        isWeatherQuery: false,
+        mode: 'Offline Conversational Engine'
+      };
+    }
+
+    if (intent === 'GRATITUDE') {
+      return {
+        text: getGratitudeResponse(effectiveLang),
+        isOffline: true,
+        isWeatherQuery: false,
+        mode: 'Offline Conversational Engine'
+      };
+    }
+
+    if (intent === 'OFF_TOPIC') {
+      return {
+        text: getOffTopicResponse(effectiveLang),
+        isOffline: true,
+        isWeatherQuery: false,
+        mode: 'Offline Domain Guardrail'
+      };
+    }
 
     const snapshot = this.getLastKnownWeather();
     const locName = snapshot.location?.name || currentLocation?.name || 'Local Area';

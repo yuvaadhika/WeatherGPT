@@ -555,8 +555,8 @@ export default function ChatInterface({
                   </div>
                 )}
 
-                {/* 📥 Post-Conversation Comprehensive Intelligence Report Download Card */}
-                {isAi && msg.id !== 'welcome-1' && (
+                {/* 📥 Post-Conversation Comprehensive Intelligence Report Download Card (Only for Weather Intelligence Responses) */}
+                {isAi && msg.id !== 'welcome-1' && msg.weatherData && (
                   <div className="mt-3 p-3 rounded-2xl bg-gradient-to-r from-sky-50 via-indigo-50/60 to-sky-50 border border-sky-200/80 shadow-2xs space-y-2">
                     <div className="flex items-start space-x-2.5">
                       <div className="p-1.5 rounded-xl bg-sky-600 text-white shadow-xs flex-shrink-0 mt-0.5">
@@ -614,14 +614,16 @@ export default function ChatInterface({
                         {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5 text-sky-600" /> : <Volume2 className="w-3.5 h-3.5" />}
                       </button>
 
-                      {/* Download Intelligence HTML Report Dossier */}
-                      <button
-                        onClick={() => handleDownloadDirectReport(msg)}
-                        title="Download Verified Meteorological HTML Report Dossier"
-                        className="p-1 rounded-lg hover:bg-sky-50 text-sky-600 hover:text-sky-800 transition-colors cursor-pointer"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Download Intelligence HTML Report Dossier (Only on Weather Responses) */}
+                      {msg.weatherData && (
+                        <button
+                          onClick={() => handleDownloadDirectReport(msg)}
+                          title="Download Verified Meteorological HTML Report Dossier"
+                          className="p-1 rounded-lg hover:bg-sky-50 text-sky-600 hover:text-sky-800 transition-colors cursor-pointer"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </button>
+                      )}
 
                       {/* Copy Text */}
                       <button

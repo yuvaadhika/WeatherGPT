@@ -317,6 +317,406 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
   };
 }
 
+// 🎯 Multilingual Conversational Intent Classifier & Domain Guardrail Engine
+// Strictly filters queries into: 'WEATHER', 'GREETING', 'GRATITUDE', 'OFF_TOPIC'
+export function classifyQueryIntent(query, hasImage = false) {
+  if (hasImage) {
+    return { intent: 'WEATHER', reason: 'image_vision' };
+  }
+  if (!query || typeof query !== 'string') {
+    return { intent: 'GREETING', reason: 'empty_prompt' };
+  }
+
+  const q = query.trim();
+  const qLower = q.toLowerCase();
+
+  // 1. SOS & Disaster Emergency Helplines (Strict Priority 1)
+  const sosPattern = /\b(sos|helpline|phone|emergency|collector|ambulance|police|fire|boat|tnsdma|1077|1070|112|108|101|பேரிடர் உதவி|அவசர உதவி|மீட்பு|ஆட்சியர்|துயர்)\b/i;
+  if (sosPattern.test(qLower)) {
+    return { intent: 'WEATHER', reason: 'disaster_sos' };
+  }
+
+  // 2. Weather & Meteorology Domain Keywords (Multilingual & Tanglish)
+  const weatherKeywords = [
+    // English
+    'weather', 'rain', 'raining', 'rainy', 'rainfall', 'drizzle', 'shower', 'showers', 'pour', 'pouring',
+    'precipitation', 'storm', 'storms', 'thunder', 'thunderstorm', 'lightning', 'cyclone', 'tornado', 'gale',
+    'temp', 'temperature', 'humidity', 'humid', 'wind', 'winds', 'windy', 'breeze', 'gust', 'gusts',
+    'heat', 'hot', 'warm', 'cold', 'cool', 'chill', 'chilly', 'sunny', 'sunshine', 'sun', 'cloud', 'clouds',
+    'cloudy', 'overcast', 'umbrella', 'raincoat', 'fog', 'foggy', 'mist', 'smog', 'haze', 'aqi', 'air quality',
+    'pollution', 'pressure', 'barometer', 'uv index', 'uv', 'forecast', 'radar', 'satellite', 'metar', 'taf',
+    'aviation', 'flight', 'visibility', 'ceiling', 'crosswind', 'crop', 'crops', 'sowing', 'seed', 'seeds',
+    'farm', 'farmer', 'farming', 'agriculture', 'irrigation', 'spray', 'paddy', 'soil moisture',
+    'marine', 'sea state', 'sea', 'ocean', 'wave', 'waves', 'tide', 'tides', 'fisherman', 'fishermen',
+    'monsoon', 'winter', 'summer', 'autumn', 'spring', 'climate', 'flood', 'floods', 'flooding', 'inundation',
+    'waterlogging', 'waterlog', 'alert', 'warning', 'advisory', 'dew point', 'meteorology', 'meteorological',
+    'celsius', 'fahrenheit',
+
+    // Tamil Unicode
+    'மழை', 'மழைக்காலம்', 'மழைத்துளி', 'தூறல்', 'கார்மேகம்', 'மேகம்', 'மேகமூட்டம்', 'வானிலை', 'தட்பவெப்பம்',
+    'வெப்பநிலை', 'வெப்பம்', 'வெயில்', 'குளிர்', 'காற்று', 'காற்றின் வேகம்', 'காற்றழுத்தம்', 'ஈரப்பதம்',
+    'புயல்', 'சூறாவளி', 'வெள்ளம்', 'இடி', 'மின்னல்', 'காற்றின் தரம்', 'விவசாயம்', 'விதை', 'பயிர்', 'பாசனம்',
+    'உரம்', 'மருந்து தெளிப்பு', 'மீனவர்', 'கடல்', 'அலை', 'விமானம்', 'வானூர்தி', 'குடை', 'ரெயின்கோட்',
+    'எச்சரிக்கை', 'பேரிடர்', 'பனி', 'பனிமூட்டம்', 'வெப்ப அலை', 'மழை வருமா', 'மழை பெய்யுமா', 'மழை பெய்யும்',
+    'மழை இருக்கா', 'மழை வாய்ப்பு', 'வெயில் அடிக்குமா', 'எப்போ மழை', 'நாளை மழை', 'இன்று மழை',
+
+    // Tanglish Romanized
+    'mazhai', 'malai', 'mazha', 'thooral', 'kar megam', 'megam', 'megamootam', 'vaanilaye', 'vaanilai',
+    'climate', 'weather', 'veppam', 'veppanilai', 'veyil', 'veiyil', 'kulir', 'kaathu', 'kaatru', 'kaathalavu',
+    'eerapatham', 'puyal', 'vellam', 'idi', 'minnal', 'kaatru tharam', 'aqi', 'vivasayam', 'vivasaayam',
+    'vidhai', 'vitha', 'vithai', 'payir', 'paasanam', 'uram', 'marundhu', 'meenavar', 'kadal', 'alai',
+    'kudai', 'umbrella theva', 'umbrella thevaya', 'raincoat theva', 'peyyuma', 'peiyuma', 'peiyum', 'peyyum',
+    'varuma', 'varum', 'irukkuma', 'erukkuma', 'adikkuma', 'adikkum', 'kottuma', 'oothe', 'ooru weather',
+    'iniku climate', 'naalaikku mazhai', 'nalaiku mazhai', 'nalaiku weather', 'today weather', 'tomorrow weather',
+    'weather epdi', 'climate epdi', 'weather sollunga', 'climate sollunga',
+
+    // Hindi / Hinglish
+    'मौसम', 'बारिश', 'वर्षा', 'बूंदाबांदी', 'बादल', 'धूप', 'ठंड', 'गर्मी', 'तापमान', 'आर्द्रता', 'हवा',
+    'तूफान', 'चक्रवात', 'बाढ़', 'बिजली', 'वायु गुणवत्ता', 'प्रदूषण', 'खेती', 'फसल', 'बीज', 'सिंचाई',
+    'खाद', 'मछुआरे', 'समुद्र', 'लहरें', 'छाता', 'रेनकोट', 'अलर्ट', 'चेतावनी', 'कोहरा', 'mausam', 'barish',
+    'barsat', 'badal', 'dhoop', 'thand', 'garmi', 'hava', 'toofan', 'aandhi', 'fasal', 'kheti', 'chata',
+    'kaisa mausam', 'barish hogi', 'barsaat',
+
+    // Telugu
+    'వాతావరణం', 'వర్షం', 'ఎండ', 'చలి', 'గాలి', 'తుఫాను', 'వరద', 'పిడుగు', 'మేఘాలు', 'వ్యవసాయం', 'పంట',
+    'విత్తనాలు', 'చేపల వేట', 'సముద్రం', 'గొడుగు', 'మంచు', 'vaathavaranam', 'varsham',
+
+    // Malayalam
+    'കാലാവസ്ഥ', 'മഴ', 'വെയിൽ', 'തണുപ്പ്', 'കാറ്റ്', 'ചുഴലിക്കാറ്റ്', 'വെള്ളപ്പൊക്കം', 'ഇടിമിന്നൽ',
+    'മേഘങ്ങൾ', 'കൃഷി', 'വിത്ത്', 'കുട', 'മഞ്ഞ്', 'kalavastha', 'mazha',
+
+    // Kannada
+    'ಹವಾಮಾನ', 'ಮಳೆ', 'ಬಿಸಿಲು', 'ಚಳಿ', 'ಗಾಳಿ', 'ಬಿರುಗಾಳಿ', 'ಪ್ರವಾಹ', 'ಮಿಂಚು', 'ಮೋಡ', 'ಕೃಷಿ', 'ಬೆಳೆ',
+    'ಛತ್ರಿ', 'ಮಂಜು', 'havamana', 'male',
+
+    // Bengali
+    'আবহাওয়া', 'বৃষ্টি', 'রোদ', 'ঠান্ডা', 'গরম', 'বাতাস', 'ঝড়', 'ঘূর্ণিঝড়', 'বন্যা', 'মেঘ',
+    'কৃষি', 'ফসল', 'ছাতা', 'কুয়াশা', 'abohawa', 'brishti',
+
+    // Marathi
+    'हवामान', 'पाऊस', 'ऊन', 'थंडी', 'वारा', 'वादळ', 'पूर', 'ढग', 'शेती', 'पीक', 'छत्री', 'धुके', 'havaman', 'paus',
+
+    // Gujarati
+    'હવામાન', 'વરસાદ', 'તાપમાન', 'પવન', 'વાવાઝોડું', 'વાદળ', 'ખેતી', 'છત્રી', 'ઝાકળ', 'havaman', 'varsad',
+
+    // Punjabi
+    'ਮੌਸਮ', 'ਮੀਂਹ', 'ਬਾਰਿਸ਼', 'ਹਵਾ', 'ਤੂਫ਼ਾਨ', 'ਬੱਦਲ', 'ਖੇਤੀ', 'ਫਸਲ', 'ਛਤਰੀ', 'ਧੁੰਦ', 'mausam', 'meeh',
+
+    // French, Spanish, German, Italian, Russian
+    'meteo', 'météo', 'pluie', 'temps', 'clima', 'tiempo', 'lluvia', 'wetter', 'regen', 'temperatura',
+    'tempo', 'pioggia', 'pogoda', 'deszcz', 'погода', 'дождь'
+  ];
+
+  const hasWeatherKeyword = weatherKeywords.some((kw) => {
+    if (kw.includes(' ')) {
+      return qLower.includes(kw);
+    }
+    const regex = new RegExp(`(^|[^a-zA-Z0-9\u0B80-\u0BFF\u0900-\u097F\u0C00-\u0C7F\u0D00-\u0D7F\u0C80-\u0CFF\u0980-\u09FF\u0A80-\u0AFF\u0A00-\u0A7F])${kw}([^a-zA-Z0-9\u0B80-\u0BFF\u0900-\u097F\u0C00-\u0C7F\u0D00-\u0D7F\u0C80-\u0CFF\u0980-\u09FF\u0A80-\u0AFF\u0A00-\u0A7F]|$)`, 'i');
+    return regex.test(qLower);
+  });
+
+  if (hasWeatherKeyword) {
+    return { intent: 'WEATHER', reason: 'weather_keywords_found' };
+  }
+
+  // Check known city mentions with location inquiry indicators
+  const knownCity = resolveTamilAndTanglishCityName(q);
+  if (knownCity && /\b(in|at|for|near|la|le|kku|ku|epdi|irukku|erukku|status|report|how|kya|mein|ka)\b/i.test(qLower)) {
+    return { intent: 'WEATHER', reason: 'city_weather_inquiry' };
+  }
+
+  // 3. Gratitude & Courtesies (Pure Gratitude without weather inquiry)
+  const gratitudePatterns = [
+    /\b(thank\s*you|thanks|thanku|thx|tysm|thank\s*u|thanks\s*a\s*lot|thanks\s*much|many\s*thanks)\b/i,
+    /\b(nandri|romba\s*nandri|mikka\s*nandri|mika\s*nandri|nanri|thanks\s*pa|thanks\s*bro|thanks\s*da)\b/i,
+    /(?:நன்றி|மிக்க நன்றி|ரொம்ப நன்றி|நன்றிகள்|நன்றிங்க|நன்றி பா)/,
+    /\b(dhanyavad|dhanyavadamulu|dhanyawad|shukriya|bahut\s*dhanyavad)\b/i,
+    /(?:धन्यवाद|बहुत धन्यवाद|शुक्रिया|ਧੰਨਵਾਦ|ಧನ್ಯವಾದಗಳು|ಧನ್ಯವಾದ|నమస్కారాలు|ధన్యవాదాలు|നന്ദി|ধন্যবাদ|આભાર)/,
+    /\b(bye|goodbye|good\s*bye|see\s*you|tata|ta\s*ta|good\s*night|gn|poitu\s*varen|varata|alvida)\b/i,
+    /\b(ok\s*thanks|seri\s*thanks|super\s*thanks|nice\s*thanks|got\s*it\s*thanks|super\s*bro|semma\s*bro|thank\s*you\s*so\s*much)\b/i
+  ];
+
+  if (gratitudePatterns.some((pattern) => pattern.test(qLower))) {
+    return { intent: 'GRATITUDE', reason: 'gratitude_closing' };
+  }
+
+  // 4. Greetings & Salutations (Pure Greeting without weather inquiry)
+  const greetingPatterns = [
+    /^(hi|hello|hey|heyy|hii|hiii|hlo|hola|bonjour|namaste|namaskar|namaskaram|vanakkam|vaanakkam|vanakam|yo|sup|greetings)$/i,
+    /^(hi|hello|hey|vanakkam|namaste|namaskar)\s+[\w\s]{0,20}$/i,
+    /\b(good\s*morning|good\s*afternoon|good\s*evening|good\s*day)\b/i,
+    /\b(how\s*are\s*you|how\s*r\s*u|who\s*are\s*you|who\s*r\s*u|what\s*is\s*your\s*name|what\s*are\s*you|tell\s*me\s*about\s*yourself|introduce\s*yourself|what\s*can\s*you\s*do|what\s*do\s*you\s*do)\b/i,
+    /\b(epdi\s*irukinga|eppadi\s*irukinga|epdi\s*irukka|eppadi\s*iruka|nalama|neenga\s*yaaru|neenga\s*yar|yaaru\s*neenga|un\s*peru\s*enna|unga\s*name\s*enna|enna\s*panna\s*mudiyum|enna\s*seiya\s*mudiyum|enna\s*pannuva|introduce\s*pannu)\b/i,
+    /(?:வணக்கம்|வணக்கங்கள்|ஹலோ|ஹாய்|நீ யார்|நீங்க யாரு|உன் பெயர் என்ன|உங்க பெயர் என்ன|எப்படி இருக்கீங்க|எப்படி இருக்க|நலமா|உன்னால் என்ன செய்ய முடியும்|என்ன உதவி செய்ய முடியும்)/,
+    /(?:नमस्ते|नमस्कार|प्रणाम|हेलो|हाय|आप कौन हैं|तुम कौन हो|आपका नाम क्या है|आप क्या कर सकते हैं|कैसे हो|कैसे हैं आप|નમસ્તે|നമസ്കാരം|నమస్కారం|ನಮಸ್ಕಾರ|নমস্কার|ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ)/,
+    /\b(kaisa\s*hai|kaise\s*ho|aap\s*kaun\s*ho|kya\s*kar\s*sakte\s*ho|ela\s*unnaru|meeru\s*evaru|sukhamano|hegiddeera|kemon\s*achen)\b/i,
+    /^(test|testing|check|hi\s*there|hello\s*there)$/i
+  ];
+
+  if (greetingPatterns.some((pattern) => pattern.test(qLower))) {
+    return { intent: 'GREETING', reason: 'salutation_greeting' };
+  }
+
+  // 5. If substantive non-weather query, classify as OFF_TOPIC
+  return { intent: 'OFF_TOPIC', reason: 'non_weather_query' };
+}
+
+// 💬 Localized Greeting Responses (10 Languages + Tanglish)
+export function getGreetingResponse(lang = 'en') {
+  if (lang === 'ta') {
+    return (
+      `👋 **வணக்கம்!** நான் **WeatherGPT** - உங்கள் நேரலை வானிலை மற்றும் பேரிடர் முன்னறிவிப்பு AI உதவியாளர் 🌦️.\n\n` +
+      `• 🌧️ **மழை வாய்ப்பு & கணிக்கப்பட்ட நேரம்**\n` +
+      `• 🌡️ **வெப்பநிலை, காற்று & ஈரப்பதம்**\n` +
+      `• 🌀 **புயல் & வெள்ள பேரிடர் எச்சரிக்கைகள்**\n` +
+      `• 🌾 **விவசாய விதை & பயிர் வழிகாட்டுதல்**\n` +
+      `• 🍃 **காற்றின் தரம் (AQI) & கடல்/விமான வானிலை**\n\n` +
+      `உங்களுக்கு எந்த ஊரின் அல்லது பகுதியின் வானிலை நிலவரம் தேவை? தாராளமாகக் கேளுங்கள்!`
+    );
+  }
+
+  if (lang === 'tanglish') {
+    return (
+      `👋 **Vanakkam!** Naan unga **WeatherGPT** - Live Weather & Disaster Forecast AI Assistant 🌦️.\n\n` +
+      `• 🌧️ **Mazhai varuma & predicted timing**\n` +
+      `• 🌡️ **Live temperature, veyil & humidity**\n` +
+      `• 🌀 **Cyclone, flood & emergency alerts**\n` +
+      `• 🌾 **Vivasaya vidhai & payir advisory**\n` +
+      `• 🍃 **Kaatru tharam (AQI), marine & aviation METAR**\n\n` +
+      `Ungalukku entha ooru-oda weather details theriyanum nu kelunga, accurate ah solren!`
+    );
+  }
+
+  if (lang === 'hi') {
+    return (
+      `👋 **नमस्ते!** मैं **WeatherGPT** - आपका मौसम एवं आपदा पूर्वानुमान AI सहायक हूँ 🌦️।\n\n` +
+      `• 🌧️ **सटीक वर्षा पूर्वानुमान एवं समय**\n` +
+      `• 🌡️ **तापमान, धूप एवं आर्द्रता**\n` +
+      `• 🌀 **चक्रवात, बाढ़ एवं मौसम चेतावनियाँ**\n` +
+      `• 🌾 **कृषि, बीज एवं फसल परामर्श**\n` +
+      `• 🍃 **वायु गुणवत्ता सूचकांक (AQI) एवं समुद्री स्थिति**\n\n` +
+      `आप किस शहर या स्थान का मौसम जानना चाहते हैं? कृपया पूछें!`
+    );
+  }
+
+  if (lang === 'te') {
+    return (
+      `👋 **నమస్కారం!** నేను **WeatherGPT** - మీ వాతావరణ మరియు విపత్తు నిర్వహణ AI అసిస్టెంట్ 🌦️.\n\n` +
+      `• 🌧️ **వర్ష సూచన & సమయం**\n` +
+      `• 🌡️ **ఉష్ణోగ్రత & తేమ**\n` +
+      `• 🌀 **తుఫాను & వరద హెచ్చరికలు**\n` +
+      `• 🌾 **వ్యవసాయం & పంట సలహాలు**\n` +
+      `• 🍃 **గాలి నాణ్యత (AQI)**\n\n` +
+      `మీకు ఏ ప్రదేశం యొక్క వాతావరణ వివరాలు కావాలో అడగండి!`
+    );
+  }
+
+  if (lang === 'ml') {
+    return (
+      `👋 **നമസ്കാരം!** ഞാൻ **WeatherGPT** - നിങ്ങളുടെ കാലാവസ്ഥാ AI സഹായി 🌦️.\n\n` +
+      `• 🌧️ **മഴ സാധ്യത & സമയം**\n` +
+      `• 🌡️ **താപനില & കാറ്റിന്റെ വേഗത**\n` +
+      `• 🌀 **ചുഴലിക്കാറ്റ് & ദുരന്ത മുന്നറിയിപ്പുകൾ**\n` +
+      `• 🌾 **കാർഷിക ഉപദേശങ്ങൾ**\n\n` +
+      `ഏത് സ്ഥലത്തെ കാലാവസ്ഥയാണ് അറിയേണ്ടത്? ചോദിക്കൂ!`
+    );
+  }
+
+  if (lang === 'kn') {
+    return (
+      `👋 **ನಮಸ್ಕಾರ!** ನಾನು **WeatherGPT** - ನಿಮ್ಮ ಹವಾಮಾನ AI ಸಹಾಯಕ 🌦️.\n\n` +
+      `• 🌧️ **ಮಳೆ ಮುನ್ಸೂಚನೆ & ಸಮಯ**\n` +
+      `• 🌡️ **ತಾಪಮಾನ & ಆರ್ದ್ರತೆ**\n` +
+      `• 🌀 **ಚಂಡಮಾರುತ & ವಿಪತ್ತು ಎಚ್ಚರಿಕೆಗಳು**\n` +
+      `• 🌾 **ಕೃಷಿ & ಬೆಳೆ ಸಲಹೆಗಳು**\n\n` +
+      `ಯಾವ ಊರಿನ ಹವಾಮಾನ ಮಾಹಿತಿ ಬೇಕು ಎಂದು ಕೇಳಿ!`
+    );
+  }
+
+  if (lang === 'bn') {
+    return (
+      `👋 **নমস্কার!** আমি **WeatherGPT** - আপনার আবহাওয়া ও দুর্যোগ পূর্বাভাস এআই সহকারী 🌦️।\n\n` +
+      `• 🌧️ **বৃষ্টির সম্ভাবনা ও সময়**\n` +
+      `• 🌡️ **তাপমাত্রা ও আর্দ্রতা**\n` +
+      `• 🌀 **ঘূর্ণিঝড় ও বন্যা সতর্কতা**\n` +
+      `• 🌾 **কৃষি ও ফসল সংক্রান্ত পরামর্শ**\n\n` +
+      `কোন জায়গার আবহাওয়া জানতে চান? জিজ্ঞাসা করুন!`
+    );
+  }
+
+  if (lang === 'mr') {
+    return (
+      `👋 **नमस्कार!** मी **WeatherGPT** - आपला हवामान व आपत्ती व्यवस्थापन AI सहाय्यक 🌦️.\n\n` +
+      `• 🌧️ **पाऊस अंदाज व वेळ**\n` +
+      `• 🌡️ **तापमान व आर्द्रता**\n` +
+      `• 🌀 **वादळ व पूर इशारे**\n` +
+      `• 🌾 **कृषी व पीक सल्ला**\n\n` +
+      `कोणत्या शहराचे किंवा गावाचे हवामान जाणून घ्यायचे आहे? विचारा!`
+    );
+  }
+
+  if (lang === 'gu') {
+    return (
+      `👋 **નમસ્તે!** હું **WeatherGPT** - તમારો હવામાન AI સહાયક 🌦️.\n\n` +
+      `• 🌧️ **વરસાદની આગાહી અને સમય**\n` +
+      `• 🌡️ **તાપમાન અને ભેજ**\n` +
+      `• 🌀 **વાવાઝોડાની ચેતવણી**\n` +
+      `• 🌾 **કૃષિ અને પાક સલાહ**\n\n` +
+      `તમે કયા સ્થળનું હવામાન જાણવા માંગો છો? પૂછો!`
+    );
+  }
+
+  if (lang === 'pa') {
+    return (
+      `👋 **ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ!** ਮੈਂ **WeatherGPT** - ਤੁਹਾਡਾ ਮੌਸਮ AI ਸਹਾਇਕ 🌦️।\n\n` +
+      `• 🌧️ **ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ ਅਤੇ ਸਮਾਂ**\n` +
+      `• 🌡️ **ਤਾਪਮਾਨ ਅਤੇ ਨਮੀ**\n` +
+      `• 🌀 **ਤੂਫ਼ਾਨ ਦੀ ਚੇਤਾਵਨੀ**\n` +
+      `• 🌾 **ਖੇਤੀਬਾੜੀ ਸਲਾਹ**\n\n` +
+      `ਤੁਸੀਂ ਕਿਸ ਸ਼ਹਿਰ ਦਾ ਮੌਸਮ ਜਾਣਨਾ ਚਾਹੁੰਦੇ ਹੋ? ਪੁੱਛੋ!`
+    );
+  }
+
+  // Default English
+  return (
+    `👋 **Hello!** I am **WeatherGPT**, your specialized Meteorological & Severe Disaster AI Assistant 🌦️.\n\n` +
+    `• 🌧️ **Live Rain Probability & Precision Timing**\n` +
+    `• 🌡️ **Temperature, Humidity & Atmospheric Trends**\n` +
+    `• 🌀 **Cyclone, Flood & Emergency Disaster Warnings**\n` +
+    `• 🌾 **Agricultural Crop, Seed & Sowing Advisories**\n` +
+    `• 🍃 **Air Quality Index (AQI), Marine & Aviation METAR**\n\n` +
+    `Which city, town, or location's weather would you like to explore today? Just ask in any language!`
+  );
+}
+
+// 💖 Localized Gratitude Responses (10 Languages + Tanglish)
+export function getGratitudeResponse(lang = 'en') {
+  if (lang === 'ta') {
+    return `மிக்க மகிழ்ச்சி! 😊 உங்களுக்கு வானிலை தொடர்பான வேறு ஏதேனும் தகவல்கள், மழை நிலவரம் அல்லது அவசர உதவிகள் தேவைப்பட்டால் எப்போது வேண்டுமானாலும் கேளுங்கள். பாதுகாப்பாக இருங்கள்! 🌦️✨`;
+  }
+  if (lang === 'tanglish') {
+    return `Romba sandhosham! 😊 Vera edhavadhu weather updates, mazhai report, illa cyclone status theva patta kandippa kelunga. Stay safe and have a great day! 🌦️✨`;
+  }
+  if (lang === 'hi') {
+    return `आपका बहुत-बहुत स्वागत है! 😊 अगर आपको मौसम, बारिश, वायु गुणवत्ता या अलर्ट से जुड़ी कोई और जानकारी चाहिए तो जरूर पूछें। सुरक्षित रहें और आपका दिन शुभ हो! 🌦️✨`;
+  }
+  if (lang === 'te') {
+    return `చాలా ధన్యవాదాలు! 😊 మీకు వాతావరణం లేదా వర్షం గురించి మరిన్ని వివరాలు కావాలంటే ఎప్పుడైనా అడగండి. క్షేమంగా ఉండండి! 🌦️✨`;
+  }
+  if (lang === 'ml') {
+    return `സ്വാഗതം! 😊 കൂടുതൽ കാലാവസ്ഥാ വിവരങ്ങൾക്ക് എപ്പോൾ വേണമെങ്കിലും ചോദിക്കാം. സുരക്ഷിതരായിരിക്കുക! 🌦️✨`;
+  }
+  if (lang === 'kn') {
+    return `ಧನ್ಯವಾದಗಳು! 😊 ಹವಾಮಾನದ ಹೆಚ್ಚಿನ ವಿವರಗಳಿಗಾಗಿ ಯಾವಾಗ ಬೇಕಾದರೂ ಕೇಳಬಹುದು. ಸುರಕ್ಷಿತವಾಗಿರಿ! 🌦️✨`;
+  }
+  if (lang === 'bn') {
+    return `আপনাকে অনেক ধন্যবাদ! 😊 আবহাওয়া সংক্রান্ত যেকোনো তথ্যের জন্য যেকোনো সময় জিজ্ঞাসা করতে পারেন। নিরাপদে থাকুন! 🌦️✨`;
+  }
+  if (lang === 'mr') {
+    return `आपले मनापासून स्वागत! 😊 हवामानाबद्दल आणखी काही माहिती हवी असल्यास नक्की विचारा. सुरक्षित राहा! 🌦️✨`;
+  }
+  if (lang === 'gu') {
+    return `આપનું ખૂબ ખૂબ સ્વાગત છે! 😊 હવામાન અંગેની વધુ માહિતી માટે ગમે ત્યારે પૂછી શકો છો. સુરક્ષિત રહો! 🌦️✨`;
+  }
+  if (lang === 'pa') {
+    return `ਤੁਹਾਡਾ ਬਹੁਤ ਧੰਨਵਾਦ! 😊 ਮੌਸਮ ਸੰਬੰਧੀ ਕਿਸੇ ਵੀ ਜਾਣਕਾਰੀ ਲਈ ਕਦੇ ਵੀ ਪੁੱਛ ਸਕਦੇ ਹੋ। ਸੁਰੱਖਿਅਤ ਰਹੋ! 🌦️✨`;
+  }
+  return `You're very welcome! 😊 Feel free to ask anytime if you need weather forecasts, rain updates, agricultural climate guidance, or disaster alerts. Stay safe and have a wonderful day! 🌦️✨`;
+}
+
+// 🛡️ Localized Domain Guardrail Responses for Non-Weather Queries (10 Languages + Tanglish)
+export function getOffTopicResponse(lang = 'en') {
+  if (lang === 'ta') {
+    return (
+      `⚠️ **வானிலை தொடர்பான கேள்விகளை மட்டுமே கேட்கவும்:**\n\n` +
+      `மன்னிக்கவும்! நான் ஒரு சிறப்பு **வானிலை, மழை மற்றும் பேரிடர் முன்னறிவிப்பு AI (WeatherGPT)** மட்டுமே 🌦️.\n\n` +
+      `என்னால் வானிலை நிலவரம், மழை வாய்ப்பு, வெப்பநிலை, புயல்/வெள்ள எச்சரிக்கைகள், காற்றின் தரம் (AQI), விவசாயம், கடல்சார் மற்றும் விமானப் போக்குவரத்து வானிலை தொடர்பான கேள்விகளுக்கு மட்டுமே பதிலளிக்க முடியும்.\n\n` +
+      `💡 **தயவுசெய்து ஏதேனும் ஒரு ஊரின் வானிலை அல்லது மழை நிலவரம் பற்றிக் கேளுங்கள்!**\n*(எ.கா: "சென்னையில் இன்று மழை வருமா?" அல்லது "மதுரையில் வெப்பநிலை எப்படி இருக்கும்?")*`
+    );
+  }
+
+  if (lang === 'tanglish') {
+    return (
+      `⚠️ **Weather related kelvigal mattum kelunga:**\n\n` +
+      `Mannikavum! Naan oru dedicated **Weather, Rain & Disaster Forecast AI (WeatherGPT)** mattum dhaan 🌦️.\n\n` +
+      `Ennala live weather, mazhai vaippu, temperature, cyclone/flood alerts, kaatru tharam (AQI), vivasayam, and climate related questions-ku mattum dhaan accurate ah answer panna mudiyum.\n\n` +
+      `💡 **Weather related ah edhavadhu kelunga!**\n*(Eg: "Chennai la iniku mazhai varuma?" illa "Madurai weather epdi irukku?")*`
+    );
+  }
+
+  if (lang === 'hi') {
+    return (
+      `⚠️ **केवल मौसम संबंधी प्रश्न पूछें:**\n\n` +
+      `क्षमा करें! मैं केवल एक समर्पित **मौसम, वर्षा एवं आपदा पूर्वानुमान AI (WeatherGPT)** हूँ 🌦️।\n\n` +
+      `मैं केवल मौसम, बारिश की संभावना, तापमान, चक्रवात/बाढ़ अलर्ट, वायु गुणवत्ता (AQI) और कृषि मौसम सलाह से जुड़े प्रश्नों के उत्तर दे सकता हूँ।\n\n` +
+      `💡 **कृपया किसी स्थान का मौसम या बारिश संबंधी प्रश्न पूछें!**\n*(उदा: "क्या आज दिल्ली में बारिश होगी?" या "मुंबई का तापमान क्या है?")*`
+    );
+  }
+
+  if (lang === 'te') {
+    return (
+      `⚠️ **దయచేసి వాతావరణ సంబంధిత ప్రశ్నలు మాత్రమే అడగండి:**\n\n` +
+      `నన్ను క్షమించండి! నేను ప్రత్యేకంగా **వాతావరణ మరియు విపత్తు నిర్వహణ AI (WeatherGPT)** మాత్రమే 🌦️.\n\n` +
+      `వాతావరణం, వర్షం, ఉష్ణోగ్రత, గాలి నాణ్యత (AQI) లేదా తుఫాను హెచ్చరికలకు సంబంధించిన ప్రశ్నలను మాత్రమే అడగండి.`
+    );
+  }
+
+  if (lang === 'ml') {
+    return (
+      `⚠️ **ദയവായി കാലാവസ്ഥ സംബന്ധമായ ചോദ്യങ്ങൾ മാത്രം ചോദിക്കുക:**\n\n` +
+      `ക്ഷമിക്കണം! ഞാൻ ഒരു പ്രത്യേക **കാലാവസ്ഥാ AI (WeatherGPT)** മാത്രമാണ് 🌦️.\n\n` +
+      `കാലാവസ്ഥ, മഴ സാധ്യത, താപനില, ചുഴലിക്കാറ്റ് മുന്നറിയിപ്പുകൾ എന്നിവയെക്കുറിച്ച് മാത്രം ചോദിക്കുക.`
+    );
+  }
+
+  if (lang === 'kn') {
+    return (
+      `⚠️ **ದಯವಿಟ್ಟು ಹವಾಮಾನ ಸಂಬಂಧಿತ ಪ್ರಶ್ನೆಗಳನ್ನು ಮಾತ್ರ ಕೇಳಿ:**\n\n` +
+      `ಕ್ಷಮಿಸಿ! ನಾನು ಕೇವಲ **ಹವಾಮಾನ ಮತ್ತು ವಿಪತ್ತು AI (WeatherGPT)** ಆಗಿದ್ದೇನೆ 🌦️.\n\n` +
+      `ಹವಾಮಾನ, ಮಳೆ, ತಾಪಮಾನ ಅಥವಾ ಚಂಡಮಾರುತಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಪ್ರಶ್ನೆಗಳನ್ನು ಮಾತ್ರ ಕೇಳಿ.`
+    );
+  }
+
+  if (lang === 'bn') {
+    return (
+      `⚠️ **অনুগ্রহ করে কেবল আবহাওয়া সংক্রান্ত প্রশ্ন জিজ্ঞাসা করুন:**\n\n` +
+      `ক্ষমা করবেন! আমি একটি নিবেদিত **আবহাওয়া এআই (WeatherGPT)** 🌦️।\n\n` +
+      `কেবল আবহাওয়া, বৃষ্টিপাত, তাপমাত্রা, বায়ুমান বা দুর্যোগ সতর্কতা সংক্রান্ত প্রশ্ন জিজ্ঞাসা করুন।`
+    );
+  }
+
+  if (lang === 'mr') {
+    return (
+      `⚠️ **कृपया केवळ हवामान संबंधित प्रश्न विचारा:**\n\n` +
+      `माफ करा! मी केवळ एक समर्पित **हवामान AI (WeatherGPT)** आहे 🌦️।\n\n` +
+      `हवामान, पाऊस, तापमान किंवा आपत्ती इशाऱ्यांशी संबंधित प्रश्न विचारा.`
+    );
+  }
+
+  if (lang === 'gu') {
+    return (
+      `⚠️ **કૃપા કરીને માત્ર હવામાન સંબંધિત પ્રશ્નો પૂછો:**\n\n` +
+      `માફ કરશો! હું માત્ર એક સમર્પિત **હવામાન AI (WeatherGPT)** છું 🌦️.\n\n` +
+      `હવામાન, વરસાદ અથવા વાવાઝોડા સંબંધિત પ્રશ્નો પૂછો.`
+    );
+  }
+
+  if (lang === 'pa') {
+    return (
+      `⚠️ **ਕਿਰਪਾ ਕਰਕੇ ਸਿਰਫ਼ ਮੌਸਮ ਸੰਬੰਧੀ ਸਵਾਲ ਪੁੱਛੋ:**\n\n` +
+      `ਮਾਫ਼ ਕਰਨਾ! ਮੈਂ ਸਿਰਫ਼ ਇੱਕ ਸਮਰਪਿਤ **ਮੌਸਮ AI (WeatherGPT)** ਹਾਂ 🌦️।\n\n` +
+      `ਕਿਰਪਾ ਕਰਕੇ ਮੌਸਮ, ਮੀਂਹ ਜਾਂ ਤੂਫ਼ਾਨ ਸੰਬੰਧੀ ਸਵਾਲ ਪੁੱਛੋ।`
+    );
+  }
+
+  return (
+    `⚠️ **Weather & Meteorology Inquiries Only:**\n\n` +
+    `I apologize! As **WeatherGPT**, I am a specialized AI Assistant dedicated strictly to **Meteorology, Weather Forecasting, Rain Predictions, Climate Analytics, and Severe Disaster Early Warnings** 🌦️.\n\n` +
+    `I can only assist with weather forecasts, rain probabilities, storm alerts, air quality (AQI), agricultural climate advisories, marine sea states, and aviation briefings in any language.\n\n` +
+    `💡 **Please ask a weather-related question for any location!**\n*(e.g., "Will it rain in Chennai today?" or "What is the temperature in Delhi?")*`
+  );
+}
+
 export class WeatherAIAgent {
   constructor() {
     this.hfApiKey = '';
@@ -948,6 +1348,88 @@ export class WeatherAIAgent {
       const isTanglish = effectiveLang === 'tanglish';
       const targetLangForData = isTanglish ? 'ta' : effectiveLang;
 
+      // 🛑 STRICT CONVERSATIONAL INTENT & DOMAIN GUARDRAILS
+      const { intent } = classifyQueryIntent(q, !!image);
+
+      if (intent === 'GREETING') {
+        const greetingText = getGreetingResponse(effectiveLang);
+        dbService.insertChatLog({
+          sessionId: `sql_sess_${Date.now()}`,
+          sender: 'ai',
+          text: greetingText,
+          detectedLanguage: effectiveLang,
+          modelUsed: 'WeatherGPT AI Assistant',
+          locationName: null,
+          hasImage: false
+        });
+        return {
+          text: greetingText,
+          location: null,
+          domain: 'general',
+          timeframe: 'current',
+          detectedLanguage: effectiveLang,
+          weatherData: null,
+          aqiData: null,
+          alerts: [],
+          modelUsed: 'WeatherGPT AI Assistant',
+          isWeatherQuery: false,
+          sources: ['WeatherGPT Meteorological Assistant']
+        };
+      }
+
+      if (intent === 'GRATITUDE') {
+        const gratitudeText = getGratitudeResponse(effectiveLang);
+        dbService.insertChatLog({
+          sessionId: `sql_sess_${Date.now()}`,
+          sender: 'ai',
+          text: gratitudeText,
+          detectedLanguage: effectiveLang,
+          modelUsed: 'WeatherGPT AI Assistant',
+          locationName: null,
+          hasImage: false
+        });
+        return {
+          text: gratitudeText,
+          location: null,
+          domain: 'general',
+          timeframe: 'current',
+          detectedLanguage: effectiveLang,
+          weatherData: null,
+          aqiData: null,
+          alerts: [],
+          modelUsed: 'WeatherGPT AI Assistant',
+          isWeatherQuery: false,
+          sources: ['WeatherGPT Meteorological Assistant']
+        };
+      }
+
+      if (intent === 'OFF_TOPIC') {
+        const offTopicText = getOffTopicResponse(effectiveLang);
+        dbService.insertChatLog({
+          sessionId: `sql_sess_${Date.now()}`,
+          sender: 'ai',
+          text: offTopicText,
+          detectedLanguage: effectiveLang,
+          modelUsed: 'WeatherGPT Domain Guardrail',
+          locationName: null,
+          hasImage: false
+        });
+        return {
+          text: offTopicText,
+          location: null,
+          domain: 'general',
+          timeframe: 'current',
+          detectedLanguage: effectiveLang,
+          weatherData: null,
+          aqiData: null,
+          alerts: [],
+          modelUsed: 'WeatherGPT Domain Guardrail',
+          isWeatherQuery: false,
+          sources: ['WeatherGPT Domain Guardrail']
+        };
+      }
+
+      // Proceed with Weather-Specific Query Execution
       const { domain, timeframe, isRainInquiry } = this.extractQueryContext(q, currentLocation);
       const targetLocation = await this.resolveLocationFromQuery(q, currentLocation);
 
@@ -969,6 +1451,7 @@ export class WeatherAIAgent {
           detectedLanguage: effectiveLang,
           modelUsed: '📡 Offline Disaster Edge AI (Zero Tower Signal)',
           isOffline: true,
+          isWeatherQuery: offlineResult.isWeatherQuery !== false,
           sources: ['Offline Disaster Vault', 'TNSDMA Emergency Protocols']
         };
       }
@@ -999,14 +1482,18 @@ export class WeatherAIAgent {
       const aqi = aqiData?.current?.us_aqi || 50;
 
       const ragSystemPrompt = `You are WeatherGPT, an advanced Meteorological Vision AI Assistant.
+CRITICAL DOMAIN RULES:
+1. You ONLY answer queries related to weather, rainfall, storm, cyclone, flood, temperatures, winds, humidity, cloud formations, air quality (AQI), disaster early warnings, agriculture/crop climate advisories, marine sea states, and aviation briefings.
+2. If the user asks a completely non-weather question (e.g. coding, history, politics, cinema, math, recipes), politely decline in the detected language (${effectiveLang}) stating that you are WeatherGPT and only answer weather questions.
+3. For weather inquiries in ANY language, provide rich, accurate, and actionable meteorological guidance based on the live station data below.
+
 Location: ${locName}
 Current Temperature: ${temp}°C (Feels like: ${current.apparent_temperature || temp}°C)
 Humidity: ${humidity}%
 Wind Speed: ${wind} km/h (Direction: ${current.wind_direction_10m || 0}°)
 Rain Probability: ${rainProb}% | Accumulation: ${daily?.precipitation_sum?.[0] || 0} mm
 AQI: ${aqi} (US AQI Standard)
-Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}
-Respond in the language matching the user's prompt (Detected: ${effectiveLang}). Explain cloud formations, rain likelihood, and actionable advice clearly.`;
+Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
 
       // 📸 MULTIMODAL IMAGE QUERY HANDLING
       let imageTelemetry = null;
@@ -1119,6 +1606,7 @@ Respond in the language matching the user's prompt (Detected: ${effectiveLang}).
         aviationBriefing,
         marineBriefing,
         modelUsed: modelUsedLabel,
+        isWeatherQuery: true,
         sources: [
           'Open-Meteo High-Resolution NWP (GFS / WRF / ECMWF)',
           'WAQI Global Air Quality Telemetry',
@@ -1133,6 +1621,7 @@ Respond in the language matching the user's prompt (Detected: ${effectiveLang}).
         detectedLanguage: activeLanguage,
         modelUsed: '📡 Offline Disaster Edge AI (Network / Tower Outage)',
         isOffline: true,
+        isWeatherQuery: offlineResult.isWeatherQuery !== false,
         sources: ['Offline Disaster Vault', 'TNSDMA Emergency Protocols']
       };
     }
