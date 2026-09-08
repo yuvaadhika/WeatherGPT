@@ -112,6 +112,32 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
   return Math.round(R * c);
 }
 
+// Pre-defined High-Accuracy Coordinates for Tamil Nadu & Indian Cities (Instant Zero-Latency Fallback)
+const TN_CITY_COORDS = {
+  'chengalpattu': { name: 'Chengalpattu', latitude: 12.6922, longitude: 79.9774, admin1: 'Tamil Nadu' },
+  'chengalpet': { name: 'Chengalpattu', latitude: 12.6922, longitude: 79.9774, admin1: 'Tamil Nadu' },
+  'tiruvannamalai': { name: 'Tiruvannamalai', latitude: 12.2253, longitude: 79.0747, admin1: 'Tamil Nadu' },
+  'thiruvannamalai': { name: 'Tiruvannamalai', latitude: 12.2253, longitude: 79.0747, admin1: 'Tamil Nadu' },
+  'chennai': { name: 'Chennai', latitude: 13.0827, longitude: 80.2707, admin1: 'Tamil Nadu' },
+  'madurai': { name: 'Madurai', latitude: 9.9252, longitude: 78.1198, admin1: 'Tamil Nadu' },
+  'coimbatore': { name: 'Coimbatore', latitude: 11.0168, longitude: 76.9558, admin1: 'Tamil Nadu' },
+  'trichy': { name: 'Tiruchirappalli', latitude: 10.7905, longitude: 78.7047, admin1: 'Tamil Nadu' },
+  'tiruchirappalli': { name: 'Tiruchirappalli', latitude: 10.7905, longitude: 78.7047, admin1: 'Tamil Nadu' },
+  'salem': { name: 'Salem', latitude: 11.6643, longitude: 78.1460, admin1: 'Tamil Nadu' },
+  'vellore': { name: 'Vellore', latitude: 12.9165, longitude: 79.1325, admin1: 'Tamil Nadu' },
+  'tirunelveli': { name: 'Tirunelveli', latitude: 8.7139, longitude: 77.7567, admin1: 'Tamil Nadu' },
+  'thanjavur': { name: 'Thanjavur', latitude: 10.7870, longitude: 79.1378, admin1: 'Tamil Nadu' },
+  'kodaikanal': { name: 'Kodaikanal', latitude: 10.2381, longitude: 77.4892, admin1: 'Tamil Nadu' },
+  'ooty': { name: 'Ooty (Nilgiris)', latitude: 11.4102, longitude: 76.6950, admin1: 'Tamil Nadu' },
+  'kanchipuram': { name: 'Kanchipuram', latitude: 12.8342, longitude: 79.7036, admin1: 'Tamil Nadu' },
+  'rameswaram': { name: 'Rameswaram', latitude: 9.2876, longitude: 79.3129, admin1: 'Tamil Nadu' },
+  'kanyakumari': { name: 'Kanyakumari', latitude: 8.0883, longitude: 77.5385, admin1: 'Tamil Nadu' },
+  'villupuram': { name: 'Villupuram', latitude: 11.9401, longitude: 79.4861, admin1: 'Tamil Nadu' },
+  'cuddalore': { name: 'Cuddalore', latitude: 11.7480, longitude: 79.7714, admin1: 'Tamil Nadu' },
+  'bengaluru': { name: 'Bengaluru', latitude: 12.9716, longitude: 77.5946, admin1: 'Karnataka' },
+  'bangalore': { name: 'Bengaluru', latitude: 12.9716, longitude: 77.5946, admin1: 'Karnataka' },
+};
+
 export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLocation }) {
   const [selectedRoute, setSelectedRoute] = useState(POPULAR_ROUTES[0]);
   const [departureOffset, setDepartureOffset] = useState(0); // in hours from now
@@ -131,9 +157,24 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   const [isSearchingRoute, setIsSearchingRoute] = useState(false);
   const [searchError, setSearchError] = useState('');
 
+  // Ref to smoothly scroll to answer
+  const resultsRef = React.useRef(null);
+
   useEffect(() => {
     simulateRouteWeather(selectedRoute, departureOffset);
   }, [selectedRoute, departureOffset, activeLanguage]);
+
+  // Robust city resolver with local dictionary fallback
+  const resolveCity = async (text) => {
+    const clean = (text || '').trim().toLowerCase();
+    if (TN_CITY_COORDS[clean]) return TN_CITY_COORDS[clean];
+    for (const [k, v] of Object.entries(TN_CITY_COORDS)) {
+      if (clean.includes(k) || k.includes(clean)) return v;
+    }
+    const results = await searchLocation(text);
+    if (results && results.length > 0) return results[0];
+    return null;
+  };
 
   // Handle Origin Search
   const handleOriginSearch = async (val) => {
@@ -182,7 +223,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
       const wLon = originLoc.longitude + (destLoc.longitude - originLoc.longitude) * fraction;
       const offsetHour = parseFloat((driveHrs * fraction).toFixed(1));
       waypoints.push({
-        name: `Waypoint ${i} (${Math.round(dist * fraction)} km)`,
+        name: `Checkpoint ${i} (${Math.round(dist * fraction)} km mark)`,
         offsetHour,
         lat: wLat,
         lon: wLon,
@@ -203,6 +244,11 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
     setSelectedRoute(customRouteObj);
     setIsCustomMode(true);
     setSearchError('');
+
+    // Smooth scroll to answer
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 400);
   };
 
   // Execute Direct Search & Calculate Route Weather
@@ -226,30 +272,28 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
     try {
       let resolvedOrigin = customOrigin;
       if (!resolvedOrigin || resolvedOrigin.name.toLowerCase() !== startTxt.toLowerCase()) {
-        const oResults = await searchLocation(startTxt);
-        if (!oResults || oResults.length === 0) {
+        resolvedOrigin = await resolveCity(startTxt);
+        if (!resolvedOrigin) {
           throw new Error(
             activeLanguage === 'ta'
               ? `புறப்படும் இடம் "${startTxt}" கிடைக்கவில்லை. எழுத்துப் பிழையைச் சரிபார்க்கவும்.`
               : `Origin location "${startTxt}" not found. Please check spelling.`
           );
         }
-        resolvedOrigin = oResults[0];
         setCustomOrigin(resolvedOrigin);
         setOriginQuery(resolvedOrigin.name);
       }
 
       let resolvedDest = customDest;
       if (!resolvedDest || resolvedDest.name.toLowerCase() !== destTxt.toLowerCase()) {
-        const dResults = await searchLocation(destTxt);
-        if (!dResults || dResults.length === 0) {
+        resolvedDest = await resolveCity(destTxt);
+        if (!resolvedDest) {
           throw new Error(
             activeLanguage === 'ta'
               ? `சேருமிடம் "${destTxt}" கிடைக்கவில்லை. எழுத்துப் பிழையைச் சரிபார்க்கவும்.`
               : `Destination location "${destTxt}" not found. Please check spelling.`
           );
         }
-        resolvedDest = dResults[0];
         setCustomDest(resolvedDest);
         setDestQuery(resolvedDest.name);
       }
@@ -686,7 +730,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
       </div>
 
       {/* 2. Route Safety Score & Overview Card */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div ref={resultsRef} className="grid grid-cols-1 sm:grid-cols-3 gap-3 scroll-mt-20">
         {/* Safety Score Meter */}
         <div className="p-4 rounded-3xl bg-white/90 backdrop-blur-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
@@ -778,7 +822,18 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             <Compass className="w-4 h-4 text-sky-600" />
             <span>{activeLanguage === 'ta' ? 'வழித்தட வாரியான நேரலை முன்னறிவிப்பு' : 'Waypoint-by-Waypoint Live Telemetry'}</span>
           </h3>
-          {isSimulating && <RefreshCw className="w-3.5 h-3.5 text-sky-600 animate-spin" />}
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => simulateRouteWeather(selectedRoute, departureOffset)}
+              disabled={isSimulating}
+              className="text-[11px] font-bold text-sky-700 hover:text-sky-800 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-xl border border-sky-200 flex items-center space-x-1 transition-all cursor-pointer"
+              title="Reload Route Forecast"
+            >
+              <RefreshCw className={`w-3 h-3 ${isSimulating ? 'animate-spin text-sky-600' : ''}`} />
+              <span>{activeLanguage === 'ta' ? 'மீண்டும் ஏற்று (Reload)' : 'Reload Answer'}</span>
+            </button>
+          </div>
         </div>
 
         <div className="space-y-2.5">
