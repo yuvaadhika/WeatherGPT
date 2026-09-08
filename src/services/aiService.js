@@ -1736,14 +1736,16 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
     const daily = nwpData?.daily || {};
     const effectiveLangForWmo = lang === 'tanglish' ? 'ta' : lang;
     const wmo = getWeatherDescription(current.weather_code || 0, effectiveLangForWmo);
-    const temp = current.temperature_2m ?? '--';
-    const feels = current.apparent_temperature ?? temp;
+    const temp = current.temperature_2m !== undefined ? Math.round(current.temperature_2m) : '--';
+    const feels = current.apparent_temperature !== undefined ? Math.round(current.apparent_temperature) : temp;
     const humidity = current.relative_humidity_2m ?? '--';
-    const wind = current.wind_speed_10m ?? '--';
-    const rainProb = daily?.precipitation_probability_max?.[0] ?? current.precipitation ?? 0;
+    const wind = current.wind_speed_10m !== undefined ? Math.round(current.wind_speed_10m) : '--';
+    const rainProb = daily?.precipitation_probability_max?.[0] ?? (current.precipitation ? 75 : 15);
     const tomorrowRainProb = daily?.precipitation_probability_max?.[1] ?? 0;
-    const tomorrowTempMax = daily?.temperature_2m_max?.[1] ?? '--';
+    const tomorrowTempMax = daily?.temperature_2m_max?.[1] !== undefined ? Math.round(daily.temperature_2m_max[1]) : '--';
     const aqi = aqiData?.current?.us_aqi || 55;
+    const uvIndex = current.uv_index !== undefined ? current.uv_index : (daily.uv_index_max?.[0] || 6);
+    const totalPrecipSum = (daily?.precipitation_sum?.[0] || current.precipitation || 0).toFixed(1);
 
     // Calculate detailed Rain Verdict & Predicted Timing
     const rainCalc = calculateRainVerdict(nwpData, timeframe);
@@ -1774,11 +1776,11 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
     const formatMicroZoneTextTa = () => {
       let txt = '';
       if (microBreakdown.rainZones.length > 0) {
-        txt += `\n\n🌧️ **மழை பெய்யும் குறிப்பிட்ட பகுதிகள் (Rain Zones in ${locName}):**\n` +
+        txt += `\n\n🌧️ **மழை பெய்யும் குறிப்பிட்ட பகுதிகள் (Rain Expected Areas in ${locName}):**\n` +
           microBreakdown.rainZones.map((z) => `  • 📍 **${z.nameTa}**: ${z.timingTa} (${z.prob}% வாய்ப்பு, ~${z.mm} மி.மீ)`).join('\n');
       }
       if (microBreakdown.dryZones.length > 0) {
-        txt += `\n\n☀️ **மழை இல்லாத / வறண்ட பகுதிகள் (Dry / Clear Zones):**\n` +
+        txt += `\n\n☀️ **மழை இல்லாத / வறண்ட பகுதிகள் (Dry & Clear Areas):**\n` +
           microBreakdown.dryZones.map((z) => `  • 📍 **${z.nameTa}**: மழை வாய்ப்பு இல்லை (0 மி.மீ, தெளிவான வானிலை)`).join('\n');
       }
       txt += `\n\n⚠️ **பகுதிவாரி இடர் & வெள்ள அபாயப் பகுப்பாய்வு (Hyper-Local Risk Distribution):**\n` +
@@ -1821,32 +1823,43 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai theerpu & specific area-wise report idho:**\n\n` +
+            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) live weather & specific area-wise rain report idho:**\n\n` +
+            `🌡️ **Tharpodhaya Vaanilai (Current Weather Parameters):**\n` +
+            `• 🌡️ **Veppanilai (Temperature):** ${temp}°C (Feel aaguradhu: ${feels}°C)\n` +
+            `• ☁️ **Vaanam (Sky):** ${wmo.label}\n` +
+            `• 💧 **Eerapatham (Humidity):** ${humidity}% | 💨 **Kaatru Vegam:** ${wind} km/h\n` +
+            `• 🍃 **Kaatru Tharam (AQI):** ${aqi} | ☀️ **UV Index:** ${uvIndex}\n\n` +
             `🌧️ **Overall Mazhai Theerpu: Aam (YES - Mazhai Peyyum! 🌧️)**\n` +
             `• ⏰ **Kaanikkapatta Neram (Peak Window):** ${rainCalc.predictedTimingTa}\n` +
-            `• 📊 **District Average Vaippu:** ${rainCalc.maxProb}% | **Alavu:** ~${rainCalc.totalPrecip} mm\n` +
-            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
-            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h` +
+            `• 📊 **District Average Vaippu:** ${rainCalc.maxProb}% | **Alavu:** ~${rainCalc.totalPrecip} mm` +
             formatMicroZoneTextTanglish() +
-            `\n\n💡 **Mukkiya Advice:** Mazhai ulla paghudhikku poravanga kandippa Kudai (Umbrella) allathu Raincoat eduthuttu ponga!`
+            `\n\n💡 **Mukkiya Advice:** ${topAlert?.message ? `⚠️ ${topAlert.message}. ` : ''}Mazhai ulla paghudhikku poravanga kandippa Kudai (Umbrella) allathu Raincoat eduthuttu ponga!`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai status & specific area report idho:**\n\n` +
+            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) live weather & specific area rain status idho:**\n\n` +
+            `🌡️ **Tharpodhaya Vaanilai (Current Weather Parameters):**\n` +
+            `• 🌡️ **Veppanilai (Temperature):** ${temp}°C (Feel aaguradhu: ${feels}°C)\n` +
+            `• ☁️ **Vaanam (Sky):** ${wmo.label}\n` +
+            `• 💧 **Eerapatham (Humidity):** ${humidity}% | 💨 **Kaatru Vegam:** ${wind} km/h\n` +
+            `• 🍃 **Kaatru Tharam (AQI):** ${aqi} | ☀️ **UV Index:** ${uvIndex}\n\n` +
             `🌦️ **Overall Mazhai Theerpu: Sila Idangalil Mattum (MAYBE - Isolated Showers 🌦️)**\n` +
             `• ⏰ **Kaanikkapatta Neram:** ${rainCalc.predictedTimingTa}\n` +
-            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}%\n` +
-            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)` +
+            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% | **Alavu:** ~${rainCalc.totalPrecip} mm` +
             formatMicroZoneTextTanglish() +
             `\n\n💡 **Advice:** Sila kurippitta idangalil mattum lesana thooral varalaam. Veli velai irundha pathu thittam pottukonga.`
           );
         } else {
           return (
-            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai status idho:**\n\n` +
+            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) live weather & rain status idho:**\n\n` +
+            `🌡️ **Tharpodhaya Vaanilai (Current Weather Parameters):**\n` +
+            `• 🌡️ **Veppanilai (Temperature):** ${temp}°C (Feel aaguradhu: ${feels}°C)\n` +
+            `• ☁️ **Vaanam (Sky):** ${wmo.label}\n` +
+            `• 💧 **Eerapatham (Humidity):** ${humidity}% | 💨 **Kaatru Vegam:** ${wind} km/h\n` +
+            `• 🍃 **Kaatru Tharam (AQI):** ${aqi} | ☀️ **UV Index:** ${uvIndex}\n\n` +
             `☀️ **Overall Mazhai Theerpu: Illai (NO - Mazhai Peyya Vaippu Illai! ☀️)**\n` +
             `• ⏰ **Predicted Time:** Adutha 24 mani nerathil mazhai vaippu illa.\n` +
-            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% (Romba Kuraivu) | **Mazhai Alavu:** 0 mm\n` +
-            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)` +
+            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% (Romba Kuraivu) | **Mazhai Alavu:** 0 mm` +
             formatMicroZoneTextTanglish() +
             `\n\n💡 **Advice:** Mazhai peyya vaippe illa. Thelivana veyil & nalla climate irukum. Unga velaiya thairiyama pannalam!`
           );
@@ -1856,7 +1869,7 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (domain === 'agriculture' && cropSeedAdvisory) {
         return (
           `🌾 **Vanakkam! ${locName} vivasaya & vidhaippu valikaatti (Farmer Climate Advice):**\n\n` +
-          `• 🌡️ **Ippodhaiya Climate:** ${temp}°C | **Eerapatham:** ${humidity}% | **Mann Eerapatham:** ${cropSeedAdvisory.soilMoisturePercent}%\n` +
+          `• 🌡️ **Veppanilai:** ${temp}°C | **Eerapatham:** ${humidity}% | **Mann Eerapatham:** ${cropSeedAdvisory.soilMoisturePercent}%\n` +
           `• 🚜 **Vidhaippu Thaguthi (Sowing Status):** ✅ **${cropSeedAdvisory.sowingStatusLabel}**\n\n` +
           `🌱 **Intha Climate-ku Yetha Vidhaigal (Recommended Seeds):**\n` +
           cropSeedAdvisory.recommendedSeeds.map((s, idx) => `  ${idx + 1}. **${s.cropTanglish || s.cropEn}** (${s.variety})\n     *Kaalam:* ${s.duration} | *Yethadhu:* ${s.suitability}\n     *Karanam:* ${s.reasonTanglish || s.reasonEn}`).join('\n\n') +
@@ -1899,9 +1912,11 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (timeframe === 'tomorrow') {
         return (
           `👋 **Kandippa! ${locName}-la naalaiya (${tomorrowDateTa}) weather forecast idho:**\n\n` +
-          `• ☀️ **Adhigabatcha Veppam:** ${tomorrowTempMax}°C\n` +
+          `🌡️ **Naalaiya Vaanilai Alaveedugal:**\n` +
+          `• ☀️ **Adhigabatcha Veppanilai (Max Temp):** ${tomorrowTempMax}°C\n` +
           `• 🌧️ **Mazhai Peyya Vaippu:** ${tomorrowRainProb}%\n` +
-          `• 💨 **Kaatru Vegam:** ${wind} km/h | **Kaatru Tharam (AQI):** ${aqi}` +
+          `• 💧 **Eerapatham (Humidity):** ${humidity}% | 💨 **Kaatru Vegam:** ${wind} km/h\n` +
+          `• 🍃 **Kaatru Tharam (AQI):** ${aqi} | ☀️ **UV Index:** ${uvIndex}` +
           formatMicroZoneTextTanglish() +
           `\n\n💡 **Advice:** ${tomorrowRainProb >= 50 ? 'Nalaiku veliya porappa kudai eduthuttu ponga.' : 'Nalaiku climate steady ah nalla irukum.'}`
         );
@@ -1909,10 +1924,12 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
 
       return (
         `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) live weather update idho:**\n\n` +
-        `• 🌡️ **Vaanilai Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
-        `• 🌧️ **Mazhai Vaippu:** ${rainProb}% ${rainProb >= 50 ? '(Mazhai peyya vaaipu irukku 🌧️)' : '(Mazhai vaippu kuraivu ☀️)'}\n` +
-        `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
-        `• 🍃 **Kaatru Tharam (AQI):** ${aqi}` +
+        `🌡️ **Tharpodhaya Vaanilai (Current Weather Parameters):**\n` +
+        `• 🌡️ **Veppanilai (Temperature):** ${temp}°C (Feel aaguradhu: ${feels}°C)\n` +
+        `• ☁️ **Vaanam (Sky Condition):** ${wmo.label}\n` +
+        `• 🌧️ **Mazhai Vaippu:** ${rainProb}% ${rainProb >= 50 ? '(Mazhai peyya vaaipu irukku 🌧️)' : '(Mazhai vaippu kuraivu ☀️)'} | **Alavu:** ~${totalPrecipSum} mm\n` +
+        `• 💧 **Eerapatham (Humidity):** ${humidity}% | 💨 **Kaatru Vegam:** ${wind} km/h\n` +
+        `• 🍃 **Kaatru Tharam (AQI):** ${aqi} | ☀️ **UV Index:** ${uvIndex}` +
         formatMicroZoneTextTanglish() +
         `\n\n💡 **Advice:** ${topAlert?.message || (rainProb >= 50 ? 'Mazhai vara vaaipu irukku, kudai eduthukonga.' : 'Climate nallave irukku, veli velai thairiyama seyyalaam.')}`
       );
@@ -1923,30 +1940,43 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **${locName} - நேரலை மழை தீர்ப்பு & பகுதிவாரி அறிக்கை:**\n\n` +
+            `🌧️ **${locName} - நேரலை வானிலை, மழை தீர்ப்பு & பகுதிவாரி அறிக்கை (${todayDateTa}):**\n\n` +
+            `🌡️ **தற்போதைய வானிலை அளவீடுகள் (Current Weather Parameters):**\n` +
+            `• 🌡️ **வெப்பநிலை:** ${temp}°C (உணரப்படும் வெப்பம்: ${feels}°C)\n` +
+            `• ☁️ **வானிலை நிலை:** ${wmo.label}\n` +
+            `• 💧 **ஈரப்பதம்:** ${humidity}% | 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
+            `• 🍃 **காற்று தரம் (AQI):** ${aqi} | ☀️ **UV குறியீடு:** ${uvIndex}\n\n` +
             `🌧️ **ஒட்டுமொத்த மழை தீர்ப்பு: ஆம் (YES - மழை பெய்யும்! 🌧️)**\n` +
             `• ⏰ **கணிக்கப்பட்ட நேரம் (Peak Time):** ${rainCalc.predictedTimingTa}\n` +
-            `• 📊 **மாவட்ட சராசரி வாய்ப்பு:** ${rainCalc.maxProb}% | **எதிர்பார்க்கப்படும் அளவு:** ~${rainCalc.totalPrecip} மி.மீ\n` +
-            `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
-            `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி` +
+            `• 📊 **மாவட்ட சராசரி வாய்ப்பு:** ${rainCalc.maxProb}% | **எதிர்பார்க்கப்படும் அளவு:** ~${rainCalc.totalPrecip} மி.மீ` +
             formatMicroZoneTextTa() +
-            `\n\n💡 **முக்கிய ஆலோசனை:** மழை உள்ள பகுதிகளுக்குப் பயணிக்கும்போது குடை அல்லது ரெயின்கோட் எடுத்துச் செல்லவும்.`
+            `\n\n💡 **முக்கிய ஆலோசனை:** ${topAlert?.message ? `⚠️ ${topAlert.message}. ` : ''}மழை உள்ள பகுதிகளுக்குப் பயணிக்கும்போது குடை அல்லது ரெயின்கோட் எடுத்துச் செல்லவும்.`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **${locName} - மழை வாய்ப்பு தீர்ப்பு: சில பகுதிகளில் மட்டும் (MAYBE - Isolated Showers 🌦️)**\n\n` +
+            `🌦️ **${locName} - நேரலை வானிலை & மழை தீர்ப்பு (${todayDateTa}):**\n\n` +
+            `🌡️ **தற்போதைய வானிலை அளவீடுகள் (Current Weather Parameters):**\n` +
+            `• 🌡️ **வெப்பநிலை:** ${temp}°C (உணரப்படும் வெப்பம்: ${feels}°C)\n` +
+            `• ☁️ **வானிலை நிலை:** ${wmo.label}\n` +
+            `• 💧 **ஈரப்பதம்:** ${humidity}% | 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
+            `• 🍃 **காற்று தரம் (AQI):** ${aqi} | ☀️ **UV குறியீடு:** ${uvIndex}\n\n` +
+            `🌦️ **ஒட்டுமொத்த மழை தீர்ப்பு: சில பகுதிகளில் மட்டும் (MAYBE - Isolated Showers 🌦️)**\n` +
             `• ⏰ **கணிக்கப்பட்ட நேரம்:** ${rainCalc.predictedTimingTa}\n` +
-            `• 📊 **மழை வாய்ப்பு:** ${rainCalc.maxProb}%\n` +
-            `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)` +
+            `• 📊 **மழை வாய்ப்பு:** ${rainCalc.maxProb}% | **எதிர்பார்க்கப்படும் அளவு:** ~${rainCalc.totalPrecip} மி.மீ` +
             formatMicroZoneTextTa() +
-            `\n\n💡 **ஆலோசனை:** குறுகிய தூறல் அல்லது லேசான மழைக்கு சில இடங்களில் வாய்ப்பு உள்ளது.`
+            `\n\n💡 **ஆலோசனை:** குறுகிய தூறல் அல்லது லேசான மழைக்கு சில இடங்களில் வாய்ப்பு உள்ளது. வெளிப் பணிகளைத் திட்டமிட்டுக் கொள்ளவும்.`
           );
         } else {
           return (
-            `☀️ **${locName} - மழை வாய்ப்பு தீர்ப்பு: இல்லை (NO - மழை பெய்யாது! ☀️)**\n\n` +
+            `☀️ **${locName} - நேரலை வானிலை & மழை தீர்ப்பு (${todayDateTa}):**\n\n` +
+            `🌡️ **தற்போதைய வானிலை அளவீடுகள் (Current Weather Parameters):**\n` +
+            `• 🌡️ **வெப்பநிலை:** ${temp}°C (உணரப்படும் வெப்பம்: ${feels}°C)\n` +
+            `• ☁️ **வானிலை நிலை:** ${wmo.label}\n` +
+            `• 💧 **ஈரப்பதம்:** ${humidity}% | 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
+            `• 🍃 **காற்று தரம் (AQI):** ${aqi} | ☀️ **UV குறியீடு:** ${uvIndex}\n\n` +
+            `☀️ **ஒட்டுமொத்த மழை தீர்ப்பு: இல்லை (NO - மழை பெய்யாது! ☀️)**\n` +
             `• ⏰ **கணிக்கப்பட்ட நேரம்:** அடுத்த 24 மணி நேரத்தில் மழைக்கான வாய்ப்பு இல்லை\n` +
-            `• 📊 **மழை வாய்ப்பு:** ${rainCalc.maxProb}% (மிகக் குறைவு) | **மழை அளவு:** 0 மி.மீ\n` +
-            `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)` +
+            `• 📊 **மழை வாய்ப்பு:** ${rainCalc.maxProb}% (மிகக் குறைவு) | **மழை அளவு:** 0 மி.மீ` +
             formatMicroZoneTextTa() +
             `\n\n💡 **ஆலோசனை:** மழை பெய்ய வாய்ப்பில்லை, வறண்ட மற்றும் தெளிவான வானிலை நிலவும். உங்களது பணிகளைத் தடையின்றித் திட்டமிடலாம்.`
           );
@@ -1987,18 +2017,23 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (timeframe === 'tomorrow') {
         return (
           `👋 **நிச்சயமாக! ${locName} பகுதிக்கான நாளைய (${tomorrowDateTa}) வானிலை முன்னறிவிப்பு:**\n\n` +
+          `🌡️ **நாளைய வானிலை அளவீடுகள்:**\n` +
           `• ☀️ **அதிகபட்ச வெப்பநிலை:** ${tomorrowTempMax}°C\n` +
           `• 🌧️ **மழை பெய்வதற்கான வாய்ப்பு:** ${tomorrowRainProb}%\n` +
-          `• 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **காற்று தரம் (AQI):** ${aqi}` +
+          `• 💧 **ஈரப்பதம்:** ${humidity}% | 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
+          `• 🍃 **காற்று தரம் (AQI):** ${aqi} | ☀️ **UV குறியீடு:** ${uvIndex}` +
           formatMicroZoneTextTa() +
           `\n\n💡 **பாதுகாப்பு குறிப்பு:** ${tomorrowRainProb >= 50 ? 'நாளை வெளியே செல்லும்போது மறக்காமல் குடை எடுத்துச் செல்லவும்.' : 'வானிலை பொதுவாக இயல்பாக நிலவும்.'}`
         );
       }
       return (
         `👋 **நிச்சயமாக! ${locName} பகுதிக்கான இன்றைய (${todayDateTa}) நேரலை வானிலை தகவல்:**\n\n` +
-        `• 🌡️ **வானிலை நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
-        `• 🌧️ **மழை வாய்ப்பு:** ${rainProb}% | **காற்று தரம் (AQI):** ${aqi}\n` +
-        `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி` +
+        `🌡️ **தற்போதைய வானிலை அளவீடுகள் (Current Weather Parameters):**\n` +
+        `• 🌡️ **வெப்பநிலை:** ${temp}°C (உணரப்படும் வெப்பம்: ${feels}°C)\n` +
+        `• ☁️ **வானிலை நிலை:** ${wmo.label}\n` +
+        `• 🌧️ **மழை வாய்ப்பு:** ${rainProb}% | **மழை அளவு:** ~${totalPrecipSum} மி.மீ\n` +
+        `• 💧 **ஈரப்பதம்:** ${humidity}% | 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
+        `• 🍃 **காற்று தரம் (AQI):** ${aqi} | ☀️ **UV குறியீடு:** ${uvIndex}` +
         formatMicroZoneTextTa() +
         `\n\n💡 **ஆலோசனை:** ${topAlert?.message || (rainProb >= 50 ? 'மழைக்கு வாய்ப்பு உள்ளது, குடை எடுத்துச் செல்லவும்.' : 'வானிலை சீராக உள்ளது, பணிகளைத் தடையின்றித் திட்டமிடலாம்.')}`
       );
@@ -2009,30 +2044,42 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **वर्षा पूर्वानुमान: हाँ (YES - बारिश होगी! 🌧️)**\n\n` +
-            `• ⏰ **अनुमानित समय (Predicted Timing):** ${rainCalc.predictedTimingEn}${rainCalc.peakHourEn ? ` (अधिकतम: ${rainCalc.peakHourEn})` : ''}\n` +
-            `• 📊 **बारिश की संभावना:** ${rainCalc.maxProb}% | **अनुमानित वर्षा:** ~${rainCalc.totalPrecip} मिमी\n` +
-            `• 🌡️ **वर्तमान मौसम:** ${wmo.label} (${temp}°C, महसूस: ${feels}°C)\n` +
-            `• 💧 **आर्द्रता:** ${humidity}% | **हवा की गति:** ${wind} किमी/घंटा\n` +
-            `• 💡 **सलाह:** बाहर निकलते समय छाता या रेनकोट साथ रखें।`
+            `🌧️ **${locName} वर्षा पूर्वानुमान एवं मौसम रिपोर्ट:**\n\n` +
+            `🌡️ **वर्तमान मौसम पैरामीटर:**\n` +
+            `• 🌡️ **तापमान:** ${temp}°C (महसूस: ${feels}°C) | **मौसम:** ${wmo.label}\n` +
+            `• 💧 **नमी (Humidity):** ${humidity}% | 💨 **हवा की गति:** ${wind} किमी/घंटा\n` +
+            `• 🍃 **वायु गुणवत्ता (AQI):** ${aqi} | ☀️ **UV सूचकांक:** ${uvIndex}\n\n` +
+            `🌧️ **वर्षा निर्णय: हाँ (YES - बारिश होगी! 🌧️)**\n` +
+            `• ⏰ **अनुमानित समय (Predicted Timing):** ${rainCalc.predictedTimingEn}\n` +
+            `• 📊 **बारिश की संभावना:** ${rainCalc.maxProb}% | **अनुमानित वर्षा:** ~${rainCalc.totalPrecip} मिमी` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **सलाह:** बाहर निकलते समय छाता या रेनकोट साथ रखें।`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **वर्षा पूर्वानुमान: संभावना है (MAYBE - हल्की बूंदाबांदी संभव 🌦️)**\n\n` +
-            `• ⏰ **अनुमानित समय (Predicted Timing):** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **बारिश की संभावना:** ${rainCalc.maxProb}% | **अनुमानित वर्षा:** ~${rainCalc.totalPrecip} मिमी\n` +
-            `• 🌡️ **वर्तमान मौसम:** ${wmo.label} (${temp}°C, महसूस: ${feels}°C)\n` +
-            `• 💧 **आर्द्रता:** ${humidity}% | **हवा की गति:** ${wind} किमी/घंटा\n` +
-            `• 💡 **सलाह:** कुछ समय के लिए हल्की बारिश या बूंदाबांदी हो सकती है।`
+            `🌦️ **${locName} वर्षा पूर्वानुमान एवं मौसम रिपोर्ट:**\n\n` +
+            `🌡️ **वर्तमान मौसम पैरामीटर:**\n` +
+            `• 🌡️ **तापमान:** ${temp}°C (महसूस: ${feels}°C) | **मौसम:** ${wmo.label}\n` +
+            `• 💧 **नमी (Humidity):** ${humidity}% | 💨 **हवा की गति:** ${wind} किमी/घंटा\n` +
+            `• 🍃 **वायु गुणवत्ता (AQI):** ${aqi} | ☀️ **UV सूचकांक:** ${uvIndex}\n\n` +
+            `🌦️ **वर्षा निर्णय: संभावना है (MAYBE - हल्की बूंदाबांदी संभव 🌦️)**\n` +
+            `• ⏰ **अनुमानित समय:** ${rainCalc.predictedTimingEn}\n` +
+            `• 📊 **बारिश की संभावना:** ${rainCalc.maxProb}% | **अनुमानित वर्षा:** ~${rainCalc.totalPrecip} मिमी` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **सलाह:** कुछ समय के लिए हल्की बारिश या बूंदाबांदी हो सकती है।`
           );
         } else {
           return (
-            `☀️ **वर्षा पूर्वानुमान: नहीं (NO - बारिश की संभावना नहीं है! ☀️)**\n\n` +
-            `• ⏰ **अनुमानित समय (Predicted Timing):** अगले 24 घंटों में बारिश का कोई अनुमान नहीं है।\n` +
-            `• 📊 **बारिश की संभावना:** ${rainCalc.maxProb}% (नगण्य) | **वर्षा मात्रा:** 0 मिमी\n` +
-            `• 🌡️ **वर्तमान मौसम:** ${wmo.label} (${temp}°C, महसूस: ${feels}°C)\n` +
-            `• 💧 **आर्द्रता:** ${humidity}% | **हवा की गति:** ${wind} किमी/घंटा\n` +
-            `• 💡 **सलाह:** मौसम साफ और शुष्क रहेगा, आप अपनी बाहरी योजनाएं बना सकते हैं।`
+            `☀️ **${locName} वर्षा पूर्वानुमान एवं मौसम रिपोर्ट:**\n\n` +
+            `🌡️ **वर्तमान मौसम पैरामीटर:**\n` +
+            `• 🌡️ **तापमान:** ${temp}°C (महसूस: ${feels}°C) | **मौसम:** ${wmo.label}\n` +
+            `• 💧 **नमी (Humidity):** ${humidity}% | 💨 **हवा की गति:** ${wind} किमी/घंटा\n` +
+            `• 🍃 **वायु गुणवत्ता (AQI):** ${aqi} | ☀️ **UV सूचकांक:** ${uvIndex}\n\n` +
+            `☀️ **वर्षा निर्णय: नहीं (NO - बारिश की संभावना नहीं है! ☀️)**\n` +
+            `• ⏰ **अनुमानित समय:** अगले 24 घंटों में बारिश का कोई अनुमान नहीं है।\n` +
+            `• 📊 **बारिश की संभावना:** ${rainCalc.maxProb}% (नगण्य) | **वर्षा मात्रा:** 0 मिमी` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **सलाह:** मौसम साफ और शुष्क रहेगा, आप अपनी बाहरी योजनाएं बना सकते हैं।`
           );
         }
       }
@@ -2055,19 +2102,23 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       }
       if (timeframe === 'tomorrow') {
         return (
-          `☀️ **${locName} - कल का मौसम पूर्वानुमान:**\n` +
+          `☀️ **${locName} - कल का मौसम पूर्वानुमान:**\n\n` +
           `• **अधिकतम तापमान:** ${tomorrowTempMax}°C\n` +
           `• **बारिश की संभावना:** ${tomorrowRainProb}%\n` +
-          `• **वायु गुणवत्ता सूचकांक (AQI):** ${aqi}\n` +
-          `• **सतर्कता स्तर:** ${topAlert?.title || 'सामान्य'}`
+          `• **नमी:** ${humidity}% | **हवा की गति:** ${wind} किमी/घंटा\n` +
+          `• **वायु गुणवत्ता সূचकांक (AQI):** ${aqi} | **UV सूचकांक:** ${uvIndex}` +
+          formatMicroZoneTextEn() +
+          `\n\n💡 **सलाह:** ${tomorrowRainProb >= 50 ? 'कल बाहर जाते समय छाता साथ रखें।' : 'मौसम सामान्य रहेगा।'}`
         );
       }
       return (
-        `📍 **${locName} का लाइव मौसम विवरण:**\n` +
-        `• **मौसम:** ${wmo.label} (${temp}°C, महसूस: ${feels}°C)\n` +
-        `• **आर्द्रता:** ${humidity}% | **हवा की गति:** ${wind} किमी/घंटा\n` +
-        `• **वर्षा की संभावना:** ${rainProb}% | **वायु गुणवत्ता (AQI):** ${aqi}\n` +
-        `• **आपदा/मौसम अलर्ट:** ${topAlert?.message || 'मौसम अनुकूल है।'}`
+        `📍 **${locName} का लाइव मौसम विवरण:**\n\n` +
+        `• 🌡️ **तापमान:** ${temp}°C (महसूस: ${feels}°C) | **मौसम:** ${wmo.label}\n` +
+        `• 🌧️ **वर्षा की संभावना:** ${rainProb}% | **अनुमानित वर्षा:** ~${totalPrecipSum} मिमी\n` +
+        `• 💧 **आर्द्रता:** ${humidity}% | 💨 **हवा की गति:** ${wind} किमी/घंटा\n` +
+        `• 🍃 **वायु गुणवत्ता (AQI):** ${aqi} | ☀️ **UV सूचकांक:** ${uvIndex}` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **सलाह:** ${topAlert?.message || 'मौसम अनुकूल है।'}`
       );
     }
 
@@ -2076,30 +2127,42 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **వర్ష సూచన తీర్పు: అవును (YES - వర్షం పడే అవకాశం ఉంది! 🌧️)**\n\n` +
+            `🌧️ **${locName} వర్ష సూచన & వాతావరణ నివేదిక:**\n\n` +
+            `🌡️ **ప్రస్తుత వాతావరణ కొలతలు:**\n` +
+            `• 🌡️ **ఉష్ణోగ్రత:** ${temp}°C (అనిపించేది ${feels}°C) | **స్థితి:** ${wmo.label}\n` +
+            `• 💧 **తేమ:** ${humidity}% | 💨 **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
+            `• 🍃 **గాలి నాణ్యత (AQI):** ${aqi} | ☀️ **UV ఇండెక్స్:** ${uvIndex}\n\n` +
+            `🌧️ **వర్ష సూచన తీర్పు: అవును (YES - వర్షం పడే అవకాశం ఉంది! 🌧️)**\n` +
             `• ⏰ **అంచనా సమయం (Predicted Time):** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **వర్షం అవకాశం:** ${rainCalc.maxProb}% | **అంచనా వర్షపాతం:** ~${rainCalc.totalPrecip} మి.మీ\n` +
-            `• 🌡️ **ప్రస్తుత ఉష్ణోగ్రత:** ${wmo.label} (${temp}°C, అనిపించేది ${feels}°C)\n` +
-            `• 💧 **తేమ:** ${humidity}% | **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
-            `• 💡 **సలహా:** బయటకు వెళ్లేటప్పుడు గొడుగు వెంట ఉంచుకోండి.`
+            `• 📊 **వర్షం అవకాశం:** ${rainCalc.maxProb}% | **అంచనా వర్షపాతం:** ~${rainCalc.totalPrecip} మి.మీ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **సలహా:** బయటకు వెళ్లేటప్పుడు గొడుగు వెంట ఉంచుకోండి.`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **వర్ష సూచన తీర్పు: అవకాశం ఉంది (MAYBE - తేలికపాటి జల్లులు 🌦️)**\n\n` +
-            `• ⏰ **అంచనా సమయం (Predicted Time):** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **వర్షం అవకాశం:** ${rainCalc.maxProb}% | **అంచనా వర్షపాతం:** ~${rainCalc.totalPrecip} మి.మీ\n` +
-            `• 🌡️ **ప్రస్తుత స్థితి:** ${wmo.label} (${temp}°C, అనిపించేది ${feels}°C)\n` +
-            `• 💧 **తేమ:** ${humidity}% | **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
-            `• 💡 **సలహా:** స్వల్ప జల్లులు పడే అవకాశం ఉంది.`
+            `🌦️ **${locName} వర్ష సూచన & వాతావరణ నివేదిక:**\n\n` +
+            `🌡️ **ప్రస్తుత వాతావరణ కొలతలు:**\n` +
+            `• 🌡️ **ఉష్ణోగ్రత:** ${temp}°C (అనిపించేది ${feels}°C) | **స్థితి:** ${wmo.label}\n` +
+            `• 💧 **తేమ:** ${humidity}% | 💨 **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
+            `• 🍃 **గాలి నాణ్యత (AQI):** ${aqi} | ☀️ **UV ఇండెక్స్:** ${uvIndex}\n\n` +
+            `🌦️ **వర్ష సూచన తీర్పు: అవకాశం ఉంది (MAYBE - తేలికపాటి జల్లులు 🌦️)**\n` +
+            `• ⏰ **అంచనా సమయం:** ${rainCalc.predictedTimingEn}\n` +
+            `• 📊 **వర్షం అవకాశం:** ${rainCalc.maxProb}% | **అంచనా వర్షపాతం:** ~${rainCalc.totalPrecip} మి.మీ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **సలహా:** స్వల్ప జల్లులు పడే అవకాశం ఉంది.`
           );
         } else {
           return (
-            `☀️ **వర్ష సూచన తీర్పు: లేదు (NO - వర్షం లేదు! ☀️)**\n\n` +
-            `• ⏰ **అంచనా సమయం (Predicted Time):** వచ్చే 24 గంటల్లో వర్షం అవకాశం లేదు.\n` +
-            `• 📊 **వర్షం అవకాశం:** ${rainCalc.maxProb}% (చాలా తక్కువ) | **వర్షపాతం:** 0 మి.మీ\n` +
-            `• 🌡️ **ప్రస్తుత స్థితి:** ${wmo.label} (${temp}°C, అనిపించేది ${feels}°C)\n` +
-            `• 💧 **తేమ:** ${humidity}% | **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
-            `• 💡 **సలహా:** వాతావరణం పొడిగా మరియు నిర్మలంగా ఉంటుంది.`
+            `☀️ **${locName} వర్ష సూచన & వాతావరణ నివేదిక:**\n\n` +
+            `🌡️ **ప్రస్తుత వాతావరణ కొలతలు:**\n` +
+            `• 🌡️ **ఉష్ణోగ్రత:** ${temp}°C (అనిపించేది ${feels}°C) | **స్థితి:** ${wmo.label}\n` +
+            `• 💧 **తేమ:** ${humidity}% | 💨 **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
+            `• 🍃 **గాలి నాణ్యత (AQI):** ${aqi} | ☀️ **UV ఇండెక్స్:** ${uvIndex}\n\n` +
+            `☀️ **వర్ష సూచన తీర్పు: లేదు (NO - వర్షం లేదు! ☀️)**\n` +
+            `• ⏰ **అంచనా సమయం:** వచ్చే 24 గంటల్లో వర్షం అవకాశం లేదు.\n` +
+            `• 📊 **వర్షం అవకాశం:** ${rainCalc.maxProb}% (చాలా తక్కువ) | **వర్షపాతం:** 0 మి.మీ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **సలహా:** వాతావరణం పొడిగా మరియు నిర్మలంగా ఉంటుంది.`
           );
         }
       }
@@ -2122,19 +2185,23 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       }
       if (timeframe === 'tomorrow') {
         return (
-          `☀️ **${locName} - రేపటి వాతావరణ సమాచారం:**\n` +
+          `☀️ **${locName} - రేపటి వాతావరణ సమాచారం:**\n\n` +
           `• **గరిష్ట ఉష్ణోగ్రత:** ${tomorrowTempMax}°C\n` +
           `• **వర్షం అవకాశం:** ${tomorrowRainProb}%\n` +
-          `• **గాలి నాణ్యత (AQI):** ${aqi}\n` +
-          `• **హెచ్చరిక:** ${topAlert?.title || 'సాధారణం'}`
+          `• **తేమ:** ${humidity}% | **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
+          `• **గాలి నాణ్యత (AQI):** ${aqi} | **UV ఇండెక్స్:** ${uvIndex}` +
+          formatMicroZoneTextEn() +
+          `\n\n💡 **సలహా:** ${tomorrowRainProb >= 50 ? 'రేపు గొడుగు వెంట ఉంచుకోండి.' : 'వాతావరణం అనుకూలంగా ఉంటుంది.'}`
         );
       }
       return (
-        `📍 **${locName} తాజా వాతావరణ సమాచారం:**\n` +
-        `• **స్థితి:** ${wmo.label} (${temp}°C, అనిపించేది: ${feels}°C)\n` +
-        `• **తేమ:** ${humidity}% | **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
-        `• **వర్షం అవకాశం:** ${rainProb}% | **గాలి నాణ్యత (AQI):** ${aqi}\n` +
-        `• **హెచ్చరిక:** ${topAlert?.message || 'వాతావరణం అనుకూలంగా ఉంది.'}`
+        `📍 **${locName} తాజా వాతావరణ సమాచారం:**\n\n` +
+        `• 🌡️ **ఉష్ణోగ్రత:** ${temp}°C (అనిపించేది: ${feels}°C) | **స్థితి:** ${wmo.label}\n` +
+        `• 🌧️ **వర్షం అవకాశం:** ${rainProb}% | **వర్షపాతం:** ~${totalPrecipSum} మి.మీ\n` +
+        `• 💧 **తేమ:** ${humidity}% | 💨 **గాలి వేగం:** ${wind} కి.మీ/గం\n` +
+        `• 🍃 **గాలి నాణ్యత (AQI):** ${aqi} | ☀️ **UV ఇండెక్స్:** ${uvIndex}` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **హెచ్చరిక:** ${topAlert?.message || 'వాతావరణం అనుకూలంగా ఉంది.'}`
       );
     }
 
@@ -2143,37 +2210,53 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **മഴ പ്രവചനം: ഉണ്ട് (YES - മഴയ്ക്ക് സാധ്യതയുണ്ട്! 🌧️)**\n\n` +
+            `🌧️ **${locName} മഴ പ്രവചനം & കാലാവസ്ഥ വിവരങ്ങൾ:**\n\n` +
+            `🌡️ **നിലവിലെ അന്തരീക്ഷ അളവുകൾ:**\n` +
+            `• 🌡️ **താപനില:** ${temp}°C (അനുഭവപ്പെടുന്നത് ${feels}°C) | **അവസ്ഥ:** ${wmo.label}\n` +
+            `• 💧 **ഈർപ്പം:** ${humidity}% | 💨 **കാറ്റിന്റെ വേഗത:** ${wind} കി.മീ/മണിക്കൂർ\n` +
+            `• 🍃 **വായു ഗുണനിലവാരം (AQI):** ${aqi} | ☀️ **UV സൂചിക:** ${uvIndex}\n\n` +
+            `🌧️ **മഴ പ്രവചനം: ഉണ്ട് (YES - മഴയ്ക്ക് സാധ്യതയുണ്ട്! 🌧️)**\n` +
             `• ⏰ **പ്രതീക്ഷിക്കുന്ന സമയം:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **മഴ സാധ്യത:** ${rainCalc.maxProb}% | **പ്രതീക്ഷിക്കുന്ന മഴ:** ~${rainCalc.totalPrecip} മി.മീ\n` +
-            `• 🌡️ **നിലവിലെ അന്തരീക്ഷം:** ${wmo.label} (${temp}°C, അനുഭവപ്പെടുന്നത് ${feels}°C)\n` +
-            `• 💧 **ഈർപ്പം:** ${humidity}% | **കാറ്റിന്റെ വേഗത:** ${wind} കി.മീ/മണിക്കൂർ\n` +
-            `• 💡 **നിർദ്ദേശം:** പുറത്തിറങ്ങുമ്പോൾ കുടയോ റെയിൻകോട്ടോ കരുതുക.`
+            `• 📊 **മഴ സാധ്യത:** ${rainCalc.maxProb}% | **പ്രതീക്ഷിക്കുന്ന മഴ:** ~${rainCalc.totalPrecip} മി.മീ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **നിർദ്ദേശം:** പുറത്തിറങ്ങുമ്പോൾ കുടയോ റെയിൻകോട്ടോ കരുതുക.`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **മഴ പ്രവചനം: സാധ്യതയുണ്ട് (MAYBE - നേരിയ ചാറ്റൽ മഴ 🌦️)**\n\n` +
+            `🌦️ **${locName} മഴ പ്രവചനം & കാലാവസ്ഥ വിവരങ്ങൾ:**\n\n` +
+            `🌡️ **നിലവിലെ അന്തരീക്ഷ അളവുകൾ:**\n` +
+            `• 🌡️ **താപനില:** ${temp}°C (അനുഭവപ്പെടുന്നത് ${feels}°C) | **അവസ്ഥ:** ${wmo.label}\n` +
+            `• 💧 **ഈർപ്പം:** ${humidity}% | 💨 **കാറ്റിന്റെ വേഗത:** ${wind} കി.മീ/മണിക്കൂർ\n` +
+            `• 🍃 **വായു ഗുണനിലവാരം (AQI):** ${aqi} | ☀️ **UV സൂചിക:** ${uvIndex}\n\n` +
+            `🌦️ **മഴ പ്രവചനം: സാധ്യതയുണ്ട് (MAYBE - നേരിയ ചാറ്റൽ മഴ 🌦️)**\n` +
             `• ⏰ **പ്രതീക്ഷിക്കുന്ന സമയം:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **മഴ സാധ്യത:** ${rainCalc.maxProb}% | **പ്രതീക്ഷിക്കുന്ന മഴ:** ~${rainCalc.totalPrecip} മി.മീ\n` +
-            `• 🌡️ **നിലവിലെ അന്തരീക്ഷം:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **നിർദ്ദേശം:** നേരിയ മഴയ്ക്ക് സാധ്യതയുണ്ട്.`
+            `• 📊 **മഴ സാധ്യത:** ${rainCalc.maxProb}% | **പ്രതീക്ഷിക്കുന്ന മഴ:** ~${rainCalc.totalPrecip} മി.മീ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **നിർദ്ദേശം:** നേരിയ മഴയ്ക്ക് സാധ്യതയുണ്ട്.`
           );
         } else {
           return (
-            `☀️ **മഴ പ്രവചനം: ഇല്ല (NO - മഴയ്ക്ക് സാധ്യതയില്ല! ☀️)**\n\n` +
+            `☀️ **${locName} മഴ പ്രവചനം & കാലാവസ്ഥ വിവരങ്ങൾ:**\n\n` +
+            `🌡️ **നിലവിലെ അന്തരീക്ഷ അളവുകൾ:**\n` +
+            `• 🌡️ **താപനില:** ${temp}°C (അനുഭവപ്പെടുന്നത് ${feels}°C) | **അവസ്ഥ:** ${wmo.label}\n` +
+            `• 💧 **ഈർപ്പം:** ${humidity}% | 💨 **കാറ്റിന്റെ വേഗത:** ${wind} കി.മീ/മണിക്കൂർ\n` +
+            `• 🍃 **വായു ഗുണനിലവാരം (AQI):** ${aqi} | ☀️ **UV സൂചിക:** ${uvIndex}\n\n` +
+            `☀️ **മഴ പ്രവചനം: ഇല്ല (NO - മഴയ്ക്ക് സാധ്യതയില്ല! ☀️)**\n` +
             `• ⏰ **പ്രതീക്ഷിക്കുന്ന സമയം:** അടുത്ത 24 മണിക്കൂറിൽ മഴയ്ക്ക് സാധ്യതയില്ല.\n` +
-            `• 📊 **മഴ സാധ്യത:** ${rainCalc.maxProb}% | **മഴ അളവ്:** 0 മി.മീ\n` +
-            `• 🌡️ **നിലവിലെ അന്തരീക്ഷം:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **നിർദ്ദേശം:** വരണ്ട കാലാവസ്ഥയായിരിക്കും.`
+            `• 📊 **മഴ സാധ്യത:** ${rainCalc.maxProb}% | **മഴ അളവ്:** 0 മി.മീ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **നിർദ്ദേശം:** വരണ്ട കാലാവസ്ഥയായിരിക്കും.`
           );
         }
       }
       return (
-        `📍 **${locName} തത്സമയ കാലാവസ്ഥ വിവരങ്ങൾ:**\n` +
-        `• **അവസ്ഥ:** ${wmo.label} (${temp}°C, അനുഭവപ്പെടുന്നത് ${feels}°C)\n` +
-        `• **ഈർപ്പം:** ${humidity}% | **കാറ്റിന്റെ വേഗത:** ${wind} കി.മീ/മണിക്കൂർ\n` +
-        `• **മഴ സാധ്യത:** ${rainProb}% | **വായു ഗുണനിലവാരം (AQI):** ${aqi}\n` +
-        `• **മുന്നറിയിപ്പ്:** ${topAlert?.message || 'കാലാവസ്ഥ അനുകൂലമാണ്.'}`
+        `📍 **${locName} തത്സമയ കാലാവസ്ഥ വിവരങ്ങൾ:**\n\n` +
+        `• 🌡️ **താപനില:** ${temp}°C (അനുഭവപ്പെടുന്നത് ${feels}°C) | **അവസ്ഥ:** ${wmo.label}\n` +
+        `• 🌧️ **മഴ സാധ്യത:** ${rainProb}% | **മഴ അളവ്:** ~${totalPrecipSum} മി.മീ\n` +
+        `• 💧 **ഈർപ്പം:** ${humidity}% | 💨 **കാറ്റിന്റെ വേഗത:** ${wind} കി.മീ/മണിക്കൂർ\n` +
+        `• 🍃 **വായു ഗുണനിലവാരം (AQI):** ${aqi} | ☀️ **UV സൂചിക:** ${uvIndex}` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **മുന്നറിയിപ്പ്:** ${topAlert?.message || 'കാലാവസ്ഥ അനുകൂലമാണ്.'}`
       );
     }
 
@@ -2182,37 +2265,53 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **ಮಳೆಯ ಮುನ್ಸೂಚನೆ: ಹೌದು (YES - ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆ ಇದೆ! 🌧️)**\n\n` +
+            `🌧️ **${locName} ಮಳೆಯ ಮುನ್ಸೂಚನೆ & ಹವಾಮಾನ ವರದಿ:**\n\n` +
+            `🌡️ **ಪ್ರಸ್ತುತ ಹವಾಮಾನ ನಿಯತಾಂಕಗಳು:**\n` +
+            `• 🌡️ **ತಾಪಮಾನ:** ${temp}°C (ಅನುಭವ: ${feels}°C) | **ಸ್ಥಿತಿ:** ${wmo.label}\n` +
+            `• 💧 **ಆರ್ದ್ರತೆ:** ${humidity}% | 💨 **ಗಾಳಿಯ ವೇಗ:** ${wind} ಕಿ.ಮೀ/ಗಂಟೆ\n` +
+            `• 🍃 **ವಾಯು ಗುಣಮಟ್ಟ (AQI):** ${aqi} | ☀️ **UV ಸೂಚ್ಯಂಕ:** ${uvIndex}\n\n` +
+            `🌧️ **ಮಳೆಯ ಮುನ್ಸೂಚನೆ: ಹೌದು (YES - ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆ ಇದೆ! 🌧️)**\n` +
             `• ⏰ **ಅಂದಾಜು ಸಮಯ:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **ಮಳೆಯ ಸಂಭವನೀಯತೆ:** ${rainCalc.maxProb}% | **ಅಂದಾಜು ಮಳೆ:** ~${rainCalc.totalPrecip} ಮಿ.ಮೀ\n` +
-            `• 🌡️ **ಪ್ರಸ್ತುತ ಹವಾಮಾನ:** ${wmo.label} (${temp}°C, ಅನುಭವ: ${feels}°C)\n` +
-            `• 💧 **ಆರ್ದ್ರತೆ:** ${humidity}% | **ಗಾಳಿಯ ವೇಗ:** ${wind} ಕಿ.ಮೀ/ಗಂಟೆ\n` +
-            `• 💡 **ಸಲಹೆ:** ಹೊರಡುವಾಗ ಛತ್ರಿ ಅಥವಾ ರೇನ್‌ಕೋಟ್ ಜೊತೆಯಲ್ಲಿಡಿ.`
+            `• 📊 **ಮಳೆಯ ಸಂಭವನೀಯತೆ:** ${rainCalc.maxProb}% | **ಅಂದಾಜು ಮಳೆ:** ~${rainCalc.totalPrecip} ಮಿ.ಮೀ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **ಸಲಹೆ:** ಹೊರಡುವಾಗ ಛತ್ರಿ ಅಥವಾ ರೇನ್‌ಕೋಟ್ ಜೊತೆಯಲ್ಲಿಡಿ.`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **ಮಳೆಯ ಮುನ್ಸೂಚನೆ: ಸಾಧ್ಯತೆ ಇದೆ (MAYBE - ಹಗುರ ತುಂತುರು ಮಳೆ 🌦️)**\n\n` +
+            `🌦️ **${locName} ಮಳೆಯ ಮುನ್ಸೂಚನೆ & ಹವಾಮಾನ ವರದಿ:**\n\n` +
+            `🌡️ **ಪ್ರಸ್ತುತ ಹವಾಮಾನ ನಿಯತಾಂಕಗಳು:**\n` +
+            `• 🌡️ **ತಾಪಮಾನ:** ${temp}°C (ಅನುಭವ: ${feels}°C) | **ಸ್ಥಿತಿ:** ${wmo.label}\n` +
+            `• 💧 **ಆರ್ದ್ರತೆ:** ${humidity}% | 💨 **ಗಾಳಿಯ ವೇಗ:** ${wind} ಕಿ.ಮೀ/ಗಂಟೆ\n` +
+            `• 🍃 **ವಾಯು ಗುಣಮಟ್ಟ (AQI):** ${aqi} | ☀️ **UV ಸೂಚ್ಯಂಕ:** ${uvIndex}\n\n` +
+            `🌦️ **ಮಳೆಯ ಮುನ್ಸೂಚನೆ: ಸಾಧ್ಯತೆ ಇದೆ (MAYBE - ಹಗುರ ತುಂತುರು ಮಳೆ 🌦️)**\n` +
             `• ⏰ **ಅಂದಾಜು ಸಮಯ:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **ಮಳೆಯ ಸಂಭವನೀಯತೆ:** ${rainCalc.maxProb}% | **ಅಂದಾಜು ಮಳೆ:** ~${rainCalc.totalPrecip} ಮಿ.ಮೀ\n` +
-            `• 🌡️ **ಪ್ರಸ್ತುತ ಹವಾಮಾನ:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **ಸಲಹೆ:** ಹಗುರ ತುಂತುರು ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆ ಇದೆ.`
+            `• 📊 **ಮಳೆಯ ಸಂಭವನೀಯತೆ:** ${rainCalc.maxProb}% | **ಅಂದಾಜು ಮಳೆ:** ~${rainCalc.totalPrecip} ಮಿ.ಮೀ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **ಸಲಹೆ:** ಹಗುರ ತುಂತುರು ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆ ಇದೆ.`
           );
         } else {
           return (
-            `☀️ **ಮಳೆಯ ಮುನ್ಸೂಚನೆ: ಇಲ್ಲ (NO - ಮಳೆಯ ಸಾಧ್ಯತೆ ಇಲ್ಲ! ☀️)**\n\n` +
+            `☀️ **${locName} ಮಳೆಯ ಮುನ್ಸೂಚನೆ & ಹವಾಮಾನ ವರದಿ:**\n\n` +
+            `🌡️ **ಪ್ರಸ್ತುತ ಹವಾಮಾನ ನಿಯತಾಂಕಗಳು:**\n` +
+            `• 🌡️ **ತಾಪಮಾನ:** ${temp}°C (ಅನುಭವ: ${feels}°C) | **ಸ್ಥಿತಿ:** ${wmo.label}\n` +
+            `• 💧 **ಆರ್ದ್ರತೆ:** ${humidity}% | 💨 **ಗಾಳಿಯ ವೇಗ:** ${wind} ಕಿ.ಮೀ/ಗಂಟೆ\n` +
+            `• 🍃 **ವಾಯು ಗುಣಮಟ್ಟ (AQI):** ${aqi} | ☀️ **UV ಸೂಚ್ಯಂಕ:** ${uvIndex}\n\n` +
+            `☀️ **ಮಳೆಯ ಮುನ್ಸೂಚನೆ: ಇಲ್ಲ (NO - ಮಳೆಯ ಸಾಧ್ಯತೆ ಇಲ್ಲ! ☀️)**\n` +
             `• ⏰ **ಅಂದಾಜು ಸಮಯ:** ಮುಂದಿನ 24 ಗಂಟೆಗಳಲ್ಲಿ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆ ಇಲ್ಲ.\n` +
-            `• 📊 **ಮಳೆಯ ಸಂಭವನೀಯತೆ:** ${rainCalc.maxProb}% | **ಮಳೆ ಪ್ರಮಾಣ:** 0 ಮಿ.ಮೀ\n` +
-            `• 🌡️ **ಪ್ರಸ್ತುತ ಹವಾಮಾನ:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **ಸಲಹೆ:** ಹವಾಮಾನ ಒಣಹವೆಯಿಂದ ಕೂಡಿರುತ್ತದೆ.`
+            `• 📊 **ಮಳೆಯ ಸಂಭವನೀಯತೆ:** ${rainCalc.maxProb}% | **ಮಳೆ ಪ್ರಮಾಣ:** 0 ಮಿ.ಮೀ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **ಸಲಹೆ:** ಹವಾಮಾನ ಒಣಹವೆಯಿಂದ ಕೂಡಿರುತ್ತದೆ.`
           );
         }
       }
       return (
-        `📍 **${locName} ನೇರ ಹವಾಮಾನ ಮಾಹಿತಿ:**\n` +
-        `• **ಸ್ಥಿತಿ:** ${wmo.label} (${temp}°C, ಅನುಭವ: ${feels}°C)\n` +
-        `• **ಆರ್ದ್ರತೆ:** ${humidity}% | **ಗಾಳಿಯ ವೇಗ:** ${wind} ಕಿ.ಮೀ/ಗಂಟೆ\n` +
-        `• **ಮಳೆಯ ಸಾಧ್ಯತೆ:** ${rainProb}% | **ವಾಯು ಗುಣಮಟ್ಟ (AQI):** ${aqi}\n` +
-        `• **ಎಚ್ಚರಿಕೆ:** ${topAlert?.message || 'ಹವಾಮಾನ ಸ್ಥಿರವಾಗಿದೆ.'}`
+        `📍 **${locName} ನೇರ ಹವಾಮಾನ ಮಾಹಿತಿ:**\n\n` +
+        `• 🌡️ **ಸ್ಥಿತಿ:** ${wmo.label} (${temp}°C, ಅನುಭವ: ${feels}°C)\n` +
+        `• 🌧️ **ಮಳೆಯ ಸಾಧ್ಯತೆ:** ${rainProb}% | **ಮಳೆ ಪ್ರಮಾಣ:** ~${totalPrecipSum} ಮಿ.ಮೀ\n` +
+        `• 💧 **ಆರ್ದ್ರತೆ:** ${humidity}% | 💨 **ಗಾಳಿಯ ವೇಗ:** ${wind} ಕಿ.ಮೀ/ಗಂಟೆ\n` +
+        `• 🍃 **ವಾಯು ಗುಣಮಟ್ಟ (AQI):** ${aqi} | ☀️ **UV ಸೂಚ್ಯಂಕ:** ${uvIndex}` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **ಎಚ್ಚರಿಕೆ:** ${topAlert?.message || 'ಹವಾಮಾನ ಸ್ಥಿರವಾಗಿದೆ.'}`
       );
     }
 
@@ -2221,37 +2320,53 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **বৃষ্টিপাতের পূর্বাভাস: হ্যাঁ (YES - বৃষ্টি হবে! 🌧️)**\n\n` +
+            `🌧️ **${locName} বৃষ্টিপাতের পূর্বাভাস ও আবহাওয়া রিপোর্ট:**\n\n` +
+            `🌡️ **বর্তমান আবহাওয়ার পরিমাপ:**\n` +
+            `• 🌡️ **তাপমাত্রা:** ${temp}°C (অনুভূতি: ${feels}°C) | **অবস্থা:** ${wmo.label}\n` +
+            `• 💧 **আর্দ্রতা:** ${humidity}% | 💨 **বাতাসের গতি:** ${wind} কিমি/ঘণ্টা\n` +
+            `• 🍃 **বায়ুর মান (AQI):** ${aqi} | ☀️ **UV সূচক:** ${uvIndex}\n\n` +
+            `🌧️ **বৃষ্টিপাতের পূর্বাভাস: হ্যাঁ (YES - বৃষ্টি হবে! 🌧️)**\n` +
             `• ⏰ **সম্ভাব্য সময়:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **বৃষ্টির সম্ভাবনা:** ${rainCalc.maxProb}% | **সম্ভাব্য বৃষ্টিপাত:** ~${rainCalc.totalPrecip} মিমি\n` +
-            `• 🌡️ **বর্তমান আবহাওয়া:** ${wmo.label} (${temp}°C, অনুভূতি: ${feels}°C)\n` +
-            `• 💧 **আর্দ্রতা:** ${humidity}% | **বাতাসের গতি:** ${wind} কিমি/ঘণ্টা\n` +
-            `• 💡 **পরামর্শ:** বাইরে বেরোনোর সময় ছাতা সঙ্গে রাখুন।`
+            `• 📊 **বৃষ্টির সম্ভাবনা:** ${rainCalc.maxProb}% | **সম্ভাব্য বৃষ্টিপাত:** ~${rainCalc.totalPrecip} মিমি` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **পরামর্শ:** বাইরে বেরোনোর সময় ছাতা সঙ্গে রাখুন।`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **বৃষ্টিপাতের পূর্বাভাস: সম্ভাবনা আছে (MAYBE - হালকা গুঁড়ি গুঁড়ি বৃষ্টি 🌦️)**\n\n` +
+            `🌦️ **${locName} বৃষ্টিপাতের পূর্বাভাস ও আবহাওয়া রিপোর্ট:**\n\n` +
+            `🌡️ **বর্তমান আবহাওয়ার পরিমাপ:**\n` +
+            `• 🌡️ **তাপমাত্রা:** ${temp}°C (অনুভূতি: ${feels}°C) | **অবস্থা:** ${wmo.label}\n` +
+            `• 💧 **আর্দ্রতা:** ${humidity}% | 💨 **বাতাসের গতি:** ${wind} কিমি/ঘণ্টা\n` +
+            `• 🍃 **বায়ুর মান (AQI):** ${aqi} | ☀️ **UV সূচক:** ${uvIndex}\n\n` +
+            `🌦️ **বৃষ্টিপাতের পূর্বাভাস: সম্ভাবনা আছে (MAYBE - হালকা গুঁড়ি গুঁড়ি বৃষ্টি 🌦️)**\n` +
             `• ⏰ **সম্ভাব্য সময়:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **বৃষ্টির সম্ভাবনা:** ${rainCalc.maxProb}% | **সম্ভাব্য বৃষ্টিপাত:** ~${rainCalc.totalPrecip} মিমি\n` +
-            `• 🌡️ **বর্তমান আবহাওয়া:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **পরামর্শ:** সাময়িক হালকা বৃষ্টির সম্ভাবনা রয়েছে।`
+            `• 📊 **বৃষ্টির সম্ভাবনা:** ${rainCalc.maxProb}% | **সম্ভাব্য বৃষ্টিপাত:** ~${rainCalc.totalPrecip} মিমি` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **পরামর্শ:** সাময়িক হালকা বৃষ্টির সম্ভাবনা রয়েছে।`
           );
         } else {
           return (
-            `☀️ **বৃষ্টিপাতের পূর্বাভাস: না (NO - বৃষ্টির সম্ভাবনা নেই! ☀️)**\n\n` +
+            `☀️ **${locName} বৃষ্টিপাতের পূর্বাভাস ও আবহাওয়া রিপোর্ট:**\n\n` +
+            `🌡️ **বর্তমান আবহাওয়ার পরিমাপ:**\n` +
+            `• 🌡️ **তাপমাত্রা:** ${temp}°C (অনুভূতি: ${feels}°C) | **অবস্থা:** ${wmo.label}\n` +
+            `• 💧 **আর্দ্রতা:** ${humidity}% | 💨 **বাতাসের গতি:** ${wind} কিমি/ঘণ্টা\n` +
+            `• 🍃 **বায়ুর মান (AQI):** ${aqi} | ☀️ **UV সূচক:** ${uvIndex}\n\n` +
+            `☀️ **বৃষ্টিপাতের পূর্বাভাস: না (NO - বৃষ্টির সম্ভাবনা নেই! ☀️)**\n` +
             `• ⏰ **সম্ভাব্য সময়:** আগামী ২৪ ঘণ্টায় বৃষ্টির কোনো সম্ভাবনা নেই।\n` +
-            `• 📊 **বৃষ্টির সম্ভাবনা:** ${rainCalc.maxProb}% | **বৃষ্টিপাত:** ০ মিমি\n` +
-            `• 🌡️ **বর্তমান আবহাওয়া:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **পরামর্শ:** আবহাওয়া শুষ্ক ও পরিষ্কার থাকবে।`
+            `• 📊 **বৃষ্টির সম্ভাবনা:** ${rainCalc.maxProb}% | **বৃষ্টিপাত:** ০ মিমি` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **পরামর্শ:** আবহাওয়া শুষ্ক ও পরিষ্কার থাকবে।`
           );
         }
       }
       return (
-        `📍 **${locName} লাইভ আবহাওয়া আপডেট:**\n` +
-        `• **অবস্থা:** ${wmo.label} (${temp}°C, অনুভূতি: ${feels}°C)\n` +
-        `• **আর্দ্রতা:** ${humidity}% | **বাতাসের গতিবেগ:** ${wind} কিমি/ঘণ্টা\n` +
-        `• **বৃষ্টির সম্ভাবনা:** ${rainProb}% | **বায়ুর মান (AQI):** ${aqi}\n` +
-        `• **সতর্কতা:** ${topAlert?.message || 'আবহাওয়া স্বাভাবিক রয়েছে।'}`
+        `📍 **${locName} লাইভ আবহাওয়া আপডেট:**\n\n` +
+        `• 🌡️ **অবস্থা:** ${wmo.label} (${temp}°C, অনুভূতি: ${feels}°C)\n` +
+        `• 🌧️ **বৃষ্টির সম্ভাবনা:** ${rainProb}% | **বৃষ্টিপাত:** ~${totalPrecipSum} মিমি\n` +
+        `• 💧 **আর্দ্রতা:** ${humidity}% | 💨 **বাতাসের গতিবেগ:** ${wind} কিমি/ঘণ্টা\n` +
+        `• 🍃 **বায়ুর মান (AQI):** ${aqi} | ☀️ **UV সূচক:** ${uvIndex}` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **সতর্কতা:** ${topAlert?.message || 'আবহাওয়া স্বাভাবিক রয়েছে।'}`
       );
     }
 
@@ -2260,37 +2375,53 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **पाऊस अंदाज: होय (YES - पाऊस पडेल! 🌧️)**\n\n` +
+            `🌧️ **${locName} पाऊस अंदाज आणि थेट हवामान अहवाल:**\n\n` +
+            `🌡️ **सध्याचे हवामान मापदंड:**\n` +
+            `• 🌡️ **तापमान:** ${temp}°C (जाणवणारे: ${feels}°C) | **स्थिती:** ${wmo.label}\n` +
+            `• 💧 **आर्द्रता:** ${humidity}% | 💨 **वाऱ्याचा वेग:** ${wind} किमी/तास\n` +
+            `• 🍃 **हवेची गुणवत्ता (AQI):** ${aqi} | ☀️ **UV निर्देशांक:** ${uvIndex}\n\n` +
+            `🌧️ **पाऊस अंदाज: होय (YES - पाऊस पडेल! 🌧️)**\n` +
             `• ⏰ **अंदाजित वेळ:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **पावसाची शक्यता:** ${rainCalc.maxProb}% | **अंदाजित पाऊस:** ~${rainCalc.totalPrecip} मिमी\n` +
-            `• 🌡️ **सध्याचे तापमान:** ${wmo.label} (${temp}°C, जाणवणारे: ${feels}°C)\n` +
-            `• 💧 **आर्द्रता:** ${humidity}% | **वाऱ्याचा वेग:** ${wind} किमी/तास\n` +
-            `• 💡 **सल्ला:** बाहेर पडताना छत्री किंवा रेनकोट सोबत ठेवा.`
+            `• 📊 **पावसाची शक्यता:** ${rainCalc.maxProb}% | **अंदाजित पाऊस:** ~${rainCalc.totalPrecip} मिमी` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **सल्ला:** बाहेर पडताना छत्री किंवा रेनकोट सोबत ठेवा.`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **पाऊस अंदाज: शक्यता आहे (MAYBE - हलक्या सरी संभव 🌦️)**\n\n` +
+            `🌦️ **${locName} पाऊस अंदाज आणि थेट हवामान अहवाल:**\n\n` +
+            `🌡️ **सध्याचे हवामान मापदंड:**\n` +
+            `• 🌡️ **तापमान:** ${temp}°C (जाणवणारे: ${feels}°C) | **स्थिती:** ${wmo.label}\n` +
+            `• 💧 **आर्द्रता:** ${humidity}% | 💨 **वाऱ्याचा वेग:** ${wind} किमी/तास\n` +
+            `• 🍃 **हवेची गुणवत्ता (AQI):** ${aqi} | ☀️ **UV निर्देशांक:** ${uvIndex}\n\n` +
+            `🌦️ **पाऊस अंदाज: शक्यता आहे (MAYBE - हलक्या सरी संभव 🌦️)**\n` +
             `• ⏰ **अंदाजित वेळ:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **पावसाची शक्यता:** ${rainCalc.maxProb}% | **अंदाजित पाऊस:** ~${rainCalc.totalPrecip} मिमी\n` +
-            `• 🌡️ **सध्याचे तापमान:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **सल्ला:** काही वेळ हलका पाऊस पडू शकतो.`
+            `• 📊 **पावसाची शक्यता:** ${rainCalc.maxProb}% | **अंदाजित पाऊस:** ~${rainCalc.totalPrecip} मिमी` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **सल्ला:** काही वेळ हलका पाऊस पडू शकतो.`
           );
         } else {
           return (
-            `☀️ **पाऊस अंदाज: नाही (NO - पाऊस पडणार नाही! ☀️)**\n\n` +
+            `☀️ **${locName} पाऊस अंदाज आणि थेट हवामान अहवाल:**\n\n` +
+            `🌡️ **सध्याचे हवामान मापदंड:**\n` +
+            `• 🌡️ **तापमान:** ${temp}°C (जाणवणारे: ${feels}°C) | **स्थिती:** ${wmo.label}\n` +
+            `• 💧 **आर्द्रता:** ${humidity}% | 💨 **वाऱ्याचा वेग:** ${wind} किमी/तास\n` +
+            `• 🍃 **हवेची गुणवत्ता (AQI):** ${aqi} | ☀️ **UV निर्देशांक:** ${uvIndex}\n\n` +
+            `☀️ **पाऊस अंदाज: नाही (NO - पाऊस पडणार नाही! ☀️)**\n` +
             `• ⏰ **अंदाजित वेळ:** पुढील २४ तासांत पावसाची शक्यता नाही.\n` +
-            `• 📊 **पावसाची शक्यता:** ${rainCalc.maxProb}% | **पाऊस:** ० मिमी\n` +
-            `• 🌡️ **सध्याचे तापमान:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **सल्ला:** हवामान कोरडे आणि स्वच्छ राहील.`
+            `• 📊 **पावसाची शक्यता:** ${rainCalc.maxProb}% | **पाऊस:** ० मिमी` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **सल्ला:** हवामान कोरडे आणि स्वच्छ राहील.`
           );
         }
       }
       return (
-        `📍 **${locName} थेट हवामान माहिती:**\n` +
-        `• **स्थिती:** ${wmo.label} (${temp}°C, जाणवणारे: ${feels}°C)\n` +
-        `• **आर्द्रता:** ${humidity}% | **वाऱ्याचा वेग:** ${wind} किमी/तास\n` +
-        `• **पावसाची शक्यता:** ${rainProb}% | **हवेची गुणवत्ता (AQI):** ${aqi}\n` +
-        `• **इशारा:** ${topAlert?.message || 'हवामान अनुकूल आहे.'}`
+        `📍 **${locName} थेट हवामान माहिती:**\n\n` +
+        `• 🌡️ **स्थिती:** ${wmo.label} (${temp}°C, जाणवणारे: ${feels}°C)\n` +
+        `• 🌧️ **पावसाची शक्यता:** ${rainProb}% | **पाऊस:** ~${totalPrecipSum} मिमी\n` +
+        `• 💧 **आर्द्रता:** ${humidity}% | 💨 **वाऱ्याचा वेग:** ${wind} किमी/तास\n` +
+        `• 🍃 **हवेची गुणवत्ता (AQI):** ${aqi} | ☀️ **UV निर्देशांक:** ${uvIndex}` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **इशारा:** ${topAlert?.message || 'हवामान अनुकूल आहे.'}`
       );
     }
 
@@ -2299,37 +2430,53 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **વરસાદની આગાહી: હા (YES - વરસાદ પડશે! 🌧️)**\n\n` +
+            `🌧️ **${locName} વરસાદની આગાહી ಮತ್ತು હવામાન અહેવાલ:**\n\n` +
+            `🌡️ **વર્તમાન હવામાન પરિમાણો:**\n` +
+            `• 🌡️ **તાપમાન:** ${temp}°C (અનુભવાતું: ${feels}°C) | **સ્થિતિ:** ${wmo.label}\n` +
+            `• 💧 **ભેજ:** ${humidity}% | 💨 **પવનની ગતિ:** ${wind} કિમી/કલાક\n` +
+            `• 🍃 **હવાની ગુણવત્તા (AQI):** ${aqi} | ☀️ **UV ઇન્ડેક્સ:** ${uvIndex}\n\n` +
+            `🌧️ **વરસાદની આગાહી: હા (YES - વરસાદ પડશે! 🌧️)**\n` +
             `• ⏰ **અંદાજિત સમય:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **વરસાદની સંભાવના:** ${rainCalc.maxProb}% | **અંદાજિત વરસાદ:** ~${rainCalc.totalPrecip} મીમી\n` +
-            `• 🌡️ **વર્તમાન હવામાન:** ${wmo.label} (${temp}°C, અનુભવાતું: ${feels}°C)\n` +
-            `• 💧 **ભેજ:** ${humidity}% | **પવનની ગતિ:** ${wind} કિમી/કલાક\n` +
-            `• 💡 **સલાહ:** બહાર નીકળતી વખતે છત્રી અથવા રેઈનકોટ સાથે રાખો.`
+            `• 📊 **વરસાદની સંભાવના:** ${rainCalc.maxProb}% | **અંદાજિત વરસાદ:** ~${rainCalc.totalPrecip} મીમી` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **સલાહ:** બહાર નીકળતી વખતે છત્રી અથવા રેઈનકોટ સાથે રાખો.`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **વરસાદની આગાહી: સંભાવના છે (MAYBE - હળવા ઝાપટાં 🌦️)**\n\n` +
+            `🌦️ **${locName} વરસાદની આગાહી અને હવામાન અહેવાલ:**\n\n` +
+            `🌡️ **વર્તમાન હવામાન પરિમાણો:**\n` +
+            `• 🌡️ **તાપમાન:** ${temp}°C (અનુભવાતું: ${feels}°C) | **સ્થિતિ:** ${wmo.label}\n` +
+            `• 💧 **ભેજ:** ${humidity}% | 💨 **પવનની ગતિ:** ${wind} કિમી/કલાક\n` +
+            `• 🍃 **હવાની ગુણવત્તા (AQI):** ${aqi} | ☀️ **UV ઇન્ડેક્સ:** ${uvIndex}\n\n` +
+            `🌦️ **વરસાદની આગાહી: સંભાવના છે (MAYBE - હળવા ઝાપટાં 🌦️)**\n` +
             `• ⏰ **અંદાજિત સમય:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **વરસાદની સંભાવના:** ${rainCalc.maxProb}% | **અંદાજિત વરસાદ:** ~${rainCalc.totalPrecip} મીમી\n` +
-            `• 🌡️ **વર્તમાન હવામાન:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **સલાહ:** હળવો વરસાદ પડી શકે છે.`
+            `• 📊 **વરસાદની સંભાવના:** ${rainCalc.maxProb}% | **અંદાજિત વરસાદ:** ~${rainCalc.totalPrecip} મીમી` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **સલાહ:** હળવો વરસાદ પડી શકે છે.`
           );
         } else {
           return (
-            `☀️ **વરસાદની આગાહી: ના (NO - વરસાદની શક્યતા નથી! ☀️)**\n\n` +
+            `☀️ **${locName} વરસાદની આગાહી અને હવામાન અહેવાલ:**\n\n` +
+            `🌡️ **વર્તમાન હવામાન પરિમાણો:**\n` +
+            `• 🌡️ **તાપમાન:** ${temp}°C (અનુભવાતું: ${feels}°C) | **સ્થિતિ:** ${wmo.label}\n` +
+            `• 💧 **ભેજ:** ${humidity}% | 💨 **પવનની ગતિ:** ${wind} કિમી/કલાક\n` +
+            `• 🍃 **હવાની ગુણવત્તા (AQI):** ${aqi} | ☀️ **UV ઇન્ડેક્સ:** ${uvIndex}\n\n` +
+            `☀️ **વરસાદની આગાહી: ના (NO - વરસાદની શક્યતા નથી! ☀️)**\n` +
             `• ⏰ **અંદાજિત સમય:** આગામી 24 કલાકમાં વરસાદની કોઈ શક્યતા નથી.\n` +
-            `• 📊 **વરસાદની સંભાવના:** ${rainCalc.maxProb}% | **વરસાદ:** 0 મીમી\n` +
-            `• 🌡️ **વર્તમાન હવામાન:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **સલાહ:** હવામાન શુષ્ક અને સ્વચ્છ રહેશે.`
+            `• 📊 **વરસાદની સંભાવના:** ${rainCalc.maxProb}% | **વરસાદ:** 0 મીમી` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **સલાહ:** હવામાન શુષ્ક અને સ્વચ્છ રહેશે.`
           );
         }
       }
       return (
-        `📍 **${locName} લાઇવ હવામાન માહિતી:**\n` +
-        `• **સ્થિતિ:** ${wmo.label} (${temp}°C, અનુભવાતું: ${feels}°C)\n` +
-        `• **ભેજ:** ${humidity}% | **પવનની ઝડપ:** ${wind} કિમી/કલાક\n` +
-        `• **વરસાદની શક્યતા:** ${rainProb}% | **હવાની ગુણવત્તા (AQI):** ${aqi}\n` +
-        `• **ચેતવણી:** ${topAlert?.message || 'હવામાન અનુકૂળ છે.'}`
+        `📍 **${locName} લાઇવ હવામાન માહિતી:**\n\n` +
+        `• 🌡️ **સ્થિતિ:** ${wmo.label} (${temp}°C, અનુભવાતું: ${feels}°C)\n` +
+        `• 🌧️ **વરસાદની શક્યતા:** ${rainProb}% | **વરસાદ:** ~${totalPrecipSum} મીમી\n` +
+        `• 💧 **ભેજ:** ${humidity}% | 💨 **પવનની ઝડપ:** ${wind} કિમી/કલાક\n` +
+        `• 🍃 **હવાની ગુણવત્તા (AQI):** ${aqi} | ☀️ **UV ઇન્ડેક્સ:** ${uvIndex}` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **ચેતવણી:** ${topAlert?.message || 'હવામાન અનુકૂળ છે.'}`
       );
     }
 
@@ -2338,37 +2485,53 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ: ਹਾਂ (YES - ਮੀਂਹ ਪਵੇਗਾ! 🌧️)**\n\n` +
+            `🌧️ **${locName} ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ ਅਤੇ ਮੌਸਮ ਰਿਪੋਰਟ:**\n\n` +
+            `🌡️ **ਮੌਜੂਦਾ ਮੌਸਮ ਮਾਪਦੰਡ:**\n` +
+            `• 🌡️ **ਤਾਪਮਾਨ:** ${temp}°C (ਮਹਿਸੂਸ: ${feels}°C) | **ਸਥਿਤੀ:** ${wmo.label}\n` +
+            `• 💧 **ਨਮੀ:** ${humidity}% | 💨 **ਹਵਾ ਦੀ ਰਫ਼ਤਾਰ:** ${wind} ਕਿਲੋਮੀਟਰ/ਘੰਟਾ\n` +
+            `• 🍃 **ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ (AQI):** ${aqi} | ☀️ **UV ਸੂਚਕਾਂਕ:** ${uvIndex}\n\n` +
+            `🌧️ **ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ: ਹਾਂ (YES - ਮੀਂਹ ਪਵੇਗਾ! 🌧️)**\n` +
             `• ⏰ **ਅਨੁਮਾਨਿਤ ਸਮਾਂ:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ:** ${rainCalc.maxProb}% | **ਅਨੁਮਾਨਿਤ ਮੀਂਹ:** ~${rainCalc.totalPrecip} ਮਿਲੀਮੀਟਰ\n` +
-            `• 🌡️ **ਮੌਜੂਦਾ ਤਾਪਮਾਨ:** ${wmo.label} (${temp}°C, ਮਹਿਸੂਸ: ${feels}°C)\n` +
-            `• 💧 **ਨਮੀ:** ${humidity}% | **ਹਵਾ ਦੀ ਰਫ਼ਤਾਰ:** ${wind} ਕਿਲੋਮੀਟਰ/ਘੰਟਾ\n` +
-            `• 💡 **ਸਲਾਹ:** ਬਾਹਰ ਜਾਣ ਸਮੇਂ ਛਤਰੀ ਜਾਂ ਰੇਨਕੋਟ ਨਾਲ ਰੱਖੋ।`
+            `• 📊 **ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ:** ${rainCalc.maxProb}% | **ਅਨੁਮਾਨਿਤ ਮੀਂਹ:** ~${rainCalc.totalPrecip} ਮਿਲੀਮੀਟਰ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **ਸਲਾਹ:** ਬਾਹਰ ਜਾਣ ਸਮੇਂ ਛਤਰੀ ਜਾਂ ਰੇਨਕੋਟ ਨਾਲ ਰੱਖੋ।`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ: ਸੰਭਾਵਨਾ ਹੈ (MAYBE - ਹਲਕੀ ਬੂੰਦਾਬਾਂਦੀ 🌦️)**\n\n` +
+            `🌦️ **${locName} ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ ਅਤੇ ਮੌਸਮ ਰਿਪੋਰਟ:**\n\n` +
+            `🌡️ **ਮੌਜੂਦਾ ਮੌਸਮ ਮਾਪਦੰਡ:**\n` +
+            `• 🌡️ **ਤਾਪਮਾਨ:** ${temp}°C (ਮਹਿਸੂਸ: ${feels}°C) | **ਸਥਿਤੀ:** ${wmo.label}\n` +
+            `• 💧 **ਨਮੀ:** ${humidity}% | 💨 **ਹਵਾ ਦੀ ਰਫ਼ਤਾਰ:** ${wind} ਕਿਲੋਮੀਟਰ/ਘੰਟਾ\n` +
+            `• 🍃 **ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ (AQI):** ${aqi} | ☀️ **UV ਸੂਚਕਾਂਕ:** ${uvIndex}\n\n` +
+            `🌦️ **ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ: ਸੰਭਾਵਨਾ ਹੈ (MAYBE - ਹਲਕੀ ਬੂੰਦਾਬਾਂਦੀ 🌦️)**\n` +
             `• ⏰ **ਅਨੁਮਾਨਿਤ ਸਮਾਂ:** ${rainCalc.predictedTimingEn}\n` +
-            `• 📊 **ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ:** ${rainCalc.maxProb}% | **ਅਨੁਮਾਨਿਤ ਮੀਂਹ:** ~${rainCalc.totalPrecip} ਮਿਲੀਮੀਟਰ\n` +
-            `• 🌡️ **ਮੌਜੂਦਾ ਤਾਪਮਾਨ:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **ਸਲਾਹ:** ਹਲਕਾ ਮੀਂਹ ਪੈ ਸਕਦਾ ਹੈ।`
+            `• 📊 **ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ:** ${rainCalc.maxProb}% | **ਅਨੁਮਾਨਿਤ ਮੀਂਹ:** ~${rainCalc.totalPrecip} ਮਿਲੀਮੀਟਰ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **ਸਲਾਹ:** ਹਲਕਾ ਮੀਂਹ ਪੈ ਸਕਦਾ ਹੈ।`
           );
         } else {
           return (
-            `☀️ **ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ: ਨਹੀਂ (NO - ਮੀਂਹ ਨਹੀਂ ਪਵੇਗਾ! ☀️)**\n\n` +
+            `☀️ **${locName} ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ ਅਤੇ ਮੌਸਮ ਰਿਪੋਰਟ:**\n\n` +
+            `🌡️ **ਮੌਜੂਦਾ ਮੌਸਮ ਮਾਪਦੰਡ:**\n` +
+            `• 🌡️ **ਤਾਪਮਾਨ:** ${temp}°C (ਮਹਿਸੂਸ: ${feels}°C) | **ਸਥਿਤੀ:** ${wmo.label}\n` +
+            `• 💧 **ਨਮੀ:** ${humidity}% | 💨 **ਹਵਾ ਦੀ ਰਫ਼ਤਾਰ:** ${wind} ਕਿਲੋਮੀਟਰ/ਘੰਟਾ\n` +
+            `• 🍃 **ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ (AQI):** ${aqi} | ☀️ **UV ਸੂਚਕਾਂਕ:** ${uvIndex}\n\n` +
+            `☀️ **ਮੀਂਹ ਦੀ ਭਵਿੱਖਬਾਣੀ: ਨਹੀਂ (NO - ਮੀਂਹ ਨਹੀਂ ਪਵੇਗਾ! ☀️)**\n` +
             `• ⏰ **ਅਨੁਮਾਨਿਤ ਸਮਾਂ:** ਅਗਲੇ 24 ਘੰਟਿਆਂ ਵਿੱਚ ਮੀਂਹ ਦੀ ਕੋਈ ਸੰਭਾਵਨਾ ਨਹੀਂ।\n` +
-            `• 📊 **ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ:** ${rainCalc.maxProb}% | **ਮੀਂਹ:** 0 ਮਿਲੀਮੀਟਰ\n` +
-            `• 🌡️ **ਮੌਜੂਦਾ ਤਾਪਮਾਨ:** ${wmo.label} (${temp}°C)\n` +
-            `• 💡 **ਸਲਾਹ:** ਮੌਸਮ ਸਾਫ਼ ਅਤੇ ਖੁਸ਼ਕ ਰਹੇਗਾ।`
+            `• 📊 **ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ:** ${rainCalc.maxProb}% | **ਮੀਂਹ:** 0 ਮਿਲੀਮੀਟਰ` +
+            formatMicroZoneTextEn() +
+            `\n\n💡 **ਸਲਾਹ:** ਮੌਸਮ ਸਾਫ਼ ਅਤੇ ਖੁਸ਼ਕ ਰਹੇਗਾ।`
           );
         }
       }
       return (
-        `📍 **${locName} ਲਾਈਵ ਮੌਸਮ ਰਿਪੋਰਟ:**\n` +
-        `• **ਸਥਿਤੀ:** ${wmo.label} (${temp}°C, ਮਹਿਸੂਸ: ${feels}°C)\n` +
-        `• **ਨਮੀ:** ${humidity}% | **ਹਵਾ ਦੀ ਗਤੀ:** ${wind} ਕਿਲੋਮੀਟਰ/ਘੰਟਾ\n` +
-        `• **ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ:** ${rainProb}% | **ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ (AQI):** ${aqi}\n` +
-        `• **ਚੇਤਾਵਨੀ:** ${topAlert?.message || 'ਮੌਸਮ ਠੀਕ ਹੈ।'}`
+        `📍 **${locName} ਲਾਈਵ ਮੌਸਮ ਰਿਪੋਰਟ:**\n\n` +
+        `• 🌡️ **ਸਥਿਤੀ:** ${wmo.label} (${temp}°C, ਮਹਿਸੂਸ: ${feels}°C)\n` +
+        `• 🌧️ **ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ:** ${rainProb}% | **ਮੀਂਹ:** ~${totalPrecipSum} ਮਿਲੀਮੀਟਰ\n` +
+        `• 💧 **ਨਮੀ:** ${humidity}% | 💨 **ਹਵਾ ਦੀ ਗਤੀ:** ${wind} ਕਿਲੋਮੀਟਰ/ਘੰਟਾ\n` +
+        `• 🍃 **ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ (AQI):** ${aqi} | ☀️ **UV ਸੂਚਕਾਂਕ:** ${uvIndex}` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **ਚੇਤਾਵਨੀ:** ${topAlert?.message || 'ਮੌਸਮ ਠੀਕ ਹੈ।'}`
       );
     }
 
@@ -2376,29 +2539,43 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
     if (isRainInquiry) {
       if (rainCalc.verdict === 'YES') {
         return (
-          `🌧️ **Rain Forecast Verdict: YES (Rain Predicted! 🌧️)**\n\n` +
-          `• ⏰ **Predicted Time:** ${rainCalc.predictedTimingEn}\n` +
-          `• 📊 **District Average Probability:** ${rainCalc.maxProb}% | **Estimated Accumulation:** ~${rainCalc.totalPrecip} mm\n` +
-          `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)\n` +
-          `• 💧 **Humidity:** ${humidity}% | **Wind:** ${wind} km/h` +
+          `🌧️ **Real-Time Meteorological Report & Rain Forecast for ${locName} (${todayDateEn}):**\n\n` +
+          `🌡️ **Current Weather Parameters:**\n` +
+          `• 🌡️ **Temperature:** ${temp}°C (Feels like: ${feels}°C)\n` +
+          `• ☁️ **Sky Condition:** ${wmo.label}\n` +
+          `• 💧 **Relative Humidity:** ${humidity}% | 💨 **Wind Speed:** ${wind} km/h\n` +
+          `• 🍃 **Air Quality (AQI):** ${aqi} (US AQI) | ☀️ **UV Index:** ${uvIndex}\n\n` +
+          `🌧️ **Overall Rain Verdict: YES (Rain Predicted! 🌧️)**\n` +
+          `• ⏰ **Predicted Timing Window:** ${rainCalc.predictedTimingEn}\n` +
+          `• 📊 **District Average Probability:** ${rainCalc.maxProb}% | **Expected Accumulation:** ~${rainCalc.totalPrecip} mm` +
           formatMicroZoneTextEn() +
-          `\n\n💡 **Advisory:** Carry an umbrella / rain gear when travelling through rain zones. Plan outdoor tasks accordingly.`
+          `\n\n💡 **Advisory:** ${topAlert?.message ? `⚠️ ${topAlert.message}. ` : ''}Carry an umbrella / rain gear when travelling through rain zones. Plan outdoor tasks accordingly.`
         );
       } else if (rainCalc.verdict === 'MAYBE') {
         return (
-          `🌦️ **Rain Forecast Verdict: Isolated Showers in Some Areas (MAYBE 🌦️)**\n\n` +
-          `• ⏰ **Predicted Time:** ${rainCalc.predictedTimingEn}\n` +
-          `• 📊 **Rain Probability:** ${rainCalc.maxProb}%\n` +
-          `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)` +
+          `🌦️ **Real-Time Meteorological Report & Rain Forecast for ${locName} (${todayDateEn}):**\n\n` +
+          `🌡️ **Current Weather Parameters:**\n` +
+          `• 🌡️ **Temperature:** ${temp}°C (Feels like: ${feels}°C)\n` +
+          `• ☁️ **Sky Condition:** ${wmo.label}\n` +
+          `• 💧 **Relative Humidity:** ${humidity}% | 💨 **Wind Speed:** ${wind} km/h\n` +
+          `• 🍃 **Air Quality (AQI):** ${aqi} (US AQI) | ☀️ **UV Index:** ${uvIndex}\n\n` +
+          `🌦️ **Overall Rain Verdict: Isolated Showers in Some Areas (MAYBE 🌦️)**\n` +
+          `• ⏰ **Predicted Timing Window:** ${rainCalc.predictedTimingEn}\n` +
+          `• 📊 **Rain Probability:** ${rainCalc.maxProb}% | **Expected Accumulation:** ~${rainCalc.totalPrecip} mm` +
           formatMicroZoneTextEn() +
           `\n\n💡 **Advisory:** Isolated showers or localized drizzles possible in specific pockets. Keep an eye on local conditions.`
         );
       } else {
         return (
-          `☀️ **Rain Forecast Verdict: NO (No Rain Expected! ☀️)**\n\n` +
-          `• ⏰ **Predicted Time:** No rain expected in the next 24 hours.\n` +
-          `• 📊 **Rain Probability:** ${rainCalc.maxProb}% (Very Low) | **Estimated Accumulation:** 0.0 mm\n` +
-          `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)` +
+          `☀️ **Real-Time Meteorological Report & Rain Forecast for ${locName} (${todayDateEn}):**\n\n` +
+          `🌡️ **Current Weather Parameters:**\n` +
+          `• 🌡️ **Temperature:** ${temp}°C (Feels like: ${feels}°C)\n` +
+          `• ☁️ **Sky Condition:** ${wmo.label}\n` +
+          `• 💧 **Relative Humidity:** ${humidity}% | 💨 **Wind Speed:** ${wind} km/h\n` +
+          `• 🍃 **Air Quality (AQI):** ${aqi} (US AQI) | ☀️ **UV Index:** ${uvIndex}\n\n` +
+          `☀️ **Overall Rain Verdict: NO (No Rain Expected! ☀️)**\n` +
+          `• ⏰ **Predicted Timing Window:** No rain expected in the next 24 hours.\n` +
+          `• 📊 **Rain Probability:** ${rainCalc.maxProb}% (Very Low) | **Expected Accumulation:** 0.0 mm` +
           formatMicroZoneTextEn() +
           `\n\n💡 **Advisory:** Clear and dry weather expected. Favorable for outdoor activities and travel.`
         );
@@ -2446,9 +2623,11 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
     if (timeframe === 'tomorrow') {
       return (
         `👋 **Sure! Here is the tomorrow forecast for ${locName} (${tomorrowDateEn}):**\n\n` +
+        `🌡️ **Tomorrow Meteorological Outlook:**\n` +
         `• ☀️ **Expected Maximum Temperature:** ${tomorrowTempMax}°C\n` +
         `• 🌧️ **Precipitation Probability:** ${tomorrowRainProb}%\n` +
-        `• 💨 **Sustained Winds:** ${wind} km/h | **Air Quality Index:** ${aqi} (US AQI)` +
+        `• 💧 **Relative Humidity:** ${humidity}% | 💨 **Sustained Winds:** ${wind} km/h\n` +
+        `• 🍃 **Air Quality Index:** ${aqi} (US AQI) | ☀️ **UV Index:** ${uvIndex}` +
         formatMicroZoneTextEn() +
         `\n\n💡 **Advisory:** ${tomorrowRainProb >= 50 ? 'Rain gear recommended when heading outside.' : 'Ambient conditions steady and favorable for outdoor activities.'}`
       );
@@ -2456,11 +2635,12 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
 
     return (
       `👋 **Sure! Here is the real-time meteorological briefing for ${locName} (${todayDateEn}):**\n\n` +
+      `🌡️ **Current Weather Parameters:**\n` +
       `• 🌡️ **Current Sky & Condition:** ${wmo.label} at **${temp}°C** (Feels like **${feels}°C**)\n` +
-      `• 🌧️ **Precipitation Outlook:** **${rainProb}%** probability today\n` +
-      `• 💧 **Atmospheric Moisture:** Relative Humidity **${humidity}%** | Pressure **${current.pressure_msl || 1013} hPa**\n` +
+      `• 🌧️ **Precipitation Outlook:** **${rainProb}%** probability today | **Accumulation:** ~${totalPrecipSum} mm\n` +
+      `• 💧 **Atmospheric Moisture:** Relative Humidity **${humidity}%** | Pressure **${current.pressure_msl ? Math.round(current.pressure_msl) : 1013} hPa**\n` +
       `• 💨 **Wind Dynamics:** **${wind} km/h** from ${current.wind_direction_10m || 0}°\n` +
-      `• 🍃 **Air Quality & UV:** AQI **${aqi}** | UV Index **${current.uv_index || 5}**` +
+      `• 🍃 **Air Quality & UV:** AQI **${aqi}** (US AQI) | UV Index **${uvIndex}**` +
       formatMicroZoneTextEn() +
       `\n\n💡 **Advisory:** ${topAlert?.message || (rainProb >= 50 ? 'Rain expected in the region, keep an umbrella handy.' : 'Clear and steady weather conditions.')}`
     );
