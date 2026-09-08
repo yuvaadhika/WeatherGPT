@@ -54,16 +54,21 @@ export default async function handler(req, res) {
 
       const userEmail = (user.email || '').trim().toLowerCase();
       const userName = (user.name || 'WeatherGPT User').trim();
+      const userId = user.id || '';
+      const visitorId = user.visitorId || '';
       const now = new Date();
 
       const userIdx = existingUsers.findIndex(
-        (u) => u.email && u.email.toLowerCase() === userEmail && userEmail !== 'guest@weathergpt.ai'
+        (u) =>
+          (userEmail && u.email && u.email.toLowerCase() === userEmail) ||
+          (userId && u.id === userId) ||
+          (visitorId && (u.id === visitorId || u.visitorId === visitorId || u.email?.includes(visitorId)))
       );
 
       const recordToSave = {
-        id: user.id || `usr-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        id: user.id || (userIdx >= 0 ? existingUsers[userIdx].id : `usr-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`),
         name: userName,
-        email: user.email || `visitor_${Date.now()}@weathergpt.ai`,
+        email: user.email || (userIdx >= 0 ? existingUsers[userIdx].email : `guest_${visitorId || Date.now()}@weathergpt.live`),
         provider: user.provider || 'Guest Access 👤',
         role: user.role || 'Member',
         timestamp: now.toISOString(),
@@ -72,8 +77,9 @@ export default async function handler(req, res) {
         browser: user.browser || 'Browser',
         ip_address: user.ip_address || clientIp,
         location: user.location || locationTag,
-        loginCount: (userIdx >= 0 ? (existingUsers[userIdx].loginCount || 1) + 1 : (user.loginCount || 1)),
-        status: 'Active Now 🟢'
+        loginCount: userIdx >= 0 ? (existingUsers[userIdx].loginCount || 1) + 1 : (user.loginCount || 1),
+        status: 'Active Now 🟢',
+        visitorId: visitorId || (userIdx >= 0 ? existingUsers[userIdx].visitorId : '')
       };
 
       if (userIdx >= 0) {

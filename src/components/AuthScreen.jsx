@@ -25,6 +25,8 @@ export default function AuthScreen({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [guestName, setGuestName] = useState('');
+  const [showGuestInput, setShowGuestInput] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,17 +55,24 @@ export default function AuthScreen({
 
     setIsLoading(true);
     setTimeout(() => {
+      const visitorId = localStorage.getItem('weathergpt_visitor_id') || `v_${Math.random().toString(36).substr(2, 6)}`;
+      const cleanEmail = email.trim();
+      const extractedName = cleanEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+      const displayName = mode === 'signup' ? name.trim() : (extractedName || 'WeatherGPT Member');
+
       const authUser = {
-        name: mode === 'signup' ? name.trim() : (email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'WeatherGPT Member'),
-        email: email.trim(),
+        id: `usr-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        name: displayName,
+        email: cleanEmail,
         avatarType: 'initials',
         avatar: '',
-        provider: mode === 'signup' ? 'email_signup' : 'email_signin',
+        provider: mode === 'signup' ? 'Email Signup ✉️' : 'Email Sign In ✉️',
         role: 'Standard Member',
-        joinedAt: new Date().toISOString()
+        joinedAt: new Date().toISOString(),
+        visitorId: visitorId
       };
 
-      // Store in Accessor Database
+      // Store in Central Cloud Database
       userRegistryService.recordUserSession(authUser, mode === 'signup' ? 'email_signup' : 'email_signin');
 
       if (rememberMe) {
@@ -73,20 +82,33 @@ export default function AuthScreen({
       }
       setIsLoading(false);
       onLogin(authUser);
-    }, 400);
+    }, 300);
   };
 
   const handleGuestLogin = () => {
     setIsLoading(true);
     setTimeout(() => {
+      const visitorId = localStorage.getItem('weathergpt_visitor_id') || `v_${Math.random().toString(36).substr(2, 6)}`;
+      const trimmedGuestName = guestName.trim();
+      
+      const finalName = trimmedGuestName
+        ? `${trimmedGuestName} (Guest)`
+        : (activeLanguage === 'ta' ? 'விருந்தினர் (Guest)' : 'Guest User');
+      
+      const finalEmail = trimmedGuestName
+        ? `guest.${trimmedGuestName.toLowerCase().replace(/[^a-z0-9]/g, '')}_${visitorId.slice(0, 4)}@weathergpt.live`
+        : `guest_${visitorId}@weathergpt.live`;
+
       const guestUser = {
-        name: activeLanguage === 'ta' ? 'விருந்தினர் (Guest)' : 'Guest User',
-        email: 'guest@weathergpt.ai',
+        id: `usr-guest-${Date.now()}`,
+        name: finalName,
+        email: finalEmail,
         avatarType: 'guest',
-        avatar: 'https://api.dicebear.com/7.x/bottts/svg?seed=GuestWeatherGPT',
-        provider: 'guest',
+        avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(finalName)}`,
+        provider: 'Guest Access 👤',
         role: 'Guest Access',
-        joinedAt: new Date().toISOString()
+        joinedAt: new Date().toISOString(),
+        visitorId: visitorId
       };
 
       userRegistryService.recordUserSession(guestUser, 'guest');
@@ -291,17 +313,56 @@ export default function AuthScreen({
             </button>
           </form>
 
-          {/* Guest Access Button */}
-          <div className="pt-3 border-t border-slate-100 text-center space-y-2.5">
-            <button
-              type="button"
-              onClick={handleGuestLogin}
-              disabled={isLoading}
-              className="w-full py-2.5 px-3 rounded-2xl bg-sky-50 hover:bg-sky-100/80 border border-sky-200/80 text-sky-800 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
-            >
-              <User className="w-4 h-4 text-sky-600" />
-              <span>{activeLanguage === 'ta' ? 'விருந்தினராக தொடரவும்' : 'Continue as Guest'}</span>
-            </button>
+          {/* Guest Access Section */}
+          <div className="pt-3 border-t border-slate-100 text-center space-y-2">
+            {showGuestInput ? (
+              <div className="space-y-2 p-2.5 rounded-2xl bg-sky-50/70 border border-sky-200/80 animate-fadeIn">
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  placeholder={activeLanguage === 'ta' ? 'உங்கள் பெயர் / Nickname (எ.கா: விஜய்)' : 'Your Name / Nickname (e.g. Alex)'}
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-sky-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 font-medium"
+                />
+                <div className="flex gap-1.5">
+                  <button
+                    type="button"
+                    onClick={handleGuestLogin}
+                    disabled={isLoading}
+                    className="flex-1 py-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  >
+                    {activeLanguage === 'ta' ? 'விருந்தினராக தொடங்கு' : 'Enter as Guest'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowGuestInput(false)}
+                    className="py-2 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold transition-all cursor-pointer"
+                  >
+                    {activeLanguage === 'ta' ? 'ரத்து' : 'Cancel'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleGuestLogin}
+                  disabled={isLoading}
+                  className="flex-1 py-2.5 px-3 rounded-2xl bg-sky-50 hover:bg-sky-100/80 border border-sky-200/80 text-sky-800 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
+                >
+                  <User className="w-4 h-4 text-sky-600" />
+                  <span>{activeLanguage === 'ta' ? 'விருந்தினராக தொடரவும்' : 'Continue as Guest'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowGuestInput(true)}
+                  title={activeLanguage === 'ta' ? 'பெயருடன் நுழைக' : 'Enter with Nickname'}
+                  className="px-3 py-2.5 rounded-2xl bg-white hover:bg-sky-50 border border-sky-200/80 text-sky-700 text-xs font-bold transition-all cursor-pointer"
+                >
+                  {activeLanguage === 'ta' ? 'பெயரிடு' : 'Add Name'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

@@ -152,12 +152,23 @@ class UserRegistryService {
       }
 
       const userEmail = (userRecord.email || '').trim().toLowerCase();
+      const userId = userRecord.id || '';
+      const visitorId = userRecord.visitorId || '';
+
+      // Match by email, id, or visitor device ID to update seamlessly
       const existingIdx = existingUsers.findIndex(
-        (u) => u.email && u.email.toLowerCase() === userEmail && userEmail !== 'guest@weathergpt.ai'
+        (u) =>
+          (userEmail && u.email && u.email.toLowerCase() === userEmail) ||
+          (userId && u.id === userId) ||
+          (visitorId && (u.id === visitorId || u.visitorId === visitorId || u.email?.includes(visitorId)))
       );
 
       if (existingIdx >= 0) {
-        existingUsers[existingIdx] = { ...existingUsers[existingIdx], ...userRecord };
+        existingUsers[existingIdx] = {
+          ...existingUsers[existingIdx],
+          ...userRecord,
+          loginCount: (existingUsers[existingIdx].loginCount || 1) + 1
+        };
       } else {
         existingUsers.unshift(userRecord);
       }
@@ -185,6 +196,7 @@ class UserRegistryService {
       const { device, browser } = getClientDeviceInfo();
       const userEmail = (user.email || '').trim().toLowerCase();
       const userName = (user.name || 'WeatherGPT User').trim();
+      const visitorId = localStorage.getItem('weathergpt_visitor_id') || `dev_${Math.random().toString(36).substr(2, 6)}`;
       const now = new Date();
 
       let providerLabel = 'Email ✉️';
@@ -194,19 +206,22 @@ class UserRegistryService {
       else if (authMethod === 'email_signin') providerLabel = 'Email Sign In ✉️';
       else if (authMethod === 'auto_visitor') providerLabel = 'Live Link Visitor 🚀';
 
-      // Check if user already exists in registry
+      // Match existing record by email, id, or visitorId
       const existingIdx = users.findIndex(
-        (u) => u.email && u.email.toLowerCase() === userEmail && userEmail !== 'guest@weathergpt.ai'
+        (u) =>
+          (userEmail && u.email && u.email.toLowerCase() === userEmail) ||
+          (u.visitorId && u.visitorId === visitorId) ||
+          (u.id && u.id === visitorId)
       );
 
       let recordToSave = null;
 
       if (existingIdx >= 0) {
-        // Update existing user record
         const existing = users[existingIdx];
         recordToSave = {
           ...existing,
           name: userName || existing.name,
+          email: user.email || existing.email,
           provider: providerLabel,
           role: user.role || existing.role || 'Member',
           timestamp: now.toISOString(),
@@ -215,15 +230,15 @@ class UserRegistryService {
           browser: browser,
           location: user.location || existing.location || 'Online Visitor',
           loginCount: (existing.loginCount || 1) + 1,
-          status: 'Active Now 🟢'
+          status: 'Active Now 🟢',
+          visitorId: visitorId
         };
         users[existingIdx] = recordToSave;
       } else {
-        // Create new user record
         recordToSave = {
-          id: `usr-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+          id: user.id || `usr-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
           name: userName,
-          email: user.email || `visitor_${Date.now().toString(36)}@weathergpt.ai`,
+          email: user.email || `guest_${visitorId}@weathergpt.live`,
           provider: providerLabel,
           role: user.role || 'Standard Member',
           timestamp: now.toISOString(),
@@ -232,7 +247,8 @@ class UserRegistryService {
           browser: browser,
           location: user.location || 'Online Visitor',
           loginCount: 1,
-          status: 'Active Now 🟢'
+          status: 'Active Now 🟢',
+          visitorId: visitorId
         };
         users.unshift(recordToSave);
       }
@@ -263,18 +279,18 @@ class UserRegistryService {
         // Unique persistent visitor ID per device
         let visitorId = localStorage.getItem('weathergpt_visitor_id');
         if (!visitorId) {
-          visitorId = `friend_${Math.random().toString(36).substr(2, 6)}`;
+          visitorId = `v_${Math.random().toString(36).substr(2, 6)}`;
           localStorage.setItem('weathergpt_visitor_id', visitorId);
         }
 
         const { device } = getClientDeviceInfo();
-        const visitorName = `Friend / User (${device.split(' ')[0]})`;
-        const visitorEmail = `${visitorId}@weathergpt.live`;
+        const visitorName = `Online Visitor (${device.split(' ')[0]})`;
+        const visitorEmail = `visitor_${visitorId}@weathergpt.live`;
 
         this.recordUserSession({
           name: visitorName,
           email: visitorEmail,
-          role: 'App Visitor',
+          role: 'Live Visitor',
           location: locStr,
           provider: 'auto_visitor'
         }, 'auto_visitor');

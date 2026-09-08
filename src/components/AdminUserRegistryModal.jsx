@@ -446,30 +446,49 @@ export default function AdminUserRegistryModal({
                     <tr className="border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
                       <th className="py-2.5 px-3">User & Email</th>
                       <th className="py-2.5 px-3">Auth Method</th>
-                      <th className="py-2.5 px-3">Role</th>
+                      <th className="py-2.5 px-3">Location & IP</th>
                       <th className="py-2.5 px-3">Device / Platform</th>
                       <th className="py-2.5 px-3">Last Active</th>
                       <th className="py-2.5 px-3 text-center">Logins</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-xs">
-                    {filteredUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-sky-50/50 transition-colors">
-                        <td className="py-3 px-3">
-                          <div className="font-bold text-slate-900">{u.name}</div>
-                          <div className="text-[11px] text-slate-500 font-mono">{u.email}</div>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
-                            {u.provider || 'Google'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 font-semibold text-slate-700">{u.role || 'Member'}</td>
-                        <td className="py-3 px-3 text-slate-600">{u.device || 'Desktop PC'}</td>
-                        <td className="py-3 px-3 text-slate-600">{u.formattedTime || 'Recently'}</td>
-                        <td className="py-3 px-3 text-center font-bold text-slate-800">{u.loginCount || 1}</td>
-                      </tr>
-                    ))}
+                    {filteredUsers.map((u) => {
+                      const isEmail = (u.provider || '').includes('Email');
+                      const isGuest = (u.provider || '').includes('Guest');
+                      const isGoogle = (u.provider || '').includes('Google');
+                      const badgeClass = isEmail
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : isGuest
+                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : isGoogle
+                        ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                        : 'bg-purple-50 text-purple-700 border-purple-200';
+
+                      return (
+                        <tr key={u.id} className="hover:bg-sky-50/50 transition-colors">
+                          <td className="py-3 px-3">
+                            <div className="font-bold text-slate-900 flex items-center space-x-1.5">
+                              <span>{u.name}</span>
+                              {u.status && <span className="text-[10px]">{u.status}</span>}
+                            </div>
+                            <div className="text-[11px] text-sky-700 font-mono font-medium">{u.email}</div>
+                          </td>
+                          <td className="py-3 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}`}>
+                              {u.provider || 'Live Visitor 🚀'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-slate-600 font-medium">
+                            <div>{u.location || 'Online Visitor'}</div>
+                            {u.ip_address && <div className="text-[10px] text-slate-400 font-mono">{u.ip_address}</div>}
+                          </td>
+                          <td className="py-3 px-3 text-slate-600 font-medium">{u.device || 'Desktop PC'}</td>
+                          <td className="py-3 px-3 text-slate-600">{u.formattedTime || 'Recently'}</td>
+                          <td className="py-3 px-3 text-center font-black text-slate-800">{u.loginCount || 1}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
