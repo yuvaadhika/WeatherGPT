@@ -383,7 +383,7 @@ class OfflineDisasterVaultService {
             `• 🌧️ **Mazhai Peyya Vaippu:** ${tomorrowRain >= 50 ? `Adhigam (~${tomorrowRain}%) - Malai vara vaaipu nalla irukku` : `Kuraivu (~${tomorrowRain}%) - Lesana thooral mattume`}\n` +
             `• 💨 **Kaatru Vegam:** ${wind} km/h | **Eerapatham:** ${humidity}%\n` +
             `• 💡 **Advisory:** ${tomorrowRain >= 50 ? 'Nalaiku veliya porappa kandippa Kudai (Umbrella) eduthuttu ponga!' : 'Nalaiku climate general ah clear & steady ah irukum. Veli velai thairiyama thittam podalam.'}\n\n` +
-            `*(📡 Tower / Net illadha podhum Offline Edge AI moolam ganikkappattadhu.)*`,
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Offline Conversational AI'
         };
@@ -398,7 +398,7 @@ class OfflineDisasterVaultService {
             `• ⏰ **Kaanikkapatta Neram:** ${rainProb >= 50 ? 'Maalai / Iravu velaiyil mazhai peyya vaaipu irukku' : 'Mazhaikaana aabathu illai, thelivana vanam'}\n` +
             `• 🌡️ **Tharpodhaya Veppam:** ${temp}°C (Feel: ${feels}°C) | **Eerapatham:** ${humidity}%\n` +
             `• 💡 **Mukkiya Advice:** ${rainProb >= 50 ? 'Veliya kelambina kudai eduthukonga. Thaazhvana idangalil thanneer thenga koodum.' : 'Mazhai aabathu illa, thairiyama veliya polam!'}\n\n` +
-            `*(📡 Served via Offline Disaster Edge Engine)*`,
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Offline Conversational AI'
         };
@@ -412,7 +412,7 @@ class OfflineDisasterVaultService {
             `• 💧 **Eerapatham (Humidity):** ${humidity}%\n` +
             `• 💨 **Kaatru Vegam:** ${wind} km/h\n` +
             `• 💡 **Health Tip:** ${temp >= 33 ? 'Nalla thanneer kudichu hydrated ah irunga. Thalaiyila cap / koda vachukonga.' : 'Climate romba comfortable ah irukku.'}\n\n` +
-            `*(📡 Served via Offline Disaster Edge Engine)*`,
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Offline Conversational AI'
         };
@@ -425,7 +425,7 @@ class OfflineDisasterVaultService {
             `• 🚗 **Drive / Commute:** Salai pokkuvarathu ippodhaiykku steady ah irukku.\n` +
             `• 👕 **Thuni Kaaya Podalama?** ${humidity < 75 && rainProb < 40 ? '✅ Thuni nallave seekaram kaayum.' : '⚠️ Eerapatham adhigam, nalladhu veetukkulla kaaya podradhu.'}\n` +
             `• 🌡️ **Veppanilai:** ${temp}°C | **Kaatru:** ${wind} km/h\n\n` +
-            `*(📡 Served via Offline Disaster Edge Engine)*`,
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Offline Conversational AI'
         };
@@ -439,7 +439,7 @@ class OfflineDisasterVaultService {
             `• 🌱 **Yetha Vidhaigal:** Nel (Paddy - CR 1009/ADT), Sirudhaaniyam (Millets), Pasumai Payirgal\n` +
             `• 💧 **Paasanam:** ${rainProb >= 50 ? 'Mazhai ethirparkkapaduvathal paasanam thevai illa.' : 'Mithamana paasanam podhum.'}\n` +
             `• 🧪 **Marundhu Thelippu:** ${wind <= 15 ? '✅ Kaatru mitham, marundhu thelikkalam.' : '⚠️ Kaatru vegam ulladhal marundhu thelippai thallipodavum.'}\n\n` +
-            `*(📡 Served via Offline Disaster Edge Engine)*`,
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Offline Conversational AI'
         };
@@ -453,7 +453,7 @@ class OfflineDisasterVaultService {
           `• 💨 **Kaatru (Wind):** ${wind} km/h | **Eerapatham (Humidity):** ${humidity}%\n` +
           `• 📆 **Naalai (${tomorrowDateTa}):** Veppam ~${baseline.tempRange[1]}°C | Mazhai ~${tomorrowRain}%\n` +
           `• 💡 **Quick Advice:** ${rainProb >= 50 ? 'Veliya porappa Kudai eduthuttu ponga.' : 'Climate steady & nalla irukku. Veli velai thairiyama thodangalaam.'}\n\n` +
-          `*(📡 Net / Tower illadha podhum Offline Edge AI moolam accurate ah calculate aagirukku.)*`,
+          `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
         isOffline: true,
         mode: 'Offline Conversational AI'
       };
@@ -470,7 +470,7 @@ class OfflineDisasterVaultService {
             `• 🌧️ **மழை பெய்வதற்கான வாய்ப்பு:** ${tomorrowRain >= 50 ? `அதிகம் (~${tomorrowRain}%)` : `குறைவு (~${tomorrowRain}%)`}\n` +
             `• 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **ஈரப்பதம்:** ${humidity}%\n` +
             `• 💡 **பரிந்துரை:** ${tomorrowRain >= 50 ? 'நாளை வெளியே செல்லும்போது மறக்காமல் குடை எடுத்துச் செல்லவும்.' : 'வானிலை பொதுவாக சீராக இருக்கும், பயணங்களை திட்டமிடலாம்.'}\n\n` +
-            `*(📡 இணையம் / டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் எட்ஜ் இன்ஜின் மூலம் கணக்கிடப்பட்டது.)*`,
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Offline Conversational AI'
         };
@@ -485,7 +485,7 @@ class OfflineDisasterVaultService {
             `• 🌡️ **தற்போதைய வெப்பநிலை:** ${temp}°C (உணர்வு: ${feels}°C)\n` +
             `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
             `• 💡 **பாதுகாப்பு குறிப்பு:** ${rainProb >= 50 ? 'வெளியே செல்லும்போது குடை எடுத்துச் செல்லவும். தாழ்வான சாலைகளில் கவனம் தேவை.' : 'மழைக்கான அச்சுறுத்தல் இல்லை, தாராளமாக பயணிக்கலாம்.'}\n\n` +
-            `*(📡 ஆஃப்லைன் பேரிடர் எட்ஜ் இன்ஜின் மூலம் பதிலளிக்கப்பட்டது)*`,
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Offline Conversational AI'
         };
@@ -499,7 +499,7 @@ class OfflineDisasterVaultService {
           `• 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **ஈரப்பதம்:** ${humidity}%\n` +
           `• 📆 **நாளை (${tomorrowDateTa}):** அதிகபட்சம் ~${baseline.tempRange[1]}°C | மழை வாய்ப்பு ~${tomorrowRain}%\n` +
           `• 💡 **பரிந்துரை:** ${rainProb >= 50 ? 'மழைக்கான வாய்ப்பு இருப்பதால் குடையுடன் வெளியே செல்லவும்.' : 'வானிலை பொதுவாக இயல்பாக உள்ளது. அவசர உதவிக்கு 1077 அழைக்கலாம்.'}\n\n` +
-          `*(📡 இணையம் இல்லாத போதும் ஆஃப்லைன் எட்ஜ் இன்ஜின் மூலம் பதிலளிக்கப்பட்டது.)*`,
+          `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
         isOffline: true,
         mode: 'Offline Conversational AI'
       };
