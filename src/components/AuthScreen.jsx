@@ -106,17 +106,10 @@ export default function AuthScreen({
       {/* Top Bar: Brand + Multi-Language Selector */}
       <header className="relative z-10 w-full max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
         <div className="flex items-center space-x-2 sm:space-x-2.5 min-w-0">
-          <img
-            src="/wyndra-logo.png"
-            alt="WeatherGPT"
-            className="w-9 h-9 sm:w-11 sm:h-11 object-contain flex-shrink-0 drop-shadow-sm"
-          />
+          <div className="px-2.5 py-1 rounded-xl bg-slate-900 text-white text-xs font-black tracking-wider uppercase">
+            WeatherGPT
+          </div>
           <div className="min-w-0">
-            <div className="flex items-center space-x-1.5">
-              <span className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-heading">
-                WeatherGPT
-              </span>
-            </div>
             <p className="hidden sm:block text-[11px] text-slate-500 font-medium truncate">
               {activeLanguage === 'ta' ? 'அதிநவீன நேரடி வானிலை தளம்' : 'Hyperlocal Weather Intelligence'}
             </p>

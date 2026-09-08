@@ -380,16 +380,11 @@ export default function App() {
         <div className="p-4 border-b border-sky-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <img
-                src="/wyndra-logo.png"
-                alt="WYNDRA Logo"
-                className="w-10 h-10 object-contain flex-shrink-0 drop-shadow-sm"
-              />
+              <div className="px-2.5 py-1 rounded-xl bg-slate-900 text-white text-xs font-black tracking-wider uppercase">
+                WeatherGPT
+              </div>
               <div>
-                <h1 className="font-extrabold text-base tracking-tight text-slate-900">
-                  {t.sidebar?.appTitle || 'WeatherGPT'}
-                </h1>
-                <span className="text-[10px] text-sky-600 font-bold tracking-wide">
+                <span className="text-[10px] text-sky-600 font-bold tracking-wide block">
                   {t.sidebar?.liveWeatherRadar || 'Live Weather & Radar'}
                 </span>
               </div>

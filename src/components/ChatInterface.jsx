@@ -229,8 +229,8 @@ export default function ChatInterface({
         {/* Welcome Cards for Empty/New Conversations */}
         {messages.length <= 1 && (
           <div className="max-w-2xl mx-auto my-6 space-y-6 text-center">
-            <div className="inline-flex p-3 rounded-2xl bg-sky-50 border border-sky-200 text-sky-600 shadow-sm">
-              <Sun className="w-7 h-7" />
+            <div className="inline-flex px-3 py-1 rounded-xl bg-slate-900 text-white text-xs font-black tracking-wider uppercase">
+              WeatherGPT
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
@@ -310,15 +310,15 @@ export default function ChatInterface({
                 isAi ? 'justify-start' : 'justify-end flex-row-reverse space-x-reverse'
               }`}
             >
-              {/* Avatar */}
+              {/* Sender Tag */}
               <div
-                className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 font-medium text-xs shadow-sm ${
+                className={`px-2 py-0.5 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-bold ${
                   isAi
-                    ? 'bg-sky-500 text-white'
-                    : 'bg-slate-600 text-white'
+                    ? 'bg-slate-100 text-slate-700 border border-slate-200'
+                    : 'bg-sky-50 text-sky-700 border border-sky-200'
                 }`}
               >
-                {isAi ? <Sun className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                {isAi ? 'WeatherGPT' : 'You'}
               </div>
 
               {/* Bubble */}
@@ -485,8 +485,8 @@ export default function ChatInterface({
         {/* Loading Bubble */}
         {isLoading && (
           <div className="flex items-start space-x-3 max-w-3xl mx-auto">
-            <div className="w-8 h-8 rounded-xl bg-sky-500 flex items-center justify-center text-white text-xs">
-              <Sun className="w-4 h-4" />
+            <div className="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-bold">
+              WeatherGPT
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-slate-200 text-xs text-slate-600 flex items-center space-x-2 shadow-sm">
               <RefreshCw className="w-4 h-4 text-sky-600 animate-spin" />

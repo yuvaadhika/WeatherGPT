@@ -135,9 +135,8 @@ export function downloadHTMLReport(reportData, filename) {
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     body { background-color: #f1f5f9; color: #1e293b; padding: 24px; line-height: 1.5; }
     .report-container { max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; overflow: hidden; padding: 32px; }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284c7; padding-bottom: 20px; margin-bottom: 24px; }
     .header-logo { display: flex; align-items: center; gap: 12px; }
-    .logo-badge { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; }
+    .logo-badge { background: #0f172a; color: #fff; padding: 6px 12px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; letter-spacing: 0.5px; }
     .header-title h1 { font-size: 22px; color: #0f172a; font-weight: 800; }
     .header-title p { font-size: 13px; color: #64748b; margin-top: 2px; }
     .header-meta { text-align: right; font-size: 12px; color: #475569; }
@@ -177,7 +176,7 @@ export function downloadHTMLReport(reportData, filename) {
     <!-- Header -->
     <div class="header">
       <div class="header-logo">
-        <div class="logo-badge">☀️</div>
+        <div class="logo-badge">WeatherGPT</div>
         <div class="header-title">
           <h1>WeatherGPT Intelligence Dossier</h1>
           <p>${reportData.locName} • ${reportData.coordinates}</p>
