@@ -288,16 +288,6 @@ export default function AdminUserRegistryModal({
               )}
             </button>
           </form>
-
-          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
-            <span className="font-semibold text-slate-700 flex items-center space-x-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{activeLanguage === 'ta' ? 'அணுகல் பாதுகாப்பு:' : 'Security Access:'}</span>
-            </span>
-            <span className="font-mono text-slate-700 bg-white px-2 py-0.5 rounded-lg border border-slate-200 font-semibold">
-              {activeLanguage === 'ta' ? 'பாதுகாக்கப்பட்ட உள்நுழைவு' : 'Protected Access Portal'}
-            </span>
-          </div>
         </div>
       ) : (
         /* 2. AUTHENTICATED ACCESSOR DASHBOARD & SQL CONSOLE */
