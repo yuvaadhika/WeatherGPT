@@ -79,11 +79,6 @@ export default function App() {
     }
   });
 
-  // Automatically register and sync any friend / user who opens the link
-  useEffect(() => {
-    userRegistryService.autoRegisterVisitor(currentUser, currentLocation);
-  }, [currentUser, currentLocation?.name]);
-
   const [activeLanguage, setActiveLanguage] = useState('en');
   const [activeView, setActiveView] = useState('home'); // 'home' | 'radar' | 'alerts' | 'chat' | 'decision' | 'climate' | 'route' | 'event' | 'spotter' | 'sos'
   const [activeSector, setActiveSector] = useState('agriculture');
@@ -126,6 +121,11 @@ export default function App() {
   });
   const [initialChatQuery, setInitialChatQuery] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => notificationService.hasAnyChannelActive());
+
+  // Automatically register and sync any friend / user who opens the link
+  useEffect(() => {
+    userRegistryService.autoRegisterVisitor(currentUser, currentLocation);
+  }, [currentUser, currentLocation?.name]);
 
   const handleSignOut = () => {
     localStorage.removeItem('weathergpt_auth_user');
