@@ -17,7 +17,11 @@ import {
   Search,
   CheckCircle2,
   ChevronRight,
-  Route
+  Route,
+  ArrowLeftRight,
+  LocateFixed,
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
 import { getWeatherDescription, getLocalizedPlaceName, searchLocation } from '../services/weatherService';
@@ -124,6 +128,8 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   const [customOrigin, setCustomOrigin] = useState(null);
   const [customDest, setCustomDest] = useState(null);
   const [isCustomMode, setIsCustomMode] = useState(false);
+  const [isSearchingRoute, setIsSearchingRoute] = useState(false);
+  const [searchError, setSearchError] = useState('');
 
   useEffect(() => {
     simulateRouteWeather(selectedRoute, departureOffset);
@@ -132,6 +138,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   // Handle Origin Search
   const handleOriginSearch = async (val) => {
     setOriginQuery(val);
+    setSearchError('');
     if (val.trim().length >= 2) {
       try {
         const results = await searchLocation(val.trim());
@@ -147,6 +154,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   // Handle Destination Search
   const handleDestSearch = async (val) => {
     setDestQuery(val);
+    setSearchError('');
     if (val.trim().length >= 2) {
       try {
         const results = await searchLocation(val.trim());
@@ -194,6 +202,117 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
 
     setSelectedRoute(customRouteObj);
     setIsCustomMode(true);
+    setSearchError('');
+  };
+
+  // Execute Direct Search & Calculate Route Weather
+  const handleExecuteRouteSearch = async (e) => {
+    if (e) e.preventDefault();
+    setSearchError('');
+
+    const startTxt = (customOrigin?.name || originQuery).trim();
+    const destTxt = (customDest?.name || destQuery).trim();
+
+    if (!startTxt || !destTxt) {
+      setSearchError(
+        activeLanguage === 'ta'
+          ? 'தயவுசெய்து புறப்படும் இடம் மற்றும் சேருமிடம் இரண்டையும் உள்ளிடவும்.'
+          : 'Please enter both Origin and Destination locations.'
+      );
+      return;
+    }
+
+    setIsSearchingRoute(true);
+    try {
+      let resolvedOrigin = customOrigin;
+      if (!resolvedOrigin || resolvedOrigin.name.toLowerCase() !== startTxt.toLowerCase()) {
+        const oResults = await searchLocation(startTxt);
+        if (!oResults || oResults.length === 0) {
+          throw new Error(
+            activeLanguage === 'ta'
+              ? `புறப்படும் இடம் "${startTxt}" கிடைக்கவில்லை. எழுத்துப் பிழையைச் சரிபார்க்கவும்.`
+              : `Origin location "${startTxt}" not found. Please check spelling.`
+          );
+        }
+        resolvedOrigin = oResults[0];
+        setCustomOrigin(resolvedOrigin);
+        setOriginQuery(resolvedOrigin.name);
+      }
+
+      let resolvedDest = customDest;
+      if (!resolvedDest || resolvedDest.name.toLowerCase() !== destTxt.toLowerCase()) {
+        const dResults = await searchLocation(destTxt);
+        if (!dResults || dResults.length === 0) {
+          throw new Error(
+            activeLanguage === 'ta'
+              ? `சேருமிடம் "${destTxt}" கிடைக்கவில்லை. எழுத்துப் பிழையைச் சரிபார்க்கவும்.`
+              : `Destination location "${destTxt}" not found. Please check spelling.`
+          );
+        }
+        resolvedDest = dResults[0];
+        setCustomDest(resolvedDest);
+        setDestQuery(resolvedDest.name);
+      }
+
+      setOriginSuggestions([]);
+      setDestSuggestions([]);
+      createAndApplyCustomRoute(resolvedOrigin, resolvedDest);
+    } catch (err) {
+      setSearchError(err.message || 'Route calculation failed');
+    } finally {
+      setIsSearchingRoute(false);
+    }
+  };
+
+  // Swap Origin and Destination
+  const handleSwapLocations = () => {
+    const prevOrigin = customOrigin;
+    const prevOriginQ = originQuery;
+    const prevDest = customDest;
+    const prevDestQ = destQuery;
+
+    setCustomOrigin(prevDest);
+    setOriginQuery(prevDestQ || prevDest?.name || '');
+    setCustomDest(prevOrigin);
+    setDestQuery(prevOriginQ || prevOrigin?.name || '');
+    setOriginSuggestions([]);
+    setDestSuggestions([]);
+    setSearchError('');
+
+    if (prevDest && prevOrigin) {
+      createAndApplyCustomRoute(prevDest, prevOrigin);
+    }
+  };
+
+  // Use GPS / Current Location for Origin
+  const handleUseCurrentLocation = () => {
+    if (currentLocation) {
+      const locObj = {
+        name: currentLocation.name || 'Current Location',
+        latitude: currentLocation.lat || 13.0827,
+        longitude: currentLocation.lon || 80.2707,
+        admin1: 'Current GPS',
+      };
+      setCustomOrigin(locObj);
+      setOriginQuery(locObj.name);
+      setOriginSuggestions([]);
+      setSearchError('');
+
+      if (customDest) {
+        createAndApplyCustomRoute(locObj, customDest);
+      }
+    }
+  };
+
+  // Clear Custom Search Fields
+  const handleClearCustomInputs = () => {
+    setCustomOrigin(null);
+    setOriginQuery('');
+    setCustomDest(null);
+    setDestQuery('');
+    setOriginSuggestions([]);
+    setDestSuggestions([]);
+    setSearchError('');
   };
 
   const simulateRouteWeather = async (route, depHour) => {
@@ -316,19 +435,45 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         </div>
 
         {/* Custom Origin & Destination Input Form */}
-        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-sky-50/70 via-indigo-50/70 to-blue-50/70 border border-sky-100 space-y-3">
+        <form
+          onSubmit={handleExecuteRouteSearch}
+          className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-sky-50/80 via-indigo-50/70 to-blue-50/80 border border-sky-200/80 shadow-xs space-y-3"
+        >
           <div className="flex items-center justify-between">
             <span className="text-xs font-black text-slate-800 flex items-center space-x-1.5">
               <Search className="w-3.5 h-3.5 text-sky-600" />
-              <span>{activeLanguage === 'ta' ? 'உங்கள் சொந்த வழித்தடத்தைத் தேடுங்கள்' : 'Custom Route Planner (Any Cities)'}</span>
+              <span>{activeLanguage === 'ta' ? 'உங்கள் சொந்த வழித்தடத்தைத் தேடுங்கள்' : 'Custom Route Planner (Any Cities / Towns)'}</span>
             </span>
-            <span className="text-[10px] text-slate-500 font-medium">Type any 2 places</span>
+            <div className="flex items-center space-x-2">
+              {currentLocation && (
+                <button
+                  type="button"
+                  onClick={handleUseCurrentLocation}
+                  className="text-[10px] font-bold text-sky-700 hover:text-sky-800 bg-white hover:bg-sky-50 px-2 py-0.5 rounded-lg border border-sky-200 shadow-2xs transition-all cursor-pointer flex items-center space-x-1"
+                  title="Use Current Location for Origin"
+                >
+                  <LocateFixed className="w-3 h-3 text-emerald-600" />
+                  <span>{activeLanguage === 'ta' ? 'என் இருப்பிடம்' : 'Use My GPS'}</span>
+                </button>
+              )}
+              {(originQuery || destQuery || customOrigin || customDest) && (
+                <button
+                  type="button"
+                  onClick={handleClearCustomInputs}
+                  className="text-[10px] font-bold text-slate-500 hover:text-rose-600 bg-white hover:bg-rose-50 px-2 py-0.5 rounded-lg border border-slate-200 transition-all cursor-pointer"
+                  title="Clear inputs"
+                >
+                  {activeLanguage === 'ta' ? 'அழி' : 'Clear'}
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 relative">
+          {/* Search Inputs with Middle Swap Button */}
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-2 relative">
             {/* Origin Input */}
             <div className="relative">
-              <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs focus-within:border-sky-500">
+              <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2.5 py-2 shadow-2xs focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100 transition-all">
                 <MapPin className="w-3.5 h-3.5 text-emerald-600 mr-1.5 flex-shrink-0" />
                 <input
                   type="text"
@@ -337,6 +482,19 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
                   placeholder={customOrigin ? customOrigin.name : (activeLanguage === 'ta' ? 'புறப்படும் ஊர் (எ.கா: மதுரை)' : 'From (Origin city)...')}
                   className="w-full text-xs text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none"
                 />
+                {originQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOriginQuery('');
+                      setCustomOrigin(null);
+                      setOriginSuggestions([]);
+                    }}
+                    className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
 
               {/* Origin Autocomplete Suggestions */}
@@ -362,9 +520,21 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
               )}
             </div>
 
+            {/* Swap Button */}
+            <div className="flex justify-center my-0.5 sm:my-0">
+              <button
+                type="button"
+                onClick={handleSwapLocations}
+                className="p-2 rounded-xl bg-white hover:bg-sky-50 text-slate-600 hover:text-sky-600 border border-slate-200 shadow-2xs hover:border-sky-300 transition-all cursor-pointer"
+                title={activeLanguage === 'ta' ? 'இடங்களை மாற்று (Swap)' : 'Swap Origin & Destination'}
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5 rotate-90 sm:rotate-0" />
+              </button>
+            </div>
+
             {/* Destination Input */}
             <div className="relative">
-              <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs focus-within:border-sky-500">
+              <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2.5 py-2 shadow-2xs focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100 transition-all">
                 <MapPin className="w-3.5 h-3.5 text-rose-600 mr-1.5 flex-shrink-0" />
                 <input
                   type="text"
@@ -373,6 +543,19 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
                   placeholder={customDest ? customDest.name : (activeLanguage === 'ta' ? 'சென்றடையும் ஊர் (எ.கா: ராமேஸ்வரம்)' : 'To (Destination city)...')}
                   className="w-full text-xs text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none"
                 />
+                {destQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestQuery('');
+                      setCustomDest(null);
+                      setDestSuggestions([]);
+                    }}
+                    className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
 
               {/* Destination Autocomplete Suggestions */}
@@ -398,7 +581,47 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
               )}
             </div>
           </div>
-        </div>
+
+          {/* Action Row: Calculate Route Weather Button + Error banner */}
+          {searchError && (
+            <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center space-x-2 animate-fadeIn">
+              <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
+              <span>{searchError}</span>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-1">
+            <div className="text-[11px] text-slate-500 font-medium self-start sm:self-auto">
+              {isCustomMode && selectedRoute.from ? (
+                <span className="text-sky-800 font-bold flex items-center space-x-1 bg-white/90 px-2 py-1 rounded-lg border border-sky-200">
+                  <Route className="w-3 h-3 text-sky-600 inline" />
+                  <span>{selectedRoute.from} ➔ {selectedRoute.to} ({selectedRoute.distanceKm} km • ~{selectedRoute.driveHours}h)</span>
+                </span>
+              ) : (
+                <span>{activeLanguage === 'ta' ? 'ஊர்களை உள்ளிட்டு "Search & Plan" அழுத்தவும்' : 'Enter 2 locations & click Search to analyze road weather'}</span>
+              )}
+            </div>
+
+            {/* Prominent Search / Calculate Route Weather Button */}
+            <button
+              type="submit"
+              disabled={isSearchingRoute || (!originQuery.trim() && !customOrigin) || (!destQuery.trim() && !customDest)}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-700 hover:from-sky-700 hover:to-indigo-800 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-md shadow-sky-500/20 hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSearchingRoute || isSimulating ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>{activeLanguage === 'ta' ? 'வானிலை கணக்கிடப்படுகிறது...' : 'Loading Highway Telemetry...'}</span>
+                </>
+              ) : (
+                <>
+                  <Search className="w-3.5 h-3.5" />
+                  <span>{activeLanguage === 'ta' ? 'வழித்தட வானிலையைக் கணக்கிடு (Search Route)' : 'Search & Plan Route Weather'}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
 
         {/* AI Suggested Popular Corridors Chips */}
         <div className="space-y-1.5">
