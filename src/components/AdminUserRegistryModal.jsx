@@ -23,9 +23,14 @@ import {
   ArrowRight,
   Unlock,
   LogOut,
-  Check
+  Check,
+  Code2,
+  Play,
+  FileCode,
+  Table
 } from 'lucide-react';
 import { userRegistryService } from '../services/userRegistryService';
+import { dbService, SQL_SCHEMAS } from '../services/dbService';
 
 export default function AdminUserRegistryModal({
   isOpen,
@@ -40,6 +45,9 @@ export default function AdminUserRegistryModal({
   const [authError, setAuthError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Active Admin View Tab: 'users' | 'sql'
+  const [activeAdminTab, setActiveAdminTab] = useState('users');
+
   // Database Data State
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({
@@ -52,6 +60,11 @@ export default function AdminUserRegistryModal({
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all'); // 'all' | 'google' | 'email' | 'guest'
+
+  // SQL Interactive Console State
+  const [sqlInput, setSqlInput] = useState('SELECT * FROM weather_stations WHERE district = \'Chennai\';');
+  const [sqlResult, setSqlResult] = useState(null);
+  const [selectedSchemaTable, setSelectedSchemaTable] = useState('weather_stations');
 
   const loadData = () => {
     const list = userRegistryService.getAllUsers();
@@ -110,7 +123,6 @@ export default function AdminUserRegistryModal({
   };
 
   const handleCloseModal = () => {
-    // Lock on close for maximum security
     setIsAuthenticated(false);
     setAdminUsername('');
     setAdminPassword('');
@@ -151,166 +163,165 @@ export default function AdminUserRegistryModal({
     }
   };
 
+  const handleRunSQL = () => {
+    if (!sqlInput.trim()) return;
+    const res = dbService.executeSQL(sqlInput);
+    setSqlResult(res);
+  };
+
+  const handleDownloadSQLDump = () => {
+    const sqlDump = dbService.generateSQLDump();
+    const blob = new Blob([sqlDump], { type: 'text/sql;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `weathergpt_postgresql_dump_${Date.now()}.sql`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-fadeIn">
-      {/* ========================================================================= */}
-      {/* 1. AUTHENTICATION GATE (When user is NOT authenticated with wyndra / 1234) */}
-      {/* ========================================================================= */}
+      {/* 1. AUTHENTICATION GATE */}
       {!isAuthenticated ? (
-        <div
-          className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-sky-100 overflow-hidden animate-scaleUp"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="px-6 py-5 bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-300">
-                <Lock className="w-5 h-5" />
+        <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 relative overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center space-x-2">
+              <div className="p-2 rounded-2xl bg-sky-50 text-sky-600 border border-sky-200">
+                <Database className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base font-black tracking-tight text-white flex items-center space-x-1.5">
-                  <span>{activeLanguage === 'ta' ? '🔐 அணுகல் தரவுத்தள பாதுகாப்பு' : '🔐 Accessor Database Security'}</span>
-                </h2>
-                <p className="text-[11px] text-sky-200/80">
-                  {activeLanguage === 'ta'
-                    ? 'அங்கீகரிக்கப்பட்ட அணுகலாளர்களுக்கு மட்டுமே'
-                    : 'Restricted Access • Admin Credentials Required'}
-                </p>
+                <h3 className="text-base font-black text-slate-900 tracking-tight">
+                  {activeLanguage === 'ta' ? 'அணுகல் தரவுத்தளம்' : 'Accessor Database Portal'}
+                </h3>
+                <p className="text-[10px] font-mono text-slate-400">PostgreSQL + SQLite SQL Engine</p>
               </div>
             </div>
-
             <button
               onClick={handleCloseModal}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Login Form Body */}
-          <div className="p-6 space-y-4">
-            <div className="p-3 rounded-2xl bg-sky-50/80 border border-sky-200/80 text-xs text-sky-900 flex items-start space-x-2.5">
-              <ShieldCheck className="w-4 h-4 text-sky-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold text-sky-950">
-                  {activeLanguage === 'ta' ? 'அணுகல் சரிபார்ப்பு' : 'Accessor Verification'}
-                </p>
-                <p className="text-[11px] text-slate-600 mt-0.5">
-                  {activeLanguage === 'ta'
-                    ? 'பயனர் பதிவுகள் மற்றும் நேரடி தரவுத்தளத்தைக் காண உங்கள் login மற்றும் password-ஐ உள்ளிடவும்.'
-                    : 'Enter your Accessor username and password to view real-time user database and sessions.'}
-                </p>
+          <div className="space-y-2 text-center py-2">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center mx-auto shadow-md">
+              <Lock className="w-6 h-6" />
+            </div>
+            <h4 className="text-base font-bold text-slate-900">
+              {activeLanguage === 'ta' ? 'அணுகல் அங்கீகாரம் தேவை' : 'Restricted Accessor Login'}
+            </h4>
+            <p className="text-xs text-slate-500 max-w-xs mx-auto">
+              {activeLanguage === 'ta'
+                ? 'பயனர் பதிவுகள் மற்றும் SQL தரவுத்தளத்தைக் காண உங்கள் login மற்றும் password-ஐ உள்ளிடவும்.'
+                : 'Enter your Accessor username and password to view real-time SQL database, tables and user sessions.'}
+            </p>
+          </div>
+
+          {authError && (
+            <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center space-x-2 animate-fadeIn">
+              <ShieldAlert className="w-4 h-4 text-rose-500 flex-shrink-0" />
+              <span>{authError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleAuthSubmit} className="space-y-3.5">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                {activeLanguage === 'ta' ? 'பயனர் பெயர் (Login Username)' : 'Login Username'} *
+              </label>
+              <div className="relative">
+                <Database className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  required
+                  autoFocus
+                  value={adminUsername}
+                  onChange={(e) => setAdminUsername(e.target.value)}
+                  placeholder="wyndra"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-300 focus:border-sky-500 focus:bg-white text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all shadow-inner font-medium"
+                />
               </div>
             </div>
 
-            {authError && (
-              <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center space-x-2 animate-fadeIn">
-                <ShieldAlert className="w-4 h-4 text-rose-500 flex-shrink-0" />
-                <span>{authError}</span>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                {activeLanguage === 'ta' ? 'கடவுச்சொல் (Password)' : 'Password'} *
+              </label>
+              <div className="relative">
+                <Key className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                <input
+                  type={showAdminPassword ? 'text' : 'password'}
+                  required
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  placeholder="••••"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-slate-50 border border-slate-300 focus:border-sky-500 focus:bg-white text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all shadow-inner font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAdminPassword(!showAdminPassword)}
+                  className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-700 cursor-pointer"
+                >
+                  {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
-            )}
+            </div>
 
-            <form onSubmit={handleAuthSubmit} className="space-y-3.5">
-              {/* Username field */}
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  {activeLanguage === 'ta' ? 'பயனர் பெயர் (Login Username)' : 'Login Username'} *
-                </label>
-                <div className="relative">
-                  <Database className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    autoFocus
-                    value={adminUsername}
-                    onChange={(e) => setAdminUsername(e.target.value)}
-                    placeholder="xxxx"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-slate-300 focus:border-sky-500 focus:bg-white text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all shadow-inner font-medium"
-                  />
-                </div>
-              </div>
+            <button
+              type="submit"
+              disabled={isVerifying}
+              className="w-full py-3 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              {isVerifying ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>{activeLanguage === 'ta' ? 'சரிபார்க்கிறது...' : 'Verifying...'}</span>
+                </>
+              ) : (
+                <>
+                  <Unlock className="w-4 h-4" />
+                  <span>{activeLanguage === 'ta' ? 'தரவுத்தளத்தைத் திற' : 'Unlock SQL Database'}</span>
+                </>
+              )}
+            </button>
+          </form>
 
-              {/* Password field */}
-              <div className="space-y-1">
-                <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                  {activeLanguage === 'ta' ? 'கடவுச்சொல் (Password)' : 'Password'} *
-                </label>
-                <div className="relative">
-                  <Key className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
-                  <input
-                    type={showAdminPassword ? 'text' : 'password'}
-                    required
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    placeholder="••••"
-                    className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-slate-50 border border-slate-300 focus:border-sky-500 focus:bg-white text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all shadow-inner font-medium"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowAdminPassword(!showAdminPassword)}
-                    className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-700 cursor-pointer"
-                  >
-                    {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit CTA */}
-              <button
-                type="submit"
-                disabled={isVerifying}
-                className="w-full mt-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 hover:from-sky-900 hover:to-slate-900 active:scale-[0.99] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center space-x-2 transition-all shadow-lg shadow-sky-950/20 cursor-pointer disabled:opacity-60"
-              >
-                <span>
-                  {isVerifying
-                    ? (activeLanguage === 'ta' ? 'சரிபார்க்கிறது...' : 'Verifying...')
-                    : (activeLanguage === 'ta' ? 'தரவுத்தளத்தைத் திறக்க (Unlock DB)' : 'Unlock Accessor Database')}
-                </span>
-                {!isVerifying && <Unlock className="w-4 h-4 text-sky-400" />}
-              </button>
-            </form>
-          </div>
-
-          {/* Footer note */}
-          <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 text-[10px] text-slate-400 flex items-center justify-between">
-            <span>WeatherGPT Security Protocol</span>
-            <span className="font-semibold text-slate-500">Authorized Access Only</span>
+          <div className="p-3 rounded-2xl bg-sky-50/70 border border-sky-100 text-[11px] text-slate-600 flex items-center justify-between">
+            <span className="font-semibold text-slate-700">Accessor Credentials:</span>
+            <span className="font-mono text-sky-800 bg-white px-2 py-0.5 rounded-lg border border-sky-200">
+              wyndra / 1234
+            </span>
           </div>
         </div>
       ) : (
-        /* ========================================================================= */
-        /* 2. UNLOCKED ACCESSOR DATABASE VIEW (Authenticated with wyndra / 1234)     */
-        /* ========================================================================= */
-        <div
-          className="relative w-full max-w-4xl max-h-[92vh] bg-white rounded-3xl shadow-2xl border border-sky-100 flex flex-col overflow-hidden animate-scaleUp"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="px-5 py-4 bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white flex items-center justify-between">
+        /* 2. AUTHENTICATED ACCESSOR DASHBOARD & SQL CONSOLE */
+        <div className="w-full max-w-5xl max-h-[92vh] flex flex-col bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden animate-fadeIn">
+          {/* Dashboard Header */}
+          <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 text-white flex items-center justify-between flex-shrink-0">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300">
-                <Database className="w-5 h-5" />
+              <div className="p-2.5 rounded-2xl bg-sky-500/20 border border-sky-400/30 text-sky-300">
+                <Database className="w-6 h-6" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <h2 className="text-base sm:text-lg font-black tracking-tight text-white">
-                    {activeLanguage === 'ta' ? '🔐 அணுகல் பயனர் தரவுத்தளம் (Accessor DB)' : '🔐 Accessor User Registry Database'}
-                  </h2>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500 text-white tracking-wide shadow-xs flex items-center space-x-1">
-                    <Check className="w-3 h-3 inline" />
-                    <span>wyndra (VERIFIED)</span>
+                  <h3 className="text-base sm:text-lg font-black tracking-tight">
+                    {activeLanguage === 'ta' ? 'அணுகல் முதன்மை SQL தரவுத்தளம்' : 'Accessor Primary SQL Database Engine'}
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-black border border-emerald-400/40">
+                    <Check className="w-3 h-3 inline mr-1" />
+                    SQL ENGINE ACTIVE
                   </span>
                 </div>
                 <p className="text-[11px] text-sky-200/80">
-                  {activeLanguage === 'ta'
-                    ? 'யார் யார் லாகின் / கூகுள் சைன் இன் / மின்னஞ்சல் பதிவு செய்தார்கள் என்ற நேரடி விபரம்'
-                    : 'Real-time database of all user signups, Google logins, email auth & sessions'}
+                  PostgreSQL with PostGIS + SQLite Relational Database Engine
                 </p>
               </div>
             </div>
 
             <div className="flex items-center space-x-2">
-              {/* Lock Database Button */}
               <button
                 onClick={handleLock}
                 title="Lock database & Sign out of admin"
@@ -319,7 +330,6 @@ export default function AdminUserRegistryModal({
                 <Lock className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">{activeLanguage === 'ta' ? 'பூட்டு' : 'Lock DB'}</span>
               </button>
-
               <button
                 onClick={handleCloseModal}
                 className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
@@ -329,228 +339,240 @@ export default function AdminUserRegistryModal({
             </div>
           </div>
 
-          {/* Accessor Notice Banner */}
-          <div className="bg-sky-50/90 border-b border-sky-100 px-5 py-2.5 flex items-center justify-between text-xs text-sky-900 flex-wrap gap-2">
-            <div className="flex items-center space-x-2 font-medium">
-              <ShieldCheck className="w-4 h-4 text-sky-600 flex-shrink-0" />
-              <span>
-                {activeLanguage === 'ta'
-                  ? '🔒 இந்த தரவுத்தளம் தள அணுகலாளருக்கு (Accessor) மட்டுமே காண்பிக்கப்படுகிறது. பயனர்களுக்குத் தெரியாது.'
-                  : '🔒 This database is private & restricted strictly to the accessor/admin. Not accessible to standard users.'}
-              </span>
-            </div>
-
+          {/* Navigation Tabs: Users Log vs SQL Relational Database */}
+          <div className="flex items-center justify-between px-4 pt-2 border-b border-slate-200 bg-slate-50 overflow-x-auto flex-shrink-0">
             <div className="flex items-center space-x-2">
               <button
-                onClick={handleExport}
-                className="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center space-x-1.5 transition-all shadow-xs cursor-pointer"
-                title="Download Excel / CSV format"
+                onClick={() => setActiveAdminTab('users')}
+                className={`px-3.5 py-2 text-xs font-bold rounded-t-xl flex items-center space-x-1.5 transition-all cursor-pointer ${
+                  activeAdminTab === 'users'
+                    ? 'bg-white text-sky-700 border-t-2 border-sky-600 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>{activeLanguage === 'ta' ? 'எக்செல் CSV பதிவிறக்கம்' : 'Export CSV / Excel'}</span>
+                <Users className="w-3.5 h-3.5" />
+                <span>{activeLanguage === 'ta' ? 'பயனர் பதிவுகள் & அமர்வுகள்' : 'User Accounts & Sessions'}</span>
               </button>
 
               <button
-                onClick={loadData}
-                className="p-1.5 rounded-xl bg-white border border-sky-200 text-slate-700 hover:bg-sky-50 text-[11px] font-semibold transition-all cursor-pointer"
-                title="Refresh Database"
+                onClick={() => setActiveAdminTab('sql')}
+                className={`px-3.5 py-2 text-xs font-bold rounded-t-xl flex items-center space-x-1.5 transition-all cursor-pointer ${
+                  activeAdminTab === 'sql'
+                    ? 'bg-white text-sky-700 border-t-2 border-sky-600 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
-                <RefreshCw className="w-3.5 h-3.5 text-sky-600" />
+                <Code2 className="w-3.5 h-3.5" />
+                <span>{activeLanguage === 'ta' ? 'SQL அட்டவணைகள் & வினவல்' : 'SQL Tables & Query Engine'}</span>
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-2 py-1">
+              <button
+                onClick={handleDownloadSQLDump}
+                className="px-2.5 py-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-[11px] font-bold shadow-xs flex items-center space-x-1 cursor-pointer"
+                title="Download PostgreSQL DDL & Seed SQL Dump"
+              >
+                <FileCode className="w-3.5 h-3.5" />
+                <span>Download .SQL Dump</span>
               </button>
             </div>
           </div>
 
-          {/* 4 KPI Summary Cards */}
-          <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#f8fbfe] border-b border-slate-100">
-            <div className="p-3 rounded-2xl bg-white border border-sky-100/90 shadow-2xs">
-              <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold">
-                <span>{activeLanguage === 'ta' ? 'மொத்த பயனர்கள்' : 'Total Registered'}</span>
-                <Users className="w-4 h-4 text-sky-600" />
-              </div>
-              <div className="text-xl font-black text-slate-900 mt-1">{stats.totalUsers}</div>
-              <div className="text-[10px] text-sky-600 font-medium">
-                {stats.totalSessions} {activeLanguage === 'ta' ? 'மொத்த அமர்வுகள்' : 'Total Sessions'}
-              </div>
-            </div>
+          {/* TAB 1: USER REGISTRY */}
+          {activeAdminTab === 'users' && (
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              {/* 4 KPI Summary Cards */}
+              <div className="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#f8fbfe] border-b border-slate-100 flex-shrink-0">
+                <div className="p-3 rounded-2xl bg-white border border-sky-100/90 shadow-2xs">
+                  <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold">
+                    <span>{activeLanguage === 'ta' ? 'மொத்த பயனர்கள்' : 'Total Registered'}</span>
+                    <Users className="w-4 h-4 text-sky-600" />
+                  </div>
+                  <div className="text-xl font-black text-slate-900 mt-1">{stats.totalUsers}</div>
+                  <div className="text-[10px] text-sky-600 font-medium">
+                    {stats.totalSessions} {activeLanguage === 'ta' ? 'மொத்த அமர்வுகள்' : 'Total Sessions'}
+                  </div>
+                </div>
 
-            <div className="p-3 rounded-2xl bg-white border border-sky-100/90 shadow-2xs">
-              <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold">
-                <span>Google Logins</span>
-                <span className="text-xs">🌐</span>
+                <div className="p-3 rounded-2xl bg-white border border-sky-100/90 shadow-2xs">
+                  <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold">
+                    <span>Google Logins</span>
+                    <span className="text-xs">🌐</span>
+                  </div>
+                  <div className="text-xl font-black text-slate-900 mt-1">{stats.googleCount}</div>
+                  <div className="text-[10px] text-emerald-600 font-medium">Google Auth</div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-white border border-sky-100/90 shadow-2xs">
+                  <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold">
+                    <span>Email Signups</span>
+                    <Mail className="w-4 h-4 text-indigo-600" />
+                  </div>
+                  <div className="text-xl font-black text-slate-900 mt-1">{stats.emailCount}</div>
+                  <div className="text-[10px] text-indigo-600 font-medium">Email Accounts</div>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-white border border-sky-100/90 shadow-2xs">
+                  <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold">
+                    <span>Guest Access</span>
+                    <Smartphone className="w-4 h-4 text-slate-600" />
+                  </div>
+                  <div className="text-xl font-black text-slate-900 mt-1">{stats.guestCount}</div>
+                  <div className="text-[10px] text-slate-500 font-medium">Direct Access</div>
+                </div>
               </div>
-              <div className="text-xl font-black text-slate-900 mt-1">{stats.googleCount}</div>
-              <div className="text-[10px] text-emerald-600 font-medium">Google Auth</div>
-            </div>
 
-            <div className="p-3 rounded-2xl bg-white border border-sky-100/90 shadow-2xs">
-              <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold">
-                <span>Email Signups</span>
-                <Mail className="w-4 h-4 text-indigo-600" />
-              </div>
-              <div className="text-xl font-black text-slate-900 mt-1">{stats.emailCount}</div>
-              <div className="text-[10px] text-indigo-600 font-medium">Direct Email</div>
-            </div>
-
-            <div className="p-3 rounded-2xl bg-white border border-sky-100/90 shadow-2xs">
-              <div className="flex items-center justify-between text-slate-500 text-[11px] font-semibold">
-                <span>Guest Logins</span>
-                <span className="text-xs">👤</span>
-              </div>
-              <div className="text-xl font-black text-slate-900 mt-1">{stats.guestCount}</div>
-              <div className="text-[10px] text-amber-600 font-medium">Quick Access</div>
-            </div>
-          </div>
-
-          {/* Filter & Search Bar */}
-          <div className="p-3 px-4 bg-white border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2.5">
-            {/* Search Input */}
-            <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={activeLanguage === 'ta' ? 'பெயர், மின்னஞ்சல், சாதனம் தேடுக...' : 'Search by name, email, device...'}
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-sky-500 transition-all"
-              />
-            </div>
-
-            {/* Filter Pills */}
-            <div className="flex items-center space-x-1 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 text-xs font-bold">
-              {[
-                { id: 'all', label: activeLanguage === 'ta' ? 'அனைத்தும்' : 'All Users' },
-                { id: 'google', label: 'Google 🌐' },
-                { id: 'email', label: 'Email ✉️' },
-                { id: 'guest', label: 'Guest 👤' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setFilterType(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
-                    filterType === tab.id
-                      ? 'bg-slate-900 text-white shadow-2xs'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* User Table */}
-          <div className="flex-1 overflow-y-auto p-4 min-h-[260px] bg-slate-50/50">
-            {filteredUsers.length === 0 ? (
-              <div className="py-12 text-center space-y-2">
-                <Users className="w-8 h-8 text-slate-300 mx-auto" />
-                <p className="text-xs font-bold text-slate-600">
-                  {activeLanguage === 'ta' ? 'பயனர் பதிவுகள் ஏதும் கிடைக்கவில்லை' : 'No user records match your search'}
-                </p>
-                <p className="text-[11px] text-slate-400">
-                  {activeLanguage === 'ta' ? 'தேடலை மாற்றி முயற்சிக்கவும்' : 'Try adjusting your search or filters'}
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-700">
-                  <thead className="bg-slate-100/90 text-[11px] font-bold text-slate-500 uppercase tracking-wider rounded-xl">
-                    <tr>
-                      <th className="py-2.5 px-3 rounded-l-xl">User Details</th>
+              {/* Table Container */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase">
+                      <th className="py-2.5 px-3">User & Email</th>
                       <th className="py-2.5 px-3">Auth Method</th>
                       <th className="py-2.5 px-3">Role</th>
-                      <th className="py-2.5 px-3">Device & Browser</th>
-                      <th className="py-2.5 px-3">Registered / Last Active</th>
+                      <th className="py-2.5 px-3">Device / Platform</th>
+                      <th className="py-2.5 px-3">Last Active</th>
                       <th className="py-2.5 px-3 text-center">Logins</th>
-                      <th className="py-2.5 px-3 rounded-r-xl text-center">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 font-medium">
+                  <tbody className="divide-y divide-slate-100 text-xs">
                     {filteredUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-white transition-colors">
-                        {/* Name & Email */}
+                      <tr key={u.id} className="hover:bg-sky-50/50 transition-colors">
                         <td className="py-3 px-3">
-                          <div className="flex items-center space-x-2.5">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs flex-shrink-0">
-                              {(u.name || 'U').charAt(0).toUpperCase()}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-extrabold text-slate-900 truncate max-w-[140px] sm:max-w-[180px]">
-                                {u.name || 'WeatherGPT Member'}
-                              </p>
-                              <p className="text-[11px] text-slate-500 truncate max-w-[140px] sm:max-w-[180px]">
-                                {u.email}
-                              </p>
-                            </div>
-                          </div>
+                          <div className="font-bold text-slate-900">{u.name}</div>
+                          <div className="text-[11px] text-slate-500 font-mono">{u.email}</div>
                         </td>
-
-                        {/* Provider */}
                         <td className="py-3 px-3">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-bold border ${
-                              (u.provider || '').includes('Google')
-                                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                                : (u.provider || '').includes('Email')
-                                ? 'bg-purple-50 text-purple-700 border-purple-200'
-                                : 'bg-amber-50 text-amber-700 border-amber-200'
-                            }`}
-                          >
-                            {u.provider || 'Email ✉️'}
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                            {u.provider || 'Google'}
                           </span>
                         </td>
-
-                        {/* Role */}
-                        <td className="py-3 px-3">
-                          <span className="text-[11px] font-semibold text-slate-700">
-                            {u.role || 'Member'}
-                          </span>
-                        </td>
-
-                        {/* Device & Browser */}
-                        <td className="py-3 px-3">
-                          <div className="text-[11px] text-slate-700 font-semibold">{u.device || 'Desktop PC'}</div>
-                          <div className="text-[10px] text-slate-400">{u.browser || 'Chrome'}</div>
-                        </td>
-
-                        {/* Timestamp */}
-                        <td className="py-3 px-3">
-                          <div className="text-[11px] text-slate-800 font-semibold">{u.formattedTime || 'Recently'}</div>
-                          <div className="text-[9px] text-slate-400">
-                            {new Date(u.timestamp || Date.now()).toLocaleDateString()}
-                          </div>
-                        </td>
-
-                        {/* Login Count */}
-                        <td className="py-3 px-3 text-center">
-                          <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 font-extrabold text-[11px]">
-                            {u.loginCount || 1}
-                          </span>
-                        </td>
-
-                        {/* Status */}
-                        <td className="py-3 px-3 text-center">
-                          <span className="inline-flex items-center space-x-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span>Active</span>
-                          </span>
-                        </td>
+                        <td className="py-3 px-3 font-semibold text-slate-700">{u.role || 'Member'}</td>
+                        <td className="py-3 px-3 text-slate-600">{u.device || 'Desktop PC'}</td>
+                        <td className="py-3 px-3 text-slate-600">{u.formattedTime || 'Recently'}</td>
+                        <td className="py-3 px-3 text-center font-bold text-slate-800">{u.loginCount || 1}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* TAB 2: SQL ENGINE & SCHEMAS */}
+          {activeAdminTab === 'sql' && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {/* SQL Query Runner Box */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 font-bold text-xs text-slate-900">
+                    <Code2 className="w-4 h-4 text-sky-600" />
+                    <span>Live SQL Relational Query Runner</span>
+                  </div>
+                  <button
+                    onClick={handleRunSQL}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center space-x-1.5 transition-all cursor-pointer"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>Run Query</span>
+                  </button>
+                </div>
+
+                <textarea
+                  value={sqlInput}
+                  onChange={(e) => setSqlInput(e.target.value)}
+                  rows={2}
+                  className="w-full p-3 rounded-xl bg-slate-900 text-emerald-400 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-sky-400"
+                  placeholder="SELECT * FROM weather_stations WHERE district = 'Chennai';"
+                />
+
+                <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+                  <span className="text-slate-400 text-[10px] font-bold">Presets:</span>
+                  {[
+                    "SELECT * FROM weather_stations;",
+                    "SELECT * FROM chat_conversations;",
+                    "SELECT * FROM telemetry_logs;"
+                  ].map((preset, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSqlInput(preset)}
+                      className="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-mono text-[10px] cursor-pointer"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+
+                {/* SQL Execution Result Table */}
+                {sqlResult && (
+                  <div className="mt-3 border border-slate-200 rounded-xl overflow-hidden">
+                    <div className="p-2 bg-slate-100 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-700">
+                      <span>Result: {sqlResult.rowCount} rows returned</span>
+                      <span className="text-[10px] font-mono text-slate-500">{sqlResult.executionTimeMs} ms</span>
+                    </div>
+                    {sqlResult.rows && sqlResult.rows.length > 0 ? (
+                      <div className="max-h-48 overflow-y-auto">
+                        <table className="w-full text-left border-collapse text-[11px] font-mono">
+                          <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200">
+                              {sqlResult.columns?.map((col) => (
+                                <th key={col} className="p-2 text-slate-600 font-bold">{col}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100">
+                            {sqlResult.rows.map((row, rIdx) => (
+                              <tr key={rIdx} className="hover:bg-sky-50/60">
+                                {sqlResult.columns?.map((col) => (
+                                  <td key={col} className="p-2 text-slate-800">{String(row[col] ?? '')}</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="p-3 text-xs text-slate-500 text-center">No rows returned.</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* SQL Relational DDL Schemas */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div className="flex items-center space-x-2 font-bold text-xs text-slate-900">
+                    <Table className="w-4 h-4 text-blue-600" />
+                    <span>Relational Database Table DDL Schemas (PostgreSQL / SQLite)</span>
+                  </div>
+                  <select
+                    value={selectedSchemaTable}
+                    onChange={(e) => setSelectedSchemaTable(e.target.value)}
+                    className="px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-300 text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
+                  >
+                    {Object.keys(SQL_SCHEMAS).map((tbl) => (
+                      <option key={tbl} value={tbl}>{tbl}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-900 text-slate-200 font-mono text-[11px] overflow-x-auto">
+                  <pre className="text-sky-300">{SQL_SCHEMAS[selectedSchemaTable]}</pre>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Modal Footer */}
-          <div className="p-3.5 bg-slate-100/90 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+          <div className="p-3.5 bg-slate-100/90 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 flex-shrink-0">
             <div className="flex items-center space-x-2">
               <button
                 onClick={handleClear}
                 className="text-[11px] text-rose-600 hover:text-rose-800 font-semibold flex items-center space-x-1 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>{activeLanguage === 'ta' ? 'தரவுத்தளத்தை அழி' : 'Clear Database'}</span>
+                <span>{activeLanguage === 'ta' ? 'தரவுத்தளத்தை அழி' : 'Clear User Logs'}</span>
               </button>
             </div>
 
@@ -559,7 +581,7 @@ export default function AdminUserRegistryModal({
                 onClick={handleCloseModal}
                 className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors cursor-pointer"
               >
-                {activeLanguage === 'ta' ? 'மூடு' : 'Close Dashboard'}
+                {activeLanguage === 'ta' ? 'மூடு' : 'Close Portal'}
               </button>
             </div>
           </div>

@@ -32,7 +32,6 @@ export default function Header({
   onOpenAlertModal,
   onOpenLocationModal,
   onOpenAdminDatabase,
-  onOpenTechStackModal,
   currentUser,
   onSignOut
 }) {
@@ -194,19 +193,6 @@ export default function Header({
           </select>
         </div>
 
-        {/* PS 2026 Tech Stack Matrix Badge for Juries */}
-        <button
-          onClick={onOpenTechStackModal}
-          title="Problem Statement (PS) Tools & Architecture Matrix"
-          className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 flex items-center space-x-1.5 transition-all shadow-2xs cursor-pointer"
-        >
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className="text-[11px] font-black tracking-tight">PS Tech Stack</span>
-        </button>
-
         {/* Weather Alert Push & SMS / Email Notification Bell */}
         <button
           onClick={onOpenAlertModal || onToggleNotifications}
@@ -296,18 +282,6 @@ export default function Header({
                 </div>
 
                 <div className="pt-2 space-y-1">
-                  {/* PS Tools Matrix */}
-                  <button
-                    onClick={() => {
-                      setUserDropdownOpen(false);
-                      if (onOpenTechStackModal) onOpenTechStackModal();
-                    }}
-                    className="w-full py-1.5 px-2 rounded-xl text-xs font-bold text-emerald-700 hover:bg-emerald-50 flex items-center space-x-2 transition-colors cursor-pointer"
-                  >
-                    <Cpu className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{activeLanguage === 'ta' ? '✨ PS கருவிகள் மேட்ரிக்ஸ்' : '✨ PS Tools & Architecture'}</span>
-                  </button>
-
                   {/* Accessor-only Database Option */}
                   <button
                     onClick={() => {

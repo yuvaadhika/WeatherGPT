@@ -61,7 +61,7 @@ export default function ChatInterface({
   const [speakingMsgId, setSpeakingMsgId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [autoSpeak, setAutoSpeak] = useState(true);
-  const [selectedModel, setSelectedModel] = useState(() => weatherAI.getModel() || 'hybrid');
+  const [selectedModel, setSelectedModel] = useState(() => weatherAI.getModel() || 'gemini');
 
   const messagesEndRef = useRef(null);
 
@@ -560,8 +560,8 @@ export default function ChatInterface({
             <div className="flex items-center space-x-1 overflow-x-auto flex-shrink-0">
               <span className="text-[10px] font-bold text-slate-500 uppercase mr-0.5 hidden xs:inline">Model:</span>
               {[
+                { id: 'gemini', label: '✨ Google Gemini' },
                 { id: 'hybrid', label: '⚡ Smart RAG' },
-                { id: 'gemini', label: '✨ Gemini 2.0' },
                 { id: 'openai', label: '🧠 OpenAI GPT' },
                 { id: 'llama', label: '🦙 Meta Llama' },
               ].map((m) => (

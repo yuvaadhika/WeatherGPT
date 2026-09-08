@@ -22,7 +22,7 @@ export default function ApiKeyModal({ activeLanguage = 'en', isOpen, onClose }) 
       setLlamaKey(localStorage.getItem('weathergpt_llama_key') || '');
       setOpenWeatherKey(localStorage.getItem('weathergpt_openweather_key') || '');
       setMqttBroker(localStorage.getItem('weathergpt_mqtt_broker') || 'wss://broker.emqx.io:8084/mqtt');
-      setSelectedModel(localStorage.getItem('weathergpt_selected_model') || 'hybrid');
+      setSelectedModel(localStorage.getItem('weathergpt_selected_model') || 'gemini');
       setIsSaved(false);
     }
   }, [isOpen]);
@@ -55,8 +55,8 @@ export default function ApiKeyModal({ activeLanguage = 'en', isOpen, onClose }) 
               <Key className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">{m.title || 'PS Required Models & API Suite'}</h3>
-              <p className="text-xs text-slate-500">OpenAI • Meta Llama • Google Gemini • MQTT & WIS2.0</p>
+              <h3 className="text-lg font-bold text-slate-900">{m?.title || 'AI Model & Meteorological API Suite'}</h3>
+              <p className="text-xs text-slate-500">Google Gemini • OpenAI • Meta Llama • Live Telemetry</p>
             </div>
           </div>
           <button
@@ -71,7 +71,7 @@ export default function ApiKeyModal({ activeLanguage = 'en', isOpen, onClose }) 
         <div className="p-3.5 rounded-2xl bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200 text-xs text-sky-900 flex items-start space-x-2.5 shadow-2xs">
           <Sparkles className="w-4 h-4 text-sky-600 flex-shrink-0 mt-0.5" />
           <span>
-            <b>Zero-Config Default:</b> WeatherGPT comes pre-configured with active high-precision NWP feeds (GFS, WRF, ECMWF) & Smart RAG Synthesis. Providing custom keys for OpenAI, Gemini, or Llama is optional.
+            <b>Zero-Config Default:</b> WeatherGPT comes pre-configured with active high-precision NWP feeds (GFS, WRF, ECMWF) & Smart RAG Synthesis. Providing custom keys for Gemini, OpenAI, or Llama is optional.
           </span>
         </div>
 
@@ -84,8 +84,8 @@ export default function ApiKeyModal({ activeLanguage = 'en', isOpen, onClose }) 
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
               {[
+                { id: 'gemini', label: '✨ Google Gemini', desc: 'Gemini 2.0 / 1.5 Flash (Best AI)' },
                 { id: 'hybrid', label: '⚡ Smart RAG', desc: 'Instant local SLM' },
-                { id: 'gemini', label: '✨ Gemini 2.0', desc: 'Google AI Studio' },
                 { id: 'openai', label: '🧠 OpenAI GPT', desc: 'GPT-4o mini' },
                 { id: 'llama', label: '🦙 Meta Llama', desc: 'Llama 3.3 70B' },
               ].map((mod) => (

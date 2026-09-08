@@ -19,8 +19,7 @@ import { userRegistryService } from '../services/userRegistryService';
 export default function AuthScreen({
   onLogin,
   activeLanguage = 'en',
-  setActiveLanguage,
-  onOpenTechStack
+  setActiveLanguage
 }) {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [name, setName] = useState('');
@@ -129,7 +128,7 @@ export default function AuthScreen({
       <div className="absolute bottom-[-10%] right-[-5%] w-[480px] h-[480px] rounded-full bg-blue-100/40 blur-[120px] pointer-events-none"></div>
       <div className="absolute top-[35%] right-[15%] w-[320px] h-[320px] rounded-full bg-cyan-100/40 blur-[90px] pointer-events-none"></div>
 
-      {/* Top Bar: Brand + Multi-Language Selector + PS Tech Stack */}
+      {/* Top Bar: Brand + Multi-Language Selector */}
       <header className="relative z-10 w-full max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
         <div className="flex items-center space-x-2 sm:space-x-2.5 min-w-0">
           <img
@@ -151,18 +150,6 @@ export default function AuthScreen({
         </div>
 
         <div className="flex items-center space-x-2 flex-shrink-0">
-          {/* PS 2026 Tech Stack Pill */}
-          {onOpenTechStack && (
-            <button
-              type="button"
-              onClick={onOpenTechStack}
-              className="flex items-center space-x-1 bg-gradient-to-r from-indigo-50 to-sky-50 hover:from-indigo-100 hover:to-sky-100 border border-indigo-200/80 rounded-xl px-2.5 py-1.5 text-indigo-700 font-bold text-xs shadow-2xs transition-all cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600 animate-pulse" />
-              <span className="hidden xs:inline">PS Tech Stack</span>
-            </button>
-          )}
-
           {/* Language Selector Dropdown */}
           <div className="flex items-center space-x-1.5 bg-white/90 hover:bg-white border border-sky-200/90 rounded-xl px-2.5 py-1.5 shadow-2xs transition-all">
             <Globe className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />

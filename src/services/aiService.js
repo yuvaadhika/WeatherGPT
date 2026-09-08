@@ -323,7 +323,7 @@ export class WeatherAIAgent {
     this.openaiApiKey = '';
     this.llamaApiKey = '';
     this.openWeatherApiKey = '';
-    this.selectedModel = 'hybrid'; // 'gemini' | 'openai' | 'llama' | 'hybrid'
+    this.selectedModel = 'gemini'; // 'gemini' (Default Best #1 LLM) | 'hybrid' | 'openai' | 'llama'
     this.loadKeys();
   }
 
@@ -334,7 +334,7 @@ export class WeatherAIAgent {
       this.openaiApiKey = localStorage.getItem('weathergpt_openai_key') || '';
       this.llamaApiKey = localStorage.getItem('weathergpt_llama_key') || '';
       this.openWeatherApiKey = localStorage.getItem('weathergpt_openweather_key') || '';
-      this.selectedModel = localStorage.getItem('weathergpt_selected_model') || 'hybrid';
+      this.selectedModel = localStorage.getItem('weathergpt_selected_model') || 'gemini';
     }
   }
 
@@ -405,9 +405,10 @@ export class WeatherAIAgent {
     return data.choices?.[0]?.message?.content;
   }
 
-  // Active Google Gemini 2.0 / 1.5 Flash inference engine
+  // Active Google Gemini 2.0 / 1.5 Flash inference engine (Best #1 LLM)
   async callGemini({ prompt, systemPrompt }) {
     if (!this.geminiApiKey) throw new Error('No Gemini API key provided');
+    // Try Gemini 2.0 Flash / 1.5 Flash endpoint
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`;
     const res = await fetch(url, {
       method: 'POST',
@@ -420,8 +421,8 @@ export class WeatherAIAgent {
           }
         ],
         generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 800,
+          temperature: 0.3,
+          maxOutputTokens: 1000,
         }
       })
     });
@@ -767,13 +768,14 @@ Respond in the language matching the user's prompt (Detected: ${effectiveLang}).
         modelUsedLabel = 'Smart Hybrid Neural RAG';
       }
 
-      // Persist session to MongoDB time-series
-      dbService.persistChatSession({
-        id: `msg-${Date.now()}`,
+      // Persist session to SQL database table
+      dbService.insertChatLog({
+        sessionId: `sql_sess_${Date.now()}`,
         sender: 'ai',
         text: responseText,
         detectedLanguage: effectiveLang,
-        modelUsed: modelUsedLabel
+        modelUsed: modelUsedLabel,
+        locationName: locName
       });
 
       return {
