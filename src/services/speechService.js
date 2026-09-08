@@ -251,10 +251,12 @@ class SpeechEngine {
     }
 
     this.stopSpeaking();
+    const currentSession = ++this.currentIndex;
+    this.sessionId = currentSession;
     this.isSpeaking = true;
     this.audioQueue = [...chunks];
     this.currentQueueCallback = onEnd;
-    this.currentIndex = 0;
+    let chunkIndex = 0;
 
     const primaryLang = langCode.split(/[-_]/)[0].toLowerCase();
 
@@ -265,12 +267,13 @@ class SpeechEngine {
     const audio = this.audioElement;
 
     const playNext = () => {
-      if (!this.isSpeaking) return;
+      // Hard guard: if stopped or session changed, exit immediately
+      if (!this.isSpeaking || this.sessionId !== currentSession) return;
 
-      if (this.currentIndex >= this.audioQueue.length) {
+      if (chunkIndex >= this.audioQueue.length) {
         this.isSpeaking = false;
         this.audioQueue = [];
-        if (this.currentQueueCallback) {
+        if (this.currentQueueCallback && this.sessionId === currentSession) {
           const cb = this.currentQueueCallback;
           this.currentQueueCallback = null;
           cb();
@@ -278,7 +281,7 @@ class SpeechEngine {
         return;
       }
 
-      const chunk = this.audioQueue[this.currentIndex++];
+      const chunk = this.audioQueue[chunkIndex++];
       if (!chunk || !chunk.trim()) {
         playNext();
         return;
@@ -289,7 +292,7 @@ class SpeechEngine {
       
       let chunkAdvanced = false;
       const advance = () => {
-        if (!chunkAdvanced) {
+        if (!chunkAdvanced && this.isSpeaking && this.sessionId === currentSession) {
           chunkAdvanced = true;
           playNext();
         }
@@ -301,6 +304,9 @@ class SpeechEngine {
         };
 
         audio.onerror = (e) => {
+          // If stopped or superseded by another query, do not fallback or advance
+          if (!this.isSpeaking || this.sessionId !== currentSession) return;
+
           console.warn(`TTS endpoint fallback for chunk "${chunk.slice(0, 20)}...":`, e);
           // Fallback to SpeechSynthesisUtterance for this chunk
           if (this.synthesis) {
@@ -310,8 +316,12 @@ class SpeechEngine {
               const voice = this.getMatchingVoice(langCode);
               if (voice) fallbackUtterance.voice = voice;
               fallbackUtterance.rate = 0.95;
-              fallbackUtterance.onend = advance;
-              fallbackUtterance.onerror = advance;
+              fallbackUtterance.onend = () => {
+                if (this.isSpeaking && this.sessionId === currentSession) advance();
+              };
+              fallbackUtterance.onerror = () => {
+                if (this.isSpeaking && this.sessionId === currentSession) advance();
+              };
               this.synthesis.speak(fallbackUtterance);
               return;
             } catch (err) {
@@ -327,6 +337,7 @@ class SpeechEngine {
           const playPromise = audio.play();
           if (playPromise !== undefined) {
             playPromise.catch((err) => {
+              if (!this.isSpeaking || this.sessionId !== currentSession) return;
               console.warn('Audio play restricted, using speech synthesis fallback:', err);
               if (this.synthesis) {
                 try {
@@ -335,8 +346,12 @@ class SpeechEngine {
                   const voice = this.getMatchingVoice(langCode);
                   if (voice) fallbackUtterance.voice = voice;
                   fallbackUtterance.rate = 0.95;
-                  fallbackUtterance.onend = advance;
-                  fallbackUtterance.onerror = advance;
+                  fallbackUtterance.onend = () => {
+                    if (this.isSpeaking && this.sessionId === currentSession) advance();
+                  };
+                  fallbackUtterance.onerror = () => {
+                    if (this.isSpeaking && this.sessionId === currentSession) advance();
+                  };
                   this.synthesis.speak(fallbackUtterance);
                   return;
                 } catch (e) {
@@ -358,8 +373,12 @@ class SpeechEngine {
           const voice = this.getMatchingVoice(langCode);
           if (voice) fallbackUtterance.voice = voice;
           fallbackUtterance.rate = 0.95;
-          fallbackUtterance.onend = advance;
-          fallbackUtterance.onerror = advance;
+          fallbackUtterance.onend = () => {
+            if (this.isSpeaking && this.sessionId === currentSession) advance();
+          };
+          fallbackUtterance.onerror = () => {
+            if (this.isSpeaking && this.sessionId === currentSession) advance();
+          };
           this.synthesis.speak(fallbackUtterance);
         } catch (e) {
           advance();
@@ -407,16 +426,18 @@ class SpeechEngine {
 
   // Stop all speech immediately
   stopSpeaking() {
+    this.sessionId = Date.now() + Math.random();
     this.isSpeaking = false;
     this.audioQueue = [];
-    this.currentIndex = 0;
     this.currentQueueCallback = null;
 
     if (this.audioElement) {
       try {
+        this.audioElement.onended = null;
+        this.audioElement.onerror = null;
         this.audioElement.pause();
         this.audioElement.currentTime = 0;
-        this.audioElement.src = '';
+        this.audioElement.removeAttribute('src');
       } catch (e) {}
     }
 

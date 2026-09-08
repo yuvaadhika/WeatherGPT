@@ -238,9 +238,21 @@ export default function ChatInterface({
     }
   };
 
+  // Stop audio and speech on component unmount
+  useEffect(() => {
+    return () => {
+      speechEngine.stopSpeaking();
+      speechEngine.stopListening();
+    };
+  }, []);
+
   const handleSendMessage = async (queryText = inputQuery, imageToSend = selectedImage) => {
     const q = (typeof queryText === 'string' ? queryText : '').trim();
     if ((!q && !imageToSend) || isLoading) return;
+
+    // Stop any ongoing or pending speech audio immediately
+    speechEngine.stopSpeaking();
+    setSpeakingMsgId(null);
 
     const userMsg = {
       id: `user-${Date.now()}`,
@@ -287,7 +299,7 @@ export default function ChatInterface({
 
       setMessages((prev) => [...prev, aiMsg]);
 
-      // Automatically speak the entire AI output in the detected / selected language
+      // Automatically speak the entire AI output in the detected / selected language only if autoSpeak is enabled
       if (autoSpeak && response.text) {
         handleSpeak(aiMsg.id, response.text, response.detectedLanguage);
       }
@@ -308,6 +320,10 @@ export default function ChatInterface({
   };
 
   const handleToggleVoice = () => {
+    // Stop all audio playback immediately before recording
+    speechEngine.stopSpeaking();
+    setSpeakingMsgId(null);
+
     if (isListening) {
       speechEngine.stopListening();
       setIsListening(false);
@@ -335,6 +351,7 @@ export default function ChatInterface({
       speechEngine.stopSpeaking();
       setSpeakingMsgId(null);
     } else {
+      speechEngine.stopSpeaking();
       setSpeakingMsgId(msgId);
       let targetVoiceCode = activeLangObj.voiceCode || 'en-US';
       if (msgLang === 'tanglish') {
@@ -347,7 +364,7 @@ export default function ChatInterface({
       }
 
       speechEngine.speak(text, targetVoiceCode, () => {
-        setSpeakingMsgId(null);
+        setSpeakingMsgId((current) => (current === msgId ? null : current));
       });
     }
   };
@@ -789,11 +806,13 @@ export default function ChatInterface({
           <button
             type="button"
             onClick={() => {
-              if (autoSpeak && speakingMsgId) {
+              if (autoSpeak) {
                 speechEngine.stopSpeaking();
                 setSpeakingMsgId(null);
+                setAutoSpeak(false);
+              } else {
+                setAutoSpeak(true);
               }
-              setAutoSpeak(!autoSpeak);
             }}
             className={`flex-shrink-0 px-2.5 py-1 rounded-xl text-[10px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${
               autoSpeak
