@@ -25,8 +25,9 @@ export default function AuthScreen({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
   const [guestName, setGuestName] = useState('');
-  const [showGuestInput, setShowGuestInput] = useState(false);
+  const [guestError, setGuestError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -85,19 +86,26 @@ export default function AuthScreen({
     }, 300);
   };
 
-  const handleGuestLogin = () => {
+  const handleGuestSubmit = (e) => {
+    if (e) e.preventDefault();
+    const cleanGuestName = guestName.trim();
+
+    if (!cleanGuestName) {
+      setGuestError(
+        activeLanguage === 'ta'
+          ? 'தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்!'
+          : 'Please enter your name to continue!'
+      );
+      return;
+    }
+
+    setGuestError('');
     setIsLoading(true);
+
     setTimeout(() => {
       const visitorId = localStorage.getItem('weathergpt_visitor_id') || `v_${Math.random().toString(36).substr(2, 6)}`;
-      const trimmedGuestName = guestName.trim();
-      
-      const finalName = trimmedGuestName
-        ? `${trimmedGuestName} (Guest)`
-        : (activeLanguage === 'ta' ? 'விருந்தினர் (Guest)' : 'Guest User');
-      
-      const finalEmail = trimmedGuestName
-        ? `guest.${trimmedGuestName.toLowerCase().replace(/[^a-z0-9]/g, '')}_${visitorId.slice(0, 4)}@weathergpt.live`
-        : `guest_${visitorId}@weathergpt.live`;
+      const finalName = `${cleanGuestName} (Guest)`;
+      const finalEmail = `guest.${cleanGuestName.toLowerCase().replace(/[^a-z0-9]/g, '')}_${visitorId.slice(0, 4)}@weathergpt.live`;
 
       const guestUser = {
         id: `usr-guest-${Date.now()}`,
@@ -114,6 +122,7 @@ export default function AuthScreen({
       userRegistryService.recordUserSession(guestUser, 'guest');
       localStorage.setItem('weathergpt_auth_user', JSON.stringify(guestUser));
       setIsLoading(false);
+      setIsGuestModalOpen(false);
       onLogin(guestUser);
     }, 300);
   };
@@ -313,58 +322,95 @@ export default function AuthScreen({
             </button>
           </form>
 
-          {/* Guest Access Section */}
-          <div className="pt-3 border-t border-slate-100 text-center space-y-2">
-            {showGuestInput ? (
-              <div className="space-y-2 p-2.5 rounded-2xl bg-sky-50/70 border border-sky-200/80 animate-fadeIn">
-                <input
-                  type="text"
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  placeholder={activeLanguage === 'ta' ? 'உங்கள் பெயர் / Nickname (எ.கா: விஜய்)' : 'Your Name / Nickname (e.g. Alex)'}
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-sky-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 font-medium"
-                />
-                <div className="flex gap-1.5">
+          {/* Guest Access Button */}
+          <div className="pt-3 border-t border-slate-100 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setGuestError('');
+                setGuestName('');
+                setIsGuestModalOpen(true);
+              }}
+              disabled={isLoading}
+              className="w-full py-2.5 px-3 rounded-2xl bg-sky-50 hover:bg-sky-100/80 border border-sky-200/80 text-sky-800 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
+            >
+              <User className="w-4 h-4 text-sky-600" />
+              <span>{activeLanguage === 'ta' ? 'விருந்தினராக தொடரவும்' : 'Continue as Guest'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* GUEST NAME PROMPT MODAL */}
+        {isGuestModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+            <div className="w-full max-w-sm bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-sky-200 space-y-4 animate-scaleUp">
+              <div className="text-center space-y-1">
+                <div className="w-12 h-12 rounded-2xl bg-sky-100 border border-sky-200 text-sky-600 flex items-center justify-center mx-auto shadow-inner">
+                  <User className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-black text-slate-900 pt-1 font-heading">
+                  {activeLanguage === 'ta' ? 'விருந்தினர் அணுகல் (Guest Access)' : 'Guest Access'}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {activeLanguage === 'ta'
+                    ? 'வானிலை தளத்தை அணுக உங்கள் பெயரை உள்ளிடவும்'
+                    : 'Please enter your name to access WeatherGPT'}
+                </p>
+              </div>
+
+              {guestError && (
+                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center space-x-2 animate-fadeIn">
+                  <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping"></span>
+                  <span>{guestError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleGuestSubmit} className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                    {activeLanguage === 'ta' ? 'உங்கள் பெயர் (Your Name)' : 'Your Name'} *
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      autoFocus
+                      required
+                      value={guestName}
+                      onChange={(e) => {
+                        setGuestName(e.target.value);
+                        if (guestError) setGuestError('');
+                      }}
+                      placeholder={activeLanguage === 'ta' ? 'எ.கா: சுரேஷ் குமார் / விஜய்' : 'e.g. Alex / John'}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 focus:border-sky-500 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none transition-all shadow-inner font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
                   <button
                     type="button"
-                    onClick={handleGuestLogin}
-                    disabled={isLoading}
-                    className="flex-1 py-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-                  >
-                    {activeLanguage === 'ta' ? 'விருந்தினராக தொடங்கு' : 'Enter as Guest'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowGuestInput(false)}
-                    className="py-2 px-3 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold transition-all cursor-pointer"
+                    onClick={() => {
+                      setIsGuestModalOpen(false);
+                      setGuestError('');
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
                   >
                     {activeLanguage === 'ta' ? 'ரத்து' : 'Cancel'}
                   </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1 py-2.5 px-3 rounded-2xl bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white text-xs font-bold transition-all shadow-md shadow-sky-600/20 cursor-pointer disabled:opacity-60 flex items-center justify-center space-x-1"
+                  >
+                    <span>{isLoading ? (activeLanguage === 'ta' ? 'இணைகிறது...' : 'Connecting...') : (activeLanguage === 'ta' ? 'தொடரவும்' : 'Continue')}</span>
+                    {!isLoading && <ArrowRight className="w-3.5 h-3.5" />}
+                  </button>
                 </div>
-              </div>
-            ) : (
-              <div className="flex gap-1.5">
-                <button
-                  type="button"
-                  onClick={handleGuestLogin}
-                  disabled={isLoading}
-                  className="flex-1 py-2.5 px-3 rounded-2xl bg-sky-50 hover:bg-sky-100/80 border border-sky-200/80 text-sky-800 text-xs font-bold flex items-center justify-center space-x-2 transition-all cursor-pointer"
-                >
-                  <User className="w-4 h-4 text-sky-600" />
-                  <span>{activeLanguage === 'ta' ? 'விருந்தினராக தொடரவும்' : 'Continue as Guest'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowGuestInput(true)}
-                  title={activeLanguage === 'ta' ? 'பெயருடன் நுழைக' : 'Enter with Nickname'}
-                  className="px-3 py-2.5 rounded-2xl bg-white hover:bg-sky-50 border border-sky-200/80 text-sky-700 text-xs font-bold transition-all cursor-pointer"
-                >
-                  {activeLanguage === 'ta' ? 'பெயரிடு' : 'Add Name'}
-                </button>
-              </div>
-            )}
+              </form>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* 4 Value Pillars */}
         <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-5 text-center text-xs">
