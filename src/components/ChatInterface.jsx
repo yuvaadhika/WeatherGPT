@@ -78,6 +78,13 @@ export default function ChatInterface({
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const lastLocationRef = useRef(currentLocation);
+
+  useEffect(() => {
+    if (currentLocation) {
+      lastLocationRef.current = currentLocation;
+    }
+  }, [currentLocation]);
 
   // Stop camera stream on unmount or close
   const stopCameraStream = () => {
@@ -270,14 +277,18 @@ export default function ChatInterface({
     try {
       const response = await weatherAI.processQuery({
         query: q || (activeLanguage === 'ta' ? 'இந்த வானிலை/மேக படத்தை ஆய்வு செய்து நிலவரத்தை கூறவும்' : 'Analyze this weather and sky image in detail'),
-        currentLocation,
+        currentLocation: lastLocationRef.current || currentLocation,
+        previousLocation: lastLocationRef.current,
         activeLanguage,
         image: imageToSend || null,
         mimeType: imageMimeType || 'image/jpeg',
       });
 
-      if (response.location && onLocationFound) {
-        onLocationFound(response.location);
+      if (response.location) {
+        lastLocationRef.current = response.location;
+        if (onLocationFound) {
+          onLocationFound(response.location);
+        }
       }
 
       const aiMsg = {

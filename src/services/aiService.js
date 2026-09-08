@@ -70,12 +70,18 @@ export function detectLanguageFromQuery(query, defaultLang = 'en') {
 // Resolves Tamil and Tanglish city references to standard English query names for Open-Meteo geocoding
 export function resolveTamilAndTanglishCityName(query) {
   if (!query || typeof query !== 'string') return null;
-  const q = query.trim();
+  // Clean dots and excessive spaces (e.g., "Today.. Chengalpattu.. La" -> "Today Chengalpattu La")
+  const q = query.replace(/\.{2,}/g, ' ').replace(/\s+/g, ' ').trim();
   const qLower = q.toLowerCase();
 
-  // 1. Direct Tamil Unicode city map
+  // 1. Direct Tamil Unicode city map (All 38 TN Districts + Major Localities)
   const tamilCityMap = [
-    { pattern: /(?:சென்னை|சென்னையில|சென்னையில்|சென்னைல|சென்னையிலா)/, name: 'Chennai' },
+    { pattern: /(?:செங்கல்பட்டு|செங்கல்பட்டுல|செங்கல்பட்டில்|செங்கை|செங்கல்பட்டில)/, name: 'Chengalpattu' },
+    { pattern: /(?:சென்னை|சென்னையில|சென்னையில்|சென்னைல|சென்னையிலா|மதராஸ்)/, name: 'Chennai' },
+    { pattern: /(?:காஞ்சிபுரம்|காஞ்சிபுரத்துல|காஞ்சிபுரத்தில்|காஞ்சி)/, name: 'Kanchipuram' },
+    { pattern: /(?:திருவள்ளூர்|திருவள்ளூர்ல|திருவள்ளூரில்)/, name: 'Tiruvallur' },
+    { pattern: /(?:தாம்பரம்|தாம்பரத்துல|தாம்பரத்தில்)/, name: 'Tambaram' },
+    { pattern: /(?:ஆவடி|ஆவடியில|ஆவடியில்|ஆவடில)/, name: 'Avadi' },
     { pattern: /(?:மதுரை|மதுரையில|மதுரையில்|மதுரைல)/, name: 'Madurai' },
     { pattern: /(?:கோவை|கோவையில|கோவையில்|கோயம்புத்தூர்|கோயம்புத்தூரில்)/, name: 'Coimbatore' },
     { pattern: /(?:திருச்சி|திருச்சியில|திருச்சியில்|திருச்சிராப்பள்ளி)/, name: 'Tiruchirappalli' },
@@ -84,11 +90,34 @@ export function resolveTamilAndTanglishCityName(query) {
     { pattern: /(?:வேலூர்|வேலூரில்|வேலூர்ல)/, name: 'Vellore' },
     { pattern: /(?:ஈரோடு|ஈரோட்டில்|ஈரோடுல)/, name: 'Erode' },
     { pattern: /(?:தஞ்சாவூர்|தஞ்சாவூரில்|தஞ்சை|தஞ்சையில்)/, name: 'Thanjavur' },
-    { pattern: /(?:தூத்துக்குடி|தூத்துக்குடியில்)/, name: 'Thoothukudi' },
-    { pattern: /(?:திண்டுக்கல்|திண்டுக்கல்லில்)/, name: 'Dindigul' },
-    { pattern: /(?:கன்னியாகுமரி|கன்னியாகுமரியில்)/, name: 'Kanyakumari' },
-    { pattern: /(?:ஊட்டி|ஊட்டியில்|உதகை)/, name: 'Ooty' },
-    { pattern: /(?:புதுச்சேரி|புதுச்சேரியில்|பாண்டிச்சேரி)/, name: 'Puducherry' },
+    { pattern: /(?:தூத்துக்குடி|தூத்துக்குடியில்|டியூட்டிகாரின்)/, name: 'Thoothukudi' },
+    { pattern: /(?:திண்டுக்கல்|திண்டுக்கல்லில்|திண்டுக்கல்ல)/, name: 'Dindigul' },
+    { pattern: /(?:கன்னியாகுமரி|கன்னியாகுமரியில்|நாகர்கோவில்)/, name: 'Kanyakumari' },
+    { pattern: /(?:ஊட்டி|ஊட்டியில்|உதகை|உதகமண்டலம்|நீலகிரி)/, name: 'Ooty' },
+    { pattern: /(?:கடலூர்|கடலூரில்|கடலூர்ல)/, name: 'Cuddalore' },
+    { pattern: /(?:விழுப்புரம்|விழுப்புரத்துல|விழுப்புரத்தில்)/, name: 'Villupuram' },
+    { pattern: /(?:திருவண்ணாமலை|திருவண்ணாமலையில|திருவண்ணாமலையில்)/, name: 'Tiruvannamalai' },
+    { pattern: /(?:தருமபுரி|தர்மபுரி|தருமபுரியில)/, name: 'Dharmapuri' },
+    { pattern: /(?:கிருஷ்ணகிரி|கிருஷ்ணகிரியில|கிருஷ்ணகிரியில்)/, name: 'Krishnagiri' },
+    { pattern: /(?:ஓசூர்|ஓசூரில்|ஓசூர்ல)/, name: 'Hosur' },
+    { pattern: /(?:நாமக்கல்|நாமக்கல்லில்|நாமக்கல்ல)/, name: 'Namakkal' },
+    { pattern: /(?:கரூர்|கரூரில்|கரூர்ல)/, name: 'Karur' },
+    { pattern: /(?:பெரம்பலூர்|பெரம்பலூரில்)/, name: 'Perambalur' },
+    { pattern: /(?:அரியலூர்|அரியலூரில்)/, name: 'Ariyalur' },
+    { pattern: /(?:நாகப்பட்டினம்|நாகையில்|நாகை)/, name: 'Nagapattinam' },
+    { pattern: /(?:மயிலாடுதுறை|மயிலாடுதுறையில|மயூரம்)/, name: 'Mayiladuthurai' },
+    { pattern: /(?:திருவாரூர்|திருவாரூரில்)/, name: 'Tiruvarur' },
+    { pattern: /(?:புதுக்கோட்டை|புதுக்கோட்டையில்)/, name: 'Pudukkottai' },
+    { pattern: /(?:சிவகங்கை|சிவகங்கையில்)/, name: 'Sivaganga' },
+    { pattern: /(?:இராமநாதபுரம்|ராமநாதபுரம்|ராமேஸ்வரம்)/, name: 'Ramanathapuram' },
+    { pattern: /(?:விருதுநகர்|விருதுநகரில்)/, name: 'Virudhunagar' },
+    { pattern: /(?:தேனி|தேனியில்|போடி)/, name: 'Theni' },
+    { pattern: /(?:தென்காசி|தென்காசியில)/, name: 'Tenkasi' },
+    { pattern: /(?:திருப்பூர்|திருப்பூரில்)/, name: 'Tiruppur' },
+    { pattern: /(?:ராணிப்பேட்டை|ராணிப்பேட்டையில்)/, name: 'Ranipet' },
+    { pattern: /(?:திருப்பத்தூர்|திருப்பத்தூரில்)/, name: 'Tirupattur' },
+    { pattern: /(?:கள்ளக்குறிச்சி|கள்ளக்குறிச்சியில்)/, name: 'Kallakurichi' },
+    { pattern: /(?:புதுச்சேரி|புதுச்சேரியில்|பாண்டிச்சேரி|பாண்டி)/, name: 'Puducherry' },
     { pattern: /(?:தில்லி|புது தில்லி|டெல்லி)/, name: 'Delhi' },
     { pattern: /(?:மும்பை|மும்பையில்)/, name: 'Mumbai' },
     { pattern: /(?:பெங்களூரு|பெங்களூர்|பெங்களூரில்)/, name: 'Bengaluru' },
@@ -102,27 +131,55 @@ export function resolveTamilAndTanglishCityName(query) {
     }
   }
 
-  // 2. Tanglish Romanized city matching with suffixes like "chennai la", "chennaila", "madurai kku", etc.
+  // 2. Tanglish Romanized city matching with suffixes like "chengalpattu la", "chengalpattula", "chennai kku", etc.
   const tanglishCityMap = [
-    { pattern: /\b(chennai|madras)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Chennai' },
-    { pattern: /\b(madurai)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Madurai' },
-    { pattern: /\b(coimbatore|kovai)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Coimbatore' },
-    { pattern: /\b(trichy|tiruchirappalli)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Tiruchirappalli' },
-    { pattern: /\b(salem)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Salem' },
-    { pattern: /\b(nellai|tirunelveli)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Tirunelveli' },
-    { pattern: /\b(vellore)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Vellore' },
-    { pattern: /\b(erode)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Erode' },
-    { pattern: /\b(thanjavur|tanjore)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Thanjavur' },
-    { pattern: /\b(thoothukudi|tuticorin)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Thoothukudi' },
-    { pattern: /\b(dindigul)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Dindigul' },
-    { pattern: /\b(kanyakumari|nagercoil)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Kanyakumari' },
-    { pattern: /\b(ooty|udhagamandalam)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Ooty' },
-    { pattern: /\b(pondicherry|puducherry)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Puducherry' },
-    { pattern: /\b(delhi|new delhi)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Delhi' },
-    { pattern: /\b(mumbai|bombay)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Mumbai' },
-    { pattern: /\b(bangalore|bengaluru)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Bengaluru' },
-    { pattern: /\b(hyderabad)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Hyderabad' },
-    { pattern: /\b(kolkata|calcutta)(?:la|le|kku|ku|\s+la|\s+le|\s+kku|\s+ku)?\b/i, name: 'Kolkata' },
+    { pattern: /\b(chengalpattu|chengalpet|chengalpetu|chengalpatt)\b/i, name: 'Chengalpattu' },
+    { pattern: /\b(chennai|madras)\b/i, name: 'Chennai' },
+    { pattern: /\b(kanchipuram|kancheepuram|kanchi)\b/i, name: 'Kanchipuram' },
+    { pattern: /\b(tiruvallur|thiruvallur)\b/i, name: 'Tiruvallur' },
+    { pattern: /\b(tambaram)\b/i, name: 'Tambaram' },
+    { pattern: /\b(avadi)\b/i, name: 'Avadi' },
+    { pattern: /\b(madurai)\b/i, name: 'Madurai' },
+    { pattern: /\b(coimbatore|kovai)\b/i, name: 'Coimbatore' },
+    { pattern: /\b(trichy|tiruchirappalli|tiruchi)\b/i, name: 'Tiruchirappalli' },
+    { pattern: /\b(salem)\b/i, name: 'Salem' },
+    { pattern: /\b(nellai|tirunelveli)\b/i, name: 'Tirunelveli' },
+    { pattern: /\b(vellore)\b/i, name: 'Vellore' },
+    { pattern: /\b(erode)\b/i, name: 'Erode' },
+    { pattern: /\b(thanjavur|tanjore|thanjai)\b/i, name: 'Thanjavur' },
+    { pattern: /\b(thoothukudi|tuticorin)\b/i, name: 'Thoothukudi' },
+    { pattern: /\b(dindigul|dindigallu)\b/i, name: 'Dindigul' },
+    { pattern: /\b(kanyakumari|nagercoil)\b/i, name: 'Kanyakumari' },
+    { pattern: /\b(ooty|udhagamandalam|nilgiris|coonoor)\b/i, name: 'Ooty' },
+    { pattern: /\b(cuddalore)\b/i, name: 'Cuddalore' },
+    { pattern: /\b(villupuram|viluppuram)\b/i, name: 'Villupuram' },
+    { pattern: /\b(tiruvannamalai|thiruvannamalai)\b/i, name: 'Tiruvannamalai' },
+    { pattern: /\b(dharmapuri)\b/i, name: 'Dharmapuri' },
+    { pattern: /\b(krishnagiri)\b/i, name: 'Krishnagiri' },
+    { pattern: /\b(hosur)\b/i, name: 'Hosur' },
+    { pattern: /\b(namakkal)\b/i, name: 'Namakkal' },
+    { pattern: /\b(karur)\b/i, name: 'Karur' },
+    { pattern: /\b(perambalur)\b/i, name: 'Perambalur' },
+    { pattern: /\b(ariyalur)\b/i, name: 'Ariyalur' },
+    { pattern: /\b(nagapattinam|nagai)\b/i, name: 'Nagapattinam' },
+    { pattern: /\b(mayiladuthurai)\b/i, name: 'Mayiladuthurai' },
+    { pattern: /\b(tiruvarur|thiruvarur)\b/i, name: 'Tiruvarur' },
+    { pattern: /\b(pudukkottai|pudukottai)\b/i, name: 'Pudukkottai' },
+    { pattern: /\b(sivaganga|sivagangai)\b/i, name: 'Sivaganga' },
+    { pattern: /\b(ramanathapuram|ramnad|rameshwaram)\b/i, name: 'Ramanathapuram' },
+    { pattern: /\b(virudhunagar)\b/i, name: 'Virudhunagar' },
+    { pattern: /\b(theni)\b/i, name: 'Theni' },
+    { pattern: /\b(tenkasi)\b/i, name: 'Tenkasi' },
+    { pattern: /\b(tiruppur|tirupur)\b/i, name: 'Tiruppur' },
+    { pattern: /\b(ranipet)\b/i, name: 'Ranipet' },
+    { pattern: /\b(tirupattur|tirupathur)\b/i, name: 'Tirupattur' },
+    { pattern: /\b(kallakurichi)\b/i, name: 'Kallakurichi' },
+    { pattern: /\b(pondicherry|puducherry|pondy)\b/i, name: 'Puducherry' },
+    { pattern: /\b(delhi|new delhi)\b/i, name: 'Delhi' },
+    { pattern: /\b(mumbai|bombay)\b/i, name: 'Mumbai' },
+    { pattern: /\b(bangalore|bengaluru)\b/i, name: 'Bengaluru' },
+    { pattern: /\b(hyderabad)\b/i, name: 'Hyderabad' },
+    { pattern: /\b(kolkata|calcutta)\b/i, name: 'Kolkata' },
   ];
 
   for (const item of tanglishCityMap) {
@@ -1341,9 +1398,10 @@ export class WeatherAIAgent {
   }
 
   // Process natural language weather query and return structured response (Supports Text, Voice, & Image Vision)
-  async processQuery({ query = '', currentLocation, activeLanguage = 'en', image = null, mimeType = 'image/jpeg' }) {
+  async processQuery({ query = '', currentLocation, previousLocation = null, activeLanguage = 'en', image = null, mimeType = 'image/jpeg' }) {
     try {
-      const q = query.trim();
+      const rawQ = query.trim();
+      const q = rawQ.replace(/\.{2,}/g, ' ').replace(/\s+/g, ' ').trim();
       const effectiveLang = detectLanguageFromQuery(q || 'weather report', activeLanguage);
       const isTanglish = effectiveLang === 'tanglish';
       const targetLangForData = isTanglish ? 'ta' : effectiveLang;
@@ -1429,9 +1487,22 @@ export class WeatherAIAgent {
         };
       }
 
+      // If device is offline / tower down, use Edge AI Disaster Vault immediately
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const offlineResult = offlineVaultService.processOfflineQuery(q, activeLanguage, currentLocation, previousLocation);
+        return {
+          text: offlineResult.text,
+          detectedLanguage: effectiveLang,
+          modelUsed: '📡 Offline Disaster Edge AI (Zero Tower Signal)',
+          isOffline: true,
+          isWeatherQuery: offlineResult.isWeatherQuery !== false,
+          sources: ['Offline Disaster Vault', 'TNSDMA Emergency Protocols']
+        };
+      }
+
       // Proceed with Weather-Specific Query Execution
       const { domain, timeframe, isRainInquiry } = this.extractQueryContext(q, currentLocation);
-      const targetLocation = await this.resolveLocationFromQuery(q, currentLocation);
+      const targetLocation = await this.resolveLocationFromQuery(q, previousLocation || currentLocation);
 
       const lat = targetLocation?.latitude || 13.0827;
       const lon = targetLocation?.longitude || 80.2707;
@@ -1442,19 +1513,6 @@ export class WeatherAIAgent {
       const localizedAdmin = rawAdmin ? getLocalizedPlaceName(rawAdmin, targetLangForData) : '';
       const localizedCountry = getLocalizedPlaceName(rawCountry, targetLangForData);
       const locName = `${localizedCity}${localizedAdmin ? `, ${localizedAdmin}` : ''}, ${localizedCountry}`;
-
-      // If device is offline / tower down, use Edge AI Disaster Vault immediately
-      if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        const offlineResult = offlineVaultService.processOfflineQuery(q, activeLanguage, currentLocation);
-        return {
-          text: offlineResult.text,
-          detectedLanguage: effectiveLang,
-          modelUsed: '📡 Offline Disaster Edge AI (Zero Tower Signal)',
-          isOffline: true,
-          isWeatherQuery: offlineResult.isWeatherQuery !== false,
-          sources: ['Offline Disaster Vault', 'TNSDMA Emergency Protocols']
-        };
-      }
 
       // Fetch fresh real-time multi-source data
       const [nwpData, aqiData] = await Promise.all([
@@ -1615,7 +1673,7 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       };
     } catch (err) {
       console.warn('Network / Tower outage during AI query, switching to Offline Disaster Vault:', err);
-      const offlineResult = offlineVaultService.processOfflineQuery(query, activeLanguage, currentLocation);
+      const offlineResult = offlineVaultService.processOfflineQuery(query, activeLanguage, currentLocation, previousLocation);
       return {
         text: offlineResult.text,
         detectedLanguage: activeLanguage,
@@ -1666,12 +1724,26 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       alerts.find((a) => a.level === 'yellow') ||
       alerts[0];
 
+    // 📆 Real-time Dynamic Date & Day Calculation
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 86400000);
+    const dayNamesTa = ['ஞாயிறு', 'திங்கள்', 'செவ்வாய்', 'புதன்', 'வியாழன்', 'வெள்ளி', 'சனி'];
+    const monthNamesTa = ['ஜனவரி', 'பிப்ரவரி', 'மார்ச்', 'ஏப்ரல்', 'மே', 'ஜூன்', 'ஜூலை', 'ஆகஸ்ட்', 'செப்டம்பர்', 'அக்டோபர்', 'நவம்பர்', 'டிசம்பர்'];
+    const dayNamesEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const todayDateTa = `${dayNamesTa[now.getDay()]}, ${now.getDate()} ${monthNamesTa[now.getMonth()]}`;
+    const tomorrowDateTa = `${dayNamesTa[tomorrow.getDay()]}, ${tomorrow.getDate()} ${monthNamesTa[tomorrow.getMonth()]}`;
+    const todayDateEn = `${dayNamesEn[now.getDay()]}, ${now.getDate()} ${monthNamesEn[now.getMonth()]}`;
+    const tomorrowDateEn = `${dayNamesEn[tomorrow.getDay()]}, ${tomorrow.getDate()} ${monthNamesEn[tomorrow.getMonth()]}`;
+
     // 🌟 Special Language: TANGLISH (Conversational Tamil in English letters)
     if (lang === 'tanglish') {
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **Mazhai Theerpu: Aam (YES - Mazhai Kandippa Peyyum! 🌧️)**\n\n` +
+            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai theerpu & timing idho:**\n\n` +
+            `🌧️ **Mazhai Theerpu: Aam (YES - Mazhai Kandippa Peyyum! 🌧️)**\n` +
             `• ⏰ **Kaanikkapatta Neram (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
             `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% | **Ethirpaarkappadum Alavu:** ~${rainCalc.totalPrecip} mm\n` +
             `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
@@ -1680,7 +1752,8 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **Mazhai Theerpu: Vaippu Irukku (MAYBE - Lesana Thooral / Megamootam 🌦️)**\n\n` +
+            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai status idho:**\n\n` +
+            `🌦️ **Mazhai Theerpu: Vaippu Irukku (MAYBE - Lesana Thooral / Megamootam 🌦️)**\n` +
             `• ⏰ **Kaanikkapatta Neram (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
             `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% | **Ethirpaarkappadum Alavu:** ~${rainCalc.totalPrecip} mm\n` +
             `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
@@ -1689,7 +1762,8 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
           );
         } else {
           return (
-            `☀️ **Mazhai Theerpu: Illai (NO - Mazhai Peyya Vaippu Illai! ☀️)**\n\n` +
+            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai status idho:**\n\n` +
+            `☀️ **Mazhai Theerpu: Illai (NO - Mazhai Peyya Vaippu Illai! ☀️)**\n` +
             `• ⏰ **Predicted Time:** Adutha 24 mani nerathil mazhai vaippu illa.\n` +
             `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% (Romba Kuraivu) | **Mazhai Alavu:** 0 mm\n` +
             `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
@@ -1701,7 +1775,7 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
 
       if (domain === 'agriculture' && cropSeedAdvisory) {
         return (
-          `🌾 **${locName} - Vivasaya Vidhai & Payir Valikaatti (Farmer Climate Advice):**\n\n` +
+          `🌾 **Vanakkam! ${locName} vivasaya & vidhaippu valikaatti (Farmer Climate Advice):**\n\n` +
           `• 🌡️ **Ippodhaiya Climate:** ${temp}°C | **Eerapatham:** ${humidity}% | **Mann Eerapatham:** ${cropSeedAdvisory.soilMoisturePercent}%\n` +
           `• 🚜 **Vidhaippu Thaguthi (Sowing Status):** ✅ **${cropSeedAdvisory.sowingStatusLabel}**\n\n` +
           `🌱 **Intha Climate-ku Yetha Vidhaigal (Recommended Seeds):**\n` +
@@ -1744,20 +1818,23 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
 
       if (timeframe === 'tomorrow') {
         return (
-          `☀️ **${locName} - Naalaya Vaanilai Munnarivippu:**\n` +
-          `• **Adhigabatcha Veppam:** ${tomorrowTempMax}°C\n` +
-          `• **Mazhai Peyya Vaippu:** ${tomorrowRainProb}%\n` +
-          `• **Kaatru Vegam:** ${wind} km/h | **Kaatru Tharam (AQI):** ${aqi}\n` +
-          `• **Echarikkai Nilai:** ${topAlert?.title || 'Iyalbaana Vaanilai'}`
+          `👋 **Kandippa! ${locName}-la naalaiya (${tomorrowDateTa}) weather forecast idho:**\n\n` +
+          `• ☀️ **Adhigabatcha Veppam:** ${tomorrowTempMax}°C\n` +
+          `• 🌧️ **Mazhai Peyya Vaippu:** ${tomorrowRainProb}%\n` +
+          `• 💨 **Kaatru Vegam:** ${wind} km/h | **Kaatru Tharam (AQI):** ${aqi}\n` +
+          `• 💡 **Advice:** ${tomorrowRainProb >= 50 ? 'Nalaiku veliya porappa kudai eduthuttu ponga.' : 'Nalaiku climate steady ah nalla irukum.'}\n` +
+          `• 🛡️ **Echarikkai Nilai:** ${topAlert?.title || 'Iyalbaana Vaanilai'}`
         );
       }
 
       return (
-        `📍 **${locName} Neralai Vaanilai Thagaval (Live Weather):**\n` +
-        `• **Vaanilai Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
-        `• **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
-        `• **Mazhai Vaippu:** ${rainProb}% | **Kaatru Tharam (AQI):** ${aqi}\n` +
-        `• **Echarikkai Kurippu:** ${topAlert?.message || 'Vaanilai seeraaga ulladhu.'}`
+        `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) live weather update idho:**\n\n` +
+        `• 🌡️ **Vaanilai Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
+        `• 🌧️ **Mazhai Vaippu:** ${rainProb}% ${rainProb >= 50 ? '(Mazhai peyya vaaipu irukku 🌧️)' : '(Mazhai vaippu kuraivu ☀️)'}\n` +
+        `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
+        `• 🍃 **Kaatru Tharam (AQI):** ${aqi}\n` +
+        `• 📆 **Naalai (${tomorrowDateTa}):** Veppam ~${tomorrowTempMax}°C | Mazhai ~${tomorrowRainProb}%\n` +
+        `• 💡 **Advice:** ${topAlert?.message || (rainProb >= 50 ? 'Mazhai vara vaaipu irukku, kudai eduthukonga.' : 'Climate nallave irukku, veli velai thairiyama seyyalaam.')}`
       );
     }
 
@@ -1827,19 +1904,21 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       }
       if (timeframe === 'tomorrow') {
         return (
-          `☀️ **${locName} - நாளைய வானிலை முன்னறிவிப்பு:**\n` +
-          `• **அதிகபட்ச வெப்பநிலை:** ${tomorrowTempMax}°C\n` +
-          `• **மழை பெய்வதற்கான வாய்ப்பு:** ${tomorrowRainProb}%\n` +
-          `• **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **காற்று தரம் (AQI):** ${aqi}\n` +
-          `• **வானிலை எச்சரிக்கை நிலை:** ${topAlert?.title || 'இயல்பு'}`
+          `👋 **நிச்சயமாக! ${locName} பகுதிக்கான நாளைய (${tomorrowDateTa}) வானிலை முன்னறிவிப்பு:**\n\n` +
+          `• ☀️ **அதிகபட்ச வெப்பநிலை:** ${tomorrowTempMax}°C\n` +
+          `• 🌧️ **மழை பெய்வதற்கான வாய்ப்பு:** ${tomorrowRainProb}%\n` +
+          `• 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **காற்று தரம் (AQI):** ${aqi}\n` +
+          `• 💡 **பாதுகாப்பு குறிப்பு:** ${tomorrowRainProb >= 50 ? 'நாளை வெளியே செல்லும்போது மறக்காமல் குடை எடுத்துச் செல்லவும்.' : 'வானிலை பொதுவாக இயல்பாக நிலவும்.'}\n` +
+          `• 🛡️ **வானிலை எச்சரிக்கை நிலை:** ${topAlert?.title || 'இயல்பு'}`
         );
       }
       return (
-        `📍 **${locName} நேரலை வானிலை தகவல்:**\n` +
-        `• **வானிலை நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
-        `• **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
-        `• **மழை வாய்ப்பு:** ${rainProb}% | **காற்று தரம் (AQI):** ${aqi}\n` +
-        `• **எச்சரிக்கை குறிப்பு:** ${topAlert?.message || 'வானிலை சீராக உள்ளது.'}`
+        `👋 **நிச்சயமாக! ${locName} பகுதிக்கான இன்றைய (${todayDateTa}) நேரலை வானிலை தகவல்:**\n\n` +
+        `• 🌡️ **வானிலை நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
+        `• 🌧️ **மழை வாய்ப்பு:** ${rainProb}% | **காற்று தரம் (AQI):** ${aqi}\n` +
+        `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
+        `• 📆 **நாளை (${tomorrowDateTa}):** அதிகபட்சம் ~${tomorrowTempMax}°C | மழை வாய்ப்பு ~${tomorrowRainProb}%\n` +
+        `• 💡 **ஆலோசனை:** ${topAlert?.message || (rainProb >= 50 ? 'மழைக்கு வாய்ப்பு உள்ளது, குடை எடுத்துச் செல்லவும்.' : 'வானிலை சீராக உள்ளது, பணிகளைத் தடையின்றித் திட்டமிடலாம்.')}`
       );
     }
 
@@ -2283,22 +2362,24 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
 
     if (timeframe === 'tomorrow') {
       return (
-        `☀️ **Forecast for ${locName} (Tomorrow):**\n` +
-        `• **Expected Maximum Temperature:** ${tomorrowTempMax}°C\n` +
-        `• **Precipitation Probability:** ${tomorrowRainProb}%\n` +
-        `• **Sustained Winds:** ${wind} km/h | **Air Quality Index:** ${aqi} (US AQI)\n` +
-        `• **Disaster & Alert Status:** ${topAlert?.title}`
+        `👋 **Sure! Here is the tomorrow forecast for ${locName} (${tomorrowDateEn}):**\n\n` +
+        `• ☀️ **Expected Maximum Temperature:** ${tomorrowTempMax}°C\n` +
+        `• 🌧️ **Precipitation Probability:** ${tomorrowRainProb}%\n` +
+        `• 💨 **Sustained Winds:** ${wind} km/h | **Air Quality Index:** ${aqi} (US AQI)\n` +
+        `• 💡 **Advisory:** ${tomorrowRainProb >= 50 ? 'Rain gear recommended when heading outside.' : 'Ambient conditions steady and favorable for outdoor activities.'}\n` +
+        `• 🛡️ **Disaster & Alert Status:** ${topAlert?.title || 'Normal Stable Conditions'}`
       );
     }
 
     return (
-      `📍 **Real-time Meteorological Intelligence for ${locName}:**\n` +
-      `• **Current Sky & Condition:** ${wmo.label} at **${temp}°C** (Feels like **${feels}°C**)\n` +
-      `• **Atmospheric Moisture:** Relative Humidity **${humidity}%** | Pressure **${current.pressure_msl || 1013} hPa**\n` +
-      `• **Wind Dynamics:** **${wind} km/h** from ${current.wind_direction_10m || 0}°\n` +
-      `• **Precipitation Outlook:** **${rainProb}%** probability today\n` +
-      `• **Air Quality & UV:** AQI **${aqi}** | UV Index **${current.uv_index || 5}**\n` +
-      `• **Early Warning Ticker:** ${topAlert?.title} — *${topAlert?.message}*`
+      `👋 **Sure! Here is the real-time meteorological briefing for ${locName} (${todayDateEn}):**\n\n` +
+      `• 🌡️ **Current Sky & Condition:** ${wmo.label} at **${temp}°C** (Feels like **${feels}°C**)\n` +
+      `• 🌧️ **Precipitation Outlook:** **${rainProb}%** probability today\n` +
+      `• 💧 **Atmospheric Moisture:** Relative Humidity **${humidity}%** | Pressure **${current.pressure_msl || 1013} hPa**\n` +
+      `• 💨 **Wind Dynamics:** **${wind} km/h** from ${current.wind_direction_10m || 0}°\n` +
+      `• 🍃 **Air Quality & UV:** AQI **${aqi}** | UV Index **${current.uv_index || 5}**\n` +
+      `• 📆 **Tomorrow (${tomorrowDateEn}):** Max ~${tomorrowTempMax}°C | Rain ~${tomorrowRainProb}%\n` +
+      `• 💡 **Advisory:** ${topAlert?.message || (rainProb >= 50 ? 'Rain expected in the region, keep an umbrella handy.' : 'Clear and steady weather conditions.')}`
     );
   }
 }

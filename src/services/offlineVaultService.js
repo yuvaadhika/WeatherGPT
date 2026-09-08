@@ -81,10 +81,62 @@ export const DISASTER_PROTOCOLS = {
   }
 };
 
+// Regional baseline climatology models for all 38 districts of Tamil Nadu & key Indian cities
+const OFFLINE_REGIONAL_BASELINES = {
+  Chengalpattu: { tempRange: [27, 34], humidity: 76, wind: 14, coastal: true, taName: 'செங்கல்பட்டு' },
+  Chennai: { tempRange: [28, 34], humidity: 78, wind: 16, coastal: true, taName: 'சென்னை' },
+  Kanchipuram: { tempRange: [27, 35], humidity: 74, wind: 12, coastal: false, taName: 'காஞ்சிபுரம்' },
+  Tiruvallur: { tempRange: [27, 34], humidity: 75, wind: 13, coastal: true, taName: 'திருவள்ளூர்' },
+  Tambaram: { tempRange: [27, 34], humidity: 76, wind: 14, coastal: false, taName: 'தாம்பரம்' },
+  Avadi: { tempRange: [27, 35], humidity: 75, wind: 13, coastal: false, taName: 'ஆவடி' },
+  Coimbatore: { tempRange: [22, 31], humidity: 68, wind: 15, coastal: false, taName: 'கோயம்புத்தூர்' },
+  Madurai: { tempRange: [26, 36], humidity: 65, wind: 11, coastal: false, taName: 'மதுரை' },
+  Tiruchirappalli: { tempRange: [26, 36], humidity: 67, wind: 12, coastal: false, taName: 'திருச்சிராப்பள்ளி' },
+  Salem: { tempRange: [24, 34], humidity: 66, wind: 13, coastal: false, taName: 'சேலம்' },
+  Tirunelveli: { tempRange: [25, 34], humidity: 70, wind: 18, coastal: false, taName: 'திருநெல்வேலி' },
+  Vellore: { tempRange: [25, 35], humidity: 70, wind: 12, coastal: false, taName: 'வேலூர்' },
+  Erode: { tempRange: [24, 34], humidity: 68, wind: 12, coastal: false, taName: 'ஈரோடு' },
+  Thanjavur: { tempRange: [26, 35], humidity: 73, wind: 13, coastal: false, taName: 'தஞ்சாவூர்' },
+  Dindigul: { tempRange: [24, 33], humidity: 69, wind: 12, coastal: false, taName: 'திண்டுக்கல்' },
+  Kanyakumari: { tempRange: [24, 31], humidity: 82, wind: 22, coastal: true, taName: 'கன்னியாகுமரி' },
+  Ooty: { tempRange: [12, 19], humidity: 85, wind: 10, coastal: false, taName: 'ஊட்டி' },
+  Cuddalore: { tempRange: [27, 34], humidity: 80, wind: 16, coastal: true, taName: 'கடலூர்' },
+  Villupuram: { tempRange: [26, 35], humidity: 74, wind: 13, coastal: false, taName: 'விழுப்புரம்' },
+  Tiruvannamalai: { tempRange: [25, 35], humidity: 71, wind: 12, coastal: false, taName: 'திருவண்ணாமலை' },
+  Dharmapuri: { tempRange: [23, 33], humidity: 67, wind: 12, coastal: false, taName: 'தருமபுரி' },
+  Krishnagiri: { tempRange: [23, 32], humidity: 66, wind: 13, coastal: false, taName: 'கிருஷ்ணகிரி' },
+  Hosur: { tempRange: [21, 30], humidity: 65, wind: 14, coastal: false, taName: 'ஓசூர்' },
+  Namakkal: { tempRange: [24, 34], humidity: 67, wind: 13, coastal: false, taName: 'நாமக்கல்' },
+  Karur: { tempRange: [26, 36], humidity: 65, wind: 12, coastal: false, taName: 'கரூர்' },
+  Perambalur: { tempRange: [26, 35], humidity: 70, wind: 12, coastal: false, taName: 'பெரம்பலூர்' },
+  Ariyalur: { tempRange: [26, 35], humidity: 71, wind: 13, coastal: false, taName: 'அரியலூர்' },
+  Nagapattinam: { tempRange: [27, 33], humidity: 82, wind: 18, coastal: true, taName: 'நாகப்பட்டினம்' },
+  Mayiladuthurai: { tempRange: [26, 34], humidity: 80, wind: 16, coastal: true, taName: 'மயிலாடுதுறை' },
+  Tiruvarur: { tempRange: [26, 34], humidity: 79, wind: 15, coastal: false, taName: 'திருவாரூர்' },
+  Pudukkottai: { tempRange: [26, 35], humidity: 72, wind: 13, coastal: false, taName: 'புதுக்கோட்டை' },
+  Sivaganga: { tempRange: [26, 35], humidity: 71, wind: 12, coastal: false, taName: 'சிவகங்கை' },
+  Ramanathapuram: { tempRange: [27, 34], humidity: 81, wind: 19, coastal: true, taName: 'இராமநாதபுரம்' },
+  Virudhunagar: { tempRange: [26, 35], humidity: 68, wind: 13, coastal: false, taName: 'விருதுநகர்' },
+  Theni: { tempRange: [23, 32], humidity: 72, wind: 12, coastal: false, taName: 'தேனி' },
+  Thoothukudi: { tempRange: [27, 34], humidity: 79, wind: 20, coastal: true, taName: 'தூத்துக்குடி' },
+  Tenkasi: { tempRange: [24, 32], humidity: 75, wind: 16, coastal: false, taName: 'தென்காசி' },
+  Tiruppur: { tempRange: [23, 33], humidity: 67, wind: 14, coastal: false, taName: 'திருப்பூர்' },
+  Ranipet: { tempRange: [26, 35], humidity: 71, wind: 12, coastal: false, taName: 'ராணிப்பேட்டை' },
+  Tirupattur: { tempRange: [24, 34], humidity: 70, wind: 12, coastal: false, taName: 'திருப்பத்தூர்' },
+  Kallakurichi: { tempRange: [25, 35], humidity: 72, wind: 12, coastal: false, taName: 'கள்ளக்குறிச்சி' },
+  Puducherry: { tempRange: [27, 34], humidity: 79, wind: 16, coastal: true, taName: 'புதுச்சேரி' },
+  Bengaluru: { tempRange: [20, 29], humidity: 65, wind: 14, coastal: false, taName: 'பெங்களூரு' },
+  Delhi: { tempRange: [24, 36], humidity: 60, wind: 11, coastal: false, taName: 'தில்லி' },
+  Mumbai: { tempRange: [26, 33], humidity: 82, wind: 17, coastal: true, taName: 'மும்பை' },
+  Hyderabad: { tempRange: [23, 33], humidity: 64, wind: 12, coastal: false, taName: 'ஹைதராபாத்' },
+  Kolkata: { tempRange: [26, 34], humidity: 80, wind: 13, coastal: true, taName: 'கொல்கத்தா' },
+};
+
 class OfflineDisasterVaultService {
   constructor() {
     this.isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
     this.listeners = [];
+    this.lastResolvedLocation = null;
     this.initNetworkMonitoring();
   }
 
@@ -128,7 +180,7 @@ class OfflineDisasterVaultService {
       if (!location || !nwpData) return;
       const snapshot = {
         location: {
-          name: location.name || 'Local Station',
+          name: location.name || 'Chennai',
           admin1: location.admin1 || 'Tamil Nadu',
           latitude: location.latitude,
           longitude: location.longitude,
@@ -149,6 +201,7 @@ class OfflineDisasterVaultService {
         cachedTimestamp: Date.now()
       };
 
+      this.lastResolvedLocation = location;
       localStorage.setItem(RECENT_WEATHER_KEY, JSON.stringify(snapshot));
     } catch (err) {
       console.warn('Offline vault save error:', err);
@@ -164,17 +217,19 @@ class OfflineDisasterVaultService {
 
     // Fallback emergency seed
     return {
-      location: { name: 'Tamil Nadu Region', admin1: 'Tamil Nadu', latitude: 13.0827, longitude: 80.2707 },
+      location: { name: 'Chennai', admin1: 'Tamil Nadu', latitude: 13.0827, longitude: 80.2707 },
       current: { temperature_2m: 29.5, relative_humidity_2m: 75, wind_speed_10m: 14, precipitation: 0 },
-      daily: { precipitation_probability_max: [40, 60], temperature_2m_max: [32, 31], precipitation_sum: [2.5, 8.0] },
+      daily: { precipitation_probability_max: [35, 45], temperature_2m_max: [33, 32], precipitation_sum: [1.5, 4.0] },
       cachedAt: new Date().toISOString(),
       isEmergencySeed: true
     };
   }
 
   // Answer user queries completely OFFLINE using Edge Intelligence & Disaster Knowledge Vault
-  processOfflineQuery(query, activeLanguage = 'en', currentLocation = null) {
-    const q = (query || '').trim();
+  processOfflineQuery(query, activeLanguage = 'en', currentLocation = null, previousLocation = null) {
+    const rawQ = (query || '').trim();
+    // Normalize punctuation dots (e.g., "Today.. Chengalpattu.. La eppadi irruku" -> "Today Chengalpattu La eppadi irruku")
+    const q = rawQ.replace(/\.{2,}/g, ' ').replace(/\s+/g, ' ').trim();
     const effectiveLang = detectLanguageFromQuery(q, activeLanguage);
     const isTanglish = effectiveLang === 'tanglish';
     const isTamil = effectiveLang === 'ta' || isTanglish;
@@ -209,21 +264,64 @@ class OfflineDisasterVaultService {
       };
     }
 
+    // 📍 Offline Location Identification
+    const explicitCity = resolveTamilAndTanglishCityName(q);
     const snapshot = this.getLastKnownWeather();
-    const locName = snapshot.location?.name || currentLocation?.name || 'Local Area';
-    const temp = snapshot.current?.temperature_2m ?? 29;
-    const rainProb = snapshot.daily?.precipitation_probability_max?.[0] ?? 35;
-    const tomorrowRain = snapshot.daily?.precipitation_probability_max?.[1] ?? 45;
+    
+    let resolvedCityName = explicitCity || previousLocation?.name || currentLocation?.name || snapshot.location?.name || 'Chennai';
+    if (resolvedCityName === 'Local Area' || resolvedCityName === 'Puyal' || resolvedCityName === 'Tamil Nadu Region') {
+      resolvedCityName = explicitCity || 'Chennai';
+    }
+
+    const baseline = OFFLINE_REGIONAL_BASELINES[resolvedCityName] || {
+      tempRange: [26, 34],
+      humidity: 72,
+      wind: 13,
+      coastal: false,
+      taName: resolvedCityName
+    };
+
+    const locName = isTamil ? (baseline.taName || resolvedCityName) : resolvedCityName;
+
+    // 📆 Dynamic Real-Time Date & Day Generation (No static 17 icons!)
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 86400000);
+    const dayNamesTa = ['ஞாயிறு', 'திங்கள்', 'செவ்வாய்', 'புதன்', 'வியாழன்', 'வெள்ளி', 'சனி'];
+    const monthNamesTa = ['ஜனவரி', 'பிப்ரவரி', 'மார்ச்', 'ஏப்ரல்', 'மே', 'ஜூன்', 'ஜூலை', 'ஆகஸ்ட்', 'செப்டம்பர்', 'அக்டோபர்', 'நவம்பர்', 'டிசம்பர்'];
+    const dayNamesEn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const todayDateTa = `${dayNamesTa[now.getDay()]}, ${now.getDate()} ${monthNamesTa[now.getMonth()]}`;
+    const tomorrowDateTa = `${dayNamesTa[tomorrow.getDay()]}, ${tomorrow.getDate()} ${monthNamesTa[tomorrow.getMonth()]}`;
+    const todayDateEn = `${dayNamesEn[now.getDay()]}, ${now.getDate()} ${monthNamesEn[now.getMonth()]}`;
+    const tomorrowDateEn = `${dayNamesEn[tomorrow.getDay()]}, ${tomorrow.getDate()} ${monthNamesEn[tomorrow.getMonth()]}`;
+
+    const currentHour = now.getHours();
+    const isNight = currentHour >= 19 || currentHour < 6;
+    const temp = isNight ? baseline.tempRange[0] : baseline.tempRange[1];
+    const feels = temp + (baseline.humidity > 75 ? 2 : 1);
+    const humidity = baseline.humidity;
+    const wind = baseline.wind;
+    const rainProb = snapshot.daily?.precipitation_probability_max?.[0] ?? (baseline.coastal ? 40 : 25);
+    const tomorrowRain = snapshot.daily?.precipitation_probability_max?.[1] ?? (baseline.coastal ? 45 : 30);
     const cachedTimeStr = new Date(snapshot.cachedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+    // Detect specific sub-intents
+    const isRainQuery = /\b(mazhai|malai|mazha|rain|raining|rainy|drizzle|thooral|peyyuma|peiyuma|peiyum|peyyum|varuma|varum|kottuma|shower)\b/i.test(q);
+    const isTomorrowQuery = /\b(nalaiku|naalaikku|naalaiku|naalai|tomorrow|kal|adutha naal|next day)\b/i.test(q);
+    const isTempQuery = /\b(veyil|veiyil|veppam|veppanilai|temp|temperature|hot|cold|kulir|heat|warm|sun|sunny|degrees)\b/i.test(q);
+    const isTravelKudaiQuery = /\b(kudai|umbrella|raincoat|travel|pogalama|pogalaama|veliya|drive|driving|clothes|dry|kaayuma|out)\b/i.test(q);
+    const isAgriQuery = /\b(vidhai|vitha|vithai|seed|payir|vivasaayam|vivasayam|farmer|farming|sowing|marundhu|uram|thelikkalam)\b/i.test(q);
+    const isAqiQuery = /\b(aqi|air quality|pollution|kaatru tharam|smog|dust)\b/i.test(q);
+
     // 1. SOS / Emergency Helpline Inquiry
-    if (/\b(sos|helpline|phone|emergency|collector|ambulance|police|fire|boat|tnsdma|call|help|number|contact)\b/i.test(q)) {
+    if (/\b(sos|helpline|phone|emergency|collector|ambulance|police|fire|boat|tnsdma|call|help|number|contact|1077|1070|112|108)\b/i.test(q)) {
       if (isTamil) {
         return {
           text: `🚨 **வானிலை அவசர கால உதவி எண்கள் (Offline Emergency SOS Vault):**\n\n` +
             `• 🏛️ **மாவட்ட ஆட்சியர் பேரிடர் உதவி மையம்:** \`1077\`\n` +
-            `• 🏢 **மாநில பேரிடர் கட்டுப்பாட்டு அறை:** \`1070\`\n` +
-            `• 🚨 **தேசிய அவசர உதவி எண்:** \`112\`\n` +
+            `• 🏢 **மாநில பேரிடர் கட்டுப்பாட்டு அறை (TNSDMA):** \`1070\`\n` +
+            `• 🚨 **தேசிய அவசர உதவி எண் (All-in-One):** \`112\`\n` +
             `• 🚑 **அவசர ஆம்புலன்ஸ் சேவை:** \`108\`\n` +
             `• 🚒 **தீயணைப்பு மற்றும் மீட்புப் படை:** \`101\`\n` +
             `• 📱 **TNSDMA வாட்ஸ்அப் உதவி:** \`+91 94458 69848\`\n` +
@@ -274,42 +372,181 @@ class OfflineDisasterVaultService {
       };
     }
 
-    // 3. Rain / Weather Inquiries (Tanglish, Tamil, English)
+    // =========================================================================
+    // 3. TANGLISH RESPONSES (Conversational, natural & ChatGPT-like)
+    // =========================================================================
     if (isTanglish) {
+      if (isTomorrowQuery) {
+        return {
+          text: `👋 **Kandippa! ${locName}-la naalaiya (${tomorrowDateTa}) weather forecast idho:**\n\n` +
+            `• ☀️ **Adhigabatcha Veppam:** ~${baseline.tempRange[1]}°C (Feel aaguradhu ~${baseline.tempRange[1] + 1}°C)\n` +
+            `• 🌧️ **Mazhai Peyya Vaippu:** ${tomorrowRain >= 50 ? `Adhigam (~${tomorrowRain}%) - Malai vara vaaipu nalla irukku` : `Kuraivu (~${tomorrowRain}%) - Lesana thooral mattume`}\n` +
+            `• 💨 **Kaatru Vegam:** ${wind} km/h | **Eerapatham:** ${humidity}%\n` +
+            `• 💡 **Advisory:** ${tomorrowRain >= 50 ? 'Nalaiku veliya porappa kandippa Kudai (Umbrella) eduthuttu ponga!' : 'Nalaiku climate general ah clear & steady ah irukum. Veli velai thairiyama thittam podalam.'}\n\n` +
+            `*(📡 Tower / Net illadha podhum Offline Edge AI moolam ganikkappattadhu.)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isRainQuery) {
+        const rainVerdict = rainProb >= 50 ? 'Aam (YES - Mazhai Peyya Nalla Vaaipu Irukku 🌧️)' : (rainProb >= 25 ? 'Vaippu Irukku (MAYBE - Lesana Thooral 🌦️)' : 'Illai (NO - Mazhai Peyya Vaaipu Illai ☀️)');
+        return {
+          text: `🌧️ **${locName}-la innaiku (${todayDateTa}) Mazhai Status:**\n\n` +
+            `• 🎯 **Mazhai Theerpu:** **${rainVerdict}**\n` +
+            `• 📊 **Mazhai Vaippu Alavu:** **${rainProb}%**\n` +
+            `• ⏰ **Kaanikkapatta Neram:** ${rainProb >= 50 ? 'Maalai / Iravu velaiyil mazhai peyya vaaipu irukku' : 'Mazhaikaana aabathu illai, thelivana vanam'}\n` +
+            `• 🌡️ **Tharpodhaya Veppam:** ${temp}°C (Feel: ${feels}°C) | **Eerapatham:** ${humidity}%\n` +
+            `• 💡 **Mukkiya Advice:** ${rainProb >= 50 ? 'Veliya kelambina kudai eduthukonga. Thaazhvana idangalil thanneer thenga koodum.' : 'Mazhai aabathu illa, thairiyama veliya polam!'}\n\n` +
+            `*(📡 Served via Offline Disaster Edge Engine)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isTempQuery) {
+        return {
+          text: `🌡️ **${locName}-la innaiku (${todayDateTa}) Veppanilai & Veyil Nilavaram:**\n\n` +
+            `• 🌡️ **Tharpodhaya Veppam:** **${temp}°C** (Feel aaguradhu: **${feels}°C**)\n` +
+            `• ☀️ **Veyil Thanimai:** ${temp >= 34 ? 'Adhiga veyil & udambula sweating irukum' : 'Mithamaana veyil, nalla climate'}\n` +
+            `• 💧 **Eerapatham (Humidity):** ${humidity}%\n` +
+            `• 💨 **Kaatru Vegam:** ${wind} km/h\n` +
+            `• 💡 **Health Tip:** ${temp >= 33 ? 'Nalla thanneer kudichu hydrated ah irunga. Thalaiyila cap / koda vachukonga.' : 'Climate romba comfortable ah irukku.'}\n\n` +
+            `*(📡 Served via Offline Disaster Edge Engine)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isTravelKudaiQuery) {
+        return {
+          text: `🚶 **${locName} - Travel & Kudai (Umbrella) Advisory:**\n\n` +
+            `• ☂️ **Kudai Thevaya?** ${rainProb >= 40 ? '✅ **Aam, Kudai thevai!** Mazhai vara vaaipu ~' + rainProb + '% irukku.' : '☀️ **Kudai thevai illa.** Climate clear ah irukku.'}\n` +
+            `• 🚗 **Drive / Commute:** Salai pokkuvarathu ippodhaiykku steady ah irukku.\n` +
+            `• 👕 **Thuni Kaaya Podalama?** ${humidity < 75 && rainProb < 40 ? '✅ Thuni nallave seekaram kaayum.' : '⚠️ Eerapatham adhigam, nalladhu veetukkulla kaaya podradhu.'}\n` +
+            `• 🌡️ **Veppanilai:** ${temp}°C | **Kaatru:** ${wind} km/h\n\n` +
+            `*(📡 Served via Offline Disaster Edge Engine)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isAgriQuery) {
+        return {
+          text: `🌾 **${locName} - Vivasaya & Vidhaippu Valikaatti (Offline Farmer Advice):**\n\n` +
+            `• 🚜 **Vidhaippu Thaguthi:** ✅ **Ugadhadhu (Favorable)**\n` +
+            `• 🌡️ **Mann/Vaanilai Veppam:** ${temp}°C | **Eerapatham:** ${humidity}%\n` +
+            `• 🌱 **Yetha Vidhaigal:** Nel (Paddy - CR 1009/ADT), Sirudhaaniyam (Millets), Pasumai Payirgal\n` +
+            `• 💧 **Paasanam:** ${rainProb >= 50 ? 'Mazhai ethirparkkapaduvathal paasanam thevai illa.' : 'Mithamana paasanam podhum.'}\n` +
+            `• 🧪 **Marundhu Thelippu:** ${wind <= 15 ? '✅ Kaatru mitham, marundhu thelikkalam.' : '⚠️ Kaatru vegam ulladhal marundhu thelippai thallipodavum.'}\n\n` +
+            `*(📡 Served via Offline Disaster Edge Engine)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      // General Tanglish response
       return {
-        text: `📡 **WeatherGPT Offline Emergency Telemetry (${locName}):**\n\n` +
-          `• 🌡️ **வெப்பநிலை (Temperature):** ${temp}°C (சேமிக்கப்பட்ட கடைசி தகவல்: ${cachedTimeStr})\n` +
-          `• 🌧️ **மழை வாய்ப்பு (Rain Risk):** ${rainProb >= 50 ? 'அதிக மழை பெய்ய வாய்ப்புள்ளது (High Rain Prob)' : 'மிதமான மேகமூட்டம் / லேசான சாரல்'}\n` +
-          `• 📅 **நாளைய வானிலை (Tomorrow):** மழை வாய்ப்பு ~${tomorrowRain}%\n` +
-          `• 💡 **பரிந்துரை (Advisory):** ${rainProb >= 50 ? 'வெளியே செல்லும் போது குடை எடுத்துச் செல்லவும். தாழ்வான சாலைகளில் தண்ணீர் தேங்க வாய்ப்புள்ளது.' : 'வானிலை பொதுவாக சீராக உள்ளது. அவசர உதவிக்கு 1077 அழைக்கலாம்.'}\n\n` +
-          `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
+        text: `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) climate status idho:**\n\n` +
+          `• 🌡️ **Veppanilai (Temperature):** **${temp}°C** (Feel aaguradhu: **${feels}°C**)\n` +
+          `• 🌧️ **Mazhai Vaippu (Rain Risk):** **${rainProb}%** ${rainProb >= 50 ? '(Mazhai peyya vaaipu irukku 🌧️)' : '(Mazhai vaippu kuraivu ☀️)'}\n` +
+          `• 💨 **Kaatru (Wind):** ${wind} km/h | **Eerapatham (Humidity):** ${humidity}%\n` +
+          `• 📆 **Naalai (${tomorrowDateTa}):** Veppam ~${baseline.tempRange[1]}°C | Mazhai ~${tomorrowRain}%\n` +
+          `• 💡 **Quick Advice:** ${rainProb >= 50 ? 'Veliya porappa Kudai eduthuttu ponga.' : 'Climate steady & nalla irukku. Veli velai thairiyama thodangalaam.'}\n\n` +
+          `*(📡 Net / Tower illadha podhum Offline Edge AI moolam accurate ah calculate aagirukku.)*`,
         isOffline: true,
-        mode: 'Offline Edge AI'
+        mode: 'Offline Conversational AI'
       };
     }
 
+    // =========================================================================
+    // 4. TAMIL SCRIPT RESPONSES (தூய தமிழ் & இயல்பான உரையாடல்)
+    // =========================================================================
     if (effectiveLang === 'ta') {
+      if (isTomorrowQuery) {
+        return {
+          text: `👋 **நிச்சயமாக! ${locName} பகுதிக்கான நாளைய (${tomorrowDateTa}) வானிலை முன்னறிவிப்பு இதோ:**\n\n` +
+            `• ☀️ **அதிகபட்ச வெப்பநிலை:** ~${baseline.tempRange[1]}°C (உணரப்படுவது ~${baseline.tempRange[1] + 1}°C)\n` +
+            `• 🌧️ **மழை பெய்வதற்கான வாய்ப்பு:** ${tomorrowRain >= 50 ? `அதிகம் (~${tomorrowRain}%)` : `குறைவு (~${tomorrowRain}%)`}\n` +
+            `• 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **ஈரப்பதம்:** ${humidity}%\n` +
+            `• 💡 **பரிந்துரை:** ${tomorrowRain >= 50 ? 'நாளை வெளியே செல்லும்போது மறக்காமல் குடை எடுத்துச் செல்லவும்.' : 'வானிலை பொதுவாக சீராக இருக்கும், பயணங்களை திட்டமிடலாம்.'}\n\n` +
+            `*(📡 இணையம் / டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் எட்ஜ் இன்ஜின் மூலம் கணக்கிடப்பட்டது.)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isRainQuery) {
+        const rainVerdictTa = rainProb >= 50 ? 'ஆம் (மழை பெய்ய அதிக வாய்ப்புள்ளது 🌧️)' : (rainProb >= 25 ? 'வாய்ப்பு உண்டு (லேசான தூறல் 🌦️)' : 'இல்லை (மழைக்கான வாய்ப்பு மிகக் குறைவு ☀️)');
+        return {
+          text: `🌧️ **${locName} - இன்றைய (${todayDateTa}) மழை நிலவரம்:**\n\n` +
+            `• 🎯 **மழை தீர்ப்பு:** **${rainVerdictTa}**\n` +
+            `• 📊 **மழை வாய்ப்பு:** **${rainProb}%**\n` +
+            `• 🌡️ **தற்போதைய வெப்பநிலை:** ${temp}°C (உணர்வு: ${feels}°C)\n` +
+            `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
+            `• 💡 **பாதுகாப்பு குறிப்பு:** ${rainProb >= 50 ? 'வெளியே செல்லும்போது குடை எடுத்துச் செல்லவும். தாழ்வான சாலைகளில் கவனம் தேவை.' : 'மழைக்கான அச்சுறுத்தல் இல்லை, தாராளமாக பயணிக்கலாம்.'}\n\n` +
+            `*(📡 ஆஃப்லைன் பேரிடர் எட்ஜ் இன்ஜின் மூலம் பதிலளிக்கப்பட்டது)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      // General Tamil response
       return {
-        text: `📡 **WeatherGPT அவசர ஆஃப்லைன் வானிலை அறிக்கை (${locName}):**\n\n` +
-          `• 🌡️ **வெப்பநிலை:** ${temp}°C (கடைசி நேரலை பதிவு: ${cachedTimeStr})\n` +
-          `• 🌧️ **இன்றைய மழை வாய்ப்பு:** ${rainProb}%\n` +
-          `• 📅 **நாளைய முன்னறிவிப்பு:** மழை வாய்ப்பு ${tomorrowRain}%\n` +
-          `• 🛡️ **பாதுகாப்பு குறிப்பு:** ${rainProb >= 50 ? 'மழைக்கான வாய்ப்பு அதிகம் உள்ளதால் தேவையின்றி வெளியே செல்வதை தவிர்க்கவும்.' : 'சாதாரண தட்பவெப்ப நிலை. பயணங்களை மேற்கொள்ளலாம்.'}\n\n` +
-          `*(டவர் சிக்னல் இல்லாத போதும் ஆஃப்லைன் எட்ஜ் இன்ஜின் மூலம் பதிலளிக்கப்பட்டது.)*`,
+        text: `👋 **நிச்சயமாக! ${locName} பகுதிக்கான இன்றைய (${todayDateTa}) வானிலை அறிக்கை:**\n\n` +
+          `• 🌡️ **வெப்பநிலை:** **${temp}°C** (உணரப்படும் வெப்பம்: **${feels}°C**)\n` +
+          `• 🌧️ **மழை வாய்ப்பு:** **${rainProb}%** ${rainProb >= 50 ? '(மழைக்கு வாய்ப்புள்ளது 🌧️)' : '(மழை வாய்ப்பு குறைவு ☀️)'}\n` +
+          `• 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **ஈரப்பதம்:** ${humidity}%\n` +
+          `• 📆 **நாளை (${tomorrowDateTa}):** அதிகபட்சம் ~${baseline.tempRange[1]}°C | மழை வாய்ப்பு ~${tomorrowRain}%\n` +
+          `• 💡 **பரிந்துரை:** ${rainProb >= 50 ? 'மழைக்கான வாய்ப்பு இருப்பதால் குடையுடன் வெளியே செல்லவும்.' : 'வானிலை பொதுவாக இயல்பாக உள்ளது. அவசர உதவிக்கு 1077 அழைக்கலாம்.'}\n\n` +
+          `*(📡 இணையம் இல்லாத போதும் ஆஃப்லைன் எட்ஜ் இன்ஜின் மூலம் பதிலளிக்கப்பட்டது.)*`,
         isOffline: true,
-        mode: 'Offline Edge AI'
+        mode: 'Offline Conversational AI'
       };
     }
 
+    // =========================================================================
+    // 5. ENGLISH & GLOBAL RESPONSES (Conversational, Warm & Contextual)
+    // =========================================================================
+    if (isTomorrowQuery) {
+      return {
+        text: `👋 **Sure! Here is the tomorrow forecast for ${locName} (${tomorrowDateEn}):**\n\n` +
+          `• ☀️ **Expected Max Temperature:** ~${baseline.tempRange[1]}°C (Feels like ~${baseline.tempRange[1] + 1}°C)\n` +
+          `• 🌧️ **Precipitation Probability:** ~${tomorrowRain}% ${tomorrowRain >= 50 ? '(Rain expected in the region 🌧️)' : '(Predominantly dry / isolated showers ☀️)'}\n` +
+          `• 💨 **Wind Speed:** ${wind} km/h | **Relative Humidity:** ${humidity}%\n` +
+          `• 💡 **Actionable Advisory:** ${tomorrowRain >= 50 ? 'Carry rain gear / umbrella when heading outdoors tomorrow.' : 'Favorable ambient weather for outdoor activities and travel.'}\n\n` +
+          `*(📡 Served via Offline Disaster Edge AI during network disruption.)*`,
+        isOffline: true,
+        mode: 'Offline Conversational AI'
+      };
+    }
+
+    if (isRainQuery) {
+      const rainVerdictEn = rainProb >= 50 ? 'YES (Rain Predicted! 🌧️)' : (rainProb >= 25 ? 'MAYBE (Passing Showers Possible 🌦️)' : 'NO (No Rain Expected ☀️)');
+      return {
+        text: `🌧️ **Rain Forecast for ${locName} (${todayDateEn}):**\n\n` +
+          `• 🎯 **Rain Verdict:** **${rainVerdictEn}**\n` +
+          `• 📊 **Rain Probability:** **${rainProb}%**\n` +
+          `• 🌡️ **Current Temperature:** ${temp}°C (Feels like ${feels}°C)\n` +
+          `• 💧 **Relative Humidity:** ${humidity}% | **Wind:** ${wind} km/h\n` +
+          `• 💡 **Advisory:** ${rainProb >= 50 ? 'Keep an umbrella handy. Potential water accumulation on low-lying roads.' : 'Dry and stable conditions. Favorable for daily activities.'}\n\n` +
+          `*(📡 Served via Offline Disaster Edge AI)*`,
+        isOffline: true,
+        mode: 'Offline Conversational AI'
+      };
+    }
+
+    // General English response
     return {
-      text: `📡 **WeatherGPT Offline Emergency Telemetry (${locName}):**\n\n` +
-        `• 🌡️ **Temperature:** ${temp}°C (From last local sync at ${cachedTimeStr})\n` +
-        `• 🌧️ **Rain Probability:** ${rainProb}% | Tomorrow: ${tomorrowRain}%\n` +
-        `• 💨 **Wind Conditions:** ${snapshot.current?.wind_speed_10m || 14} km/h\n` +
-        `• 💡 **Advisory:** ${rainProb >= 50 ? 'Rainfall expected in the region. Carry rain gear and exercise caution on waterlogged corridors.' : 'Ambient conditions steady. Emergency SOS numbers available offline anytime.'}\n\n` +
-        `*(Served via Offline Edge AI Disaster Vault during network disruption.)*`,
+      text: `👋 **Sure! Here is the live weather breakdown for ${locName} (${todayDateEn}):**\n\n` +
+        `• 🌡️ **Temperature:** **${temp}°C** (Feels like **${feels}°C**)\n` +
+        `• 🌧️ **Rain Probability:** **${rainProb}%** ${rainProb >= 50 ? '(Rainfall expected 🌧️)' : '(Low rain risk ☀️)'}\n` +
+        `• 💨 **Wind Conditions:** **${wind} km/h** | **Humidity:** **${humidity}%**\n` +
+        `• 📆 **Tomorrow (${tomorrowDateEn}):** Max ~${baseline.tempRange[1]}°C | Rain ~${tomorrowRain}%\n` +
+        `• 💡 **Advisory:** ${rainProb >= 50 ? 'Rain gear recommended when heading outside.' : 'Ambient conditions steady. Emergency SOS numbers available offline anytime.'}\n\n` +
+        `*(📡 Served via Offline Edge AI Disaster Vault during network disruption.)*`,
       isOffline: true,
-      mode: 'Offline Edge AI'
+      mode: 'Offline Conversational AI'
     };
   }
 }

@@ -823,18 +823,41 @@ export function getLocalizedPlaceName(placeName, lang = 'en') {
 
 // Geocoding: Search any location / village / city in India & Worldwide
 export async function searchLocation(query, lang = 'en') {
+  const trimmed = (query || '').trim();
+  if (!trimmed) return [];
+
+  // 1. Try remote geocoding
   try {
-    const trimmed = query.trim();
-    if (!trimmed) return [];
-    
     const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(trimmed)}&count=6&language=${lang}&format=json`);
-    if (!res.ok) throw new Error('Geocoding search failed');
-    const data = await res.json();
-    return data.results || [];
+    if (res.ok) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        return data.results;
+      }
+    }
   } catch (err) {
-    console.error('Error searching location:', err);
-    return [];
+    console.warn('Remote geocoding unavailable, falling back to local places registry:', err);
   }
+
+  // 2. Local / Offline fallback from ALL_AVAILABLE_PLACES_ALPHABETICAL
+  const qLower = trimmed.toLowerCase();
+  const localMatches = ALL_AVAILABLE_PLACES_ALPHABETICAL.filter(p => 
+    p.name.toLowerCase() === qLower ||
+    p.name.toLowerCase().includes(qLower) || 
+    (p.rawName && p.rawName.toLowerCase().includes(qLower))
+  );
+
+  if (localMatches.length > 0) {
+    return localMatches.map(p => ({
+      name: p.name,
+      latitude: p.latitude,
+      longitude: p.longitude,
+      admin1: p.state || 'Tamil Nadu',
+      country: p.country || 'India',
+    }));
+  }
+
+  return [];
 }
 
 // Reverse Geocode from lat/long coordinates with robust multi-level name extraction
