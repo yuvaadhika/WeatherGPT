@@ -145,11 +145,14 @@ export default function AuthScreen({
       {/* MAIN AUTHENTICATION CARD */}
       <main className="relative z-10 w-full max-w-md mx-auto px-4 py-3 sm:py-6 flex flex-col items-center justify-center my-auto">
         <div className="w-full bg-white/95 backdrop-blur-xl border border-sky-200/80 rounded-3xl p-5 sm:p-7 shadow-xl shadow-sky-900/5 space-y-4">
-          {/* Top Cloud Icon */}
-          <div className="text-center pt-1">
-            <div className="inline-flex p-2.5 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-500 text-white shadow-md shadow-sky-500/20">
-              <CloudSun className="w-6 h-6" />
-            </div>
+          {/* Clean Title Words */}
+          <div className="text-center space-y-0.5 pt-1">
+            <h2 className="text-lg font-black text-slate-900 tracking-tight font-heading">
+              WeatherGPT
+            </h2>
+            <p className="text-xs text-slate-500">
+              {activeLanguage === 'ta' ? 'வானிலை நுண்ணறிவு தளம்' : 'Hyperlocal Weather Intelligence'}
+            </p>
           </div>
 
           {/* Tab Pill Switcher (Sign In / Create Account) */}
