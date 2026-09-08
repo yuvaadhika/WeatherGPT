@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, RotateCcw, Layers, Eye, Wind, CloudRain, ShieldAlert, Sparkles } from 'lucide-react';
-import { fetchRainViewerMetadata } from '../services/weatherService';
+import { Play, Pause, RotateCcw, Layers, Eye, Wind, CloudRain, ShieldAlert, Sparkles, MapPin } from 'lucide-react';
+import { fetchRainViewerMetadata, calculateDistrictMicroZoneBreakdown } from '../services/weatherService';
 import { TRANSLATIONS } from '../services/languages';
 import L from 'leaflet';
 
@@ -17,6 +17,7 @@ export default function WeatherRadarMap({
   const radarLayerRef = useRef(null);
   const satelliteLayerRef = useRef(null);
   const markerRef = useRef(null);
+  const microZoneLayerRef = useRef(null);
 
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
   const r = t.radar || TRANSLATIONS.en.radar;
@@ -27,9 +28,10 @@ export default function WeatherRadarMap({
   const [activeLayerType, setActiveLayerType] = useState('radar'); // 'radar' | 'satellite' | 'both'
   const [colorScheme, setColorScheme] = useState(2); // 2: Universal blue/green/yellow/red
   const [opacity, setOpacity] = useState(0.75);
+  const [showMicroZones, setShowMicroZones] = useState(true);
 
-  const lat = currentLocation?.latitude || 13.0827;
-  const lon = currentLocation?.longitude || 80.2707;
+  const lat = currentLocation?.latitude || 12.6841;
+  const lon = currentLocation?.longitude || 79.9836;
 
   // Invalidate size on mount / resize for responsive rendering in modals
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function WeatherRadarMap({
     if (!leafletMap.current) {
       const map = L.map(mapRef.current, {
         center: [lat, lon],
-        zoom: 7,
+        zoom: 9,
         zoomControl: true,
         attributionControl: false,
       });
@@ -59,9 +61,10 @@ export default function WeatherRadarMap({
         subdomains: 'abcd',
       }).addTo(map);
 
+      microZoneLayerRef.current = L.layerGroup().addTo(map);
       leafletMap.current = map;
     } else {
-      leafletMap.current.setView([lat, lon], leafletMap.current.getZoom() || 7);
+      leafletMap.current.setView([lat, lon], leafletMap.current.getZoom() || 9);
     }
 
     // Add or update current location marker
@@ -77,13 +80,13 @@ export default function WeatherRadarMap({
         className: 'custom-weather-marker',
         html: `
           <div class="relative flex items-center justify-center">
-            <div class="w-7 h-7 rounded-full bg-sky-600 border-2 border-white shadow-md flex items-center justify-center text-[11px] font-bold text-white">
+            <div class="w-8 h-8 rounded-full bg-sky-600 border-2 border-white shadow-xl flex items-center justify-center text-[11px] font-black text-white ring-2 ring-sky-300">
               ${Math.round(temp)}°
             </div>
           </div>
         `,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
       });
 
       const marker = L.marker([lat, lon], { icon: customIcon }).addTo(leafletMap.current);
@@ -97,6 +100,62 @@ export default function WeatherRadarMap({
       markerRef.current = marker;
     }
   }, [lat, lon, currentLocation, weatherData, activeLanguage]);
+
+  // Render Hyper-Local Sub-District Micro-Zone Pins on Map
+  useEffect(() => {
+    if (!leafletMap.current || !microZoneLayerRef.current) return;
+
+    microZoneLayerRef.current.clearLayers();
+    if (!showMicroZones) return;
+
+    const microBreakdown = calculateDistrictMicroZoneBreakdown(currentLocation, weatherData, null, activeLanguage);
+    
+    microBreakdown.zones.forEach((zone) => {
+      const isRain = zone.status === 'rain';
+      const isDrizzle = zone.status === 'drizzle';
+      const isSevere = zone.riskLevel === 'severe';
+      const isModerate = zone.riskLevel === 'moderate';
+
+      const ringColor = isSevere ? 'border-rose-500 ring-2 ring-rose-300' : isModerate ? 'border-amber-500 ring-2 ring-amber-300' : 'border-emerald-500 ring-2 ring-emerald-200';
+      const bgColor = isRain ? 'bg-sky-700 text-white' : isDrizzle ? 'bg-cyan-600 text-white' : 'bg-white text-slate-800 border border-slate-300';
+      const shortLabel = activeLanguage === 'ta' ? zone.nameTa.split('–')[0].trim() : zone.nameEn.split('–')[0].trim();
+
+      const zoneIcon = L.divIcon({
+        className: 'sub-locality-pin',
+        html: `
+          <div class="px-2 py-0.5 rounded-full ${bgColor} ${ringColor} text-[9px] font-bold shadow-md flex items-center space-x-1 whitespace-nowrap cursor-pointer transform hover:scale-110 transition-transform">
+            <span>${zone.statusIcon}</span>
+            <span>${shortLabel}</span>
+          </div>
+        `,
+        iconSize: [100, 24],
+        iconAnchor: [50, 12],
+      });
+
+      const pin = L.marker([zone.latitude, zone.longitude], { icon: zoneIcon });
+      pin.bindPopup(`
+        <div class="p-1.5 text-xs max-w-[240px] font-sans">
+          <strong class="text-slate-900 font-bold block text-sm">${activeLanguage === 'ta' ? zone.nameTa : zone.nameEn}</strong>
+          <div class="mt-1 flex items-center justify-between text-[11px] bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+            <span class="text-slate-600 font-medium">${activeLanguage === 'ta' ? 'மழை நிலை' : 'Rain Status'}:</span>
+            <b class="${isRain ? 'text-sky-600' : isDrizzle ? 'text-cyan-600' : 'text-slate-700'}">${zone.statusIcon} ${zone.status.toUpperCase()} (${zone.prob}%)</b>
+          </div>
+          <div class="text-[10px] text-slate-600 mt-1">
+            <span>${activeLanguage === 'ta' ? 'நேரம்' : 'Window'}: <b>${activeLanguage === 'ta' ? zone.timingTa : zone.timingEn}</b></span>
+          </div>
+          <div class="mt-1.5 pt-1.5 border-t border-slate-200 text-[10px]">
+            <span class="font-bold ${isSevere ? 'text-rose-600' : isModerate ? 'text-amber-600' : 'text-emerald-600'} block">
+              ${activeLanguage === 'ta' ? zone.riskBadgeTa : zone.riskBadgeEn}
+            </span>
+            <p class="text-slate-600 mt-0.5 leading-snug">
+              ${activeLanguage === 'ta' ? zone.riskAdvisoryTa : zone.riskAdvisoryEn}
+            </p>
+          </div>
+        </div>
+      `);
+      microZoneLayerRef.current.addLayer(pin);
+    });
+  }, [currentLocation, weatherData, showMicroZones, activeLanguage]);
 
   // Load RainViewer Radar Tile Frames
   useEffect(() => {
@@ -213,6 +272,20 @@ export default function WeatherRadarMap({
           >
             {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
             <span className="text-[11px]">{isPlaying ? (r.pause || 'Pause') : (r.play || 'Play Loop')}</span>
+          </button>
+
+          {/* Sub-Locality Micro-Zones Toggle */}
+          <button
+            onClick={() => setShowMicroZones(!showMicroZones)}
+            className={`px-2 py-1 rounded-xl text-[11px] font-bold flex items-center space-x-1 transition-all cursor-pointer shadow-2xs ${
+              showMicroZones
+                ? 'bg-sky-600 text-white shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+            title={activeLanguage === 'ta' ? 'பகுதிவாரி நிலையங்கள் (Sub-Locality Pins)' : 'Toggle Sub-Locality Pins'}
+          >
+            <MapPin className="w-3 h-3" />
+            <span className="hidden sm:inline">{activeLanguage === 'ta' ? 'பகுதிவாரி' : 'Micro-Zones'}</span>
           </button>
 
           {/* Timestamp Indicator */}

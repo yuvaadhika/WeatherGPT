@@ -354,7 +354,8 @@ export default function App() {
     }
   }, [activeLanguage, weatherData, aqiData]);
 
-  const topAlert = alerts.length > 0 ? alerts[0] : null;
+  const severeAlerts = (alerts || []).filter((a) => a.level === 'red' || a.level === 'orange' || a.level === 'yellow');
+  const topAlert = severeAlerts.length > 0 ? severeAlerts[0] : null;
 
   const handlePromptChat = (query) => {
     setActiveView('chat');
@@ -782,6 +783,7 @@ export default function App() {
               alerts={alerts}
               riskData={riskData}
               currentLocation={currentLocation}
+              weatherData={weatherData}
               onOpenXAI={() => setIsXaiOpen(true)}
               onOpenAlertModal={() => setIsAlertModalOpen(true)}
               notificationsEnabled={notificationsEnabled}
@@ -977,7 +979,7 @@ export default function App() {
           activeView={activeView}
           setActiveView={setActiveView}
           activeLanguage={activeLanguage}
-          alertCount={alerts.length}
+          alertCount={severeAlerts.length}
         />
       </div>
 
@@ -988,6 +990,7 @@ export default function App() {
         activeLanguage={activeLanguage}
         riskData={riskData}
         currentLocationName={currentLocation?.name || 'Chennai'}
+        weatherData={weatherData}
       />
 
       <ReportExportModal

@@ -16,15 +16,18 @@ import {
   Droplets,
   Wind,
   Zap,
-  ChevronRight
+  ChevronRight,
+  MapPin
 } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
+import { calculateDistrictMicroZoneBreakdown } from '../services/weatherService';
 
 export default function EarlyWarningsView({
   activeLanguage = 'en',
   alerts = [],
   riskData,
   currentLocation,
+  weatherData,
   onOpenXAI,
   onOpenAlertModal,
   notificationsEnabled
@@ -160,7 +163,7 @@ export default function EarlyWarningsView({
           <div className="p-4 rounded-3xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-center space-y-1">
             <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto" />
             <h4 className="text-sm font-bold">
-              {activeLanguage === 'ta' ? 'இயல்பான நிலை — எச்சரிக்கைகள் இல்லை' : 'Nominal Conditions — No Active Severe Warnings'}
+              {activeLanguage === 'ta' ? 'இயல்பான நிலை — பொது எச்சரிக்கைகள் இல்லை' : 'Nominal Conditions — No Severe Warnings'}
             </h4>
             <p className="text-xs text-emerald-700">
               {activeLanguage === 'ta' ? 'அனைத்து வளிமண்டல அளவீடுகளும் பாதுகாப்பான வரம்பில் உள்ளன.' : 'All atmospheric and precipitation parameters are within safe nominal thresholds.'}
@@ -168,6 +171,83 @@ export default function EarlyWarningsView({
           </div>
         )}
       </div>
+
+      {/* 2.5 Hyper-Local Sub-District Area Risk Breakdown */}
+      {(() => {
+        const microBreakdown = calculateDistrictMicroZoneBreakdown(currentLocation, weatherData, null, activeLanguage);
+        return (
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center space-x-2">
+                <div className="p-1.5 rounded-xl bg-sky-50 text-sky-600 border border-sky-200">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    {activeLanguage === 'ta' ? `${locationName} பகுதிவாரி இடர் & மழைப்பொழிவு` : `${locationName} Area-Wise Rain & Flood Risk`}
+                  </h3>
+                  <p className="text-[10px] text-slate-500">
+                    {activeLanguage === 'ta' ? 'மாவட்டம் முழுமைக்கும் ஒரே எச்சரிக்கை இன்றி, பகுதிவாரி தனித்துவ அபாய நிலை' : 'Precise locality-level variation across district sub-zones'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              {microBreakdown.zones.map((zone) => {
+                const isSevere = zone.riskLevel === 'severe';
+                const isModerate = zone.riskLevel === 'moderate';
+                return (
+                  <div
+                    key={zone.id}
+                    className={`p-3 rounded-2xl border transition-all ${
+                      isSevere
+                        ? 'bg-rose-50/70 border-rose-200'
+                        : isModerate
+                        ? 'bg-amber-50/70 border-amber-200'
+                        : 'bg-slate-50/80 border-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm">{zone.statusIcon}</span>
+                        <span className="text-xs font-extrabold text-slate-900">
+                          {activeLanguage === 'ta' ? zone.nameTa : zone.nameEn}
+                        </span>
+                      </div>
+                      <span
+                        className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase text-white ${
+                          isSevere ? 'bg-rose-600' : isModerate ? 'bg-amber-500' : 'bg-emerald-600'
+                        }`}
+                      >
+                        {zone.riskScore}/100
+                      </span>
+                    </div>
+
+                    <div className="mt-1.5 flex items-center justify-between text-[11px]">
+                      <span className="text-slate-600 font-medium">
+                        {activeLanguage === 'ta' ? 'மழை வாய்ப்பு:' : 'Rain Probability:'}
+                      </span>
+                      <b className="text-slate-800">
+                        {zone.status === 'rain'
+                          ? `${zone.prob}% (~${zone.mm} mm) | ${activeLanguage === 'ta' ? zone.timingTa : zone.timingEn}`
+                          : activeLanguage === 'ta' ? 'மழை வாய்ப்பு இல்லை (0 mm, வறண்ட வானிலை)' : 'Dry & Clear (0.0 mm)'}
+                      </b>
+                    </div>
+
+                    <p className="text-[11px] text-slate-600 mt-1 leading-snug">
+                      <b className={isSevere ? 'text-rose-700' : isModerate ? 'text-amber-700' : 'text-emerald-700'}>
+                        {activeLanguage === 'ta' ? zone.riskBadgeTa : zone.riskBadgeEn}:
+                      </b>{' '}
+                      {activeLanguage === 'ta' ? zone.riskAdvisoryTa : zone.riskAdvisoryEn}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 3. Emergency SOS Hotline Contacts */}
       <div className="bg-white border border-slate-200/90 rounded-3xl p-4 shadow-sm space-y-3">

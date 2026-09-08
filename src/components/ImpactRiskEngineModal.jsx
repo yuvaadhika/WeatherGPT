@@ -14,16 +14,19 @@ import {
   Layers,
   ArrowRight,
   HelpCircle,
-  ExternalLink
+  ExternalLink,
+  MapPin
 } from 'lucide-react';
 import { TRANSLATIONS } from '../services/languages';
+import { calculateDistrictMicroZoneBreakdown } from '../services/weatherService';
 
 export default function ImpactRiskEngineModal({
   isOpen,
   onClose,
   activeLanguage = 'en',
   riskData,
-  currentLocationName = 'Chennai'
+  currentLocationName = 'Chennai',
+  weatherData
 }) {
   if (!isOpen || !riskData) return null;
 
@@ -171,6 +174,49 @@ export default function ImpactRiskEngineModal({
               ))}
             </div>
           </div>
+
+          {/* Sub-District Locality Level Risk Distribution */}
+          {(() => {
+            const microBreakdown = calculateDistrictMicroZoneBreakdown(currentLocationName, weatherData, null, activeLanguage);
+            return (
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-sky-600" />
+                    <span>{activeLanguage === 'ta' ? `${currentLocationName} பகுதிவாரி இடர் பகுப்பாய்வு` : `${currentLocationName} Sub-Zone Risk Variance`}</span>
+                  </h4>
+                  <span className="text-[10px] text-slate-400">{activeLanguage === 'ta' ? 'பகுதிவாரி அபாயம்' : 'Granular Area Risk'}</span>
+                </div>
+
+                <div className="space-y-2">
+                  {microBreakdown.zones.map((zone) => {
+                    const isSevere = zone.riskLevel === 'severe';
+                    const isModerate = zone.riskLevel === 'moderate';
+                    return (
+                      <div key={zone.id} className="p-3 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-slate-900 flex items-center space-x-1">
+                            <span>{zone.statusIcon}</span>
+                            <span>{activeLanguage === 'ta' ? zone.nameTa : zone.nameEn}</span>
+                          </span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${
+                            isSevere ? 'bg-rose-50 border-rose-200 text-rose-700' :
+                            isModerate ? 'bg-amber-50 border-amber-200 text-amber-700' :
+                            'bg-emerald-50 border-emerald-200 text-emerald-700'
+                          }`}>
+                            {zone.riskScore}/100
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-600">
+                          {activeLanguage === 'ta' ? zone.riskAdvisoryTa : zone.riskAdvisoryEn}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Actionable Guidance */}
           <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 space-y-2">

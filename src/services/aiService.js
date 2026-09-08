@@ -8,7 +8,8 @@ import {
   generateAviationBriefing,
   generateMarineBriefing,
   getWeatherDescription,
-  getLocalizedPlaceName
+  getLocalizedPlaceName,
+  calculateDistrictMicroZoneBreakdown
 } from './weatherService';
 import { dbService } from './dbService';
 import { offlineVaultService } from './offlineVaultService';
@@ -1747,13 +1748,14 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
     // Calculate detailed Rain Verdict & Predicted Timing
     const rainCalc = calculateRainVerdict(nwpData, timeframe);
     const cropSeedAdvisory = generateCropSeedAdvisory(nwpData, lang);
+    const microBreakdown = calculateDistrictMicroZoneBreakdown(locName, nwpData, aqiData, lang);
 
-    // Highest alert level
+    // Highest alert level (excluding nominal green)
     const topAlert =
       alerts.find((a) => a.level === 'red') ||
       alerts.find((a) => a.level === 'orange') ||
       alerts.find((a) => a.level === 'yellow') ||
-      alerts[0];
+      null;
 
     // 📆 Real-time Dynamic Date & Day Calculation
     const now = new Date();
@@ -1768,38 +1770,85 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
     const todayDateEn = `${dayNamesEn[now.getDay()]}, ${now.getDate()} ${monthNamesEn[now.getMonth()]}`;
     const tomorrowDateEn = `${dayNamesEn[tomorrow.getDay()]}, ${tomorrow.getDate()} ${monthNamesEn[tomorrow.getMonth()]}`;
 
+    // Helper to format sub-district breakdown text
+    const formatMicroZoneTextTa = () => {
+      let txt = '';
+      if (microBreakdown.rainZones.length > 0) {
+        txt += `\n\n🌧️ **மழை பெய்யும் குறிப்பிட்ட பகுதிகள் (Rain Zones in ${locName}):**\n` +
+          microBreakdown.rainZones.map((z) => `  • 📍 **${z.nameTa}**: ${z.timingTa} (${z.prob}% வாய்ப்பு, ~${z.mm} மி.மீ)`).join('\n');
+      }
+      if (microBreakdown.dryZones.length > 0) {
+        txt += `\n\n☀️ **மழை இல்லாத / வறண்ட பகுதிகள் (Dry / Clear Zones):**\n` +
+          microBreakdown.dryZones.map((z) => `  • 📍 **${z.nameTa}**: மழை வாய்ப்பு இல்லை (0 மி.மீ, தெளிவான வானிலை)`).join('\n');
+      }
+      txt += `\n\n⚠️ **பகுதிவாரி இடர் & வெள்ள அபாயப் பகுப்பாய்வு (Hyper-Local Risk Distribution):**\n` +
+        microBreakdown.zones.map((z) => `  • **${z.nameTa}**: ${z.riskBadgeTa} — *${z.riskAdvisoryTa}*`).join('\n');
+      return txt;
+    };
+
+    const formatMicroZoneTextTanglish = () => {
+      let txt = '';
+      if (microBreakdown.rainZones.length > 0) {
+        txt += `\n\n🌧️ **Mazhai Peyyum Kurippitta Idangal (Rain Expected Areas in ${locName}):**\n` +
+          microBreakdown.rainZones.map((z) => `  • 📍 **${z.nameTa}**: ${z.timingTa} (${z.prob}% vaippu, ~${z.mm} mm)`).join('\n');
+      }
+      if (microBreakdown.dryZones.length > 0) {
+        txt += `\n\n☀️ **Mazhai Illadha / Varanja Idangal (Dry & Clear Areas):**\n` +
+          microBreakdown.dryZones.map((z) => `  • 📍 **${z.nameTa}**: Mazhai vaippu illa (0 mm, thelivana climate)`).join('\n');
+      }
+      txt += `\n\n⚠️ **Paghuthivaari Idar / Flood Risk Distribution (Specific Area Risk):**\n` +
+        microBreakdown.zones.map((z) => `  • **${z.nameTa}**: ${z.riskBadgeTa} — *${z.riskAdvisoryTa}*`).join('\n');
+      return txt;
+    };
+
+    const formatMicroZoneTextEn = () => {
+      let txt = '';
+      if (microBreakdown.rainZones.length > 0) {
+        txt += `\n\n🌧️ **Specific Localities Expecting Rain in ${locName}:**\n` +
+          microBreakdown.rainZones.map((z) => `  • 📍 **${z.nameEn}**: ${z.timingEn} (${z.prob}% chance, ~${z.mm} mm)`).join('\n');
+      }
+      if (microBreakdown.dryZones.length > 0) {
+        txt += `\n\n☀️ **Specific Localities Remaining Dry / Clear:**\n` +
+          microBreakdown.dryZones.map((z) => `  • 📍 **${z.nameEn}**: No rain expected (0.0 mm, fair & clear)`).join('\n');
+      }
+      txt += `\n\n⚠️ **Hyper-Local Inundation & Hazard Risk Distribution:**\n` +
+        microBreakdown.zones.map((z) => `  • **${z.nameEn}**: [${z.riskLevel.toUpperCase()}] ${z.riskBadgeEn} — *${z.riskAdvisoryEn}*`).join('\n');
+      return txt;
+    };
+
     // 🌟 Special Language: TANGLISH (Conversational Tamil in English letters)
     if (lang === 'tanglish') {
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai theerpu & timing idho:**\n\n` +
-            `🌧️ **Mazhai Theerpu: Aam (YES - Mazhai Kandippa Peyyum! 🌧️)**\n` +
-            `• ⏰ **Kaanikkapatta Neram (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
-            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% | **Ethirpaarkappadum Alavu:** ~${rainCalc.totalPrecip} mm\n` +
+            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai theerpu & specific area-wise report idho:**\n\n` +
+            `🌧️ **Overall Mazhai Theerpu: Aam (YES - Mazhai Peyyum! 🌧️)**\n` +
+            `• ⏰ **Kaanikkapatta Neram (Peak Window):** ${rainCalc.predictedTimingTa}\n` +
+            `• 📊 **District Average Vaippu:** ${rainCalc.maxProb}% | **Alavu:** ~${rainCalc.totalPrecip} mm\n` +
             `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
-            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
-            `• 💡 **Mukkiya Advice:** Veliya kelambura appo kandippa Kudai (Umbrella) allathu Raincoat eduthuttu ponga!`
+            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h` +
+            formatMicroZoneTextTanglish() +
+            `\n\n💡 **Mukkiya Advice:** Mazhai ulla paghudhikku poravanga kandippa Kudai (Umbrella) allathu Raincoat eduthuttu ponga!`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai status idho:**\n\n` +
-            `🌦️ **Mazhai Theerpu: Vaippu Irukku (MAYBE - Lesana Thooral / Megamootam 🌦️)**\n` +
-            `• ⏰ **Kaanikkapatta Neram (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
-            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% | **Ethirpaarkappadum Alavu:** ~${rainCalc.totalPrecip} mm\n` +
-            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
-            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
-            `• 💡 **Advice:** Sila idangalil lesana thooral varalaam. Veli velai irundha pathu thittam pottukonga.`
+            `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai status & specific area report idho:**\n\n` +
+            `🌦️ **Overall Mazhai Theerpu: Sila Idangalil Mattum (MAYBE - Isolated Showers 🌦️)**\n` +
+            `• ⏰ **Kaanikkapatta Neram:** ${rainCalc.predictedTimingTa}\n` +
+            `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}%\n` +
+            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)` +
+            formatMicroZoneTextTanglish() +
+            `\n\n💡 **Advice:** Sila kurippitta idangalil mattum lesana thooral varalaam. Veli velai irundha pathu thittam pottukonga.`
           );
         } else {
           return (
             `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) mazhai status idho:**\n\n` +
-            `☀️ **Mazhai Theerpu: Illai (NO - Mazhai Peyya Vaippu Illai! ☀️)**\n` +
+            `☀️ **Overall Mazhai Theerpu: Illai (NO - Mazhai Peyya Vaippu Illai! ☀️)**\n` +
             `• ⏰ **Predicted Time:** Adutha 24 mani nerathil mazhai vaippu illa.\n` +
             `• 📊 **Mazhai Vaippu:** ${rainCalc.maxProb}% (Romba Kuraivu) | **Mazhai Alavu:** 0 mm\n` +
-            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
-            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
-            `• 💡 **Advice:** Mazhai peyya vaippe illa. Thelivana veyil & nalla climate irukum. Unga velaiya thairiyama pannalam!`
+            `• 🌡️ **Tharpodhaya Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)` +
+            formatMicroZoneTextTanglish() +
+            `\n\n💡 **Advice:** Mazhai peyya vaippe illa. Thelivana veyil & nalla climate irukum. Unga velaiya thairiyama pannalam!`
           );
         }
       }
@@ -1852,9 +1901,9 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
           `👋 **Kandippa! ${locName}-la naalaiya (${tomorrowDateTa}) weather forecast idho:**\n\n` +
           `• ☀️ **Adhigabatcha Veppam:** ${tomorrowTempMax}°C\n` +
           `• 🌧️ **Mazhai Peyya Vaippu:** ${tomorrowRainProb}%\n` +
-          `• 💨 **Kaatru Vegam:** ${wind} km/h | **Kaatru Tharam (AQI):** ${aqi}\n` +
-          `• 💡 **Advice:** ${tomorrowRainProb >= 50 ? 'Nalaiku veliya porappa kudai eduthuttu ponga.' : 'Nalaiku climate steady ah nalla irukum.'}\n` +
-          `• 🛡️ **Echarikkai Nilai:** ${topAlert?.title || 'Iyalbaana Vaanilai'}`
+          `• 💨 **Kaatru Vegam:** ${wind} km/h | **Kaatru Tharam (AQI):** ${aqi}` +
+          formatMicroZoneTextTanglish() +
+          `\n\n💡 **Advice:** ${tomorrowRainProb >= 50 ? 'Nalaiku veliya porappa kudai eduthuttu ponga.' : 'Nalaiku climate steady ah nalla irukum.'}`
         );
       }
 
@@ -1863,9 +1912,9 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
         `• 🌡️ **Vaanilai Nilai:** ${wmo.label} (${temp}°C, Feel aaguradhu ${feels}°C)\n` +
         `• 🌧️ **Mazhai Vaippu:** ${rainProb}% ${rainProb >= 50 ? '(Mazhai peyya vaaipu irukku 🌧️)' : '(Mazhai vaippu kuraivu ☀️)'}\n` +
         `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n` +
-        `• 🍃 **Kaatru Tharam (AQI):** ${aqi}\n` +
-        `• 📆 **Naalai (${tomorrowDateTa}):** Veppam ~${tomorrowTempMax}°C | Mazhai ~${tomorrowRainProb}%\n` +
-        `• 💡 **Advice:** ${topAlert?.message || (rainProb >= 50 ? 'Mazhai vara vaaipu irukku, kudai eduthukonga.' : 'Climate nallave irukku, veli velai thairiyama seyyalaam.')}`
+        `• 🍃 **Kaatru Tharam (AQI):** ${aqi}` +
+        formatMicroZoneTextTanglish() +
+        `\n\n💡 **Advice:** ${topAlert?.message || (rainProb >= 50 ? 'Mazhai vara vaaipu irukku, kudai eduthukonga.' : 'Climate nallave irukku, veli velai thairiyama seyyalaam.')}`
       );
     }
 
@@ -1874,30 +1923,32 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (isRainInquiry) {
         if (rainCalc.verdict === 'YES') {
           return (
-            `🌧️ **மழை வாய்ப்பு தீர்ப்பு: ஆம் (YES - மழை பெய்யும்! 🌧️)**\n\n` +
-            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
-            `• 📊 **மழை வாய்ப்பு (Probability):** ${rainCalc.maxProb}% | **எதிர்பார்க்கப்படும் அளவு:** ~${rainCalc.totalPrecip} மி.மீ\n` +
+            `🌧️ **${locName} - நேரலை மழை தீர்ப்பு & பகுதிவாரி அறிக்கை:**\n\n` +
+            `🌧️ **ஒட்டுமொத்த மழை தீர்ப்பு: ஆம் (YES - மழை பெய்யும்! 🌧️)**\n` +
+            `• ⏰ **கணிக்கப்பட்ட நேரம் (Peak Time):** ${rainCalc.predictedTimingTa}\n` +
+            `• 📊 **மாவட்ட சராசரி வாய்ப்பு:** ${rainCalc.maxProb}% | **எதிர்பார்க்கப்படும் அளவு:** ~${rainCalc.totalPrecip} மி.மீ\n` +
             `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
-            `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
-            `• 💡 **முக்கிய ஆலோசனை:** வெளியே செல்லும்போது குடை அல்லது ரெயின்கோட் எடுத்துச் செல்லவும்.`
+            `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி` +
+            formatMicroZoneTextTa() +
+            `\n\n💡 **முக்கிய ஆலோசனை:** மழை உள்ள பகுதிகளுக்குப் பயணிக்கும்போது குடை அல்லது ரெயின்கோட் எடுத்துச் செல்லவும்.`
           );
         } else if (rainCalc.verdict === 'MAYBE') {
           return (
-            `🌦️ **மழை வாய்ப்பு தீர்ப்பு: வாய்ப்பு உள்ளது (MAYBE - லேசான தூறல் / மேகமூட்டம் 🌦️)**\n\n` +
-            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Time):** ${rainCalc.predictedTimingTa}\n` +
-            `• 📊 **மழை வாய்ப்பு (Probability):** ${rainCalc.maxProb}% | **எதிர்பார்க்கப்படும் அளவு:** ~${rainCalc.totalPrecip} மி.மீ\n` +
-            `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
-            `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
-            `• 💡 **ஆலோசனை:** குறுகிய தூறல் அல்லது லேசான மழைக்கு வாய்ப்பு உள்ளது. வானிலை நிலவரத்தைக் கவனிக்கவும்.`
+            `🌦️ **${locName} - மழை வாய்ப்பு தீர்ப்பு: சில பகுதிகளில் மட்டும் (MAYBE - Isolated Showers 🌦️)**\n\n` +
+            `• ⏰ **கணிக்கப்பட்ட நேரம்:** ${rainCalc.predictedTimingTa}\n` +
+            `• 📊 **மழை வாய்ப்பு:** ${rainCalc.maxProb}%\n` +
+            `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)` +
+            formatMicroZoneTextTa() +
+            `\n\n💡 **ஆலோசனை:** குறுகிய தூறல் அல்லது லேசான மழைக்கு சில இடங்களில் வாய்ப்பு உள்ளது.`
           );
         } else {
           return (
-            `☀️ **மழை வாய்ப்பு தீர்ப்பு: இல்லை (NO - மழை பெய்யாது! ☀️)**\n\n` +
-            `• ⏰ **கணிக்கப்பட்ட நேரம் (Predicted Time):** அடுத்த 24 மணி நேரத்தில் மழைக்கான வாய்ப்பு இல்லை\n` +
-            `• 📊 **மழை வாய்ப்பு (Probability):** ${rainCalc.maxProb}% (மிகக் குறைவு) | **மழை அளவு:** 0 மி.மீ\n` +
-            `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
-            `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
-            `• 💡 **ஆலோசனை:** மழை பெய்ய வாய்ப்பில்லை, வறண்ட மற்றும் தெளிவான வானிலை நிலவும். உங்களது பணிகளைத் தடையின்றித் திட்டமிடலாம்.`
+            `☀️ **${locName} - மழை வாய்ப்பு தீர்ப்பு: இல்லை (NO - மழை பெய்யாது! ☀️)**\n\n` +
+            `• ⏰ **கணிக்கப்பட்ட நேரம்:** அடுத்த 24 மணி நேரத்தில் மழைக்கான வாய்ப்பு இல்லை\n` +
+            `• 📊 **மழை வாய்ப்பு:** ${rainCalc.maxProb}% (மிகக் குறைவு) | **மழை அளவு:** 0 மி.மீ\n` +
+            `• 🌡️ **தற்போதைய நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)` +
+            formatMicroZoneTextTa() +
+            `\n\n💡 **ஆலோசனை:** மழை பெய்ய வாய்ப்பில்லை, வறண்ட மற்றும் தெளிவான வானிலை நிலவும். உங்களது பணிகளைத் தடையின்றித் திட்டமிடலாம்.`
           );
         }
       }
@@ -1938,18 +1989,18 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
           `👋 **நிச்சயமாக! ${locName} பகுதிக்கான நாளைய (${tomorrowDateTa}) வானிலை முன்னறிவிப்பு:**\n\n` +
           `• ☀️ **அதிகபட்ச வெப்பநிலை:** ${tomorrowTempMax}°C\n` +
           `• 🌧️ **மழை பெய்வதற்கான வாய்ப்பு:** ${tomorrowRainProb}%\n` +
-          `• 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **காற்று தரம் (AQI):** ${aqi}\n` +
-          `• 💡 **பாதுகாப்பு குறிப்பு:** ${tomorrowRainProb >= 50 ? 'நாளை வெளியே செல்லும்போது மறக்காமல் குடை எடுத்துச் செல்லவும்.' : 'வானிலை பொதுவாக இயல்பாக நிலவும்.'}\n` +
-          `• 🛡️ **வானிலை எச்சரிக்கை நிலை:** ${topAlert?.title || 'இயல்பு'}`
+          `• 💨 **காற்றின் வேகம்:** ${wind} கி.மீ/மணி | **காற்று தரம் (AQI):** ${aqi}` +
+          formatMicroZoneTextTa() +
+          `\n\n💡 **பாதுகாப்பு குறிப்பு:** ${tomorrowRainProb >= 50 ? 'நாளை வெளியே செல்லும்போது மறக்காமல் குடை எடுத்துச் செல்லவும்.' : 'வானிலை பொதுவாக இயல்பாக நிலவும்.'}`
         );
       }
       return (
         `👋 **நிச்சயமாக! ${locName} பகுதிக்கான இன்றைய (${todayDateTa}) நேரலை வானிலை தகவல்:**\n\n` +
         `• 🌡️ **வானிலை நிலை:** ${wmo.label} (${temp}°C, உணரப்படும் வெப்பம் ${feels}°C)\n` +
         `• 🌧️ **மழை வாய்ப்பு:** ${rainProb}% | **காற்று தரம் (AQI):** ${aqi}\n` +
-        `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
-        `• 📆 **நாளை (${tomorrowDateTa}):** அதிகபட்சம் ~${tomorrowTempMax}°C | மழை வாய்ப்பு ~${tomorrowRainProb}%\n` +
-        `• 💡 **ஆலோசனை:** ${topAlert?.message || (rainProb >= 50 ? 'மழைக்கு வாய்ப்பு உள்ளது, குடை எடுத்துச் செல்லவும்.' : 'வானிலை சீராக உள்ளது, பணிகளைத் தடையின்றித் திட்டமிடலாம்.')}`
+        `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி` +
+        formatMicroZoneTextTa() +
+        `\n\n💡 **ஆலோசனை:** ${topAlert?.message || (rainProb >= 50 ? 'மழைக்கு வாய்ப்பு உள்ளது, குடை எடுத்துச் செல்லவும்.' : 'வானிலை சீராக உள்ளது, பணிகளைத் தடையின்றித் திட்டமிடலாம்.')}`
       );
     }
 
@@ -2327,28 +2378,29 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
         return (
           `🌧️ **Rain Forecast Verdict: YES (Rain Predicted! 🌧️)**\n\n` +
           `• ⏰ **Predicted Time:** ${rainCalc.predictedTimingEn}\n` +
-          `• 📊 **Rain Probability:** ${rainCalc.maxProb}% | **Estimated Accumulation:** ~${rainCalc.totalPrecip} mm\n` +
+          `• 📊 **District Average Probability:** ${rainCalc.maxProb}% | **Estimated Accumulation:** ~${rainCalc.totalPrecip} mm\n` +
           `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)\n` +
-          `• 💧 **Humidity:** ${humidity}% | **Wind:** ${wind} km/h\n` +
-          `• 💡 **Advisory:** Carry an umbrella / rain gear. Plan outdoor tasks accordingly.`
+          `• 💧 **Humidity:** ${humidity}% | **Wind:** ${wind} km/h` +
+          formatMicroZoneTextEn() +
+          `\n\n💡 **Advisory:** Carry an umbrella / rain gear when travelling through rain zones. Plan outdoor tasks accordingly.`
         );
       } else if (rainCalc.verdict === 'MAYBE') {
         return (
-          `🌦️ **Rain Forecast Verdict: MAYBE (Passing Showers / Drizzle Possible 🌦️)**\n\n` +
+          `🌦️ **Rain Forecast Verdict: Isolated Showers in Some Areas (MAYBE 🌦️)**\n\n` +
           `• ⏰ **Predicted Time:** ${rainCalc.predictedTimingEn}\n` +
-          `• 📊 **Rain Probability:** ${rainCalc.maxProb}% | **Estimated Accumulation:** ~${rainCalc.totalPrecip} mm\n` +
-          `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)\n` +
-          `• 💧 **Humidity:** ${humidity}% | **Wind:** ${wind} km/h\n` +
-          `• 💡 **Advisory:** Isolated showers or localized drizzles possible. Keep an eye on local conditions.`
+          `• 📊 **Rain Probability:** ${rainCalc.maxProb}%\n` +
+          `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)` +
+          formatMicroZoneTextEn() +
+          `\n\n💡 **Advisory:** Isolated showers or localized drizzles possible in specific pockets. Keep an eye on local conditions.`
         );
       } else {
         return (
           `☀️ **Rain Forecast Verdict: NO (No Rain Expected! ☀️)**\n\n` +
           `• ⏰ **Predicted Time:** No rain expected in the next 24 hours.\n` +
           `• 📊 **Rain Probability:** ${rainCalc.maxProb}% (Very Low) | **Estimated Accumulation:** 0.0 mm\n` +
-          `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)\n` +
-          `• 💧 **Humidity:** ${humidity}% | **Wind:** ${wind} km/h\n` +
-          `• 💡 **Advisory:** Clear and dry weather expected. Favorable for outdoor activities and travel.`
+          `• 🌡️ **Current Conditions:** ${wmo.label} at ${temp}°C (Feels like ${feels}°C)` +
+          formatMicroZoneTextEn() +
+          `\n\n💡 **Advisory:** Clear and dry weather expected. Favorable for outdoor activities and travel.`
         );
       }
     }
@@ -2396,9 +2448,9 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
         `👋 **Sure! Here is the tomorrow forecast for ${locName} (${tomorrowDateEn}):**\n\n` +
         `• ☀️ **Expected Maximum Temperature:** ${tomorrowTempMax}°C\n` +
         `• 🌧️ **Precipitation Probability:** ${tomorrowRainProb}%\n` +
-        `• 💨 **Sustained Winds:** ${wind} km/h | **Air Quality Index:** ${aqi} (US AQI)\n` +
-        `• 💡 **Advisory:** ${tomorrowRainProb >= 50 ? 'Rain gear recommended when heading outside.' : 'Ambient conditions steady and favorable for outdoor activities.'}\n` +
-        `• 🛡️ **Disaster & Alert Status:** ${topAlert?.title || 'Normal Stable Conditions'}`
+        `• 💨 **Sustained Winds:** ${wind} km/h | **Air Quality Index:** ${aqi} (US AQI)` +
+        formatMicroZoneTextEn() +
+        `\n\n💡 **Advisory:** ${tomorrowRainProb >= 50 ? 'Rain gear recommended when heading outside.' : 'Ambient conditions steady and favorable for outdoor activities.'}`
       );
     }
 
@@ -2408,9 +2460,9 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       `• 🌧️ **Precipitation Outlook:** **${rainProb}%** probability today\n` +
       `• 💧 **Atmospheric Moisture:** Relative Humidity **${humidity}%** | Pressure **${current.pressure_msl || 1013} hPa**\n` +
       `• 💨 **Wind Dynamics:** **${wind} km/h** from ${current.wind_direction_10m || 0}°\n` +
-      `• 🍃 **Air Quality & UV:** AQI **${aqi}** | UV Index **${current.uv_index || 5}**\n` +
-      `• 📆 **Tomorrow (${tomorrowDateEn}):** Max ~${tomorrowTempMax}°C | Rain ~${tomorrowRainProb}%\n` +
-      `• 💡 **Advisory:** ${topAlert?.message || (rainProb >= 50 ? 'Rain expected in the region, keep an umbrella handy.' : 'Clear and steady weather conditions.')}`
+      `• 🍃 **Air Quality & UV:** AQI **${aqi}** | UV Index **${current.uv_index || 5}**` +
+      formatMicroZoneTextEn() +
+      `\n\n💡 **Advisory:** ${topAlert?.message || (rainProb >= 50 ? 'Rain expected in the region, keep an umbrella handy.' : 'Clear and steady weather conditions.')}`
     );
   }
 }

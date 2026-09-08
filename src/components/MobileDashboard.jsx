@@ -180,8 +180,8 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* 2. Active Severe Weather Alert Warning Banner (If active) */}
-      {alerts && alerts.length > 0 && (
+      {/* 2. Active Severe Weather Alert Warning Banner (Only if red/orange/yellow active) */}
+      {alerts && alerts.length > 0 && alerts[0].level !== 'green' && (
         <div
           onClick={onOpenAlerts}
           className={`p-3 rounded-2xl border shadow-2xs flex items-center justify-between cursor-pointer transition-all ${

@@ -213,8 +213,8 @@ export default function Header({
           </span>
         </button>
 
-        {/* Top Warning Badge if Active */}
-        {topAlert && (
+        {/* Top Severe Warning Badge if Active (Red / Orange / Yellow) */}
+        {topAlert && topAlert.level !== 'green' && (
           <div
             onClick={onOpenAlertModal}
             className={`hidden sm:flex px-2 py-1 rounded-xl text-[10px] font-bold border items-center space-x-1 cursor-pointer ${
@@ -222,9 +222,7 @@ export default function Header({
                 ? 'bg-rose-50 border-rose-200 text-rose-700'
                 : topAlert.level === 'orange'
                 ? 'bg-amber-50 border-amber-200 text-amber-700'
-                : topAlert.level === 'yellow'
-                ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
-                : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                : 'bg-yellow-50 border-yellow-200 text-yellow-700'
             }`}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-current"></span>

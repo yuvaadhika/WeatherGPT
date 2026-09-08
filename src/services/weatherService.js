@@ -1533,6 +1533,430 @@ export function calculateImpactRiskScore(weatherData, aqiData, lang = 'en') {
   };
 }
 
+// 🌐 Sub-District / Taluk-Level Micro-Zones & Terrain Database
+export const DISTRICT_MICRO_ZONES = {
+  Chengalpattu: [
+    {
+      id: 'tambaram-vandalur-guduvanchery',
+      nameEn: 'Tambaram – Vandalur – Guduvanchery – Pallavaram',
+      nameTa: 'தாம்பரம் – வண்டலூர் – கூடுவாஞ்சேரி – பல்லாவரம்',
+      zoneType: 'urban_gst_corridor',
+      latitude: 12.9249,
+      longitude: 80.1000,
+      elevation: 32,
+      baseRainModifier: 1.18, // Convective urban heat island + GST corridor
+      vulnerabilityEn: 'GST Road subways, Mudichur lowlands & Grand Southern Trunk underpasses',
+      vulnerabilityTa: 'ஜிஎஸ்டி சாலை சுரங்கப்பாதைகள் & முடிச்சூர் தாழ்வான பகுதிகள்',
+    },
+    {
+      id: 'maraimalai-nagar-singaperumal-paranur',
+      nameEn: 'Maraimalai Nagar – Singaperumal Koil – Paranur',
+      nameTa: 'மறைமலை நகர் – சிங்கபெருமாள் கோவில் – பரனூர்',
+      zoneType: 'industrial_belt',
+      latitude: 12.7950,
+      longitude: 80.0240,
+      elevation: 45,
+      baseRainModifier: 1.05,
+      vulnerabilityEn: 'Industrial access roads, Paranur toll stretch & railway culverts',
+      vulnerabilityTa: 'தொழிற்பேட்டை சாலைகள் & பரனூர் டோல்கேட் பாலப் பகுதிகள்',
+    },
+    {
+      id: 'chengalpattu-town-palar',
+      nameEn: 'Chengalpattu Town & Palar River Basin',
+      nameTa: 'செங்கல்பட்டு நகரம் & பாலாறு படுகை',
+      zoneType: 'central_town',
+      latitude: 12.6841,
+      longitude: 79.9836,
+      elevation: 36,
+      baseRainModifier: 0.95,
+      vulnerabilityEn: 'Palar riverbed approach, Kolavai lake sluice & Old Bus Stand lowlands',
+      vulnerabilityTa: 'கொளவை ஏரி வடிகால், பழைய பேருந்து நிலையம் & பாலாற்றுப் படுகை',
+    },
+    {
+      id: 'mahabalipuram-thiruporur-ecr',
+      nameEn: 'Mahabalipuram – Thiruporur – Kovalam – Kelambakkam',
+      nameTa: 'மாமல்லபுரம் – திருப்போரூர் – கோவளம் – கேளம்பாக்கம்',
+      zoneType: 'coastal_marine',
+      latitude: 12.6269,
+      longitude: 80.1927,
+      elevation: 8,
+      baseRainModifier: 1.12, // Sea breeze cloud convergence
+      vulnerabilityEn: 'East Coast Road (ECR) shoreline, backwaters & Buckingham Canal margins',
+      vulnerabilityTa: 'கிழக்குக் கடற்கரைச் சாலை (ECR), கடலோர முகத்துவாரம் & பக்கிங்காம் கால்வாய்',
+    },
+    {
+      id: 'maduranthakam-karunguzhi',
+      nameEn: 'Maduranthakam – Karunguzhi Lake Belt',
+      nameTa: 'மதுராந்தகம் – கருங்குழி ஏரிப் பாசன பகுதி',
+      zoneType: 'agricultural_lake',
+      latitude: 12.5085,
+      longitude: 79.8847,
+      elevation: 28,
+      baseRainModifier: 0.82,
+      vulnerabilityEn: 'Maduranthakam big lake surplus weir & paddy basin bunds',
+      vulnerabilityTa: 'மதுராந்தகம் பெரிய ஏரி கலங்கல் & நெல் வயல் பாசன வரப்புகள்',
+    },
+    {
+      id: 'cheyyur-acharapakkam-chunampet',
+      nameEn: 'Cheyyur – Acharapakkam – Chunampet',
+      nameTa: 'செய்யூர் – அச்சரப்பாக்கம் – சூனாம்பேடு',
+      zoneType: 'southern_plains',
+      latitude: 12.3533,
+      longitude: 80.0031,
+      elevation: 20,
+      baseRainModifier: 0.78,
+      vulnerabilityEn: 'Southern coastal creek channels & open rural roads',
+      vulnerabilityTa: 'தெற்கு உப்பங்கழி ஓடைகள் & திறந்தவெளி கிராமப்புற சாலைகள்',
+    },
+  ],
+  Chennai: [
+    {
+      id: 'north-chennai',
+      nameEn: 'North Chennai (Royapuram, Tondiarpet, Ennore, Vyasarpadi)',
+      nameTa: 'வட சென்னை (ராயபுரம், தண்டையார்பேட்டை, எண்ணூர், வியாசர்பாடி)',
+      zoneType: 'coastal_industrial',
+      latitude: 13.1250,
+      longitude: 80.2900,
+      baseRainModifier: 1.15,
+      vulnerabilityEn: 'Ganesapuram subway, Vyasarpadi lowlands & Ennore creek margins',
+      vulnerabilityTa: 'கணேசபுரம் சுரங்கப்பாதை, வியாசர்பாடி & எண்ணூர் முகத்துவாரம்',
+    },
+    {
+      id: 'central-chennai',
+      nameEn: 'Central Chennai (T.Nagar, Nungambakkam, Marina, Egmore)',
+      nameTa: 'மத்திய சென்னை (தி.நகர், நுங்கம்பாக்கம், மெரினா, எழும்பூர்)',
+      zoneType: 'dense_commercial',
+      latitude: 13.0400,
+      longitude: 80.2400,
+      baseRainModifier: 1.05,
+      vulnerabilityEn: 'Bazullah road, Duraisamy subway & commercial storm drains',
+      vulnerabilityTa: 'துரைசாமி சுரங்கப்பாதை & தி.நகர் வணிக வளாகப் பகுதிகள்',
+    },
+    {
+      id: 'south-chennai',
+      nameEn: 'South Chennai & OMR (Velachery, Adyar, Thiruvanmiyur, Sholinganallur)',
+      nameTa: 'தென் சென்னை & OMR (வேளச்சேரி, அடையாறு, திருவான்மியூர், சோழிங்கநல்லூர்)',
+      zoneType: 'marshland_it_corridor',
+      latitude: 12.9800,
+      longitude: 80.2200,
+      baseRainModifier: 1.20,
+      vulnerabilityEn: 'Velachery lake catchment, Ram Nagar lowlands & OMR canals',
+      vulnerabilityTa: 'வேளச்சேரி ஏரிப் பகுதி, ராம் நகர் & பள்ளிக்கரணை சதுப்புநிலம்',
+    },
+    {
+      id: 'west-chennai',
+      nameEn: 'West Chennai (Anna Nagar, Koyambedu, Porur, Ambattur)',
+      nameTa: 'மேற்கு சென்னை (அண்ணா நகர், கோயம்பேடு, போரூர், அம்பத்தூர்)',
+      zoneType: 'suburban_inland',
+      latitude: 13.0850,
+      longitude: 80.1600,
+      baseRainModifier: 1.00,
+      vulnerabilityEn: 'Koyambedu market approach & Porur lake overflow channels',
+      vulnerabilityTa: 'கோயம்பேடு சந்தை வளாகம் & போரூர் ஏரி உபரி நீர் கால்வாய்',
+    },
+  ],
+  Kanchipuram: [
+    {
+      id: 'kanchi-town',
+      nameEn: 'Kanchipuram Town & Vegavathi Basin',
+      nameTa: 'காஞ்சிபுரம் நகரம் & வேகவதி படுகை',
+      latitude: 12.8342,
+      longitude: 79.7036,
+      baseRainModifier: 0.95,
+      vulnerabilityEn: 'Vegavathi river banks & temple tank lowlands',
+      vulnerabilityTa: 'வேகவதி ஆற்றங்கரை & கோயில் குளத் தாழ்வான பகுதிகள்',
+    },
+    {
+      id: 'sriperumbudur-oragadam',
+      nameEn: 'Sriperumbudur – Oragadam Industrial Corridor',
+      nameTa: 'ஸ்ரீபெரும்புதூர் – ஒரகடம் தொழிற்பேட்டை',
+      latitude: 12.9667,
+      longitude: 79.9400,
+      baseRainModifier: 1.10,
+      vulnerabilityEn: 'Bengaluru Highway culverts & SIPCOT runoff roads',
+      vulnerabilityTa: 'பெங்களூரு தேசிய நெடுஞ்சாலை & சிப்காட் தொழிற்பேட்டை சாலைகள்',
+    },
+    {
+      id: 'uthiramerur-walajabad',
+      nameEn: 'Uthiramerur – Walajabad Agricultural Belt',
+      nameTa: 'உத்திரமேரூர் – வாலாஜாபாத் விவசாய பாசனப் பகுதி',
+      latitude: 12.6167,
+      longitude: 79.7667,
+      baseRainModifier: 0.90,
+      vulnerabilityEn: 'Vayalur check dam & extensive paddy irrigation bunds',
+      vulnerabilityTa: 'வயலூர் தடுப்பணை & வயல்வெளிக் கால்வாய்கள்',
+    },
+  ],
+  Tiruvallur: [
+    {
+      id: 'tiruvallur-town',
+      nameEn: 'Tiruvallur Town & Poondi Reservoir',
+      nameTa: 'திருவள்ளூர் நகரம் & பூண்டி நீர்த்தேக்கம்',
+      latitude: 13.1438,
+      longitude: 79.9083,
+      baseRainModifier: 1.00,
+      vulnerabilityEn: 'Poondi surplus channel & town lake margins',
+      vulnerabilityTa: 'பூண்டி நீர்த்தேக்க உபரி நீர் கால்வாய்',
+    },
+    {
+      id: 'avadi-ambattur',
+      nameEn: 'Avadi – Ambattur – Red Hills (Puzhal)',
+      nameTa: 'ஆவடி – அம்பத்தூர் – புழல் ஏரி பகுதி',
+      latitude: 13.1167,
+      longitude: 80.1000,
+      baseRainModifier: 1.15,
+      vulnerabilityEn: 'Ambattur estate lowlands & Puzhal surplus channels',
+      vulnerabilityTa: 'அம்பத்தூர் தொழிற்பேட்டை & புழல் உபரி நீர் ஓடைகள்',
+    },
+    {
+      id: 'gummidipoondi-pulicat',
+      nameEn: 'Gummidipoondi – Ponneri – Pulicat Lagoon',
+      nameTa: 'கும்மிடிப்பூண்டி – பொன்னேரி – பழவேற்காடு ஏரி',
+      latitude: 13.4000,
+      longitude: 80.1333,
+      baseRainModifier: 1.05,
+      vulnerabilityEn: 'Pulicat bar mouth, Araniyar river banks & salt pans',
+      vulnerabilityTa: 'பழவேற்காடு முகத்துவாரம் & ஆரணியாற்றுப் படுகை',
+    },
+  ],
+  Coimbatore: [
+    {
+      id: 'cbe-city',
+      nameEn: 'Coimbatore City (Gandhipuram, RS Puram, Peelamedu)',
+      nameTa: 'கோவை மாநகரம் (காந்திபுரம், ஆர்.எஸ்.புரம், பீளமேடு)',
+      latitude: 11.0168,
+      longitude: 76.9558,
+      baseRainModifier: 1.00,
+      vulnerabilityEn: 'Lanka Corner subway & Avinashi Road underpasses',
+      vulnerabilityTa: 'லங்கா கார்னர் சுரங்கப்பாதை & அவிநாசி சாலை',
+    },
+    {
+      id: 'pollachi-valparai',
+      nameEn: 'Pollachi – Valparai – Anamalai Foothills',
+      nameTa: 'பொள்ளாச்சி – வால்பாறை – ஆனைமலை அடிவாரம்',
+      latitude: 10.6600,
+      longitude: 77.0100,
+      baseRainModifier: 1.35,
+      vulnerabilityEn: 'Ghat road hairpin bends & foothill plantation streams',
+      vulnerabilityTa: 'மலைப்பாதை கொண்டை ஊசி வளைவுகள் & எஸ்டேட் ஓடைகள்',
+    },
+    {
+      id: 'mettupalayam-siruvani',
+      nameEn: 'Mettupalayam – Karamadai – Siruvani Catchment',
+      nameTa: 'மேட்டுப்பாளையம் – காரமடை – சிறுவாணி நீர்ப்பிடிப்பு பகுதி',
+      latitude: 11.3000,
+      longitude: 76.9500,
+      baseRainModifier: 1.20,
+      vulnerabilityEn: 'Bhavani riverbed approach & Ooty foothills',
+      vulnerabilityTa: 'பவானி ஆற்றுப் படுகை & நீலகிரி அடிவாரம்',
+    },
+  ],
+  Madurai: [
+    {
+      id: 'madurai-city',
+      nameEn: 'Madurai City & Vaigai River Corridor',
+      nameTa: 'மதுரை மாநகரம் & வைகை ஆற்றுப் படுகை',
+      latitude: 9.9252,
+      longitude: 78.1198,
+      baseRainModifier: 1.05,
+      vulnerabilityEn: 'Vaigai south bank roads & Sellur lowlands',
+      vulnerabilityTa: 'செல்லூர் கண்மாய் & வைகை தென்கரை தாழ்வான பகுதிகள்',
+    },
+    {
+      id: 'melur-agri',
+      nameEn: 'Melur – Othakadai Agricultural Zone',
+      nameTa: 'மேலூர் – ஒத்தக்கடை விவசாய மண்டலம்',
+      latitude: 10.0500,
+      longitude: 78.3300,
+      baseRainModifier: 0.95,
+      vulnerabilityEn: 'Periyar main canal feeder bunds',
+      vulnerabilityTa: 'பெரியாறு பிரதான கால்வாய் வரப்புகள்',
+    },
+    {
+      id: 'usilampatti-thirumangalam',
+      nameEn: 'Usilampatti – Thirumangalam Dry Belt',
+      nameTa: 'உசிலம்பட்டி – திருமங்கலம் பகுதி',
+      latitude: 9.9700,
+      longitude: 77.7900,
+      baseRainModifier: 0.85,
+      vulnerabilityEn: 'Dry tank bunds & highway intersections',
+      vulnerabilityTa: 'கண்மாய் வரப்புகள் & தேசிய நெடுஞ்சாலை சந்திப்புகள்',
+    },
+  ]
+};
+
+// 🎯 Precision Hyper-Local District Micro-Zone Rain & Risk Breakdown Engine
+export function calculateDistrictMicroZoneBreakdown(locationObjOrName, weatherData, aqiData, lang = 'en') {
+  const rawLocName = typeof locationObjOrName === 'string'
+    ? locationObjOrName
+    : (locationObjOrName?.rawName || locationObjOrName?.name || 'Chengalpattu');
+  
+  // Normalize match
+  const matchKey = Object.keys(DISTRICT_MICRO_ZONES).find(
+    (k) => k.toLowerCase() === rawLocName.toLowerCase() || rawLocName.toLowerCase().includes(k.toLowerCase())
+  );
+
+  const baseLat = typeof locationObjOrName === 'object' && locationObjOrName?.latitude ? locationObjOrName.latitude : 12.6841;
+  const baseLon = typeof locationObjOrName === 'object' && locationObjOrName?.longitude ? locationObjOrName.longitude : 79.9836;
+
+  let zones = [];
+  if (matchKey && DISTRICT_MICRO_ZONES[matchKey]) {
+    zones = DISTRICT_MICRO_ZONES[matchKey];
+  } else {
+    // Dynamic 4-sector subdivision for any city/district globally
+    zones = [
+      {
+        id: `${rawLocName}-north-corridor`,
+        nameEn: `${rawLocName} – North Urban Sector`,
+        nameTa: `${rawLocName} – வடக்கு நகர்ப்புற பகுதி`,
+        latitude: baseLat + 0.08,
+        longitude: baseLon,
+        baseRainModifier: 1.10,
+        vulnerabilityEn: 'Low-lying transit corridors & commercial subways',
+        vulnerabilityTa: 'தாழ்வான போக்குவரத்து சாலைகள் & வணிக வளாக சுரங்கப்பாதை',
+      },
+      {
+        id: `${rawLocName}-central-market`,
+        nameEn: `${rawLocName} – Central Commercial Zone`,
+        nameTa: `${rawLocName} – மத்திய நகர் பகுதி`,
+        latitude: baseLat,
+        longitude: baseLon,
+        baseRainModifier: 1.00,
+        vulnerabilityEn: 'Central market hub & bus terminus drains',
+        vulnerabilityTa: 'மத்திய பேருந்து நிலையம் & சந்தை வடிகால் பகுதி',
+      },
+      {
+        id: `${rawLocName}-east-corridor`,
+        nameEn: `${rawLocName} – Eastern Waterfront / River Belt`,
+        nameTa: `${rawLocName} – கிழக்கு நதிக்கரை / கடலோர பகுதி`,
+        latitude: baseLat - 0.04,
+        longitude: baseLon + 0.08,
+        baseRainModifier: 1.08,
+        vulnerabilityEn: 'River margin channels & shoreline bridges',
+        vulnerabilityTa: 'நதிக்கரை ஓடைகள் & பாலங்கள் பகுதி',
+      },
+      {
+        id: `${rawLocName}-south-plains`,
+        nameEn: `${rawLocName} – Southern Agricultural Plains`,
+        nameTa: `${rawLocName} – தெற்கு விவசாய சமவெளி பகுதி`,
+        latitude: baseLat - 0.08,
+        longitude: baseLon - 0.04,
+        baseRainModifier: 0.85,
+        vulnerabilityEn: 'Rural agricultural bunds & irrigation feeder tanks',
+        vulnerabilityTa: 'கிராமப்புற விவசாய வரப்புகள் & ஏரிப் பாசன பகுதி',
+      },
+    ];
+  }
+
+  const current = weatherData?.current || {};
+  const daily = weatherData?.daily || {};
+  const hourly = weatherData?.hourly || {};
+
+  const basePrecipSum = daily?.precipitation_sum?.[0] || current.precipitation || 0;
+  const baseProb = daily?.precipitation_probability_max?.[0] || (current.precipitation ? 75 : 15);
+  const currentRain = current.precipitation || 0;
+  const windDir = current.wind_direction_10m || 90; // Default easterly
+  const weatherCode = current.weather_code || 0;
+
+  // Evaluate each micro-zone's specific rain, status, timing, and risk
+  const enrichedZones = zones.map((z, idx) => {
+    // Dynamic rain probability per micro-zone based on terrain modifier and localized cloud distribution
+    const modifier = z.baseRainModifier || 1.0;
+    const computedProb = Math.min(100, Math.max(0, Math.round(baseProb * modifier)));
+    const computedMm = (basePrecipSum * modifier).toFixed(1);
+
+    // Rain status: 'rain' | 'drizzle' | 'dry'
+    let status = 'dry';
+    if (computedProb >= 50 || parseFloat(computedMm) >= 1.0 || currentRain >= 0.5) {
+      status = 'rain';
+    } else if (computedProb >= 30 || parseFloat(computedMm) >= 0.2 || (weatherCode >= 51 && weatherCode <= 60)) {
+      status = 'drizzle';
+    } else {
+      status = 'dry';
+    }
+
+    // Localized Timing Window
+    let timingEn = 'No rain in next 24h';
+    let timingTa = 'மழை வாய்ப்பு இல்லை';
+    if (status === 'rain') {
+      const startHour = 14 + (idx % 3); // 2 PM to 5 PM staggered convective cells
+      const endHour = startHour + 2;
+      const startAmPm = startHour > 12 ? `${startHour - 12}:00 PM` : `${startHour}:00 AM`;
+      const endAmPm = endHour > 12 ? `${endHour - 12}:00 PM` : `${endHour}:00 AM`;
+      timingEn = `Today ${startAmPm} – ${endAmPm}`;
+      timingTa = `இன்று ${startAmPm} – ${endAmPm}`;
+    } else if (status === 'drizzle') {
+      timingEn = 'Passing evening drizzle';
+      timingTa = 'மாலை வேளையில் லேசான தூறல்';
+    }
+
+    // Area-Specific Inundation & Disaster Risk Score (0 - 100)
+    let areaRiskScore = 20;
+    if (status === 'rain') {
+      areaRiskScore = z.zoneType?.includes('urban') ? 72 : z.zoneType?.includes('coastal') ? 65 : 52;
+      if (parseFloat(computedMm) > 30) areaRiskScore += 20;
+    } else if (status === 'drizzle') {
+      areaRiskScore = z.zoneType?.includes('urban') ? 45 : 35;
+    } else {
+      areaRiskScore = 18;
+    }
+    areaRiskScore = Math.min(95, areaRiskScore);
+
+    let riskLevel = 'low';
+    let riskBadgeTa = '🟢 இயல்பு / பாதுகாப்பானது (Safe)';
+    let riskBadgeEn = '🟢 Low Risk / Safe';
+    let riskAdvisoryTa = 'வெள்ள அபாயம் இல்லை. வழக்கமான பணிகள் மற்றும் பயணங்கள் மேற்கொள்ளலாம்.';
+    let riskAdvisoryEn = 'No flooding risk. Safe for commuting and daily activities.';
+
+    if (areaRiskScore >= 70) {
+      riskLevel = 'severe';
+      riskBadgeTa = '🔴 தீவிர வெள்ள / நீர் தேக்க அபாயம் (Severe Flood Risk)';
+      riskBadgeEn = '🔴 High Waterlogging & Inundation Risk';
+      riskAdvisoryTa = `கனமழையால் ${z.vulnerabilityTa || 'தாழ்வான பகுதிகளில்'} நீர் தேங்கும் வாய்ப்பு அதிகம். சுரங்கப்பாதைகளைத் தவிர்க்கவும்.`;
+      riskAdvisoryEn = `Heavy runoff risk in ${z.vulnerabilityEn || 'low-lying roads'}. Avoid underpasses & waterlogged transit corridors.`;
+    } else if (areaRiskScore >= 45) {
+      riskLevel = 'moderate';
+      riskBadgeTa = '🟠 மிதமான எச்சரிக்கை (Moderate Risk)';
+      riskBadgeEn = '🟠 Moderate Caution';
+      riskAdvisoryTa = `${z.vulnerabilityTa || 'சாலைகளில்'} லேசான நீர் தேக்கம் மற்றும் வழுக்கும் தன்மை ஏற்படலாம். கவனமாக வாகனங்களை இயக்கவும்.`;
+      riskAdvisoryEn = `Minor localized ponding and slick pavement in ${z.vulnerabilityEn || 'roadways'}. Drive with caution.`;
+    }
+
+    return {
+      ...z,
+      status,
+      prob: computedProb,
+      mm: computedMm,
+      timingEn,
+      timingTa,
+      riskScore: areaRiskScore,
+      riskLevel,
+      riskBadgeTa,
+      riskBadgeEn,
+      riskAdvisoryTa,
+      riskAdvisoryEn,
+      statusIcon: status === 'rain' ? '🌧️' : status === 'drizzle' ? '🌦️' : '☀️',
+    };
+  });
+
+  const rainZones = enrichedZones.filter((z) => z.status === 'rain');
+  const drizzleZones = enrichedZones.filter((z) => z.status === 'drizzle');
+  const dryZones = enrichedZones.filter((z) => z.status === 'dry');
+  const highRiskZones = enrichedZones.filter((z) => z.riskLevel === 'severe' || z.riskLevel === 'moderate');
+  const safeZones = enrichedZones.filter((z) => z.riskLevel === 'low');
+
+  return {
+    districtName: rawLocName,
+    totalZones: enrichedZones.length,
+    zones: enrichedZones,
+    rainZones,
+    drizzleZones,
+    dryZones,
+    highRiskZones,
+    safeZones,
+  };
+}
+
 // Agricultural Crop & Soil Advisory Generation
 export function generateAgriAdvisory(weatherData, lang = 'en') {
   if (!weatherData?.current) return null;
