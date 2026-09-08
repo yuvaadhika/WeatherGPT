@@ -757,14 +757,22 @@ export default function ChatInterface({
 
         {/* Quick Prompt Bar + Auto-Voice Toggle */}
         <div className="flex items-center justify-between gap-2 pb-2 mb-1 text-xs">
-          {/* Quick Pre-Built Queries */}
+          {/* Quick Pre-Built Queries + Emergency SOS */}
           <div className="flex items-center space-x-1.5 overflow-x-auto min-w-0">
+            <button
+              type="button"
+              onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'அவசர கால உதவி எண்கள் மற்றும் பேரிடர் வழிகாட்டுதல்கள் என்ன?' : 'Emergency Disaster SOS Helplines & Safety Protocols')}
+              className="flex-shrink-0 px-2.5 py-1 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-bold transition-all shadow-2xs cursor-pointer flex items-center space-x-1"
+            >
+              <span>🚨</span>
+              <span>{activeLanguage === 'ta' ? 'அவசர உதவி (SOS 1077)' : 'Emergency SOS Vault'}</span>
+            </button>
             {[
               t.chat?.promptRainQuery,
               t.chat?.promptFarmerQuery,
               t.chat?.promptAviationQuery,
               t.chat?.promptMarineQuery,
-            ].filter(Boolean).slice(0, 4).map((prompt, idx) => (
+            ].filter(Boolean).slice(0, 3).map((prompt, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSendMessage(prompt)}

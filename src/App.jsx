@@ -19,6 +19,7 @@ import EventWeatherScore from './components/EventWeatherScore';
 import CommunityWeatherSpotter from './components/CommunityWeatherSpotter';
 import DisasterEmergencySOS from './components/DisasterEmergencySOS';
 import AdminUserRegistryModal from './components/AdminUserRegistryModal';
+import EmergencyNetworkBanner from './components/EmergencyNetworkBanner';
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -680,6 +681,12 @@ export default function App() {
 
       {/* 2. Main Content Canvas */}
       <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent">
+        {/* Emergency Network / Tower Signal Outage Monitor & Auto-Disappearing Banner */}
+        <EmergencyNetworkBanner
+          activeLanguage={activeLanguage}
+          onOpenSOS={() => setActiveView('sos')}
+        />
+
         {/* Top Navbar */}
         <Header
           activeLanguage={activeLanguage}

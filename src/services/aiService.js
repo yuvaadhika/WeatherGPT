@@ -11,6 +11,7 @@ import {
   getLocalizedPlaceName
 } from './weatherService';
 import { dbService } from './dbService';
+import { offlineVaultService } from './offlineVaultService';
 
 // 🌐 Universal Multi-Language & Tanglish Auto-Detector Engine
 // Detects Tamil script, Indic Unicode scripts, Tanglish Romanized phonetics, and English queries
@@ -960,6 +961,18 @@ export class WeatherAIAgent {
       const localizedCountry = getLocalizedPlaceName(rawCountry, targetLangForData);
       const locName = `${localizedCity}${localizedAdmin ? `, ${localizedAdmin}` : ''}, ${localizedCountry}`;
 
+      // If device is offline / tower down, use Edge AI Disaster Vault immediately
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const offlineResult = offlineVaultService.processOfflineQuery(q, activeLanguage, currentLocation);
+        return {
+          text: offlineResult.text,
+          detectedLanguage: effectiveLang,
+          modelUsed: '📡 Offline Disaster Edge AI (Zero Tower Signal)',
+          isOffline: true,
+          sources: ['Offline Disaster Vault', 'TNSDMA Emergency Protocols']
+        };
+      }
+
       // Fetch fresh real-time multi-source data
       const [nwpData, aqiData] = await Promise.all([
         fetchNWPForecast(lat, lon),
@@ -970,6 +983,9 @@ export class WeatherAIAgent {
       const agriAdvisory = generateAgriAdvisory(nwpData, targetLangForData);
       const aviationBriefing = generateAviationBriefing(targetLocation?.name || 'Local Station', nwpData, targetLangForData);
       const marineBriefing = generateMarineBriefing(nwpData, targetLangForData);
+
+      // Save live snapshot into local offline disaster vault
+      offlineVaultService.saveLiveWeatherSnapshot(targetLocation, nwpData, aqiData, alerts);
 
       let responseText = '';
       let modelUsedLabel = image ? 'Weather Vision Neural Engine' : 'Hybrid Neural RAG';
@@ -1110,10 +1126,14 @@ Respond in the language matching the user's prompt (Detected: ${effectiveLang}).
         ]
       };
     } catch (err) {
-      console.error('Weather AI agent error:', err);
+      console.warn('Network / Tower outage during AI query, switching to Offline Disaster Vault:', err);
+      const offlineResult = offlineVaultService.processOfflineQuery(query, activeLanguage, currentLocation);
       return {
-        text: `I encountered an issue fetching live meteorological telemetry: ${err.message}. Please check network or try again.`,
-        error: true
+        text: offlineResult.text,
+        detectedLanguage: activeLanguage,
+        modelUsed: '📡 Offline Disaster Edge AI (Network / Tower Outage)',
+        isOffline: true,
+        sources: ['Offline Disaster Vault', 'TNSDMA Emergency Protocols']
       };
     }
   }
