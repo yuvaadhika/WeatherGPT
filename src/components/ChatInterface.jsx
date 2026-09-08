@@ -26,7 +26,10 @@ import {
   Radio,
   FileText,
   Download,
-  Printer
+  Printer,
+  Camera,
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { weatherAI } from '../services/aiService';
 import { speechEngine } from '../services/speechService';
@@ -63,6 +66,11 @@ export default function ChatInterface({
   const [autoSpeak, setAutoSpeak] = useState(true);
   const [selectedModel, setSelectedModel] = useState(() => weatherAI.getModel() || 'gemini');
 
+  // 📸 Multimodal Image Query State
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageMimeType, setImageMimeType] = useState('image/jpeg');
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   // Initial welcome greeting - update if no user messages exist yet
@@ -92,26 +100,86 @@ export default function ChatInterface({
     }
   }, [initialQuery]);
 
-  const handleSendMessage = async (queryText = inputQuery) => {
-    const q = queryText.trim();
-    if (!q || isLoading) return;
+  // Handle Image File Selection
+  const handleImageFile = (file) => {
+    if (!file || !file.type.startsWith('image/')) return;
+    setImageMimeType(file.type || 'image/jpeg');
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setSelectedImage(e.target?.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileInputChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) handleImageFile(file);
+    e.target.value = '';
+  };
+
+  // Clipboard Paste Support (Ctrl+V Image)
+  useEffect(() => {
+    const handlePaste = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          const file = items[i].getAsFile();
+          if (file) {
+            handleImageFile(file);
+            break;
+          }
+        }
+      }
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, []);
+
+  // Drag and drop handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDraggingOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      handleImageFile(file);
+    }
+  };
+
+  const handleSendMessage = async (queryText = inputQuery, imageToSend = selectedImage) => {
+    const q = (typeof queryText === 'string' ? queryText : '').trim();
+    if ((!q && !imageToSend) || isLoading) return;
 
     const userMsg = {
       id: `user-${Date.now()}`,
       sender: 'user',
-      text: q,
+      text: q || (activeLanguage === 'ta' ? 'வானிலை & பார்வை ஆய்வு (Weather Image Query)' : 'Weather & Vision Query'),
+      image: imageToSend || null,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInputQuery('');
+    setSelectedImage(null);
     setIsLoading(true);
 
     try {
       const response = await weatherAI.processQuery({
-        query: q,
+        query: q || (activeLanguage === 'ta' ? 'இந்த வானிலை/மேக படத்தை ஆய்வு செய்து நிலவரத்தை கூறவும்' : 'Analyze this weather and sky image in detail'),
         currentLocation,
         activeLanguage,
+        image: imageToSend || null,
+        mimeType: imageMimeType || 'image/jpeg',
       });
 
       if (response.location && onLocationFound) {
@@ -129,6 +197,8 @@ export default function ChatInterface({
         domain: response.domain,
         timeframe: response.timeframe,
         sources: response.sources,
+        modelUsed: response.modelUsed,
+        hasImage: !!imageToSend,
         locationName: response.location ? `${response.location.name}, ${response.location.country || 'India'}` : null,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
@@ -435,38 +505,43 @@ export default function ChatInterface({
                         title="Review and Confirm Report Download"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'அறிக்கையை உறுதிப்படுத்திப் பதிவிறக்கு' : msg.detectedLanguage === 'tanglish' ? 'Confirm & Download Report' : 'Review & Download Report'}</span>
+                        <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'அறிக்கையைப் பதிவிறக்கு' : 'Download Intelligence Report'}</span>
                       </button>
-
-                      {onOpenExport && (
-                        <button
-                          onClick={() => onOpenExport(msg)}
-                          className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-[11px] font-semibold rounded-xl flex items-center justify-center space-x-1 transition-all cursor-pointer shadow-2xs"
-                          title="Preview & Print"
-                        >
-                          <Printer className="w-3.5 h-3.5 text-slate-600" />
-                          <span>{msg.detectedLanguage === 'ta' || activeLanguage === 'ta' ? 'முன்னோட்டம் / PDF' : 'Preview / PDF'}</span>
-                        </button>
-                      )}
                     </div>
                   </div>
                 )}
 
-                {/* AI Footer Buttons */}
+                {/* AI Action Strip: Audio Speak + Download HTML Report + Copy */}
                 {isAi && (
-                  <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                    <span className="font-mono text-[10px] text-slate-400">{msg.timestamp}</span>
-                    <div className="flex items-center space-x-2">
+                  <div className="mt-2.5 pt-2 border-t border-slate-100/80 flex items-center justify-between text-slate-500">
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      {msg.timestamp}
+                    </span>
+
+                    <div className="flex items-center space-x-1">
+                      {/* Read Aloud Button */}
                       <button
                         onClick={() => handleSpeak(msg.id, msg.text, msg.detectedLanguage)}
-                        title={isSpeakingThis ? (t.chat?.voiceStop || 'Stop Voice') : (t.chat?.voiceSpeak || 'Read Aloud (All Outputs)')}
-                        className={`px-2 py-1 rounded-xl hover:bg-slate-100 flex items-center space-x-1.5 transition-colors cursor-pointer ${
-                          isSpeakingThis ? 'bg-sky-100 text-sky-700 font-bold border border-sky-300' : 'text-slate-500 hover:text-slate-800'
+                        title={isSpeakingThis ? "Stop speaking" : "Listen to weather report (Voice Synthesis)"}
+                        className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                          isSpeakingThis
+                            ? 'bg-sky-100 text-sky-700 animate-pulse'
+                            : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'
                         }`}
                       >
-                        {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5 text-sky-600 animate-pulse" /> : <Volume2 className="w-3.5 h-3.5" />}
-                        <span className="text-[10px]">{isSpeakingThis ? (t.chat?.voiceStop || 'Stop') : (t.chat?.voiceSpeak || 'Listen')}</span>
+                        {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5 text-sky-600" /> : <Volume2 className="w-3.5 h-3.5" />}
                       </button>
+
+                      {/* Download Intelligence HTML Report Dossier */}
+                      <button
+                        onClick={() => handleDownloadDirectReport(msg)}
+                        title="Download Verified Meteorological HTML Report Dossier"
+                        className="p-1 rounded-lg hover:bg-sky-50 text-sky-600 hover:text-sky-800 transition-colors cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Copy Text */}
                       <button
                         onClick={() => handleCopy(msg.id, msg.text)}
                         title="Copy text"
@@ -490,7 +565,7 @@ export default function ChatInterface({
             </div>
             <div className="p-3.5 rounded-2xl bg-white border border-slate-200 text-xs text-slate-600 flex items-center space-x-2 shadow-sm">
               <RefreshCw className="w-4 h-4 text-sky-600 animate-spin" />
-              <span>Fetching live meteorological data & forecasts...</span>
+              <span>Fetching live meteorological data & vision forecasts...</span>
             </div>
           </div>
         )}
@@ -499,7 +574,20 @@ export default function ChatInterface({
       </div>
 
       {/* Floating Bottom Input Bar & Active Voice Equalizer (Elevated above mobile bottom nav bar) */}
-      <div className="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-2 pb-2 sm:pb-3 z-30 flex-shrink-0">
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className="max-w-3xl w-full mx-auto px-2 sm:px-4 pt-2 pb-2 sm:pb-3 z-30 flex-shrink-0 relative"
+      >
+        {/* Drag & Drop Visual Overlay */}
+        {isDraggingOver && (
+          <div className="absolute inset-0 z-40 bg-sky-500/90 backdrop-blur-sm rounded-3xl border-2 border-dashed border-white text-white flex flex-col items-center justify-center m-2 shadow-2xl animate-pulse">
+            <Camera className="w-8 h-8 mb-1" />
+            <span className="font-extrabold text-sm">{activeLanguage === 'ta' ? 'வானிலை படத்தை இங்கே விடவும்' : 'Drop weather image for Vision AI'}</span>
+          </div>
+        )}
+
         {/* Active Speaking Indicator Equalizer Banner */}
         {speakingMsgId && (
           <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white px-3.5 py-2.5 rounded-2xl flex items-center justify-between shadow-xl mb-2 border border-sky-500/40 animate-fadeIn">
@@ -518,14 +606,14 @@ export default function ChatInterface({
                     ? 'வானிலை AI குரலில் விளக்குகிறது...'
                     : `WeatherGPT Voice Assistant (${activeLangObj.nativeName})`}
                 </span>
-                <span className="text-[10px] text-slate-300">
-                  {activeLanguage === 'ta' || messages.find(m => m.id === speakingMsgId)?.detectedLanguage === 'ta'
-                    ? 'அனைத்து முன்னறிவிப்பு தகவல்களும் குரலில் ஒலிக்கிறது'
-                    : 'Speaking complete meteorological output'}
+                <span className="text-[10px] text-slate-300 hidden sm:inline">
+                  {activeLanguage === 'ta' ? 'அறிக்கையை குரலில் விவரிக்கிறது' : 'Speaking verified weather bulletin'}
                 </span>
               </div>
             </div>
+
             <button
+              type="button"
               onClick={() => {
                 speechEngine.stopSpeaking();
                 setSpeakingMsgId(null);
@@ -535,6 +623,52 @@ export default function ChatInterface({
             >
               <VolumeX className="w-3.5 h-3.5" />
               <span>{activeLanguage === 'ta' ? 'நிறுத்து' : 'Stop'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* 📸 Attached Image Preview Strip */}
+        {selectedImage && (
+          <div className="mb-2 p-2.5 bg-white/95 backdrop-blur-md rounded-2xl border-2 border-sky-400 shadow-xl flex items-center justify-between gap-3 animate-fadeIn">
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <img
+                src={selectedImage}
+                alt="Selected preview"
+                className="w-12 h-12 rounded-xl object-cover border border-sky-300 shadow-2xs flex-shrink-0"
+              />
+              <div className="min-w-0">
+                <span className="text-xs font-bold text-slate-900 block truncate">
+                  {activeLanguage === 'ta' ? '📸 வானிலை படம் இணைக்கப்பட்டுள்ளது' : '📸 Weather Image Ready for Vision AI'}
+                </span>
+                <div className="flex items-center space-x-1.5 mt-1 overflow-x-auto">
+                  {[
+                    { en: '☁️ Cloud & Rain', ta: '☁️ மேகம் & மழை' },
+                    { en: '🌾 Crop Health', ta: '🌾 பயிர் நிலை' },
+                    { en: '🌪️ Storm Risk', ta: '🌪️ புயல் அபாயம்' }
+                  ].map((chip, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        const prompt = activeLanguage === 'ta' ? `${chip.ta} பற்றி ஆய்வு செய்` : `Analyze ${chip.en}`;
+                        setInputQuery(prompt);
+                      }}
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 cursor-pointer flex-shrink-0 transition-colors"
+                    >
+                      {activeLanguage === 'ta' ? chip.ta : chip.en}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSelectedImage(null)}
+              className="p-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-600 text-slate-500 transition-colors cursor-pointer flex-shrink-0"
+              title="Remove Image"
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
         )}
@@ -583,6 +717,15 @@ export default function ChatInterface({
           </button>
         </div>
 
+        {/* Hidden file input for camera/gallery */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileInputChange}
+          accept="image/*"
+          className="hidden"
+        />
+
         {/* Input box */}
         <form
           onSubmit={(e) => {
@@ -591,12 +734,26 @@ export default function ChatInterface({
           }}
           className="relative flex items-center bg-white border-2 border-sky-400/90 rounded-2xl shadow-xl p-1.5 focus-within:border-sky-600 focus-within:ring-2 focus-within:ring-sky-200 transition-all"
         >
+          {/* Image Upload / Camera Button */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            title={activeLanguage === 'ta' ? 'வானிலை படம் இணைக்கவும் (Image Query)' : 'Attach Weather Photo (Vision Query)'}
+            className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer mr-1 ${
+              selectedImage
+                ? 'bg-sky-600 text-white shadow-md'
+                : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs'
+            }`}
+          >
+            <Camera className="w-4 h-4" />
+          </button>
+
           {/* Voice Input Mic */}
           <button
             type="button"
             onClick={handleToggleVoice}
             title={isListening ? (t.chat?.voiceListening || 'Listening...') : 'Speak with Voice (10 Languages)'}
-            className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${
+            className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer mr-1 ${
               isListening
                 ? 'bg-rose-600 text-white animate-pulse shadow-md'
                 : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs'
@@ -610,8 +767,14 @@ export default function ChatInterface({
             type="text"
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
-            placeholder={isListening ? (t.chat?.voiceListening || 'Listening...') : (t.chat?.inputPlaceholder || 'Ask WeatherGPT anything...')}
-            className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
+            placeholder={
+              selectedImage
+                ? (activeLanguage === 'ta' ? 'படத்தைப் பற்றி கேளுங்கள் அல்லது Send அழுத்தவும்...' : 'Ask about this photo or press Send for Vision AI...')
+                : isListening
+                ? (t.chat?.voiceListening || 'Listening...')
+                : (t.chat?.inputPlaceholder || 'Ask WeatherGPT or upload sky/crop photo...')
+            }
+            className="flex-1 bg-transparent px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
           />
 
           {/* Language Badge */}

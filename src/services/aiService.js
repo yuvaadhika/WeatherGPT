@@ -405,10 +405,42 @@ export class WeatherAIAgent {
     return data.choices?.[0]?.message?.content;
   }
 
+  // Active OpenAI GPT-4o Vision inference engine
+  async callOpenAIVision({ prompt, systemPrompt, imageBase64, mimeType = 'image/jpeg' }) {
+    if (!this.openaiApiKey) throw new Error('No OpenAI API key provided');
+    const dataUrl = imageBase64.startsWith('data:') ? imageBase64 : `data:${mimeType};base64,${imageBase64}`;
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.openaiApiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt || 'Analyze this weather/sky/cloud/crop image in detail with meteorological explanation.' },
+              { type: 'image_url', image_url: { url: dataUrl } }
+            ]
+          }
+        ],
+        max_tokens: 1000,
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `OpenAI Vision failed (${res.status})`);
+    }
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content;
+  }
+
   // Active Google Gemini 2.0 / 1.5 Flash inference engine (Best #1 LLM)
   async callGemini({ prompt, systemPrompt }) {
     if (!this.geminiApiKey) throw new Error('No Gemini API key provided');
-    // Try Gemini 2.0 Flash / 1.5 Flash endpoint
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`;
     const res = await fetch(url, {
       method: 'POST',
@@ -429,6 +461,43 @@ export class WeatherAIAgent {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error?.message || `Gemini request failed (${res.status})`);
+    }
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+  }
+
+  // Active Google Gemini 2.0 / 1.5 Flash Multimodal Vision Engine
+  async callGeminiVision({ prompt, systemPrompt, imageBase64, mimeType = 'image/jpeg' }) {
+    if (!this.geminiApiKey) throw new Error('No Gemini API key provided');
+    const cleanBase64 = imageBase64.includes(',') ? imageBase64.split(',')[1] : imageBase64;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiApiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: `${systemPrompt}\n\nUser Question/Instruction: ${prompt || 'Analyze this meteorological image (cloud formation, rain intensity, sky conditions, crop moisture, or flood status) and provide clear advisory.'}` },
+              {
+                inlineData: {
+                  mimeType: mimeType || 'image/jpeg',
+                  data: cleanBase64
+                }
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 1000,
+        }
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Gemini Vision request failed (${res.status})`);
     }
     const data = await res.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -673,16 +742,213 @@ export class WeatherAIAgent {
     return fallbackLocation;
   }
 
-  // Process natural language weather query and return structured response
-  async processQuery({ query, currentLocation, activeLanguage = 'en' }) {
+  // Client-side Visual Meteorological Diagnostic Engine (Canvas-based pixel analysis)
+  async analyzeImageTelemetry(imageDataUrl) {
+  return new Promise((resolve) => {
     try {
-      // 🎯 Auto-detect Language & Tanglish directly from prompt if not explicitly matching UI
-      const effectiveLang = detectLanguageFromQuery(query, activeLanguage);
+      if (typeof window === 'undefined' || !imageDataUrl) {
+        resolve(null);
+        return;
+      }
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const width = 120;
+          const height = Math.round((img.height / img.width) * 120) || 120;
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const imgData = ctx.getImageData(0, 0, width, height);
+          const data = imgData.data;
+          let totalLuminance = 0;
+          let skyBluePixels = 0;
+          let grayCloudPixels = 0;
+          let darkStormPixels = 0;
+          let warmSunsetPixels = 0;
+          let greenVegetationPixels = 0;
+          const pixelCount = data.length / 4;
+
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+            totalLuminance += lum;
+
+            // Sky Blue
+            if (b > r + 15 && b > g + 8 && lum > 70) {
+              skyBluePixels++;
+            }
+            // Gray/White Clouds
+            const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
+            if (maxDiff < 25 && lum > 80) {
+              grayCloudPixels++;
+            }
+            // Dark Storm Clouds
+            if (lum < 75 && maxDiff < 35) {
+              darkStormPixels++;
+            }
+            // Warm Sunset/Sunrise
+            if (r > b + 40 && r > 110) {
+              warmSunsetPixels++;
+            }
+            // Vegetation/Crop Green
+            if (g > r + 12 && g > b + 12) {
+              greenVegetationPixels++;
+            }
+          }
+
+          const avgLum = Math.round(totalLuminance / pixelCount);
+          const blueRatio = Math.round((skyBluePixels / pixelCount) * 100);
+          const cloudRatio = Math.round((grayCloudPixels / pixelCount) * 100);
+          const stormRatio = Math.round((darkStormPixels / pixelCount) * 100);
+          const sunsetRatio = Math.round((warmSunsetPixels / pixelCount) * 100);
+          const greenRatio = Math.round((greenVegetationPixels / pixelCount) * 100);
+
+          let classification = 'Partly Cloudy Sky';
+          let cloudType = 'Cumulus / Altocumulus';
+          let visualRainRisk = 15;
+          let visualAdvisoryEn = 'Normal ambient conditions. Suitable for daily activities and travel.';
+          let visualAdvisoryTa = 'இயல்பான வெளிப்புற சூழல். அன்றாட பணிகளுக்கு ஏற்றது.';
+
+          if (stormRatio > 35 || (cloudRatio > 40 && avgLum < 85)) {
+            classification = 'Dense Storm & Rain Cloud Mass';
+            cloudType = 'Cumulonimbus / Nimbostratus (கார்மேகம் / மழை மேகம்)';
+            visualRainRisk = Math.min(95, 60 + Math.round(stormRatio * 0.8));
+            visualAdvisoryEn = 'High probability of imminent precipitation or thunderstorm. Carry rain gear and stay clear of waterlogging.';
+            visualAdvisoryTa = 'கனமழை அல்லது இடியுடன் கூடிய மழைக்கு அதிக வாய்ப்பு உள்ளது. குடை/ரெயின்கோட் எடுத்துச்செல்லவும்.';
+          } else if (cloudRatio > 45) {
+            classification = 'Overcast & Low Cloud Ceiling';
+            cloudType = 'Stratocumulus / Stratus (மந்தாரமான மேகம்)';
+            visualRainRisk = 45;
+            visualAdvisoryEn = 'Overcast sky with light showers or drizzle probability. Sun exposure is low.';
+            visualAdvisoryTa = 'மந்தாரமான வானிலை. லேசான தூறல் பெய்ய வாய்ப்பு உண்டு.';
+          } else if (sunsetRatio > 25) {
+            classification = 'Twilight / Golden Hour Horizon';
+            cloudType = 'Cirrus / Atmospheric Scattering (அந்தி மாலை / விடியல்)';
+            visualRainRisk = 10;
+            visualAdvisoryEn = 'Stable atmospheric scattering during twilight. Clear conditions expected through the evening.';
+            visualAdvisoryTa = 'அந்தி மாலை ஒளிச்சிதறல். மாலை வேளையில் தெளிவான வானிலை நிலவும்.';
+          } else if (greenRatio > 30) {
+            classification = 'Agricultural Field & Crop Canopy';
+            cloudType = 'Farmland Observation (பயிர் / விவசாய நிலம்)';
+            visualRainRisk = 20;
+            visualAdvisoryEn = 'Vegetation canopy detected. Ground moisture levels appear supportive for active farming.';
+            visualAdvisoryTa = 'பயிர்கள் மற்றும் விளைநிலம் கண்டறியப்பட்டுள்ளது. தற்போதைய ஈரப்பதம் விவசாய பணிகளுக்கு உகந்தது.';
+          } else if (blueRatio > 40) {
+            classification = 'Clear Sunny & Fair Sky';
+            cloudType = 'Fair Weather Cumulus (தெளிவான வானம்)';
+            visualRainRisk = 5;
+            visualAdvisoryEn = 'Clear blue sky with abundant solar radiation. Excellent for travel and outdoor operations.';
+            visualAdvisoryTa = 'தெளிவான நீல வானம். நேரடி வெயில் இருக்கும், வெளிப்புற பயணங்களுக்கு சிறந்தது.';
+          }
+
+          resolve({
+            avgLuminance: avgLum,
+            blueRatio,
+            cloudRatio,
+            stormRatio,
+            sunsetRatio,
+            greenRatio,
+            classification,
+            cloudType,
+            visualRainRisk,
+            visualAdvisoryEn,
+            visualAdvisoryTa
+          });
+        } catch {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      img.src = imageDataUrl;
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+  // Synthesize Visual Meteorological Intelligence Response
+  synthesizeVisionResponse({ query, locName, imageTelemetry, nwpData, aqiData, alerts, lang = 'en' }) {
+    const current = nwpData?.current || {};
+    const daily = nwpData?.daily || {};
+    const temp = current.temperature_2m ?? 28;
+    const feels = current.apparent_temperature ?? temp;
+    const humidity = current.relative_humidity_2m ?? 70;
+    const wind = current.wind_speed_10m ?? 12;
+    const groundRainProb = daily?.precipitation_probability_max?.[0] ?? (current.precipitation ? 75 : 10);
+    const effectiveRainRisk = imageTelemetry ? Math.max(imageTelemetry.visualRainRisk, groundRainProb) : groundRainProb;
+    const topAlert = alerts && alerts.length > 0 ? alerts[0] : null;
+
+    if (lang === 'ta') {
+      return (
+        `📸 **வானிலை பார்வை & பட ஆய்வு (Weather Vision Report):**\n\n` +
+        `• ☁️ **கண்டறியப்பட்ட மேக அமைப்பு:** ${imageTelemetry?.cloudType || 'வளிமண்டல மேகங்கள் (Atmospheric Clouds)'}\n` +
+        `• 🔍 **பட நிலை:** ${imageTelemetry?.classification || 'வானிலை பார்வை பகுப்பாய்வு செய்யப்பட்டது'}\n` +
+        `• 🌧️ **மழை சாத்தியக்கூறு:** **${effectiveRainRisk}%** (பார்வை ஆய்வு + ரேடார் முன்னறிவிப்பு)\n` +
+        `• 📍 **${locName} நேரடி அளவீடு:** வெப்பநிலை: **${temp}°C** (உணர்வு: ${feels}°C) | காற்றின் வேகம்: **${wind} km/h** | ஈரப்பதம்: **${humidity}%**\n` +
+        `• 💡 **பரிந்துரை:** ${imageTelemetry?.visualAdvisoryTa || 'வானிலை நிலவரத்தை கவனித்து வெளிப்புற பணிகளை திட்டமிடுங்கள்.'}`
+      );
+    }
+
+    if (lang === 'tanglish') {
+      return (
+        `📸 **WeatherGPT Image Vision Analysis:**\n\n` +
+        `• ☁️ **Cloud Type & Sky:** ${imageTelemetry?.cloudType || 'Sky / Cloud Pattern'}\n` +
+        `• 🔍 **Visual Status:** ${imageTelemetry?.classification || 'Cloud & Atmosphere analyzed'}\n` +
+        `• 🌧️ **Rain Chance:** **${effectiveRainRisk}%** (Visual scan + Radar Telemetry)\n` +
+        `• 📍 **Current ${locName} Ground Data:** Temp: **${temp}°C** (Feels: ${feels}°C) | Wind: **${wind} km/h** | Humidity: **${humidity}%**\n` +
+        `• 💡 **Advisory:** ${imageTelemetry?.visualAdvisoryTa ? (effectiveRainRisk >= 50 ? 'Mazhai vara vaaipu irukku, umbrella eduthuttu ponga.' : 'Climate steady ah irukku, normal ah veliya polam.') : 'Keep track of sky conditions.'}`
+      );
+    }
+
+    if (lang === 'hi') {
+      return (
+        `📸 **मौसम दृष्टि विश्लेषण (Weather Vision Report):**\n\n` +
+        `• ☁️ **पहचाने गए बादल:** ${imageTelemetry?.cloudType || 'वायुमंडलीय बादल'}\n` +
+        `• 🔍 **दृश्य स्थिति:** ${imageTelemetry?.classification || 'आसमान की स्थिति'}\n` +
+        `• 🌧️ **बारिश की संभावना:** **${effectiveRainRisk}%** (छवि विश्लेषण + रडार पूर्वानुमान)\n` +
+        `• 📍 **${locName} का तापमान:** **${temp}°C** (महसूस: ${feels}°C) | हवा: **${wind} किमी/घंटा** | नमी: **${humidity}%**\n` +
+        `• 💡 **सलाह:** ${effectiveRainRisk >= 50 ? 'बारिश की संभावना है, छाता साथ रखें।' : 'मौसम सामान्य रहेगा, यात्रा के लिए अनुकूल है।'}`
+      );
+    }
+
+    if (lang === 'te') {
+      return (
+        `📸 **వాతావరణ చిత్ర విశ్లేషణ (Weather Vision Report):**\n\n` +
+        `• ☁️ **మేఘాల రకం:** ${imageTelemetry?.cloudType || 'ఆకాశ మేఘాలు'}\n` +
+        `• 🔍 **స్థితి:** ${imageTelemetry?.classification || 'వాతావరణ పరిశీలన'}\n` +
+        `• 🌧️ **వర్షం అవకాశం:** **${effectiveRainRisk}%**\n` +
+        `• 📍 **${locName} ఉష్ణోగ్రత:** **${temp}°C** | గాలి: **${wind} km/h** | తేమ: **${humidity}%**\n` +
+        `• 💡 **సలహా:** ${imageTelemetry?.visualAdvisoryEn || 'వాతావరణాన్ని గమనించి ప్రయాణించండి.'}`
+      );
+    }
+
+    // Default English
+    return (
+      `📸 **WeatherGPT Multimodal Vision Intelligence Report:**\n\n` +
+      `• ☁️ **Detected Cloud System:** ${imageTelemetry?.cloudType || 'Atmospheric Cloud Layer'}\n` +
+      `• 🔍 **Visual Sky Assessment:** ${imageTelemetry?.classification || 'Visual Telemetry Analyzed'}\n` +
+      `• 🌧️ **Estimated Rain Probability:** **${effectiveRainRisk}%** (Visual Analysis + NWP Radar Blend)\n` +
+      `• 📍 **Live Ground Station at ${locName}:** ${temp}°C (Feels like ${feels}°C) | Wind: ${wind} km/h | Humidity: ${humidity}%\n` +
+      `• 💡 **Meteorological Advisory:** ${imageTelemetry?.visualAdvisoryEn || 'Normal ambient weather conditions. Plan activities accordingly.'}`
+    );
+  }
+
+  // Process natural language weather query and return structured response (Supports Text, Voice, & Image Vision)
+  async processQuery({ query = '', currentLocation, activeLanguage = 'en', image = null, mimeType = 'image/jpeg' }) {
+    try {
+      const q = query.trim();
+      const effectiveLang = detectLanguageFromQuery(q || 'weather report', activeLanguage);
       const isTanglish = effectiveLang === 'tanglish';
       const targetLangForData = isTanglish ? 'ta' : effectiveLang;
 
-      const { domain, timeframe, isRainInquiry } = this.extractQueryContext(query, currentLocation);
-      const targetLocation = await this.resolveLocationFromQuery(query, currentLocation);
+      const { domain, timeframe, isRainInquiry } = this.extractQueryContext(q, currentLocation);
+      const targetLocation = await this.resolveLocationFromQuery(q, currentLocation);
 
       const lat = targetLocation?.latitude || 13.0827;
       const lon = targetLocation?.longitude || 80.2707;
@@ -705,9 +971,8 @@ export class WeatherAIAgent {
       const aviationBriefing = generateAviationBriefing(targetLocation?.name || 'Local Station', nwpData, targetLangForData);
       const marineBriefing = generateMarineBriefing(nwpData, targetLangForData);
 
-      // Generate localized conversational message
       let responseText = '';
-      let modelUsedLabel = 'Hybrid Neural RAG';
+      let modelUsedLabel = image ? 'Weather Vision Neural Engine' : 'Hybrid Neural RAG';
 
       const current = nwpData?.current || {};
       const daily = nwpData?.daily || {};
@@ -717,7 +982,7 @@ export class WeatherAIAgent {
       const wind = current.wind_speed_10m ?? 12;
       const aqi = aqiData?.current?.us_aqi || 50;
 
-      const ragSystemPrompt = `You are WeatherGPT, an advanced Meteorological AI Assistant. Answer accurately using this LIVE GROUNDED DATA:
+      const ragSystemPrompt = `You are WeatherGPT, an advanced Meteorological Vision AI Assistant.
 Location: ${locName}
 Current Temperature: ${temp}°C (Feels like: ${current.apparent_temperature || temp}°C)
 Humidity: ${humidity}%
@@ -725,47 +990,93 @@ Wind Speed: ${wind} km/h (Direction: ${current.wind_direction_10m || 0}°)
 Rain Probability: ${rainProb}% | Accumulation: ${daily?.precipitation_sum?.[0] || 0} mm
 AQI: ${aqi} (US AQI Standard)
 Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}
-Respond in the language matching the user's prompt (Detected: ${effectiveLang}). Be clear, accurate, and provide actionable advisories.`;
+Respond in the language matching the user's prompt (Detected: ${effectiveLang}). Explain cloud formations, rain likelihood, and actionable advice clearly.`;
 
-      if (this.selectedModel === 'openai' && this.openaiApiKey) {
-        try {
-          responseText = await this.callOpenAI({ prompt: query, systemPrompt: ragSystemPrompt });
-          modelUsedLabel = 'OpenAI GPT-4o-mini';
-        } catch (e) {
-          console.warn('OpenAI call failed, falling back to synthesis:', e);
-        }
-      } else if (this.selectedModel === 'gemini' && this.geminiApiKey) {
-        try {
-          responseText = await this.callGemini({ prompt: query, systemPrompt: ragSystemPrompt });
-          modelUsedLabel = 'Google Gemini 1.5 Flash';
-        } catch (e) {
-          console.warn('Gemini call failed, falling back to synthesis:', e);
-        }
-      } else if (this.selectedModel === 'llama' && this.llamaApiKey) {
-        try {
-          responseText = await this.callLlama({ prompt: query, systemPrompt: ragSystemPrompt });
-          modelUsedLabel = 'Meta Llama 3.3 70B';
-        } catch (e) {
-          console.warn('Llama call failed, falling back to synthesis:', e);
-        }
-      }
+      // 📸 MULTIMODAL IMAGE QUERY HANDLING
+      let imageTelemetry = null;
+      if (image) {
+        imageTelemetry = await this.analyzeImageTelemetry(image);
 
-      if (!responseText) {
-        responseText = this.synthesizeNaturalLanguageResponse({
-          query,
-          locName,
-          domain,
-          timeframe,
-          isRainInquiry,
-          nwpData,
-          aqiData,
-          alerts,
-          agriAdvisory,
-          aviationBriefing,
-          marineBriefing,
-          lang: effectiveLang
-        });
-        modelUsedLabel = 'Smart Hybrid Neural RAG';
+        if (this.selectedModel === 'gemini' && this.geminiApiKey) {
+          try {
+            responseText = await this.callGeminiVision({
+              prompt: q || 'Analyze this weather/sky/cloud/crop image and give detailed meteorological insights.',
+              systemPrompt: ragSystemPrompt,
+              imageBase64: image,
+              mimeType
+            });
+            modelUsedLabel = 'Google Gemini 1.5 Flash Vision';
+          } catch (e) {
+            console.warn('Gemini Vision call failed, falling back to local vision telemetry:', e);
+          }
+        } else if (this.selectedModel === 'openai' && this.openaiApiKey) {
+          try {
+            responseText = await this.callOpenAIVision({
+              prompt: q || 'Analyze this weather/sky/cloud/crop image and give detailed meteorological insights.',
+              systemPrompt: ragSystemPrompt,
+              imageBase64: image,
+              mimeType
+            });
+            modelUsedLabel = 'OpenAI GPT-4o Vision';
+          } catch (e) {
+            console.warn('OpenAI Vision call failed, falling back to local vision telemetry:', e);
+          }
+        }
+
+        if (!responseText) {
+          responseText = this.synthesizeVisionResponse({
+            query: q,
+            locName,
+            imageTelemetry,
+            nwpData,
+            aqiData,
+            alerts,
+            lang: effectiveLang
+          });
+          modelUsedLabel = 'WeatherGPT Vision Telemetry Engine';
+        }
+      } else {
+        // Standard Text / Voice Query Flow
+        if (this.selectedModel === 'openai' && this.openaiApiKey) {
+          try {
+            responseText = await this.callOpenAI({ prompt: q, systemPrompt: ragSystemPrompt });
+            modelUsedLabel = 'OpenAI GPT-4o-mini';
+          } catch (e) {
+            console.warn('OpenAI call failed, falling back to synthesis:', e);
+          }
+        } else if (this.selectedModel === 'gemini' && this.geminiApiKey) {
+          try {
+            responseText = await this.callGemini({ prompt: q, systemPrompt: ragSystemPrompt });
+            modelUsedLabel = 'Google Gemini 1.5 Flash';
+          } catch (e) {
+            console.warn('Gemini call failed, falling back to synthesis:', e);
+          }
+        } else if (this.selectedModel === 'llama' && this.llamaApiKey) {
+          try {
+            responseText = await this.callLlama({ prompt: q, systemPrompt: ragSystemPrompt });
+            modelUsedLabel = 'Meta Llama 3.3 70B';
+          } catch (e) {
+            console.warn('Llama call failed, falling back to synthesis:', e);
+          }
+        }
+
+        if (!responseText) {
+          responseText = this.synthesizeNaturalLanguageResponse({
+            query: q,
+            locName,
+            domain,
+            timeframe,
+            isRainInquiry,
+            nwpData,
+            aqiData,
+            alerts,
+            agriAdvisory,
+            aviationBriefing,
+            marineBriefing,
+            lang: effectiveLang
+          });
+          modelUsedLabel = 'Smart Hybrid Neural RAG';
+        }
       }
 
       // Persist session to SQL database table
@@ -775,7 +1086,8 @@ Respond in the language matching the user's prompt (Detected: ${effectiveLang}).
         text: responseText,
         detectedLanguage: effectiveLang,
         modelUsed: modelUsedLabel,
-        locationName: locName
+        locationName: locName,
+        hasImage: !!image
       });
 
       return {

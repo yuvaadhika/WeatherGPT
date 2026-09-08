@@ -256,6 +256,7 @@ class SQLDatabaseService {
         model_used: message.modelUsed || 'Google Gemini 2.0 Flash',
         nwp_ensemble: 'WRF 3km + GFS',
         location_name: message.locationName || 'Tamil Nadu',
+        has_image: !!message.hasImage,
         created_at: new Date().toISOString()
       };
       stored.unshift(newRow);
