@@ -67,6 +67,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { notificationService } from './services/notificationService';
+import { userRegistryService } from './services/userRegistryService';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(() => {
@@ -77,6 +78,11 @@ export default function App() {
       return null;
     }
   });
+
+  // Automatically register and sync any friend / user who opens the link
+  useEffect(() => {
+    userRegistryService.autoRegisterVisitor(currentUser, currentLocation);
+  }, [currentUser, currentLocation?.name]);
 
   const [activeLanguage, setActiveLanguage] = useState('en');
   const [activeView, setActiveView] = useState('home'); // 'home' | 'radar' | 'alerts' | 'chat' | 'decision' | 'climate' | 'route' | 'event' | 'spotter' | 'sos'

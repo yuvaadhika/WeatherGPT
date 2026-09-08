@@ -50,6 +50,7 @@ export default function AdminUserRegistryModal({
 
   // Database Data State
   const [users, setUsers] = useState([]);
+  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalSessions: 0,
@@ -66,17 +67,32 @@ export default function AdminUserRegistryModal({
   const [sqlResult, setSqlResult] = useState(null);
   const [selectedSchemaTable, setSelectedSchemaTable] = useState('weather_stations');
 
-  const loadData = () => {
-    const list = userRegistryService.getAllUsers();
-    const st = userRegistryService.getStats();
-    setUsers(list);
-    setStats(st);
+  const loadData = async () => {
+    setIsSyncingCloud(true);
+    try {
+      const list = await userRegistryService.fetchCloudUsers();
+      const st = userRegistryService.getStats();
+      setUsers(list);
+      setStats(st);
+    } catch (e) {
+      const list = userRegistryService.getAllUsers();
+      const st = userRegistryService.getStats();
+      setUsers(list);
+      setStats(st);
+    } finally {
+      setIsSyncingCloud(false);
+    }
   };
 
   useEffect(() => {
+    let interval = null;
     if (isOpen) {
       if (isAuthenticated) {
         loadData();
+        // Auto-sync Central Cloud Database every 6 seconds while admin modal is open
+        interval = setInterval(() => {
+          loadData();
+        }, 6000);
       } else {
         // Reset login fields on open
         setAdminUsername('');
@@ -84,6 +100,9 @@ export default function AdminUserRegistryModal({
         setAuthError('');
       }
     }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isOpen, isAuthenticated]);
 
   if (!isOpen) return null;
@@ -94,7 +113,7 @@ export default function AdminUserRegistryModal({
     setAuthError('');
     setIsVerifying(true);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const cleanUser = adminUsername.trim().toLowerCase();
       const cleanPass = adminPassword.trim();
 
@@ -102,7 +121,7 @@ export default function AdminUserRegistryModal({
       if ((cleanUser === 'xxxx' || cleanUser === 'wyndra' || cleanUser === 'admin') && (cleanPass === '1234' || cleanPass === 'xxxx')) {
         setIsAuthenticated(true);
         setAuthError('');
-        loadData();
+        await loadData();
       } else {
         setAuthError(
           activeLanguage === 'ta'
@@ -136,13 +155,14 @@ export default function AdminUserRegistryModal({
       (u.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (u.provider || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (u.device || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (u.location || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (u.role || '').toLowerCase().includes(searchQuery.toLowerCase());
 
     if (!matchesSearch) return false;
 
     if (filterType === 'google') return (u.provider || '').includes('Google');
     if (filterType === 'email') return (u.provider || '').includes('Email');
-    if (filterType === 'guest') return (u.provider || '').includes('Guest');
+    if (filterType === 'guest') return (u.provider || '').includes('Guest') || (u.provider || '').includes('Visitor');
     return true;
   });
 
@@ -150,21 +170,24 @@ export default function AdminUserRegistryModal({
     userRegistryService.exportToCSV();
   };
 
-  const handleClear = () => {
+  const handleClear = async () => {
     if (
       window.confirm(
         activeLanguage === 'ta'
-          ? 'அனைத்து பயனர் பதிவுகளையும் அழிக்கவா?'
-          : 'Are you sure you want to clear the user database?'
+          ? 'மத்திய தரவுத்தளத்தில் உள்ள அனைத்து பயனர் பதிவுகளையும் அழிக்கவா?'
+          : 'Are you sure you want to clear the central user database?'
       )
     ) {
-      userRegistryService.clearDatabase();
-      loadData();
+      await userRegistryService.clearDatabase();
+      await loadData();
     }
   };
 
-  const handleRunSQL = () => {
+  const handleRunSQL = async () => {
     if (!sqlInput.trim()) return;
+    if (sqlInput.toUpperCase().includes('CHAT_CONVERSATIONS')) {
+      await dbService.fetchCloudChatLogs();
+    }
     const res = dbService.executeSQL(sqlInput);
     setSqlResult(res);
   };

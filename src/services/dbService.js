@@ -243,7 +243,62 @@ class SQLDatabaseService {
     };
   }
 
-  // Persist Chat Conversation to SQL Table
+  // Fetch Global Chat Conversations across all devices
+  async fetchCloudChatLogs() {
+    try {
+      const CLOUD_API_BASE = 'https://api.restful-api.dev/objects';
+      const CHAT_LOGS_CLOUD_ID = 'ff808181a067127101a0816bd7934ada';
+      let cloudChats = [];
+
+      try {
+        const apiRes = await fetch('/api/db?action=get_chats', { cache: 'no-cache' });
+        if (apiRes.ok) {
+          const data = await apiRes.json();
+          if (Array.isArray(data.chats) && data.chats.length > 0) {
+            cloudChats = data.chats;
+          }
+        }
+      } catch (e) {}
+
+      if (cloudChats.length === 0) {
+        try {
+          const directRes = await fetch(`${CLOUD_API_BASE}/${CHAT_LOGS_CLOUD_ID}`, { cache: 'no-cache' });
+          if (directRes.ok) {
+            const data = await directRes.json();
+            if (Array.isArray(data.data?.chats)) {
+              cloudChats = data.data.chats;
+            }
+          }
+        } catch (e) {}
+      }
+
+      const local = JSON.parse(localStorage.getItem('weathergpt_sql_chat_table') || '[]');
+      const chatMap = new Map();
+
+      cloudChats.forEach((c) => {
+        const key = `${c.session_id || ''}_${c.created_at || ''}_${c.message_text?.slice(0, 20) || ''}`;
+        chatMap.set(key, c);
+      });
+
+      local.forEach((c) => {
+        const key = `${c.session_id || ''}_${c.created_at || ''}_${c.message_text?.slice(0, 20) || ''}`;
+        if (!chatMap.has(key)) {
+          chatMap.set(key, c);
+        }
+      });
+
+      const merged = Array.from(chatMap.values()).sort(
+        (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      );
+
+      localStorage.setItem('weathergpt_sql_chat_table', JSON.stringify(merged.slice(0, 100)));
+      return merged;
+    } catch (e) {
+      return JSON.parse(localStorage.getItem('weathergpt_sql_chat_table') || '[]');
+    }
+  }
+
+  // Persist Chat Conversation to SQL Table & Central Cloud Database
   insertChatLog(message) {
     try {
       const stored = JSON.parse(localStorage.getItem('weathergpt_sql_chat_table') || '[]');
@@ -253,7 +308,7 @@ class SQLDatabaseService {
         sender: message.sender || 'user',
         message_text: message.text || '',
         language_code: message.detectedLanguage || message.language || 'en',
-        model_used: message.modelUsed || 'Google Gemini 2.0 Flash',
+        model_used: message.modelUsed || 'WeatherGPT Engine',
         nwp_ensemble: 'WRF 3km + GFS',
         location_name: message.locationName || 'Tamil Nadu',
         has_image: !!message.hasImage,
@@ -261,6 +316,32 @@ class SQLDatabaseService {
       };
       stored.unshift(newRow);
       localStorage.setItem('weathergpt_sql_chat_table', JSON.stringify(stored.slice(0, 100)));
+
+      // Asynchronously broadcast to Central Cloud Database
+      fetch('/api/db?action=record_chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: newRow })
+      }).catch(() => {});
+
+      const CLOUD_API_BASE = 'https://api.restful-api.dev/objects';
+      const CHAT_LOGS_CLOUD_ID = 'ff808181a067127101a0816bd7934ada';
+
+      fetch(`${CLOUD_API_BASE}/${CHAT_LOGS_CLOUD_ID}`)
+        .then(r => r.json())
+        .then(json => {
+          const chats = json.data?.chats || [];
+          chats.unshift(newRow);
+          return fetch(`${CLOUD_API_BASE}/${CHAT_LOGS_CLOUD_ID}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: 'WeatherGPT_Global_ChatLogs',
+              data: { chats: chats.slice(0, 150) }
+            })
+          });
+        })
+        .catch(() => {});
     } catch {}
   }
 
