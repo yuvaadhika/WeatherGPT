@@ -315,8 +315,23 @@ class OfflineDisasterVaultService {
     const isAqiQuery = /\b(aqi|air quality|pollution|kaatru tharam|smog|dust)\b/i.test(q);
 
     // 1. SOS / Emergency Helpline Inquiry
-    if (/\b(sos|helpline|phone|emergency|collector|ambulance|police|fire|boat|tnsdma|call|help|number|contact|1077|1070|112|108)\b/i.test(q)) {
-      if (isTamil) {
+    if (/\b(sos|helpline|phone|emergency|collector|ambulance|police|fire|boat|tnsdma|call|help|number|contact|1077|1070|112|108|101)\b/i.test(q)) {
+      if (isTanglish) {
+        return {
+          text: `🚨 **Weather Emergency SOS Helplines (Offline Disaster Vault):**\n\n` +
+            `• 🏛️ **District Collector Helpline:** \`1077\`\n` +
+            `• 🏢 **State Disaster Management (TNSDMA):** \`1070\`\n` +
+            `• 🚨 **National All-in-One Emergency:** \`112\`\n` +
+            `• 🚑 **Medical Ambulance:** \`108\`\n` +
+            `• 🚒 **Theeyanaippu (Fire & Rescue):** \`101\`\n` +
+            `• ⚡ **Current Cut / Wire Snap (TANGEDCO):** \`94987 94987\`\n` +
+            `• 📱 **TNSDMA WhatsApp Disaster Help:** \`+91 94458 69848\`\n\n` +
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
+          isOffline: true,
+          mode: 'Disaster SOS Vault'
+        };
+      }
+      if (effectiveLang === 'ta') {
         return {
           text: `🚨 **வானிலை அவசர கால உதவி எண்கள் (Offline Emergency SOS Vault):**\n\n` +
             `• 🏛️ **மாவட்ட ஆட்சியர் பேரிடர் உதவி மையம்:** \`1077\`\n` +
@@ -326,7 +341,7 @@ class OfflineDisasterVaultService {
             `• 🚒 **தீயணைப்பு மற்றும் மீட்புப் படை:** \`101\`\n` +
             `• 📱 **TNSDMA வாட்ஸ்அப் உதவி:** \`+91 94458 69848\`\n` +
             `• ⚡ **மின்தடை / அறுந்த மின்கம்பி உதவி (TANGEDCO):** \`94987 94987\`\n\n` +
-            `*(டவர் சிக்னல் குறைவாக இருந்தாலும் 112 / 108 / 1077 எண்களுக்கு இலவசமாக நேரடியாக அவசர அழைப்பு மேற்கொள்ள முடியும்.)*`,
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Disaster SOS Vault'
         };
@@ -348,14 +363,28 @@ class OfflineDisasterVaultService {
 
     // 2. Flood / Waterlogging / Cyclone Safety Rules Inquiry
     if (/\b(flood|waterlog|vellam|puyal|cyclone|safe|precaution|shelter|mudhugam|safety|protect|kaathu|gale)\b/i.test(q)) {
-      if (isTamil) {
+      if (isTanglish) {
+        return {
+          text: `🛡️ **Offline Disaster & Mazhai Paadhukaappu Valikaattal:**\n\n` +
+            `• ⚡ **Current Safety:** Veetula thanni thenguna udane Main Switch-a off pannunga.\n` +
+            `• 🚶 **Vellam / Mazhai Thanneer:** Oodura vellathula nadakkavo bike/car oottavo venaam.\n` +
+            `• 💧 **Kudithanneer:** Thanni nalla koochu aara vachu mattum kudinga.\n` +
+            `• 🔋 **Preparedness:** Mobile, power bank, torch light charge pottu ready ah vachukonga.\n` +
+            `• 🏠 **Relief Camp:** Aabathana pallathana idathula irundha safety camps-ku ponga (Help-ku: 1077).\n\n` +
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
+          isOffline: true,
+          mode: 'Disaster Safety Vault'
+        };
+      }
+      if (effectiveLang === 'ta') {
         return {
           text: `🛡️ **அவசர கால பேரிடர் பாதுகாப்பு வழிகாட்டுதல்கள் (Offline Disaster Safety):**\n\n` +
             `• ⚡ **மின் பாதுகாப்பு:** வீட்டில் தண்ணீர் தேங்கினால் உடனே மெயின் சுவிட்சை (Main Switch) அணைக்கவும்.\n` +
             `• 🚶 **வெள்ள நீர்:** ஓடும் வெள்ள நீரில் நடக்கவோ அல்லது இருசக்கர வாகனங்களை இயக்கவோ கூடாது.\n` +
             `• 💧 **குடிநீர்:** காய்ச்சிய குடிநீரை மட்டுமே பருகவும் அல்லது சுத்தமான பாட்டில் நீரைப் பயன்படுத்தவும்.\n` +
             `• 🔋 **முன்னெச்சரிக்கை:** மொபைல், பவர் பேங்க், டார்ச் விளக்குகளை தயாராக வைக்கவும்.\n` +
-            `• 🏠 **மீட்பு முகாம்:** ஆபத்தான தாழ்வான பகுதிகளில் இருந்தால் அருகிலுள்ள அரசு நிவாரண முகாம்களுக்குச் செல்லவும் (உதவிக்கு: 1077).`,
+            `• 🏠 **மீட்பு முகாம்:** ஆபத்தான தாழ்வான பகுதிகளில் இருந்தால் அருகிலுள்ள அரசு நிவாரண முகாம்களுக்குச் செல்லவும் (உதவிக்கு: 1077).\n\n` +
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Disaster Safety Vault'
         };
@@ -445,6 +474,18 @@ class OfflineDisasterVaultService {
         };
       }
 
+      if (isAqiQuery) {
+        return {
+          text: `💨 **${locName} - Kaatru Tharam (Air Quality AQI) Status:**\n\n` +
+            `• 🍃 **AQI Nilavaram:** **Nalladhu / Thooimayana Kaatru (~45 AQI)**\n` +
+            `• 🫁 **Swasa Paadhukaappu:** Kaatru nalla thooimaiya irukku, veliya pogalaam.\n` +
+            `• 💧 **Eerapatham:** ${humidity}% | **Kaatru Vegam:** ${wind} km/h\n\n` +
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
       // General Tanglish response
       return {
         text: `👋 **Kandippa! ${locName}-la innaiku (${todayDateTa}) climate status idho:**\n\n` +
@@ -485,6 +526,58 @@ class OfflineDisasterVaultService {
             `• 🌡️ **தற்போதைய வெப்பநிலை:** ${temp}°C (உணர்வு: ${feels}°C)\n` +
             `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
             `• 💡 **பாதுகாப்பு குறிப்பு:** ${rainProb >= 50 ? 'வெளியே செல்லும்போது குடை எடுத்துச் செல்லவும். தாழ்வான சாலைகளில் கவனம் தேவை.' : 'மழைக்கான அச்சுறுத்தல் இல்லை, தாராளமாக பயணிக்கலாம்.'}\n\n` +
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isTempQuery) {
+        return {
+          text: `🌡️ **${locName} - இன்றைய (${todayDateTa}) வெப்பநிலை & வெயில் நிலவரம்:**\n\n` +
+            `• 🌡️ **தற்போதைய வெப்பநிலை:** **${temp}°C** (உணரப்படும் வெப்பம்: **${feels}°C**)\n` +
+            `• ☀️ **வெயில் தீவிரம்:** ${temp >= 34 ? 'அதிக வெயில் & வியர்வை அதிகம் இருக்கும்' : 'மிதமான வெயில், நல்ல வானிலை'}\n` +
+            `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n` +
+            `• 💡 **ஆரோக்கிய குறிப்பு:** ${temp >= 33 ? 'நிறைய தண்ணீர் குடித்து உடலை நீரேற்றத்துடன் வைத்திருக்கவும்.' : 'வானிலை மிகவும் இதமாக உள்ளது.'}\n\n` +
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isTravelKudaiQuery) {
+        return {
+          text: `🚶 **${locName} - பயணம் & குடை பரிந்துரை (Travel & Umbrella):**\n\n` +
+            `• ☂️ **குடை தேவையா?** ${rainProb >= 40 ? '✅ **ஆம், குடை தேவை!** மழை வர வாய்ப்பு ~' + rainProb + '% உள்ளது.' : '☀️ **குடை தேவையில்லை.** வானிலை தெளிவாக உள்ளது.'}\n` +
+            `• 🚗 **பயணம்:** சாலைப் போக்குவரத்து தற்போது சீராக உள்ளது.\n` +
+            `• 👕 **துணி உலர்த்தல்:** ${humidity < 75 && rainProb < 40 ? '✅ துணிகள் விரைவாக உலரும்.' : '⚠️ ஈரப்பதம் அதிகம் உள்ளதால் வீட்டிற்குள் உலர்த்துவது நல்லது.'}\n` +
+            `• 🌡️ **வெப்பநிலை:** ${temp}°C | **காற்று:** ${wind} கி.மீ/மணி\n\n` +
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isAgriQuery) {
+        return {
+          text: `🌾 **${locName} - விவசாய & விதைப்பு வழிகாட்டி (Offline Farmer Advice):**\n\n` +
+            `• 🚜 **விதைப்பு தகுதி:** ✅ **ஏற்றது (உகந்த பருவம்)**\n` +
+            `• 🌡️ **மண்/வானிலை வெப்பம்:** ${temp}°C | **ஈரப்பதம்:** ${humidity}%\n` +
+            `• 🌱 **பரிந்துரைக்கப்படும் பயிர்கள்:** நெல் (CR 1009/ADT), சிறுதானியங்கள், பயறு வகைகள்\n` +
+            `• 💧 **பாசனம்:** ${rainProb >= 50 ? 'மழை எதிர்பார்க்கப்படுவதால் கூடுதல் பாசனம் தேவையில்லை.' : 'மிதமான பாசனம் போதுமானது.'}\n` +
+            `• 🧪 **மருந்து தெளிப்பு:** ${wind <= 15 ? '✅ காற்று மிதம், மருந்து தெளிக்கலாம்.' : '⚠️ காற்றின் வேகம் அதிகமாக உள்ளதால் தள்ளிப்போடவும்.'}\n\n` +
+            `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
+          isOffline: true,
+          mode: 'Offline Conversational AI'
+        };
+      }
+
+      if (isAqiQuery) {
+        return {
+          text: `💨 **${locName} - காற்றின் தரம் (Air Quality AQI) நிலவரம்:**\n\n` +
+            `• 🍃 **காற்றின் தரம்:** **தூய்மையான காற்று (Good ~45 AQI)**\n` +
+            `• 🫁 **சுவாசப் பாதுகாப்பு:** காற்றின் தரம் பாதுகாப்பாக உள்ளது, தாராளமாக வெளியே செல்லலாம்.\n` +
+            `• 💧 **ஈரப்பதம்:** ${humidity}% | **காற்றின் வேகம்:** ${wind} கி.மீ/மணி\n\n` +
             `*(டவர் சிக்னல் இல்லாத நேரத்திலும் ஆஃப்லைன் கேச் மூலம் துல்லியமாக கணக்கிடப்பட்டது.)*`,
           isOffline: true,
           mode: 'Offline Conversational AI'

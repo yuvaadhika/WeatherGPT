@@ -18,7 +18,9 @@ import { offlineVaultService } from './offlineVaultService';
 export function detectLanguageFromQuery(query, defaultLang = 'en') {
   if (!query || typeof query !== 'string') return defaultLang;
   const q = query.trim();
-  const qLower = q.toLowerCase();
+  // Strip dots, multiple spaces, and special symbols into clean tokens
+  const qClean = q.replace(/[^a-zA-Z0-9\u0B80-\u0BFF\u0900-\u097F\u0C00-\u0C7F\u0D00-\u0D7F\u0C80-\u0CFF\u0980-\u09FF\u0A80-\u0AFF\u0A00-\u0A7F\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  const qLower = qClean.toLowerCase();
 
   // 1. Script checks (Unicode ranges) - Tamil script ALWAYS takes highest priority
   if (/[\u0B80-\u0BFF]/.test(q)) return 'ta'; // Tamil script (தமிழ்)
@@ -33,20 +35,45 @@ export function detectLanguageFromQuery(query, defaultLang = 'en') {
   if (/[\u0A80-\u0AFF]/.test(q)) return 'gu'; // Gujarati
   if (/[\u0A00-\u0A7F]/.test(q)) return 'pa'; // Punjabi
 
-  // 2. Tanglish Detection (Conversational Tamil written in English alphabets)
-  const tanglishPatterns = [
-    /\b(mazhai|malai|mazha|varuma|varum|peyyuma|peiyuma|peiyum|peyyum|irukku|erukku|iruku|eruku|irukkaa|erukkaa|irukkuma|erukkuma|irukkum|erukkum|irukka|eruka)\b/i,
-    /\b(eppadi|epdi|ippo|eppo|enga|nalaiku|naalaikku|naalaiku|naalai|iniku|innikku|inniku|indha|intha|enta|solla|sollu|sollunga|solunga|sollungalen)\b/i,
-    /\b(vidhai|vitha|vithai|seed|payir|vivasaayam|vivasayam|vivasayi|panlama|pannalama|podalama|podanum|podalaama|podunga|koodum|neram|veliya|kaathu|kaatru|veiyil|veyil|vanam|megam|kulir|thaneer|thanneer|oothe|aagum|theriyuma|kidaikkuma)\b/i,
-    /\b(weather epdi|climate epdi|rain varuma|today weather|tomorrow rain|weather sollunga|climate sollunga|ennaku|enakku|ungala|ungalluku|ungalukku|romba|konjam|paathu|kudutha|varanum|pannu|pannalam|kudu|thappu|solra|mathiri)\b/i,
-    /\b(kudai|raincoat|umbrella thevaya|umbrella theva|veliya poga|thittam|keka|pesu|paaru|parkalam|paarkalam|theerpu|marundhu|uram|thelikkalam|adikkuma|adikkum|eduthuttu|pogalama|pogalaama|vaikanum|vaikalam|vacha)\b/i,
-    /\b(chennai|madurai|coimbatore|kovai|trichy|salem|ooty|nellai|tirunelveli|vellore|thanjavur|erode|tiruppur|dindigul|cuddalore|kanchipuram|villupuram|nagar|tamilnadu|tn)\s*(la|le|kku|ku)\b/i
+  // 2. Comprehensive Tanglish Detection (Conversational Tamil written in English alphabets)
+  const tanglishKeywords = [
+    // Rain verbs and descriptors
+    /\b(mazhai|malai|mazha|thooral|varuma|varum|varudhu|varuthu|peyyuma|peiyuma|peiyum|peyyum|kottuma|adikkuma|adikkum|adikuma|adikum)\b/i,
+    // Existence and state markers
+    /\b(irukku|erukku|iruku|eruku|irruku|erruku|irukkaa|erukkaa|irukkuma|erukkuma|irukkum|erukkum|irukka|eruka|irundha|erundha|irukudhu|irukkudhu|irundhadhu)\b/i,
+    // Question & interrogative words
+    /\b(eppadi|epdi|epudee|epadi|eppidi|epdiyiruku|eppadiiruku|eppadiirruku|epdiirruku|enna|yenna|ethana|yethana|eppo|yeppo|ippo|enga|yenga|yar|yaaru|edhu|yedhu)\b/i,
+    // Conversational dialogue tokens
+    /\b(solla|sollu|sollunga|solunga|sollungalen|solra|solradhu|sonna|sonnanga|sonnadhu|ketta|kettanga|kudutha|kudu|kudunga|kudungalen|kelunga|keka|kekuran|pesu|paaru|parkalam|paarkalam|theerpu)\b/i,
+    // Time & day indicators
+    /\b(iniku|inniku|innikku|innaiku|nalaiku|naalaiku|naalaikku|naalai|nethu|netthu|indha|intha|enta|antha|andha|ippodhiki|ippodhaiykku)\b/i,
+    // Farming & agriculture
+    /\b(vidhai|vitha|vithai|seed|payir|vivasaayam|vivasayam|vivasayi|panlama|pannalama|podalama|podanum|podalaama|podunga|vaikanum|vaikalam|vacha|thelikkalam|marundhu|uram|paasanam)\b/i,
+    // Daily needs, weather elements & atmosphere
+    /\b(veliya|veetula|kaathu|kaatru|veiyil|veyil|vanam|megam|kulir|thaneer|thanneer|thanni|oothe|aagum|aaguma|theriyuma|kidaikkuma|puriyuma|mudiyuma|mudiyum|vellam|puyal)\b/i,
+    // Personal pronouns & qualifiers
+    /\b(ennaku|enakku|ungala|ungalluku|ungalukku|romba|konjam|paathu|pathu|paathuttu|pathuttu|pannu|pannalam|thappu|mathiri|maathiri|maari|mari)\b/i,
+    // Umbrella, travel & lifestyle
+    /\b(kudai|koda|umbrella thevaya|umbrella theva|thevaya|theva|thevai|thevaiya|thevapadum|thevapaduma|pogalama|pogalaama|polama|thuni|kaayuma|thittam)\b/i,
+    // Affirmations & speech markers
+    /\b(aana|analum|aama|illa|illaye|illaya|seri|sari|okva|supera|semma|nalla|nallava|yedhavadhu|edhavadhu|appo|nu|dhu|paa|daa|ma|nga)\b/i,
+    // Standalone grammatical particles
+    /\b(la|le|kku|ku|oda|laa|daa|paa)\b/i,
+    // Suffix locative attachments on any words (e.g. chengalpattula, veetula, oodula, chennaikku)
+    /\b\w+(?:la|le|kku|ku|oda|laa|daa|paa|nga|aana|nu)\b/i,
+    // All 38 Tamil Nadu districts & major towns (with optional suffixes)
+    /\b(chengalpattu|chengalpet|chennai|madras|coimbatore|kovai|madurai|trichy|tiruchirappalli|salem|ooty|nilgiris|nellai|tirunelveli|vellore|thanjavur|tanjore|erode|tiruppur|dindigul|cuddalore|kanchipuram|villupuram|tiruvannamalai|dharmapuri|krishnagiri|hosur|namakkal|karur|perambalur|ariyalur|nagapattinam|mayiladuthurai|tiruvarur|pudukkottai|sivaganga|ramanathapuram|virudhunagar|theni|tenkasi|ranipet|tirupattur|kallakurichi|tambaram|avadi|ambattur|velachery|guindy|porur|chromepet|pallavaram|poonamallee|puducherry|pondicherry|kanyakumari|nagercoil)(?:la|le|kku|ku|il|oda|laa)?\b/i
   ];
 
-  for (const pattern of tanglishPatterns) {
-    if (pattern.test(qLower)) {
+  for (const pattern of tanglishKeywords) {
+    if (pattern.test(qLower) || pattern.test(qClean)) {
       return 'tanglish';
     }
+  }
+
+  // If user explicitly picked Tamil in UI and typed in Roman script
+  if (defaultLang === 'ta' || defaultLang === 'tanglish') {
+    return 'tanglish';
   }
 
   // 3. Hinglish Detection
@@ -54,7 +81,7 @@ export function detectLanguageFromQuery(query, defaultLang = 'en') {
     /\b(kya|hoga|hai|hogi|barish|barsat|hogi kya|kab|aayegi|kaisa|mausam|aaj ka|kal ka|batao|bataiye|kheti|fasal|beej)\b/i
   ];
   for (const pattern of hinglishPatterns) {
-    if (pattern.test(qLower)) {
+    if (pattern.test(qLower) || pattern.test(qClean)) {
       return 'hi';
     }
   }
@@ -131,50 +158,50 @@ export function resolveTamilAndTanglishCityName(query) {
     }
   }
 
-  // 2. Tanglish Romanized city matching with suffixes like "chengalpattu la", "chengalpattula", "chennai kku", etc.
+  // 2. Tanglish Romanized city matching with optional locative suffixes (e.g. "chengalpattula", "chennai kku", "kovaila")
   const tanglishCityMap = [
-    { pattern: /\b(chengalpattu|chengalpet|chengalpetu|chengalpatt)\b/i, name: 'Chengalpattu' },
-    { pattern: /\b(chennai|madras)\b/i, name: 'Chennai' },
-    { pattern: /\b(kanchipuram|kancheepuram|kanchi)\b/i, name: 'Kanchipuram' },
-    { pattern: /\b(tiruvallur|thiruvallur)\b/i, name: 'Tiruvallur' },
-    { pattern: /\b(tambaram)\b/i, name: 'Tambaram' },
-    { pattern: /\b(avadi)\b/i, name: 'Avadi' },
-    { pattern: /\b(madurai)\b/i, name: 'Madurai' },
-    { pattern: /\b(coimbatore|kovai)\b/i, name: 'Coimbatore' },
-    { pattern: /\b(trichy|tiruchirappalli|tiruchi)\b/i, name: 'Tiruchirappalli' },
-    { pattern: /\b(salem)\b/i, name: 'Salem' },
-    { pattern: /\b(nellai|tirunelveli)\b/i, name: 'Tirunelveli' },
-    { pattern: /\b(vellore)\b/i, name: 'Vellore' },
-    { pattern: /\b(erode)\b/i, name: 'Erode' },
-    { pattern: /\b(thanjavur|tanjore|thanjai)\b/i, name: 'Thanjavur' },
-    { pattern: /\b(thoothukudi|tuticorin)\b/i, name: 'Thoothukudi' },
-    { pattern: /\b(dindigul|dindigallu)\b/i, name: 'Dindigul' },
-    { pattern: /\b(kanyakumari|nagercoil)\b/i, name: 'Kanyakumari' },
-    { pattern: /\b(ooty|udhagamandalam|nilgiris|coonoor)\b/i, name: 'Ooty' },
-    { pattern: /\b(cuddalore)\b/i, name: 'Cuddalore' },
-    { pattern: /\b(villupuram|viluppuram)\b/i, name: 'Villupuram' },
-    { pattern: /\b(tiruvannamalai|thiruvannamalai)\b/i, name: 'Tiruvannamalai' },
-    { pattern: /\b(dharmapuri)\b/i, name: 'Dharmapuri' },
-    { pattern: /\b(krishnagiri)\b/i, name: 'Krishnagiri' },
-    { pattern: /\b(hosur)\b/i, name: 'Hosur' },
-    { pattern: /\b(namakkal)\b/i, name: 'Namakkal' },
-    { pattern: /\b(karur)\b/i, name: 'Karur' },
-    { pattern: /\b(perambalur)\b/i, name: 'Perambalur' },
-    { pattern: /\b(ariyalur)\b/i, name: 'Ariyalur' },
-    { pattern: /\b(nagapattinam|nagai)\b/i, name: 'Nagapattinam' },
-    { pattern: /\b(mayiladuthurai)\b/i, name: 'Mayiladuthurai' },
-    { pattern: /\b(tiruvarur|thiruvarur)\b/i, name: 'Tiruvarur' },
-    { pattern: /\b(pudukkottai|pudukottai)\b/i, name: 'Pudukkottai' },
-    { pattern: /\b(sivaganga|sivagangai)\b/i, name: 'Sivaganga' },
-    { pattern: /\b(ramanathapuram|ramnad|rameshwaram)\b/i, name: 'Ramanathapuram' },
-    { pattern: /\b(virudhunagar)\b/i, name: 'Virudhunagar' },
-    { pattern: /\b(theni)\b/i, name: 'Theni' },
-    { pattern: /\b(tenkasi)\b/i, name: 'Tenkasi' },
-    { pattern: /\b(tiruppur|tirupur)\b/i, name: 'Tiruppur' },
-    { pattern: /\b(ranipet)\b/i, name: 'Ranipet' },
-    { pattern: /\b(tirupattur|tirupathur)\b/i, name: 'Tirupattur' },
-    { pattern: /\b(kallakurichi)\b/i, name: 'Kallakurichi' },
-    { pattern: /\b(pondicherry|puducherry|pondy)\b/i, name: 'Puducherry' },
+    { pattern: /\b(chengalpattu|chengalpet|chengalpetu|chengalpatt)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Chengalpattu' },
+    { pattern: /\b(chennai|madras)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Chennai' },
+    { pattern: /\b(kanchipuram|kancheepuram|kanchi)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Kanchipuram' },
+    { pattern: /\b(tiruvallur|thiruvallur)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tiruvallur' },
+    { pattern: /\b(tambaram)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tambaram' },
+    { pattern: /\b(avadi)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Avadi' },
+    { pattern: /\b(madurai)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Madurai' },
+    { pattern: /\b(coimbatore|kovai)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Coimbatore' },
+    { pattern: /\b(trichy|tiruchirappalli|tiruchi)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tiruchirappalli' },
+    { pattern: /\b(salem)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Salem' },
+    { pattern: /\b(nellai|tirunelveli)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tirunelveli' },
+    { pattern: /\b(vellore)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Vellore' },
+    { pattern: /\b(erode)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Erode' },
+    { pattern: /\b(thanjavur|tanjore|thanjai)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Thanjavur' },
+    { pattern: /\b(thoothukudi|tuticorin)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Thoothukudi' },
+    { pattern: /\b(dindigul|dindigallu)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Dindigul' },
+    { pattern: /\b(kanyakumari|nagercoil)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Kanyakumari' },
+    { pattern: /\b(ooty|udhagamandalam|nilgiris|coonoor)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Ooty' },
+    { pattern: /\b(cuddalore)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Cuddalore' },
+    { pattern: /\b(villupuram|viluppuram)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Villupuram' },
+    { pattern: /\b(tiruvannamalai|thiruvannamalai)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tiruvannamalai' },
+    { pattern: /\b(dharmapuri)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Dharmapuri' },
+    { pattern: /\b(krishnagiri)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Krishnagiri' },
+    { pattern: /\b(hosur)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Hosur' },
+    { pattern: /\b(namakkal)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Namakkal' },
+    { pattern: /\b(karur)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Karur' },
+    { pattern: /\b(perambalur)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Perambalur' },
+    { pattern: /\b(ariyalur)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Ariyalur' },
+    { pattern: /\b(nagapattinam|nagai)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Nagapattinam' },
+    { pattern: /\b(mayiladuthurai)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Mayiladuthurai' },
+    { pattern: /\b(tiruvarur|thiruvarur)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tiruvarur' },
+    { pattern: /\b(pudukkottai|pudukottai)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Pudukkottai' },
+    { pattern: /\b(sivaganga|sivagangai)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Sivaganga' },
+    { pattern: /\b(ramanathapuram|ramnad|rameshwaram)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Ramanathapuram' },
+    { pattern: /\b(virudhunagar)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Virudhunagar' },
+    { pattern: /\b(theni)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Theni' },
+    { pattern: /\b(tenkasi)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tenkasi' },
+    { pattern: /\b(tiruppur|tirupur)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tiruppur' },
+    { pattern: /\b(ranipet)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Ranipet' },
+    { pattern: /\b(tirupattur|tirupathur)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Tirupattur' },
+    { pattern: /\b(kallakurichi)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Kallakurichi' },
+    { pattern: /\b(pondicherry|puducherry|pondy)(?:la|le|kku|ku|il|oda|laa)?\b/i, name: 'Puducherry' },
     { pattern: /\b(delhi|new delhi)\b/i, name: 'Delhi' },
     { pattern: /\b(mumbai|bombay)\b/i, name: 'Mumbai' },
     { pattern: /\b(bangalore|bengaluru)\b/i, name: 'Bengaluru' },
@@ -1489,7 +1516,7 @@ export class WeatherAIAgent {
 
       // If device is offline / tower down, use Edge AI Disaster Vault immediately
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        const offlineResult = offlineVaultService.processOfflineQuery(q, activeLanguage, currentLocation, previousLocation);
+        const offlineResult = offlineVaultService.processOfflineQuery(q, effectiveLang, currentLocation, previousLocation);
         return {
           text: offlineResult.text,
           detectedLanguage: effectiveLang,
@@ -1673,10 +1700,11 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       };
     } catch (err) {
       console.warn('Network / Tower outage during AI query, switching to Offline Disaster Vault:', err);
-      const offlineResult = offlineVaultService.processOfflineQuery(query, activeLanguage, currentLocation, previousLocation);
+      const effectiveLang = detectLanguageFromQuery(query || '', activeLanguage);
+      const offlineResult = offlineVaultService.processOfflineQuery(query, effectiveLang, currentLocation, previousLocation);
       return {
         text: offlineResult.text,
-        detectedLanguage: activeLanguage,
+        detectedLanguage: effectiveLang,
         modelUsed: '📡 Offline Disaster Edge AI (Network / Tower Outage)',
         isOffline: true,
         isWeatherQuery: offlineResult.isWeatherQuery !== false,
