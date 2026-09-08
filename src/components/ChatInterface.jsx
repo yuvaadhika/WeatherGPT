@@ -788,7 +788,7 @@ export default function ChatInterface({
         {/* Quick Prompt Bar + Auto-Voice Toggle */}
         <div className="flex items-center justify-between gap-2 pb-2 mb-1 text-xs">
           {/* Quick Pre-Built Queries + Emergency SOS */}
-          <div className="flex items-center space-x-1.5 overflow-x-auto min-w-0">
+          <div className="flex items-center space-x-1.5 overflow-x-auto min-w-0 scrollbar-none">
             <button
               type="button"
               onClick={() => handleSendMessage(activeLanguage === 'ta' ? 'அவசர கால உதவி எண்கள் மற்றும் பேரிடர் வழிகாட்டுதல்கள் என்ன?' : 'Emergency Disaster SOS Helplines & Safety Protocols')}
@@ -854,16 +854,16 @@ export default function ChatInterface({
             e.preventDefault();
             handleSendMessage();
           }}
-          className="relative flex items-center bg-white border-2 border-sky-400/90 rounded-2xl shadow-xl p-1.5 focus-within:border-sky-600 focus-within:ring-2 focus-within:ring-sky-200 transition-all"
+          className="relative flex items-center w-full min-w-0 bg-white border-2 border-sky-400/90 rounded-2xl shadow-xl p-1 sm:p-1.5 focus-within:border-sky-600 focus-within:ring-2 focus-within:ring-sky-200 transition-all gap-1 sm:gap-1.5 overflow-hidden"
         >
           {/* Live Camera Button */}
           <button
             type="button"
             onClick={() => handleOpenCamera()}
             title={activeLanguage === 'ta' ? 'நேரடி கேமரா (Live Camera Capture)' : 'Open Live Camera (Take Photo)'}
-            className="p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer mr-1 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs"
+            className="p-2 sm:p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs"
           >
-            <Camera className="w-4 h-4" />
+            <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
           {/* Gallery / File Upload Button */}
@@ -871,13 +871,13 @@ export default function ChatInterface({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             title={activeLanguage === 'ta' ? 'படத்தை பதிவேற்றவும் (Upload from Gallery)' : 'Upload from Gallery / Files'}
-            className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer mr-1 ${
+            className={`p-2 sm:p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${
               selectedImage
                 ? 'bg-sky-600 text-white shadow-md'
                 : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs'
             }`}
           >
-            <ImageIcon className="w-4 h-4" />
+            <ImageIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
           {/* Voice Input Mic */}
@@ -885,13 +885,13 @@ export default function ChatInterface({
             type="button"
             onClick={handleToggleVoice}
             title={isListening ? (t.chat?.voiceListening || 'Listening...') : 'Speak with Voice (10 Languages)'}
-            className={`p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer mr-1 ${
+            className={`p-2 sm:p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${
               isListening
                 ? 'bg-rose-600 text-white animate-pulse shadow-md'
                 : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs'
             }`}
           >
-            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            {isListening ? <MicOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
 
           {/* Text Input */}
@@ -901,16 +901,16 @@ export default function ChatInterface({
             onChange={(e) => setInputQuery(e.target.value)}
             placeholder={
               selectedImage
-                ? (activeLanguage === 'ta' ? 'படத்தைப் பற்றி கேளுங்கள் அல்லது Send அழுத்தவும்...' : 'Ask about this photo or press Send for Vision AI...')
+                ? (activeLanguage === 'ta' ? 'படத்தைப் பற்றி கேளுங்கள்...' : 'Ask about this photo...')
                 : isListening
                 ? (t.chat?.voiceListening || 'Listening...')
-                : (activeLanguage === 'ta' ? 'வானிலை பற்றி கேளுங்கள் அல்லது கேமரா/படத்தை இணைக்கவும்...' : 'Ask WeatherGPT, take camera photo, or upload image...')
+                : (activeLanguage === 'ta' ? 'வானிலை பற்றி கேளுங்கள்...' : 'Ask WeatherGPT anything...')
             }
-            className="flex-1 bg-transparent px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
+            className="flex-1 min-w-0 bg-transparent px-1 sm:px-2.5 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 placeholder:truncate focus:outline-none"
           />
 
           {/* Language Badge */}
-          <span className="text-xs px-2 text-slate-500 hidden sm:inline font-medium">
+          <span className="text-xs px-1.5 text-slate-500 hidden md:inline font-medium flex-shrink-0">
             {activeLangObj.nativeName}
           </span>
 
@@ -918,13 +918,15 @@ export default function ChatInterface({
           <button
             type="submit"
             disabled={(!inputQuery.trim() && !selectedImage) || isLoading}
-            className={`p-2.5 rounded-xl font-medium flex items-center justify-center transition-all flex-shrink-0 cursor-pointer ${
+            title={activeLanguage === 'ta' ? 'அனுப்பு' : 'Send'}
+            aria-label="Send Message"
+            className={`p-2 sm:p-2.5 rounded-xl font-medium flex items-center justify-center transition-all flex-shrink-0 cursor-pointer ml-auto ${
               (inputQuery.trim() || selectedImage) && !isLoading
-                ? 'bg-sky-600 text-white hover:bg-sky-700 shadow-sm'
+                ? 'bg-sky-600 text-white hover:bg-sky-700 active:scale-95 shadow-sm'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed'
             }`}
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </form>
       </div>
