@@ -254,10 +254,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem('weathergpt_saved_location');
-    if (!saved) {
-      detectUserLocation(activeLanguage);
-    }
+    detectUserLocation(activeLanguage);
   }, []);
 
   // Update localized city & specific locality names on language switch

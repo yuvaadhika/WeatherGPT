@@ -295,9 +295,6 @@ export default function AlphabeticalLocationModal({
                               📍 {localizedSpecific}
                             </div>
                           ) : null}
-                          <div className="text-[10px] text-slate-500 truncate">
-                            {adminStr}{localizedCountry}
-                          </div>
                         </div>
                       </div>
                       <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-sky-600 flex-shrink-0" />
