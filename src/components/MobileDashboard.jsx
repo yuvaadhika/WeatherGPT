@@ -52,13 +52,14 @@ export default function MobileDashboard({
   onOpenXAI,
   onOpenAlertModal,
   onDetectLocation,
+  isLocating,
   onSelectCity,
   onOpenLocationModal,
   onOpenRoutePlanner,
   onOpenEventScore,
   onOpenSpotter,
   onOpenEmergencySOS,
-  notificationsEnabled
+  notificationsEnabled = false
 }) {
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
   const current = weatherData?.current || {};
@@ -176,6 +177,20 @@ export default function MobileDashboard({
         </button>
 
         <div className="flex items-center space-x-1.5">
+          <button
+            onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
+            disabled={isLocating}
+            className={`p-1.5 sm:px-2.5 sm:py-1 rounded-xl border text-[11px] font-bold flex items-center space-x-1 transition-all shadow-2xs cursor-pointer ${
+              isLocating
+                ? 'bg-sky-100 text-sky-700 border-sky-400 animate-pulse'
+                : 'bg-white/90 hover:bg-sky-50 border-sky-200/80 text-sky-700 hover:border-sky-300'
+            }`}
+            title={activeLanguage === 'ta' ? 'நேரலை ஜிபிஎஸ் இடம் கண்டறி (Live GPS)' : 'Lock Current Live GPS Location'}
+          >
+            <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin text-sky-600' : 'text-sky-600'}`} />
+            <span className="hidden xs:inline">{isLocating ? (activeLanguage === 'ta' ? 'கண்டறிகிறது...' : 'Locating...') : (activeLanguage === 'ta' ? 'ஜிபிஎஸ்' : 'Live GPS')}</span>
+          </button>
+
           <button
             onClick={handleShareWeather}
             className="p-1.5 sm:px-2.5 sm:py-1 rounded-xl bg-white/90 hover:bg-sky-50 border border-sky-200/80 text-slate-700 text-[11px] font-bold flex items-center space-x-1 transition-all shadow-2xs cursor-pointer"

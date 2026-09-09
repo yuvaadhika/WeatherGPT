@@ -207,64 +207,82 @@ export default function App() {
 
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
 
+  const [isLocating, setIsLocating] = useState(false);
+
   const detectUserLocation = (lang) => {
     const targetLang = typeof lang === 'string' && lang ? lang : activeLanguage;
     if (typeof window !== 'undefined' && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
+      setIsLocating(true);
+
+      const handleSuccess = async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        try {
+          const loc = await reverseGeocode(lat, lon, targetLang);
+          const finalLoc = loc && loc.name ? loc : {
+            name: 'Live GPS Location',
+            specificPlace: '',
+            district: '',
+            rawName: 'Live GPS Location',
+            rawSpecificPlace: '',
+            rawDistrict: '',
+            admin1: 'Tamil Nadu',
+            rawAdmin1: 'Tamil Nadu',
+            country: 'India',
+            rawCountry: 'India',
+            latitude: lat,
+            longitude: lon,
+          };
+          setCurrentLocation(finalLoc);
           try {
-            const loc = await reverseGeocode(lat, lon, targetLang);
-            const finalLoc = loc && loc.name ? loc : {
-              name: 'Live GPS Location',
-              specificPlace: '',
-              district: '',
-              rawName: 'Live GPS Location',
-              rawSpecificPlace: '',
-              rawDistrict: '',
-              admin1: 'Tamil Nadu',
-              rawAdmin1: 'Tamil Nadu',
-              country: 'India',
-              rawCountry: 'India',
-              latitude: lat,
-              longitude: lon,
-            };
-            setCurrentLocation(finalLoc);
-            try {
-              localStorage.setItem('weathergpt_saved_location', JSON.stringify(finalLoc));
-            } catch {}
-          } catch (e) {
-            console.warn('Reverse geocode error:', e);
-          }
-        },
-        (err) => {
-          console.warn('Geolocation prompt deferred or timed out:', err);
-          // If we already have a saved location, keep it and do not overwrite with generic IP!
-          try {
-            const saved = localStorage.getItem('weathergpt_saved_location');
-            if (saved) {
-              const parsed = JSON.parse(saved);
-              if (parsed && parsed.latitude) {
-                setCurrentLocation(parsed);
-                return;
-              }
-            }
+            localStorage.setItem('weathergpt_saved_location', JSON.stringify(finalLoc));
           } catch {}
-          // Only fallback to IP if no location exists
-          fetch('https://ipapi.co/json/')
-            .then((res) => res.json())
-            .then(async (ipData) => {
-              if (ipData && ipData.latitude && ipData.longitude) {
-                const loc = await reverseGeocode(ipData.latitude, ipData.longitude, targetLang);
-                if (loc) {
-                  setCurrentLocation(loc);
+        } catch (e) {
+          console.warn('Reverse geocode error:', e);
+        } finally {
+          setIsLocating(false);
+        }
+      };
+
+      const handleError = (err) => {
+        console.warn('High-accuracy GPS fix failed or timed out, trying standard positioning...', err);
+        navigator.geolocation.getCurrentPosition(
+          handleSuccess,
+          (err2) => {
+            console.warn('Standard GPS failed:', err2);
+            setIsLocating(false);
+            // If we already have a saved location, keep it!
+            try {
+              const saved = localStorage.getItem('weathergpt_saved_location');
+              if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && parsed.latitude) {
+                  setCurrentLocation(parsed);
+                  return;
                 }
               }
-            })
-            .catch(console.warn);
-        },
-        { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+            } catch {}
+            // Last resort IP fallback
+            fetch('https://ipapi.co/json/')
+              .then((res) => res.json())
+              .then(async (ipData) => {
+                if (ipData && ipData.latitude && ipData.longitude) {
+                  const loc = await reverseGeocode(ipData.latitude, ipData.longitude, targetLang);
+                  if (loc) {
+                    setCurrentLocation(loc);
+                  }
+                }
+              })
+              .catch(console.warn);
+          },
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+        );
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        handleSuccess,
+        handleError,
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
     }
   };
@@ -723,6 +741,7 @@ export default function App() {
           onOpenExport={() => setIsExportOpen(true)}
           topAlert={topAlert}
           onDetectLocation={detectUserLocation}
+          isLocating={isLocating}
           onOpenSidebar={() => setSidebarOpen(true)}
           notificationsEnabled={notificationsEnabled}
           onToggleNotifications={handleToggleNotifications}
@@ -762,6 +781,7 @@ export default function App() {
               onOpenXAI={() => setIsXaiOpen(true)}
               onOpenAlertModal={() => setIsAlertModalOpen(true)}
               onDetectLocation={detectUserLocation}
+              isLocating={isLocating}
               onSelectCity={(city) => setCurrentLocation(city)}
               onOpenLocationModal={() => setIsLocationModalOpen(true)}
               onOpenRoutePlanner={() => setActiveView('route')}
@@ -1050,6 +1070,7 @@ export default function App() {
         onClose={() => setIsLocationModalOpen(false)}
         activeLanguage={activeLanguage}
         currentLocation={currentLocation}
+        isLocating={isLocating}
         onSelectLocation={(loc) => {
           setCurrentLocation(loc);
           setIsLocationModalOpen(false);

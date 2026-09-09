@@ -13,10 +13,12 @@ import {
   Flower2,
   Database,
   Shield,
-  Cpu
+  Cpu,
+  Navigation,
+  Crosshair
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
-import { getLocalizedPlaceName } from '../services/weatherService';
+import { getLocalizedPlaceName, searchLocation } from '../services/weatherService';
 
 export default function Header({
   activeLanguage,
@@ -26,6 +28,7 @@ export default function Header({
   onOpenExport,
   topAlert,
   onDetectLocation,
+  isLocating,
   onOpenSidebar,
   notificationsEnabled,
   onToggleNotifications,
@@ -61,9 +64,8 @@ export default function Header({
     }
     setIsSearching(true);
     try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchQuery)}&count=6&language=${activeLanguage}&format=json`);
-      const data = await res.json();
-      setSearchResults(data.results || []);
+      const results = await searchLocation(searchQuery, activeLanguage);
+      setSearchResults(results || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -80,6 +82,7 @@ export default function Header({
       name: localizedName,
       specificPlace: localizedSpecific,
       rawSpecificPlace: city.rawSpecificPlace || city.specificPlace || '',
+      street: city.street || '',
       district: city.district || '',
       admin1: city.admin1 || 'Tamil Nadu',
       country: city.country || 'India',
@@ -101,7 +104,7 @@ export default function Header({
   return (
     <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/95 backdrop-blur-xl px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-3 flex-shrink-0 z-30 shadow-2xs">
       {/* Left: Mobile Menu & Location */}
-      <div className="flex items-center space-x-1.5 sm:space-x-2.5 min-w-0">
+      <div className="flex items-center space-x-1.5 sm:space-x-2 min-w-0">
         <button
           onClick={onOpenSidebar}
           className="p-1.5 sm:p-2 rounded-xl bg-white/90 border border-sky-200/70 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer hover:border-sky-300"
@@ -119,7 +122,7 @@ export default function Header({
           <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
           <div className="flex flex-col text-left min-w-0">
             <div className="flex items-center space-x-1 min-w-0">
-              <span className="truncate max-w-[90px] xs:max-w-[125px] sm:max-w-[160px] font-extrabold text-slate-900 group-hover:text-sky-700 leading-tight">
+              <span className="truncate max-w-[85px] xs:max-w-[120px] sm:max-w-[160px] font-extrabold text-slate-900 group-hover:text-sky-700 leading-tight">
                 {displayLocationName}
               </span>
               <span className="text-[9px] text-sky-600 font-bold px-1 py-0.2 rounded bg-sky-100/90 border border-sky-200 flex-shrink-0">
@@ -127,15 +130,29 @@ export default function Header({
               </span>
             </div>
             {displaySpecificName ? (
-              <span className="text-[10px] text-sky-700 font-semibold truncate max-w-[110px] xs:max-w-[140px] sm:max-w-[180px] leading-tight">
+              <span className="text-[10px] text-sky-700 font-semibold truncate max-w-[105px] xs:max-w-[135px] sm:max-w-[180px] leading-tight">
                 📍 {displaySpecificName}
               </span>
             ) : (
-              <span className="text-[9px] text-slate-400 truncate max-w-[100px] leading-tight">
+              <span className="text-[9px] text-slate-400 truncate max-w-[95px] leading-tight">
                 {currentLocation?.admin1 || 'Tamil Nadu'}
               </span>
             )}
           </div>
+        </button>
+
+        {/* Quick GPS Auto-Lock Button */}
+        <button
+          onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
+          disabled={isLocating}
+          title={activeLanguage === 'ta' ? 'நேரலை ஜிபிஎஸ் இடம் கண்டறி (Live GPS)' : 'Lock Current Live GPS Location'}
+          className={`p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center flex-shrink-0 ${
+            isLocating
+              ? 'bg-sky-100 text-sky-700 border-sky-400 shadow-xs'
+              : 'bg-white/90 hover:bg-sky-50 text-sky-600 border-sky-200/80 hover:border-sky-400'
+          }`}
+        >
+          <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin text-sky-600' : 'text-sky-600'}`} />
         </button>
       </div>
 

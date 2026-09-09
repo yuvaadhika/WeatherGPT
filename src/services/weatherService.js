@@ -965,16 +965,16 @@ export function getLocalizedPlaceName(placeName, lang = 'en') {
   return clean;
 }
 
-// Geocoding: Search any location / village / city in India & Worldwide with dual-level specificity
+// Geocoding: Search any location / village / city in India & Worldwide with dual-level specificity (Town + Street/Locality)
 export async function searchLocation(query, lang = 'en') {
   const trimmed = (query || '').trim();
   if (!trimmed) return [];
   const targetLang = typeof lang === 'string' ? lang : 'en';
 
-  // 1. Try Nominatim OSM for high-accuracy specific place & locality resolution
+  // 1. Try Nominatim OSM for high-accuracy specific place, street & locality resolution
   try {
     const nomRes = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&addressdetails=1&limit=8&accept-language=${targetLang},en;q=0.8`,
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&addressdetails=1&limit=8&accept-language=${targetLang},ta,en;q=0.8`,
       { headers: { 'User-Agent': 'WeatherGPT-Yuvi/2.0' } }
     );
     if (nomRes.ok) {
@@ -982,18 +982,37 @@ export async function searchLocation(query, lang = 'en') {
       if (Array.isArray(nomData) && nomData.length > 0) {
         return nomData.map((item, idx) => {
           const addr = item.address || {};
-          const specific = [addr.neighbourhood, addr.suburb, addr.village, addr.hamlet, addr.residential, addr.quarter, addr.road]
-            .filter(Boolean)
-            .filter((v, i, a) => a.indexOf(v) === i)
-            .join(', ');
-          const city = addr.city || addr.town || addr.municipality || addr.county || addr.state_district || addr.village || item.name || '';
+          
+          const street = addr.road || addr.street || addr.pedestrian || addr.highway || addr.footway || addr.building || addr.house_number || '';
+          const area = addr.suburb || addr.neighbourhood || addr.quarter || addr.residential || addr.allotments || '';
+          const village = addr.village || addr.hamlet || '';
+          const town = addr.town || addr.municipality || addr.city || addr.city_district || '';
+          const county = addr.county || '';
           const dist = addr.state_district || addr.county || '';
           const state = addr.state || 'Tamil Nadu';
           const country = addr.country || 'India';
           const lat = parseFloat(item.lat);
           const lon = parseFloat(item.lon);
 
-          const localizedCity = getLocalizedPlaceName(city, targetLang) || city;
+          // Primary Place: Village > Town/City > Suburb/Area > County
+          const primaryPlace = village || town || (area && !street ? area : '') || (county ? county.replace(/\s+taluk$/i, '') : '') || item.name || '';
+
+          // Specific Place: Street + Locality/Suburb/Village
+          const specificParts = [];
+          if (street) specificParts.push(street);
+          if (area && area.toLowerCase() !== primaryPlace.toLowerCase() && !specificParts.some(p => p.toLowerCase() === area.toLowerCase())) {
+            specificParts.push(area);
+          }
+          if (village && village.toLowerCase() !== primaryPlace.toLowerCase() && !specificParts.some(p => p.toLowerCase() === village.toLowerCase())) {
+            specificParts.push(village);
+          }
+          if (specificParts.length === 0 && county && county.toLowerCase() !== primaryPlace.toLowerCase()) {
+            specificParts.push(county);
+          }
+
+          const specific = specificParts.join(', ');
+
+          const localizedCity = getLocalizedPlaceName(primaryPlace, targetLang) || primaryPlace;
           const localizedSpecific = specific ? specific.split(', ').map(s => getLocalizedPlaceName(s, targetLang) || s).join(', ') : '';
           const localizedDistrict = dist ? (getLocalizedPlaceName(dist, targetLang) || dist) : '';
           const localizedState = state ? (getLocalizedPlaceName(state, targetLang) || state) : 'Tamil Nadu';
@@ -1003,11 +1022,16 @@ export async function searchLocation(query, lang = 'en') {
             id: `nom-${item.place_id || idx}-${lat}-${lon}`,
             name: localizedCity,
             specificPlace: localizedSpecific && localizedSpecific.toLowerCase() !== localizedCity.toLowerCase() ? localizedSpecific : '',
+            street: street,
+            suburb: area,
             district: localizedDistrict,
             admin1: localizedState,
             country: localizedCountry,
-            rawName: city,
+            formattedAddress: item.display_name || '',
+            rawName: primaryPlace,
             rawSpecificPlace: specific,
+            rawStreet: street,
+            rawSuburb: area,
             rawDistrict: dist,
             rawAdmin1: state,
             rawCountry: country,
@@ -1063,80 +1087,114 @@ export async function searchLocation(query, lang = 'en') {
   return [];
 }
 
-// Reverse Geocode from lat/long coordinates with robust multi-level name extraction (City + Specific Locality)
+// Reverse Geocode from lat/long coordinates with robust multi-level name extraction (City/Village + Street + Specific Locality)
 export async function reverseGeocode(lat, lon, lang = 'en') {
   const targetLang = typeof lang === 'string' ? lang : 'en';
 
-  // Method 1: High-precision Nominatim OpenStreetMap (zoom=18, addressdetails=1 for exact neighborhood/village)
+  // Method 1: High-precision Nominatim OpenStreetMap (zoom=18, addressdetails=1 for exact street & locality)
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=${targetLang},en;q=0.8`,
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=${targetLang},ta,en;q=0.8`,
       { headers: { 'User-Agent': 'WeatherGPT-Yuvi/2.0' } }
     );
     if (res.ok) {
       const data = await res.json();
       const addr = data.address || {};
 
-      // Specific locality / neighborhood / suburb / village / hamlet / road
-      const specificParts = [
-        addr.neighbourhood,
-        addr.suburb,
-        addr.village,
-        addr.hamlet,
-        addr.residential,
-        addr.quarter,
-        addr.road
-      ].filter(Boolean).filter((item, idx, arr) => arr.indexOf(item) === idx);
+      // 1. Exact Street / Road / Highway
+      const street = addr.road ||
+                     addr.street ||
+                     addr.pedestrian ||
+                     addr.highway ||
+                     addr.footway ||
+                     addr.path ||
+                     addr.building ||
+                     addr.house_number ||
+                     '';
 
-      // Primary town / city / municipality
-      const primaryCity = addr.city ||
-                          addr.town ||
-                          addr.municipality ||
-                          addr.county ||
-                          addr.state_district ||
-                          addr.village ||
-                          data.name ||
-                          '';
+      // 2. Specific Suburb / Neighborhood / Residential Quarter
+      const area = addr.suburb ||
+                   addr.neighbourhood ||
+                   addr.quarter ||
+                   addr.residential ||
+                   addr.allotments ||
+                   '';
 
+      // 3. Village / Hamlet (Specific habitation)
+      const village = addr.village || addr.hamlet || '';
+
+      // 4. Primary Town / City / Municipality
+      const town = addr.town ||
+                   addr.municipality ||
+                   addr.city ||
+                   addr.city_district ||
+                   '';
+
+      const county = addr.county || '';
       const dist = addr.state_district || addr.county || '';
       const state = addr.state || 'Tamil Nadu';
       const country = addr.country || 'India';
 
-      if (primaryCity || specificParts.length > 0) {
-        let rawSpecific = specificParts.join(', ');
-        let rawCity = primaryCity || specificParts[0] || 'Tamil Nadu';
+      // Primary Place: prioritize Village > Town/City > Suburb/Area > County
+      const primaryPlace = village ||
+                           town ||
+                           (area && !street ? area : '') ||
+                           (county ? county.replace(/\s+taluk$/i, '') : '') ||
+                           (dist ? dist.replace(/\s+district$/i, '') : '') ||
+                           data.name ||
+                           'Live Location';
 
-        if (rawSpecific && rawCity && rawSpecific.toLowerCase() === rawCity.toLowerCase()) {
-          rawSpecific = '';
-        }
-
-        const localizedCity = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
-        const localizedSpecific = rawSpecific ? rawSpecific.split(', ').map(part => getLocalizedPlaceName(part, targetLang) || part).join(', ') : '';
-        const localizedDistrict = dist ? (getLocalizedPlaceName(dist, targetLang) || dist) : '';
-        const localizedState = state ? (getLocalizedPlaceName(state, targetLang) || state) : 'Tamil Nadu';
-        const localizedCountry = getLocalizedPlaceName(country, targetLang) || country;
-
-        return {
-          name: localizedCity,
-          specificPlace: localizedSpecific,
-          district: localizedDistrict,
-          admin1: localizedState,
-          country: localizedCountry,
-          rawName: rawCity,
-          rawSpecificPlace: rawSpecific,
-          rawDistrict: dist,
-          rawAdmin1: state,
-          rawCountry: country,
-          latitude: lat,
-          longitude: lon,
-        };
+      // Specific Place (Street Name + Locality/Suburb/Village)
+      const specificParts = [];
+      if (street) specificParts.push(street);
+      if (area && area.toLowerCase() !== primaryPlace.toLowerCase() && !specificParts.some(p => p.toLowerCase() === area.toLowerCase())) {
+        specificParts.push(area);
       }
+      if (village && village.toLowerCase() !== primaryPlace.toLowerCase() && !specificParts.some(p => p.toLowerCase() === village.toLowerCase())) {
+        specificParts.push(village);
+      }
+
+      // If specificParts is empty, but county/taluk exists and differs from primaryPlace
+      if (specificParts.length === 0 && county && county.toLowerCase() !== primaryPlace.toLowerCase()) {
+        specificParts.push(county);
+      }
+
+      const rawSpecific = specificParts.join(', ');
+      const rawCity = primaryPlace;
+
+      const localizedCity = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
+      const localizedSpecific = rawSpecific
+        ? rawSpecific.split(', ').map((part) => getLocalizedPlaceName(part, targetLang) || part).join(', ')
+        : '';
+      const localizedDistrict = dist ? (getLocalizedPlaceName(dist, targetLang) || dist) : '';
+      const localizedState = state ? (getLocalizedPlaceName(state, targetLang) || state) : 'Tamil Nadu';
+      const localizedCountry = getLocalizedPlaceName(country, targetLang) || country;
+
+      return {
+        name: localizedCity,
+        specificPlace: localizedSpecific,
+        street: street,
+        suburb: area,
+        district: localizedDistrict,
+        admin1: localizedState,
+        country: localizedCountry,
+        formattedAddress: data.display_name || '',
+        rawName: rawCity,
+        rawSpecificPlace: rawSpecific,
+        rawStreet: street,
+        rawSuburb: area,
+        rawDistrict: dist,
+        rawAdmin1: state,
+        rawCountry: country,
+        latitude: lat,
+        longitude: lon,
+      };
     }
   } catch (err) {
     console.warn('Nominatim reverse geocode error:', err);
   }
 
-  // Method 2: BigDataCloud client-side reverse geocoding with granular sub-localities
+  // Method 2: BigDataCloud client-side reverse geocoding with granular sub-localities & streets
   try {
     const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=${targetLang}`);
     if (res.ok) {
@@ -1144,43 +1202,51 @@ export async function reverseGeocode(lat, lon, lang = 'en') {
       const adminList = data.localityInfo?.administrative || [];
       const informList = data.localityInfo?.informative || [];
 
+      const street = informList.find(i => i.order >= 12 || i.description?.toLowerCase().includes('road') || i.description?.toLowerCase().includes('street'))?.name || '';
       const fineLocalities = [
-        ...adminList.filter(a => a.order >= 11).map(a => a.name),
+        ...adminList.filter(a => a.order >= 10).map(a => a.name),
         ...informList.filter(a => a.order >= 10).map(a => a.name),
       ].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
 
-      const rawCity = data.city ||
-                      data.locality ||
-                      data.principalSubdivision ||
+      const rawCity = data.locality ||
+                      data.city ||
                       adminList[3]?.name ||
                       adminList[2]?.name ||
-                      '';
+                      data.principalSubdivision ||
+                      'Live Location';
 
-      if (rawCity) {
-        let rawSpecific = fineLocalities.filter(l => l.toLowerCase() !== rawCity.toLowerCase()).join(', ');
-        const rawState = data.principalSubdivision || 'Tamil Nadu';
-        const rawCountry = data.countryName || 'India';
-
-        const city = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
-        const specific = rawSpecific ? rawSpecific.split(', ').map(p => getLocalizedPlaceName(p, targetLang) || p).join(', ') : '';
-        const state = getLocalizedPlaceName(rawState, targetLang) || rawState;
-        const country = getLocalizedPlaceName(rawCountry, targetLang) || rawCountry;
-
-        return {
-          name: city,
-          specificPlace: specific,
-          district: '',
-          admin1: state,
-          country: country,
-          rawName: rawCity,
-          rawSpecificPlace: rawSpecific,
-          rawDistrict: '',
-          rawAdmin1: rawState,
-          rawCountry: rawCountry,
-          latitude: lat,
-          longitude: lon,
-        };
+      let rawSpecific = fineLocalities.filter(l => l.toLowerCase() !== rawCity.toLowerCase()).join(', ');
+      if (street && !rawSpecific.includes(street)) {
+        rawSpecific = street + (rawSpecific ? `, ${rawSpecific}` : '');
       }
+
+      const rawState = data.principalSubdivision || 'Tamil Nadu';
+      const rawCountry = data.countryName || 'India';
+
+      const city = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
+      const specific = rawSpecific ? rawSpecific.split(', ').map(p => getLocalizedPlaceName(p, targetLang) || p).join(', ') : '';
+      const state = getLocalizedPlaceName(rawState, targetLang) || rawState;
+      const country = getLocalizedPlaceName(rawCountry, targetLang) || rawCountry;
+
+      return {
+        name: city,
+        specificPlace: specific,
+        street: street,
+        suburb: '',
+        district: '',
+        admin1: state,
+        country: country,
+        formattedAddress: `${specific ? `${specific}, ` : ''}${city}, ${state}`,
+        rawName: rawCity,
+        rawSpecificPlace: rawSpecific,
+        rawStreet: street,
+        rawSuburb: '',
+        rawDistrict: '',
+        rawAdmin1: rawState,
+        rawCountry: rawCountry,
+        latitude: lat,
+        longitude: lon,
+      };
     }
   } catch (e) {
     console.warn('BigDataCloud reverse geocode error:', e);
@@ -1189,11 +1255,16 @@ export async function reverseGeocode(lat, lon, lang = 'en') {
   return {
     name: getLocalizedPlaceName('Live Location', targetLang) || 'Live Location',
     specificPlace: '',
+    street: '',
+    suburb: '',
     district: '',
     admin1: 'Tamil Nadu',
     country: 'India',
+    formattedAddress: '',
     rawName: 'Live Location',
     rawSpecificPlace: '',
+    rawStreet: '',
+    rawSuburb: '',
     rawDistrict: '',
     rawAdmin1: 'Tamil Nadu',
     rawCountry: 'India',

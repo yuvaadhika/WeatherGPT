@@ -26,6 +26,7 @@ export default function AlphabeticalLocationModal({
   onClose,
   activeLanguage = 'en',
   currentLocation,
+  isLocating = false,
   onSelectLocation,
   onDetectGps
 }) {
@@ -116,6 +117,7 @@ export default function AlphabeticalLocationModal({
       name: localizedName,
       specificPlace: localizedSpecific,
       rawSpecificPlace: rawSpecific,
+      street: place.street || '',
       district: place.district || '',
       admin1: place.state || place.admin1 || 'Tamil Nadu',
       country: place.country || 'India',
@@ -127,7 +129,6 @@ export default function AlphabeticalLocationModal({
     if (onDetectGps) {
       onDetectGps(activeLanguage);
     }
-    onClose();
   };
 
   const categoryTabs = [
@@ -179,7 +180,7 @@ export default function AlphabeticalLocationModal({
                 setSearchQuery(e.target.value);
                 if (selectedLetter !== 'ALL') setSelectedLetter('ALL');
               }}
-              placeholder={activeLanguage === 'ta' ? 'ஊர், மாவட்டம் அல்லது நகரம் தேடவும்...' : 'Type any district, city, or village...'}
+              placeholder={activeLanguage === 'ta' ? 'ஊர், தெரு, பகுதி அல்லது நகரம் தேடவும்...' : 'Search street, village, town or city...'}
               className="w-full pl-10 pr-10 py-2.5 text-sm bg-white border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 shadow-sm transition-all"
             />
             <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
@@ -197,11 +198,14 @@ export default function AlphabeticalLocationModal({
           <div className="mt-2.5 flex items-center justify-between gap-2">
             <button
               onClick={handleGpsClick}
-              className="w-full py-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-sm transition-all active:scale-[0.99]"
+              disabled={isLocating}
+              className="w-full py-2 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold flex items-center justify-center space-x-2 shadow-sm transition-all active:scale-[0.99] cursor-pointer"
             >
-              <Navigation className="w-3.5 h-3.5 animate-pulse" />
+              <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : 'animate-pulse'}`} />
               <span>
-                {activeLanguage === 'ta' ? '🎯 எனது தற்போதைய ஜிபிஎஸ் இடத்தை தேர்ந்தெடுக்கவும்' : '🎯 Use My Current GPS Location'}
+                {isLocating
+                  ? (activeLanguage === 'ta' ? 'ஜிபிஎஸ் துல்லிய இடம் கண்டறியப்படுகிறது...' : 'Acquiring High-Precision GPS Lock...')
+                  : (activeLanguage === 'ta' ? '🎯 எனது நேரலை ஜிபிஎஸ் இடம் & தெருவை கண்டறி' : '🎯 Detect My Live GPS Location & Street')}
               </span>
             </button>
           </div>
