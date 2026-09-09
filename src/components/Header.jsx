@@ -133,11 +133,7 @@ export default function Header({
               <span className="text-[10px] text-sky-700 font-semibold truncate max-w-[105px] xs:max-w-[135px] sm:max-w-[180px] leading-tight">
                 📍 {displaySpecificName}
               </span>
-            ) : (
-              <span className="text-[9px] text-slate-400 truncate max-w-[95px] leading-tight">
-                {currentLocation?.admin1 || 'Tamil Nadu'}
-              </span>
-            )}
+            ) : null}
           </div>
         </button>
 

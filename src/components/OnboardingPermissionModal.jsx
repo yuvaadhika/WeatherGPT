@@ -76,20 +76,20 @@ export default function OnboardingPermissionModal({
     if (enableLocation && typeof window !== 'undefined' && navigator.geolocation) {
       let position = null;
       try {
-        // Stage 1: High accuracy GPS lock (12s timeout)
+        // Stage 1: High accuracy GPS lock (15s timeout, fresh live GPS)
         position = await requestGpsPosition({
           enableHighAccuracy: true,
-          timeout: 12000,
-          maximumAge: 60000,
+          timeout: 15000,
+          maximumAge: 0,
         });
       } catch (err1) {
         console.warn('High accuracy GPS timed out, trying standard network location...', err1);
         try {
-          // Stage 2: Standard cellular / WiFi triangulation fallback (8s timeout)
+          // Stage 2: Standard positioning fallback
           position = await requestGpsPosition({
             enableHighAccuracy: false,
-            timeout: 8000,
-            maximumAge: 120000,
+            timeout: 10000,
+            maximumAge: 0,
           });
         } catch (err2) {
           console.warn('Geolocation failed or denied:', err2);

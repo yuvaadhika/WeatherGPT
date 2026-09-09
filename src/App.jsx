@@ -219,24 +219,12 @@ export default function App() {
         const lon = position.coords.longitude;
         try {
           const loc = await reverseGeocode(lat, lon, targetLang);
-          const finalLoc = loc && loc.name ? loc : {
-            name: 'Live GPS Location',
-            specificPlace: '',
-            district: '',
-            rawName: 'Live GPS Location',
-            rawSpecificPlace: '',
-            rawDistrict: '',
-            admin1: 'Tamil Nadu',
-            rawAdmin1: 'Tamil Nadu',
-            country: 'India',
-            rawCountry: 'India',
-            latitude: lat,
-            longitude: lon,
-          };
-          setCurrentLocation(finalLoc);
-          try {
-            localStorage.setItem('weathergpt_saved_location', JSON.stringify(finalLoc));
-          } catch {}
+          if (loc && loc.name) {
+            setCurrentLocation(loc);
+            try {
+              localStorage.setItem('weathergpt_saved_location', JSON.stringify(loc));
+            } catch {}
+          }
         } catch (e) {
           console.warn('Reverse geocode error:', e);
         } finally {
@@ -245,44 +233,22 @@ export default function App() {
       };
 
       const handleError = (err) => {
-        console.warn('High-accuracy GPS fix failed or timed out, trying standard positioning...', err);
+        console.warn('High-accuracy GPS hardware request failed or deferred:', err);
+        // Retry once with standard options if high accuracy timed out on PC/device
         navigator.geolocation.getCurrentPosition(
           handleSuccess,
           (err2) => {
-            console.warn('Standard GPS failed:', err2);
+            console.warn('GPS location request denied or unavailable:', err2);
             setIsLocating(false);
-            // If we already have a saved location, keep it!
-            try {
-              const saved = localStorage.getItem('weathergpt_saved_location');
-              if (saved) {
-                const parsed = JSON.parse(saved);
-                if (parsed && parsed.latitude) {
-                  setCurrentLocation(parsed);
-                  return;
-                }
-              }
-            } catch {}
-            // Last resort IP fallback
-            fetch('https://ipapi.co/json/')
-              .then((res) => res.json())
-              .then(async (ipData) => {
-                if (ipData && ipData.latitude && ipData.longitude) {
-                  const loc = await reverseGeocode(ipData.latitude, ipData.longitude, targetLang);
-                  if (loc) {
-                    setCurrentLocation(loc);
-                  }
-                }
-              })
-              .catch(console.warn);
           },
-          { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
         );
       };
 
       navigator.geolocation.getCurrentPosition(
         handleSuccess,
         handleError,
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
       );
     }
   };

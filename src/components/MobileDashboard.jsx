@@ -166,13 +166,12 @@ export default function MobileDashboard({
                 A-Z ▾
               </span>
             </div>
-            {/* Specific place shown right underneath the place name ("athuku kilaiyeeeeee") */}
+            {/* Specific street/place shown right underneath the place name */}
             {displaySpecificPlace ? (
               <p className="text-[11px] font-bold text-sky-700 truncate max-w-[220px] leading-tight">
                 📍 {displaySpecificPlace}
               </p>
             ) : null}
-            <p className="text-[10px] text-slate-400 truncate max-w-[220px] leading-tight">{displayRegion}</p>
           </div>
         </button>
 

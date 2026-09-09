@@ -1087,14 +1087,14 @@ export async function searchLocation(query, lang = 'en') {
   return [];
 }
 
-// Reverse Geocode from lat/long coordinates with robust multi-level name extraction (City/Village + Street + Specific Locality)
+// Reverse Geocode from lat/long coordinates with robust multi-level name extraction (City/Village + Street)
 export async function reverseGeocode(lat, lon, lang = 'en') {
   const targetLang = typeof lang === 'string' ? lang : 'en';
 
   // Method 1: High-precision Nominatim OpenStreetMap (zoom=18, addressdetails=1 for exact street & locality)
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=${targetLang},ta,en;q=0.8`,
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=${targetLang},en;q=0.8`,
       { headers: { 'User-Agent': 'WeatherGPT-Yuvi/2.0' } }
     );
     if (res.ok) {
@@ -1144,28 +1144,23 @@ export async function reverseGeocode(lat, lon, lang = 'en') {
                            data.name ||
                            'Live Location';
 
-      // Specific Place (Street Name + Locality/Suburb/Village)
-      const specificParts = [];
-      if (street) specificParts.push(street);
-      if (area && area.toLowerCase() !== primaryPlace.toLowerCase() && !specificParts.some(p => p.toLowerCase() === area.toLowerCase())) {
-        specificParts.push(area);
-      }
-      if (village && village.toLowerCase() !== primaryPlace.toLowerCase() && !specificParts.some(p => p.toLowerCase() === village.toLowerCase())) {
-        specificParts.push(village);
-      }
-
-      // If specificParts is empty, but county/taluk exists and differs from primaryPlace
-      if (specificParts.length === 0 && county && county.toLowerCase() !== primaryPlace.toLowerCase()) {
-        specificParts.push(county);
+      // Street Name (Exact Street, or Area/Colony if street is unmapped)
+      let specificPlace = street;
+      if (!specificPlace) {
+        if (area && area.toLowerCase() !== primaryPlace.toLowerCase()) {
+          specificPlace = area;
+        } else if (village && village.toLowerCase() !== primaryPlace.toLowerCase()) {
+          specificPlace = village;
+        } else if (county && county.toLowerCase() !== primaryPlace.toLowerCase()) {
+          specificPlace = county.replace(/\s+taluk$/i, '');
+        }
       }
 
-      const rawSpecific = specificParts.join(', ');
+      const rawSpecific = specificPlace;
       const rawCity = primaryPlace;
 
       const localizedCity = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
-      const localizedSpecific = rawSpecific
-        ? rawSpecific.split(', ').map((part) => getLocalizedPlaceName(part, targetLang) || part).join(', ')
-        : '';
+      const localizedSpecific = rawSpecific ? (getLocalizedPlaceName(rawSpecific, targetLang) || rawSpecific) : '';
       const localizedDistrict = dist ? (getLocalizedPlaceName(dist, targetLang) || dist) : '';
       const localizedState = state ? (getLocalizedPlaceName(state, targetLang) || state) : 'Tamil Nadu';
       const localizedCountry = getLocalizedPlaceName(country, targetLang) || country;
