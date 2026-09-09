@@ -1378,6 +1378,7 @@ export class WeatherAIAgent {
             const data = imgData.data;
             const pixelCount = data.length / 4;
             const upperBoundary = Math.floor(height * 0.45); // Top 45% of image (sky zone)
+            const lowerBoundary = Math.floor(height * 0.70); // Bottom 30% of image (ground/floor zone)
 
             let totalLuminance = 0;
             let skyBluePixels = 0;
@@ -1387,11 +1388,22 @@ export class WeatherAIAgent {
             let warmSunsetPixels = 0;
             let greenVegetationPixels = 0;
             let fogHazePixels = 0;
-            let indoorSkinPixels = 0;
+            let humanSkinPixels = 0;
+            let syntheticApparelPixels = 0;
             let highContrastDocPixels = 0;
+            let indoorFloorPixels = 0;
 
             let upperSkyPixels = 0;
             let upperTotalPixels = 0;
+
+            // 3-Column horizontal spatial distribution check for top 45% (Left, Center, Right)
+            let topZoneLeftSky = 0, topZoneLeftTotal = 0;
+            let topZoneCenterSky = 0, topZoneCenterTotal = 0;
+            let topZoneRightSky = 0, topZoneRightTotal = 0;
+            let centerSubjectPixels = 0;
+
+            const leftThirdX = Math.floor(width * 0.33);
+            const rightThirdX = Math.floor(width * 0.67);
 
             for (let y = 0; y < height; y++) {
               for (let x = 0; x < width; x++) {
@@ -1404,11 +1416,19 @@ export class WeatherAIAgent {
 
                 const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
                 const isUpper = y <= upperBoundary;
-                if (isUpper) upperTotalPixels++;
+                const isLower = y >= lowerBoundary;
+                const isCenterColumn = x >= leftThirdX && x <= rightThirdX;
+
+                if (isUpper) {
+                  upperTotalPixels++;
+                  if (x < leftThirdX) topZoneLeftTotal++;
+                  else if (x > rightThirdX) topZoneRightTotal++;
+                  else topZoneCenterTotal++;
+                }
 
                 let isSkyFeature = false;
 
-                // 1. Sky Blue (Daytime open clear sky)
+                // 1. Natural Sky Blue (Daytime open clear sky)
                 if (b > r + 14 && b > g + 6 && lum > 65) {
                   skyBluePixels++;
                   isSkyFeature = true;
@@ -1441,6 +1461,9 @@ export class WeatherAIAgent {
 
                 if (isUpper && isSkyFeature) {
                   upperSkyPixels++;
+                  if (x < leftThirdX) topZoneLeftSky++;
+                  else if (x > rightThirdX) topZoneRightSky++;
+                  else topZoneCenterSky++;
                 }
 
                 // 7. Outdoor Green Vegetation / Farmland Crop Canopy
@@ -1448,14 +1471,39 @@ export class WeatherAIAgent {
                   greenVegetationPixels++;
                 }
 
-                // 8. Human Skin Tones (Selfie / Portrait / Face detection)
-                if (r > 95 && g > 40 && b > 20 && (r - g > 15) && (r > b) && lum > 60 && lum < 220) {
-                  indoorSkinPixels++;
+                // 8. Human Skin Tones (Selfie / Portrait / Baby / Face / Hands / Legs)
+                // Broad dermatological skin spectrum across all ethnic skin tones (Fitzpatrick types I-VI)
+                const isSkin = (
+                  (r > 70 && g > 35 && b > 20 && r > g && g >= b && (r - g >= 8) && (r - b >= 10) && lum > 35 && lum < 230) ||
+                  (r > 140 && g > 90 && b > 70 && r > g && g > b && (r - g < 90) && (r - b > 20) && lum > 80 && lum < 220)
+                );
+                if (isSkin) {
+                  humanSkinPixels++;
                 }
 
-                // 9. High Contrast Document / Paper / Text Screen
+                // 9. Synthetic Apparel / Clothing / Fabric / Dress Dyes (e.g. magenta, silk, violet, pink, synthetic reds)
+                const isSyntheticApparel = (
+                  (r > 110 && b > 70 && g < Math.min(r, b) - 20) || // Magenta, Fuchsia, Hot Pink (e.g. baby dress)
+                  (b > 85 && r > 65 && g < 55 && Math.abs(r - b) < 65) || // Violet / Deep Purple
+                  (r > 135 && g < 50 && b < 50) // Pure saturated indoor red
+                );
+                if (isSyntheticApparel) {
+                  syntheticApparelPixels++;
+                }
+
+                // 10. High Contrast Document / Paper / Text Screen
                 if ((lum < 30 && maxDiff < 10) || (lum > 240 && maxDiff < 10)) {
                   highContrastDocPixels++;
+                }
+
+                // 11. Indoor Flooring / Tiled Floor (Lower 30% of image with high flat luminance or tile sheen)
+                if (isLower && lum > 140 && maxDiff < 18) {
+                  indoorFloorPixels++;
+                }
+
+                // 12. Central Subject Obstruction (Human head/hair/clothing in center column)
+                if (isCenterColumn && !isSkyFeature && (isSkin || isSyntheticApparel || lum < 40)) {
+                  centerSubjectPixels++;
                 }
               }
             }
@@ -1469,70 +1517,103 @@ export class WeatherAIAgent {
             const sunsetRatio = Math.round((warmSunsetPixels / pixelCount) * 100);
             const greenRatio = Math.round((greenVegetationPixels / pixelCount) * 100);
             const fogRatio = Math.round((fogHazePixels / pixelCount) * 100);
-            const skinRatio = Math.round((indoorSkinPixels / pixelCount) * 100);
+            const skinRatio = (humanSkinPixels / pixelCount) * 100;
+            const apparelRatio = (syntheticApparelPixels / pixelCount) * 100;
             const docRatio = Math.round((highContrastDocPixels / pixelCount) * 100);
+            const floorRatio = Math.round((indoorFloorPixels / ((height * 0.30 * width) || 1)) * 100);
             const upperSkyRatio = upperTotalPixels > 0 ? Math.round((upperSkyPixels / upperTotalPixels) * 100) : 0;
+
+            const leftSkyRatio = topZoneLeftTotal > 0 ? Math.round((topZoneLeftSky / topZoneLeftTotal) * 100) : 0;
+            const centerSkyRatio = topZoneCenterTotal > 0 ? Math.round((topZoneCenterSky / topZoneCenterTotal) * 100) : 0;
+            const rightSkyRatio = topZoneRightTotal > 0 ? Math.round((topZoneRightSky / topZoneRightTotal) * 100) : 0;
+
+            // In a genuine open sky, sky covers left, center, and right evenly.
+            // In a portrait standing in front of a blue wall/backdrop, left and right have high blue ratio, but center is obstructed!
+            const isStudioBackdropWithSubject = (
+              (leftSkyRatio > 35 && rightSkyRatio > 35 && centerSkyRatio < leftSkyRatio * 0.6) ||
+              (centerSubjectPixels > pixelCount * 0.08)
+            );
 
             const totalAtmosphericSky = blueRatio + cloudRatio + stormRatio + sunsetRatio + fogRatio;
 
-            // 🛑 STRICT WEATHER IMAGE VALIDATION LOGIC
-            // Image is accepted ONLY IF it has clear meteorological/sky/farm characteristics
+            // 🛑 STRICT MULTI-STAGE WEATHER VALIDATION LOGIC
             let isWeatherRelated = false;
+            let rejectionReason = null;
             let classification = '';
             let cloudType = '';
             let visualRainRisk = 10;
             let visualAdvisoryEn = '';
             let visualAdvisoryTa = '';
 
-            if (skinRatio > 32) {
-              // Human face / portrait / selfie -> Non-weather
+            // STAGE 1: IMMEDIATE NON-WEATHER HARD REJECTIONS
+            if (skinRatio >= 1.2) {
+              // Human detected (Face, baby, selfie, portrait, body parts)
               isWeatherRelated = false;
-            } else if (docRatio > 65 && totalAtmosphericSky < 20) {
-              // Text document / paper / screenshot -> Non-weather
+              rejectionReason = 'human_portrait_detected';
+            } else if (apparelRatio >= 1.2) {
+              // Synthetic clothing, silk dress, fashion apparel, toys
               isWeatherRelated = false;
-            } else if (stormRatio > 30 || (darkStormPixels > 0 && cloudRatio > 35 && avgLum < 85)) {
+              rejectionReason = 'synthetic_apparel_or_object';
+            } else if (docRatio > 50 && totalAtmosphericSky < 25) {
+              // Text document / paper / screenshot
+              isWeatherRelated = false;
+              rejectionReason = 'document_or_screen';
+            } else if (isStudioBackdropWithSubject) {
+              // Staged indoor portrait / object against wall or backdrop
+              isWeatherRelated = false;
+              rejectionReason = 'studio_wall_or_backdrop_portrait';
+            } else if (floorRatio > 40 && totalAtmosphericSky < 35) {
+              // Indoor floor with room walls
+              isWeatherRelated = false;
+              rejectionReason = 'indoor_room_or_floor';
+            }
+            // STAGE 2: STRICT VERIFIED METEOROLOGICAL PATTERNS
+            else if (stormRatio > 25 || (darkStormPixels > 0 && cloudRatio > 30 && avgLum < 85)) {
               isWeatherRelated = true;
               classification = 'Dense Storm & Rain Cloud Mass';
               cloudType = 'Cumulonimbus / Nimbostratus (கார்மேகம் / மழை மேகம்)';
               visualRainRisk = Math.min(95, 60 + Math.round(stormRatio * 0.8));
               visualAdvisoryEn = 'High probability of imminent precipitation or thunderstorm. Carry rain gear and stay clear of waterlogging.';
               visualAdvisoryTa = 'கனமழை அல்லது இடியுடன் கூடிய மழைக்கு அதிக வாய்ப்பு உள்ளது. குடை/ரெயின்கோட் எடுத்துச்செல்லவும்.';
-            } else if (cloudRatio > 40 || (upperSkyRatio > 35 && cloudRatio > 25)) {
+            } else if (cloudRatio > 38 || (upperSkyRatio > 35 && cloudRatio > 25)) {
               isWeatherRelated = true;
               classification = 'Overcast & Low Cloud Ceiling';
               cloudType = 'Stratocumulus / Stratus (மந்தாரமான மேகம்)';
               visualRainRisk = 45;
               visualAdvisoryEn = 'Overcast sky with light showers or drizzle probability. Sun exposure is low.';
               visualAdvisoryTa = 'மந்தாரமான வானிலை. லேசான தூறல் பெய்ய வாய்ப்பு உண்டு.';
-            } else if (sunsetRatio > 22 || (upperSkyRatio > 30 && sunsetRatio > 15)) {
+            } else if (sunsetRatio > 20 || (upperSkyRatio > 28 && sunsetRatio > 14)) {
               isWeatherRelated = true;
               classification = 'Twilight / Golden Hour Horizon';
               cloudType = 'Cirrus / Atmospheric Scattering (அந்தி மாலை / விடியல்)';
               visualRainRisk = 10;
               visualAdvisoryEn = 'Stable atmospheric scattering during twilight. Clear conditions expected through the evening.';
               visualAdvisoryTa = 'அந்தி மாலை ஒளிச்சிதறல். மாலை வேளையில் தெளிவான வானிலை நிலவும்.';
-            } else if (blueRatio > 30 || (upperSkyRatio > 35 && blueRatio > 18)) {
+            } else if (
+              (blueRatio > 30 || (upperSkyRatio > 38 && blueRatio > 20)) &&
+              leftSkyRatio > 20 && centerSkyRatio > 20 && rightSkyRatio > 20 // Must be continuous open sky across entire top
+            ) {
               isWeatherRelated = true;
               classification = 'Clear Sunny & Fair Sky';
               cloudType = 'Fair Weather Cumulus (தெளிவான வானம்)';
               visualRainRisk = 5;
               visualAdvisoryEn = 'Clear blue sky with abundant solar radiation. Excellent for travel and outdoor operations.';
               visualAdvisoryTa = 'தெளிவான நீல வானம். நேரடி வெயில் இருக்கும், வெளிப்புற பயணங்களுக்கு சிறந்தது.';
-            } else if (fogRatio > 35) {
+            } else if (fogRatio > 35 && upperSkyRatio > 25) {
               isWeatherRelated = true;
               classification = 'Dense Fog / Atmospheric Mist';
               cloudType = 'Radiation Fog / Low Stratus (பனிமூட்டம் / மூடுபனி)';
               visualRainRisk = 20;
               visualAdvisoryEn = 'Low visibility due to atmospheric fog/mist. Drive with caution and use low beam headlights.';
               visualAdvisoryTa = 'அடர்ந்த பனிமூட்டம் காரணமாக பார்வைத் திறன் குறைவாக இருக்கும். எச்சரிக்கையுடன் வாகனங்களை இயக்கவும்.';
-            } else if (greenRatio > 30 && (upperSkyRatio > 12 || totalAtmosphericSky > 15)) {
+            } else if (greenRatio > 32 && (upperSkyRatio > 12 || totalAtmosphericSky > 15) && floorRatio < 15) {
               isWeatherRelated = true;
               classification = 'Agricultural Field & Crop Canopy';
               cloudType = 'Farmland Observation (பயிர் / விவசாய நிலம்)';
               visualRainRisk = 20;
               visualAdvisoryEn = 'Vegetation canopy detected. Ground moisture levels appear supportive for active farming.';
               visualAdvisoryTa = 'பயிர்கள் மற்றும் விளைநிலம் கண்டறியப்பட்டுள்ளது. தற்போதைய ஈரப்பதம் விவசாய பணிகளுக்கு உகந்தது.';
-            } else if (upperSkyRatio >= 25 && totalAtmosphericSky >= 25) {
+            } else if (upperSkyRatio >= 30 && totalAtmosphericSky >= 30 && leftSkyRatio > 15 && centerSkyRatio > 15 && rightSkyRatio > 15) {
               isWeatherRelated = true;
               classification = 'Partly Cloudy Ambient Sky';
               cloudType = 'Scattered Cumulus Layer (சிதறிய மேகங்கள்)';
@@ -1542,11 +1623,12 @@ export class WeatherAIAgent {
             } else {
               // Non-weather image (indoor objects, furniture, cars, screens, food, memes, etc.)
               isWeatherRelated = false;
+              rejectionReason = 'non_weather_image';
             }
 
             resolve({
               isWeatherRelated,
-              rejectionReason: isWeatherRelated ? null : 'non_weather_image',
+              rejectionReason,
               avgLuminance: avgLum,
               blueRatio,
               cloudRatio,
@@ -1555,6 +1637,7 @@ export class WeatherAIAgent {
               greenRatio,
               upperSkyRatio,
               skinRatio,
+              apparelRatio,
               classification,
               cloudType,
               visualRainRisk,
