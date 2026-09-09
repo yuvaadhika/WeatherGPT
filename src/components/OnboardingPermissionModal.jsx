@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { notificationService } from '../services/notificationService';
-import { reverseGeocode, getLocalizedPlaceName } from '../services/weatherService';
+import { reverseGeocode, getLocalizedPlaceName, searchLocation } from '../services/weatherService';
 
 const POPULAR_TN_DISTRICTS = [
   { name: 'Chennai', ta: 'சென்னை', lat: 13.0827, lon: 80.2707, admin: 'Tamil Nadu' },
@@ -210,16 +210,23 @@ export default function OnboardingPermissionModal({
 
   // 1-Tap Quick Select Place & Proceed to Alerts
   const handleSelectPlace = async (place) => {
-    const localizedName = activeLanguage === 'ta' && place.ta ? place.ta : (getLocalizedPlaceName(place.name, activeLanguage) || place.name);
+    const rawName = place.rawName || place.name;
+    const rawSpecific = place.rawSpecificPlace || place.specificPlace || '';
+    const localizedName = activeLanguage === 'ta' && place.ta ? place.ta : (getLocalizedPlaceName(rawName, activeLanguage) || rawName);
+    const localizedSpecific = rawSpecific ? (getLocalizedPlaceName(rawSpecific, activeLanguage) || rawSpecific) : '';
     const finalLoc = {
       name: localizedName,
-      rawName: place.name,
-      admin1: place.admin || 'Tamil Nadu',
-      rawAdmin1: place.admin || 'Tamil Nadu',
-      country: 'India',
-      rawCountry: 'India',
-      latitude: place.lat,
-      longitude: place.lon,
+      specificPlace: localizedSpecific,
+      district: place.district || '',
+      rawName,
+      rawSpecificPlace: rawSpecific,
+      rawDistrict: place.district || '',
+      admin1: place.admin || place.admin1 || 'Tamil Nadu',
+      rawAdmin1: place.admin || place.admin1 || 'Tamil Nadu',
+      country: place.country || 'India',
+      rawCountry: place.country || 'India',
+      latitude: place.lat || place.latitude,
+      longitude: place.lon || place.longitude,
     };
 
     try {
@@ -232,7 +239,7 @@ export default function OnboardingPermissionModal({
     onClose();
   };
 
-  // Search places
+  // Search places with high-precision OSM + Open-Meteo
   const handleSearchPlaces = async (query) => {
     setSearchQuery(query);
     if (!query.trim() || query.length < 2) {
@@ -241,11 +248,8 @@ export default function OnboardingPermissionModal({
     }
     setIsSearching(true);
     try {
-      const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=${activeLanguage}&format=json`);
-      if (res.ok) {
-        const data = await res.json();
-        setSearchResults(data.results || []);
-      }
+      const results = await searchLocation(query, activeLanguage);
+      setSearchResults(results || []);
     } catch (e) {
       console.warn(e);
     } finally {

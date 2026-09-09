@@ -134,8 +134,16 @@ export default function MobileDashboard({
     ? `${getLocalizedPlaceName(currentLocation.rawName || currentLocation.name, activeLanguage) || currentLocation.name}`
     : 'Chennai';
 
+  const displaySpecificPlace = currentLocation?.specificPlace
+    ? `${getLocalizedPlaceName(currentLocation.rawSpecificPlace || currentLocation.specificPlace, activeLanguage) || currentLocation.specificPlace}`
+    : '';
+
+  const displayDistrict = currentLocation?.district && currentLocation.district !== currentLocation.name
+    ? `${getLocalizedPlaceName(currentLocation.rawDistrict || currentLocation.district, activeLanguage) || currentLocation.district}`
+    : '';
+
   const displayRegion = currentLocation
-    ? `${getLocalizedPlaceName(currentLocation.rawAdmin1 || currentLocation.admin1, activeLanguage) || currentLocation.admin1 || ''}, ${getLocalizedPlaceName(currentLocation.rawCountry || currentLocation.country, activeLanguage) || currentLocation.country || 'India'}`
+    ? `${displayDistrict ? `${displayDistrict}, ` : ''}${getLocalizedPlaceName(currentLocation.rawAdmin1 || currentLocation.admin1, activeLanguage) || currentLocation.admin1 || ''}, ${getLocalizedPlaceName(currentLocation.rawCountry || currentLocation.country, activeLanguage) || currentLocation.country || 'India'}`
     : 'Tamil Nadu, India';
 
   return (
@@ -144,20 +152,26 @@ export default function MobileDashboard({
       <div className="flex items-center justify-between px-1">
         <button
           onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
-          className="flex items-center space-x-1.5 text-left group cursor-pointer"
+          className="flex items-center space-x-2 text-left group cursor-pointer"
           title="Browse Cities Directory (A-Z)"
         >
-          <MapPin className="w-4 h-4 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
+          <MapPin className="w-4 h-4 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform mt-0.5" />
           <div className="min-w-0">
-            <div className="flex items-center space-x-1">
-              <span className="text-sm font-extrabold text-slate-900 truncate max-w-[170px] group-hover:text-sky-600">
+            <div className="flex items-center space-x-1.5">
+              <span className="text-sm sm:text-base font-black text-slate-900 truncate max-w-[180px] group-hover:text-sky-600 leading-tight">
                 {displayLocation}
               </span>
-              <span className="text-[9px] text-sky-600 font-bold px-1.5 py-0.2 rounded bg-sky-100/90 border border-sky-200">
+              <span className="text-[9px] text-sky-600 font-bold px-1.5 py-0.2 rounded-md bg-sky-100/90 border border-sky-200 flex-shrink-0">
                 A-Z ▾
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 truncate max-w-[180px]">{displayRegion}</p>
+            {/* Specific place shown right underneath the place name ("athuku kilaiyeeeeee") */}
+            {displaySpecificPlace ? (
+              <p className="text-[11px] font-bold text-sky-700 truncate max-w-[220px] leading-tight">
+                📍 {displaySpecificPlace}
+              </p>
+            ) : null}
+            <p className="text-[10px] text-slate-400 truncate max-w-[220px] leading-tight">{displayRegion}</p>
           </div>
         </button>
 
@@ -221,9 +235,14 @@ export default function MobileDashboard({
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-sky-700">
               {activeLanguage === 'ta' ? 'நேரடி வானிலை' : 'Live Conditions'}
             </span>
-            <h2 className="text-lg font-black tracking-tight text-slate-900 flex items-center space-x-1.5">
+            <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 flex items-center space-x-1.5">
               <span>{displayLocation}</span>
             </h2>
+            {displaySpecificPlace && (
+              <p className="text-xs font-bold text-sky-700">
+                📍 {displaySpecificPlace}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center space-x-1.5 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full border border-sky-200/80 text-[11px] font-bold text-sky-800 shadow-2xs">

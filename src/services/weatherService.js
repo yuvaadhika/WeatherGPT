@@ -169,6 +169,115 @@ export const CITY_TRANSLATIONS = {
     ta: 'சிவகங்கை', hi: 'शिवगंगा', te: 'శివగంగ', bn: 'শিবগঙ্গা', mr: 'शिवगंगा',
     gu: 'શિવગંગા', kn: 'ಶಿವಗಂಗಾ', ml: 'ശിവഗംഗ', pa: 'ਸ਼ਿਵਗੰਗਾ', en: 'Sivaganga'
   },
+  // --- Chennai & Tamil Nadu Localities, Taluks & Suburbs ---
+  Cheyyur: {
+    ta: 'செய்யூர்', hi: 'चेय्यूर', te: 'చెయ్యూర్', bn: 'চেয়্যুর', mr: 'चेय्यूर',
+    gu: 'ચેય્યુર', kn: 'ಚೆಯ್ಯೂರ್', ml: 'ചെയ്യൂര്', pa: 'ਚੇਯੂਰ', en: 'Cheyyur'
+  },
+  Cheyur: {
+    ta: 'செய்யூர்', hi: 'चेय्यूर', te: 'చెయ్యూర్', bn: 'চেয়্যুর', mr: 'चेय्यूर',
+    gu: 'ચેય્યુર', kn: 'ಚೆಯ್ಯೂರ್', ml: 'ചെയ്യൂര്', pa: 'ਚੇਯੂਰ', en: 'Cheyur'
+  },
+  Vandavasi: {
+    ta: 'வந்தவாசி', hi: 'वंदवासी', te: 'వందవాసి', bn: 'বন্দবাসী', mr: 'वंदवासी',
+    gu: 'વંદવાસી', kn: 'ವಂದವಾಸಿ', ml: 'വന്ദവാസി', pa: 'ਵੰਦਾਵਾਸੀ', en: 'Vandavasi'
+  },
+  Madurantakam: {
+    ta: 'மதுராந்தகம்', hi: 'मदुरंतकम', te: 'మధురాంతకం', bn: 'মদুরান্তকম', mr: 'मदुरंतकम',
+    gu: 'મદુરાંતકમ', kn: 'ಮಧುರಾಂತಕಂ', ml: 'മധുരാന്തകം', pa: 'ਮਦੁਰਾਂਤਕਮ', en: 'Madurantakam'
+  },
+  Maduranthakam: {
+    ta: 'மதுராந்தகம்', hi: 'मदुरंतकम', te: 'మధురాంతకం', bn: 'মদুরান্তকম', mr: 'मदुरंतकम',
+    gu: 'મદુરાંતકમ', kn: 'ಮಧುರಾಂತಕಂ', ml: 'Maduranthakam', pa: 'ਮਦੁਰਾਂਤਕਮ', en: 'Maduranthakam'
+  },
+  Acharapakkam: {
+    ta: 'அச்சரப்பாக்கம்', hi: 'अचरापक्कम', te: 'అచరపాక్కం', bn: 'আচরাপাঝম', mr: 'अचरापक्कम',
+    gu: 'અચરાપક્કમ', kn: 'ಅಚರಪಾಕ್ಕಂ', ml: 'അച്ചരപ്പാക്കം', pa: 'ਅਚਰਾਪੱਕਮ', en: 'Acharapakkam'
+  },
+  Pavunjur: {
+    ta: 'பவுஞ்சூர்', hi: 'पवुंजुर', te: 'పావుంజూర్', bn: 'পাভুঞ্জুর', mr: 'पवुंजुर',
+    gu: 'પવુંજુર', kn: 'ಪಾವುಂಜೂರ್', ml: 'പവുഞ്ചൂർ', pa: 'ਪਵੁੰਜੁਰ', en: 'Pavunjur'
+  },
+  Chunampet: {
+    ta: 'சுனாம்பேடு', hi: 'चुनामपेट', te: 'చునాంపేట', bn: 'চুনামপেট', mr: 'चुनामपेट',
+    gu: 'ચુનામપેટ', kn: 'ಚುನಾಂಪೇಟೆ', ml: 'ചുനാംപേട്ട്', pa: 'ਚੁਨਾਮਪੇਟ', en: 'Chunampet'
+  },
+  Melmaruvathur: {
+    ta: 'மேல்மருவத்தூர்', hi: 'मेलमरुवत्तूर', te: 'మేల్మరువత్తూరు', bn: 'মেলমারুভাত্তুর', mr: 'मेलमरुवत्तूर',
+    gu: 'મેલમરુવત્તુર', kn: 'ಮೇಲ್ಮರುವತ್ತೂರು', ml: 'മേൽമരുവർത്തൂർ', pa: 'ਮੇਲਮਰੁਵਤੂਰ', en: 'Melmaruvathur'
+  },
+  'Vedachalam Nagar': {
+    ta: 'வேதாசலம் நகர்', hi: 'वेदाचलम नगर', te: 'వేదాచలం నగర్', bn: 'বেদাচলম নগর', mr: 'वेदाचलम नगर',
+    gu: 'વેદાચલમ નગર', kn: 'ವೇದಾಚಲಂ ನಗರ', ml: 'വേദാചലം നഗർ', pa: 'ਵੇਦਾਚਲਮ ਨਗਰ', en: 'Vedachalam Nagar'
+  },
+  Gokulapuram: {
+    ta: 'கோகுலாபுரம்', hi: 'गोकुलपुरम', te: 'గోకులాపురం', bn: 'গোকুলাপুরম', mr: 'गोकुलपुरम',
+    gu: 'ગોકુલપુરમ', kn: 'ಗೋಕುಲಾಪುರಂ', ml: 'ഗോകുലാപുരം', pa: 'ਗੋਕੁਲਪੁਰਮ', en: 'Gokulapuram'
+  },
+  Alapakkam: {
+    ta: 'ஆலப்பாக்கம்', hi: 'आलापक्कम', te: 'ఆలపాక్కం', bn: 'আলাপাক্কম', mr: 'आलापक्कम',
+    gu: 'આલાપક્કમ', kn: 'ಆಲಪಾಕ್ಕಂ', ml: 'ആലപ്പാക്കം', pa: 'ਆਲਾਪੱਕਮ', en: 'Alapakkam'
+  },
+  Thiruporur: {
+    ta: 'திருப்போரூர்', hi: 'तिरुप्पोरूर', te: 'తిరుప్పోరూర్', bn: 'তিরুপ্পোরুর', mr: 'तिरुप्पोरूर',
+    gu: 'તિરુપ્પોરુર', kn: 'ತಿರುಪ್ಪೋರೂರ್', ml: 'തിരുപ്പോരൂർ', pa: 'ਤਿਰੂਪੋਰੂਰ', en: 'Thiruporur'
+  },
+  Kelambakkam: {
+    ta: 'கேளம்பாக்கம்', hi: 'केलमबक्कम', te: 'కేళంబాక్కం', bn: 'কেলম্বাক্কম', mr: 'केळंबक्कम',
+    gu: 'કેલંબક્કમ', kn: 'ಕೇಳಂಬಾಕ್ಕಂ', ml: 'കേളമ്പാക്കം', pa: 'ਕੇਲਮਬੱਕਮ', en: 'Kelambakkam'
+  },
+  Mamallapuram: {
+    ta: 'மாமல்லபுரம்', hi: 'मामल्लपुरम', te: 'మామల్లపురం', bn: 'মামাল্লাপুরম', mr: 'मामल्लपुरम',
+    gu: 'મામલ્લાપુરમ', kn: 'ಮಾಮಲ್ಲಪುರಂ', ml: 'മാമല്ലപുരം', pa: 'ਮਾਮੱਲਾਪੁਰਮ', en: 'Mamallapuram'
+  },
+  Mahabalipuram: {
+    ta: 'மகாபலிபுரம்', hi: 'महाबलीपुरम', te: 'మహాబలిపురం', bn: 'মহাবলীপুরম', mr: 'महाबलीपुरम',
+    gu: 'મહાબલીપુરમ', kn: 'ಮಹಾಬಲಿಪುರಂ', ml: 'മഹാബലിപുരം', pa: 'ਮਹਾਬਲੀਪੁਰਮ', en: 'Mahabalipuram'
+  },
+  Guduvanchery: {
+    ta: 'கூடுவாஞ்சேரி', hi: 'गुडुवांचेरी', te: 'గూడువాంచేరి', bn: 'গুডুভাঞ্চেরি', mr: 'गुडुवांचेरी',
+    gu: 'ગુડુવાંચેરી', kn: 'ಗೂಡುವಾಂಚೇರಿ', ml: 'ഗുഡുവാഞ്ചേരി', pa: 'ਗੁਡੂਵਾਂਚੇਰੀ', en: 'Guduvanchery'
+  },
+  'Maraimalai Nagar': {
+    ta: 'மறைமலை நகர்', hi: 'मरैमलई नगर', te: 'మరైమలై నగర్', bn: 'মারাইমালাই নগর', mr: 'मरैमलई नगर',
+    gu: 'મરૈમલઈ નગર', kn: 'ಮರೈಮಲೈ ನಗರ', ml: 'മറൈമലൈ നഗർ', pa: 'ਮਰੈਮਲਈ ਨਗਰ', en: 'Maraimalai Nagar'
+  },
+  Uthiramerur: {
+    ta: 'உத்திரமேரூர்', hi: 'उत्थिरामेरुर', te: 'ఉత్తిరమేరూర్', bn: 'উত্থিরামেরুর', mr: 'उत्थिरामेरुर',
+    gu: 'ઉત્થિરામેરુર', kn: 'ಉತ್ತಿರಮೇರೂರ್', ml: 'ഉത്തിരമേരൂർ', pa: 'ਉਥਿਰਾਮੇਰੁਰ', en: 'Uthiramerur'
+  },
+  Walajabad: {
+    ta: 'வாலாஜாபாத்', hi: 'वालाजाबाद', te: 'వాలాజాబాద్', bn: 'ওয়ালাজাবাদ', mr: 'वालाजाबाद',
+    gu: 'વાલાજાબાદ', kn: 'ವಾಲಾಜಾಬಾದ್', ml: 'വാലാജാബാദ്', pa: 'ਵਾਲਾਜਾਬਾਦ', en: 'Walajabad'
+  },
+  Thirukalukundram: {
+    ta: 'திருக்கழுக்குன்றம்', hi: 'तिरुक्कलुकुंद्रम', te: 'తిరుక్కళుకుండ్రం', bn: 'তিরুক্কালুকুন্দ্রম', mr: 'तिरुक्कलुकुंद्रम',
+    gu: 'તિરુક્કલુકુંદ્રમ', kn: 'ತಿರುಕ್ಕಳುಕುಂದ್ರಂ', ml: 'തിരുക്കഴുക്കുണ്ട്രം', pa: 'ਤਿਰੂਕਲੂਕੁੰਦਰਮ', en: 'Thirukalukundram'
+  },
+  Thirukazhukundram: {
+    ta: 'திருக்கழுக்குன்றம்', hi: 'तिरुक्कलुकुंद्रम', te: 'తిరుక్కళుకుండ్రం', bn: 'তিরুক্কালুকুন্দ্রম', mr: 'तिरुक्कलुकुंद्रम',
+    gu: 'તિરુક્કલુકુંદ્રમ', kn: 'ತಿರುಕ್ಕಳುಕುಂದ್ರಂ', ml: 'തിരുക്കഴുക്കുണ്ട്രം', pa: 'ਤਿਰੂਕਲੂਕੁੰਦਰਮ', en: 'Thirukazhukundram'
+  },
+  Tindivanam: {
+    ta: 'திண்டிவனம்', hi: 'तिंडिवनम', te: 'తిండివనం', bn: 'তিন্দীভনম', mr: 'तिंडिवनम',
+    gu: 'તિંડિવનમ', kn: 'ತಿಂಡಿವನಂ', ml: 'തിണ്ടിവനം', pa: 'ਤਿੰਡੀਵਨਮ', en: 'Tindivanam'
+  },
+  Arani: {
+    ta: 'ஆரணி', hi: 'आरणी', te: 'ఆరణి', bn: 'আরানি', mr: 'आरणी',
+    gu: 'આરણી', kn: 'ಆರಣಿ', ml: 'ആരണി', pa: 'ਆਰਨੀ', en: 'Arani'
+  },
+  Cheyyar: {
+    ta: 'செய்யாறு', hi: 'चेय्यार', te: 'చెయ్యార్', bn: 'চেয়্যার', mr: 'चेय्यार',
+    gu: 'ચેય્યાર', kn: 'ಚೆಯ್ಯಾರ್', ml: 'ചെയ്യാർ', pa: 'ਚੇਯਾਰ', en: 'Cheyyar'
+  },
+  Polur: {
+    ta: 'போளூர்', hi: 'पोलूर', te: 'పోలూర్', bn: 'পোলুর', mr: 'पोलूर',
+    gu: 'પોલુર', kn: 'ಪೋಲೂರು', ml: 'പോളൂർ', pa: 'ਪੋਲੂਰ', en: 'Polur'
+  },
+  Gingee: {
+    ta: 'செஞ்சி', hi: 'जिंजी', te: 'జింజీ', bn: 'জিঞ্জি', mr: 'जिंजी',
+    gu: 'જિંજી', kn: 'ಜಿಂಜಿ', ml: 'ജിഞ്ചി', pa: 'ਜਿੰਜੀ', en: 'Gingee'
+  },
   Ramanathapuram: {
     ta: 'ராமநாதபுரம்', hi: 'रामनाथपुरम', te: 'రామనాథపురం', bn: 'রামনাথপুরম', mr: 'रामनाथपुरम',
     gu: 'રામનાથપુરમ', kn: 'ರಾಮನಾಥಪುರಂ', ml: 'രാമനാഥപുരം', pa: 'ਰਾਮਨਾਥਪੁਰਮ', en: 'Ramanathapuram'
@@ -467,16 +576,19 @@ export const CITY_TRANSLATIONS = {
 export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
   // --- A ---
   { id: 'abu-dhabi', name: 'Abu Dhabi', rawName: 'Abu Dhabi', state: 'UAE', country: 'United Arab Emirates', latitude: 24.4539, longitude: 54.3773, category: 'global', flag: '🇦🇪' },
-  { id: 'adyar', name: 'Adyar', rawName: 'Adyar', state: 'Tamil Nadu', country: 'India', latitude: 13.0012, longitude: 80.2565, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'acharapakkam', name: 'Acharapakkam', rawName: 'Acharapakkam', specificPlace: 'Acharapakkam, Madurantakam', state: 'Tamil Nadu', country: 'India', latitude: 12.4418, longitude: 79.8166, category: 'locality_tn', flag: '📍' },
+  { id: 'adyar', name: 'Adyar', rawName: 'Adyar', specificPlace: 'Adyar, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0012, longitude: 80.2565, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'agra', name: 'Agra', rawName: 'Agra', state: 'Uttar Pradesh', country: 'India', latitude: 27.1767, longitude: 78.0081, category: 'metro_in', flag: '🇮🇳' },
   { id: 'ahmedabad', name: 'Ahmedabad', rawName: 'Ahmedabad', state: 'Gujarat', country: 'India', latitude: 23.0225, longitude: 72.5714, category: 'metro_in', flag: '🇮🇳' },
   { id: 'aizawl', name: 'Aizawl', rawName: 'Aizawl', state: 'Mizoram', country: 'India', latitude: 23.7271, longitude: 92.7176, category: 'capital_in', flag: '🇮🇳' },
-  { id: 'ambattur', name: 'Ambattur', rawName: 'Ambattur', state: 'Tamil Nadu', country: 'India', latitude: 13.0983, longitude: 80.1624, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'alapakkam', name: 'Alapakkam', rawName: 'Alapakkam', specificPlace: 'Alapakkam, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.6322, longitude: 79.9912, category: 'locality_tn', flag: '📍' },
+  { id: 'ambattur', name: 'Ambattur', rawName: 'Ambattur', specificPlace: 'Ambattur, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0983, longitude: 80.1624, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'amritsar', name: 'Amritsar', rawName: 'Amritsar', state: 'Punjab', country: 'India', latitude: 31.6340, longitude: 74.8723, category: 'metro_in', flag: '🇮🇳' },
   { id: 'amsterdam', name: 'Amsterdam', rawName: 'Amsterdam', state: 'North Holland', country: 'Netherlands', latitude: 52.3676, longitude: 4.9041, category: 'global', flag: '🇳🇱' },
-  { id: 'anna-nagar', name: 'Anna Nagar', rawName: 'Anna Nagar', state: 'Tamil Nadu', country: 'India', latitude: 13.0850, longitude: 80.2101, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'anna-nagar', name: 'Anna Nagar', rawName: 'Anna Nagar', specificPlace: 'Anna Nagar, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0850, longitude: 80.2101, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'arani', name: 'Arani', rawName: 'Arani', specificPlace: 'Arani Taluk', state: 'Tamil Nadu', country: 'India', latitude: 12.6700, longitude: 79.2800, category: 'locality_tn', flag: '📍' },
   { id: 'ariyalur', name: 'Ariyalur', rawName: 'Ariyalur', state: 'Tamil Nadu', country: 'India', latitude: 11.1399, longitude: 79.0765, category: 'district_tn', flag: '🇮🇳' },
-  { id: 'avadi', name: 'Avadi', rawName: 'Avadi', state: 'Tamil Nadu', country: 'India', latitude: 13.1147, longitude: 80.1098, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'avadi', name: 'Avadi', rawName: 'Avadi', specificPlace: 'Avadi, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.1147, longitude: 80.1098, category: 'locality_tn', flag: '🇮🇳' },
 
   // --- B ---
   { id: 'bangkok', name: 'Bangkok', rawName: 'Bangkok', state: 'Central', country: 'Thailand', latitude: 13.7563, longitude: 100.5018, category: 'global', flag: '🇹🇭' },
@@ -488,9 +600,12 @@ export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
 
   // --- C ---
   { id: 'chandigarh', name: 'Chandigarh', rawName: 'Chandigarh', state: 'Punjab / Haryana', country: 'India', latitude: 30.7333, longitude: 76.7794, category: 'capital_in', flag: '🇮🇳' },
-  { id: 'chengalpattu', name: 'Chengalpattu', rawName: 'Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.6841, longitude: 79.9836, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'chengalpattu', name: 'Chengalpattu', rawName: 'Chengalpattu', specificPlace: 'Chengalpattu District Headquarters', state: 'Tamil Nadu', country: 'India', latitude: 12.6841, longitude: 79.9836, category: 'district_tn', flag: '🇮🇳' },
   { id: 'chennai', name: 'Chennai', rawName: 'Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0827, longitude: 80.2707, category: 'district_tn', flag: '🇮🇳' },
-  { id: 'chromepet', name: 'Chromepet', rawName: 'Chromepet', state: 'Tamil Nadu', country: 'India', latitude: 12.9516, longitude: 80.1462, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'cheyyur', name: 'Cheyyur', rawName: 'Cheyyur', specificPlace: 'Cheyyur Taluk, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.3533, longitude: 80.0039, category: 'locality_tn', flag: '📍' },
+  { id: 'cheyyar', name: 'Cheyyar', rawName: 'Cheyyar', specificPlace: 'Cheyyar Town, Tiruvannamalai', state: 'Tamil Nadu', country: 'India', latitude: 12.6590, longitude: 79.5420, category: 'locality_tn', flag: '📍' },
+  { id: 'chromepet', name: 'Chromepet', rawName: 'Chromepet', specificPlace: 'Chromepet, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 12.9516, longitude: 80.1462, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'chunampet', name: 'Chunampet', rawName: 'Chunampet', specificPlace: 'Chunampet, Cheyyur', state: 'Tamil Nadu', country: 'India', latitude: 12.2474, longitude: 79.9678, category: 'locality_tn', flag: '📍' },
   { id: 'coimbatore', name: 'Coimbatore', rawName: 'Coimbatore', state: 'Tamil Nadu', country: 'India', latitude: 11.0168, longitude: 76.9558, category: 'district_tn', flag: '🇮🇳' },
   { id: 'colombo', name: 'Colombo', rawName: 'Colombo', state: 'Western Province', country: 'Sri Lanka', latitude: 6.9271, longitude: 79.8612, category: 'global', flag: '🇱🇰' },
   { id: 'cuddalore', name: 'Cuddalore', rawName: 'Cuddalore', state: 'Tamil Nadu', country: 'India', latitude: 11.7480, longitude: 79.7714, category: 'district_tn', flag: '🇮🇳' },
@@ -513,7 +628,9 @@ export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
   // --- G ---
   { id: 'gangtok', name: 'Gangtok', rawName: 'Gangtok', state: 'Sikkim', country: 'India', latitude: 27.3389, longitude: 88.6065, category: 'capital_in', flag: '🇮🇳' },
   { id: 'goa', name: 'Goa (Panaji)', rawName: 'Panaji', state: 'Goa', country: 'India', latitude: 15.4909, longitude: 73.8278, category: 'capital_in', flag: '🇮🇳' },
-  { id: 'guindy', name: 'Guindy', rawName: 'Guindy', state: 'Tamil Nadu', country: 'India', latitude: 13.0067, longitude: 80.2206, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'gokulapuram', name: 'Gokulapuram', rawName: 'Gokulapuram', specificPlace: 'Gokulapuram, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.6934, longitude: 79.9722, category: 'locality_tn', flag: '📍' },
+  { id: 'guduvanchery', name: 'Guduvanchery', rawName: 'Guduvanchery', specificPlace: 'Guduvanchery, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.8427, longitude: 80.0601, category: 'locality_tn', flag: '📍' },
+  { id: 'guindy', name: 'Guindy', rawName: 'Guindy', specificPlace: 'Guindy, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0067, longitude: 80.2206, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'gurugram', name: 'Gurugram', rawName: 'Gurugram', state: 'Haryana', country: 'India', latitude: 28.4595, longitude: 77.0266, category: 'metro_in', flag: '🇮🇳' },
   { id: 'guwahati', name: 'Guwahati', rawName: 'Guwahati', state: 'Assam', country: 'India', latitude: 26.1445, longitude: 91.7362, category: 'capital_in', flag: '🇮🇳' },
 
@@ -535,11 +652,12 @@ export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
 
   // --- K ---
   { id: 'kallakurichi', name: 'Kallakurichi', rawName: 'Kallakurichi', state: 'Tamil Nadu', country: 'India', latitude: 11.7383, longitude: 78.9639, category: 'district_tn', flag: '🇮🇳' },
-  { id: 'kanchipuram', name: 'Kanchipuram', rawName: 'Kanchipuram', state: 'Tamil Nadu', country: 'India', latitude: 12.8342, longitude: 79.7036, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'kanchipuram', name: 'Kanchipuram', rawName: 'Kanchipuram', specificPlace: 'Kanchipuram District', state: 'Tamil Nadu', country: 'India', latitude: 12.8342, longitude: 79.7036, category: 'district_tn', flag: '🇮🇳' },
   { id: 'kanyakumari', name: 'Kanyakumari', rawName: 'Kanyakumari', state: 'Tamil Nadu', country: 'India', latitude: 8.0883, longitude: 77.5385, category: 'district_tn', flag: '🇮🇳' },
   { id: 'kanpur', name: 'Kanpur', rawName: 'Kanpur', state: 'Uttar Pradesh', country: 'India', latitude: 26.4499, longitude: 80.3319, category: 'metro_in', flag: '🇮🇳' },
   { id: 'karaikudi', name: 'Karaikudi', rawName: 'Karaikudi', state: 'Tamil Nadu', country: 'India', latitude: 10.0735, longitude: 78.7732, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'karur', name: 'Karur', rawName: 'Karur', state: 'Tamil Nadu', country: 'India', latitude: 10.9601, longitude: 78.0766, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'kelambakkam', name: 'Kelambakkam', rawName: 'Kelambakkam', specificPlace: 'Kelambakkam, OMR', state: 'Tamil Nadu', country: 'India', latitude: 12.7885, longitude: 80.2198, category: 'locality_tn', flag: '📍' },
   { id: 'kochi', name: 'Kochi', rawName: 'Kochi', state: 'Kerala', country: 'India', latitude: 9.9312, longitude: 76.2673, category: 'metro_in', flag: '🇮🇳' },
   { id: 'kohima', name: 'Kohima', rawName: 'Kohima', state: 'Nagaland', country: 'India', latitude: 25.6751, longitude: 94.1086, category: 'capital_in', flag: '🇮🇳' },
   { id: 'kolkata', name: 'Kolkata', rawName: 'Kolkata', state: 'West Bengal', country: 'India', latitude: 22.5726, longitude: 88.3639, category: 'metro_in', flag: '🇮🇳' },
@@ -554,13 +672,17 @@ export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
   { id: 'lucknow', name: 'Lucknow', rawName: 'Lucknow', state: 'Uttar Pradesh', country: 'India', latitude: 26.8467, longitude: 80.9462, category: 'capital_in', flag: '🇮🇳' },
 
   // --- M ---
+  { id: 'madurantakam', name: 'Madurantakam', rawName: 'Madurantakam', specificPlace: 'Madurantakam Taluk, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.5098, longitude: 79.8824, category: 'locality_tn', flag: '📍' },
   { id: 'madurai', name: 'Madurai', rawName: 'Madurai', state: 'Tamil Nadu', country: 'India', latitude: 9.9252, longitude: 78.1198, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'mamallapuram', name: 'Mamallapuram', rawName: 'Mamallapuram', specificPlace: 'Mahabalipuram Coastal, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.6269, longitude: 80.1927, category: 'locality_tn', flag: '📍' },
   { id: 'mangalore', name: 'Mangalore', rawName: 'Mangalore', state: 'Karnataka', country: 'India', latitude: 12.9141, longitude: 74.8560, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'maraimalai-nagar', name: 'Maraimalai Nagar', rawName: 'Maraimalai Nagar', specificPlace: 'Maraimalai Nagar, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.7963, longitude: 80.0245, category: 'locality_tn', flag: '📍' },
   { id: 'mayiladuthurai', name: 'Mayiladuthurai', rawName: 'Mayiladuthurai', state: 'Tamil Nadu', country: 'India', latitude: 11.1035, longitude: 79.6550, category: 'district_tn', flag: '🇮🇳' },
   { id: 'melbourne', name: 'Melbourne', rawName: 'Melbourne', state: 'Victoria', country: 'Australia', latitude: -37.8136, longitude: 144.9631, category: 'global', flag: '🇦🇺' },
+  { id: 'melmaruvathur', name: 'Melmaruvathur', rawName: 'Melmaruvathur', specificPlace: 'Melmaruvathur, Cheyyur', state: 'Tamil Nadu', country: 'India', latitude: 12.4339, longitude: 79.8290, category: 'locality_tn', flag: '📍' },
   { id: 'moscow', name: 'Moscow', rawName: 'Moscow', state: 'Moscow', country: 'Russia', latitude: 55.7558, longitude: 37.6173, category: 'global', flag: '🇷🇺' },
   { id: 'mumbai', name: 'Mumbai', rawName: 'Mumbai', state: 'Maharashtra', country: 'India', latitude: 19.0760, longitude: 72.8777, category: 'metro_in', flag: '🇮🇳' },
-  { id: 'mylapore', name: 'Mylapore', rawName: 'Mylapore', state: 'Tamil Nadu', country: 'India', latitude: 13.0368, longitude: 80.2676, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'mylapore', name: 'Mylapore', rawName: 'Mylapore', specificPlace: 'Mylapore, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0368, longitude: 80.2676, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'mysuru', name: 'Mysuru', rawName: 'Mysuru', state: 'Karnataka', country: 'India', latitude: 12.2958, longitude: 76.6394, category: 'metro_in', flag: '🇮🇳' },
 
   // --- N ---
@@ -574,14 +696,16 @@ export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
   { id: 'noida', name: 'Noida', rawName: 'Noida', state: 'Uttar Pradesh', country: 'India', latitude: 28.5355, longitude: 77.3910, category: 'metro_in', flag: '🇮🇳' },
 
   // --- P ---
-  { id: 'pallavaram', name: 'Pallavaram', rawName: 'Pallavaram', state: 'Tamil Nadu', country: 'India', latitude: 12.9675, longitude: 80.1491, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'pallavaram', name: 'Pallavaram', rawName: 'Pallavaram', specificPlace: 'Pallavaram, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 12.9675, longitude: 80.1491, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'paris', name: 'Paris', rawName: 'Paris', state: 'Île-de-France', country: 'France', latitude: 48.8566, longitude: 2.3522, category: 'global', flag: '🇫🇷' },
   { id: 'patna', name: 'Patna', rawName: 'Patna', state: 'Bihar', country: 'India', latitude: 25.5941, longitude: 85.1376, category: 'capital_in', flag: '🇮🇳' },
+  { id: 'pavunjur', name: 'Pavunjur', rawName: 'Pavunjur', specificPlace: 'Pavunjur, Cheyyur', state: 'Tamil Nadu', country: 'India', latitude: 12.3167, longitude: 79.9833, category: 'locality_tn', flag: '📍' },
   { id: 'perambalur', name: 'Perambalur', rawName: 'Perambalur', state: 'Tamil Nadu', country: 'India', latitude: 11.2333, longitude: 78.8833, category: 'district_tn', flag: '🇮🇳' },
   { id: 'pollachi', name: 'Pollachi', rawName: 'Pollachi', state: 'Tamil Nadu', country: 'India', latitude: 10.6583, longitude: 77.0089, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'polur', name: 'Polur', rawName: 'Polur', specificPlace: 'Polur Taluk, Tiruvannamalai', state: 'Tamil Nadu', country: 'India', latitude: 12.5085, longitude: 79.1278, category: 'locality_tn', flag: '📍' },
   { id: 'pondicherry', name: 'Puducherry', rawName: 'Puducherry', state: 'Puducherry', country: 'India', latitude: 11.9416, longitude: 79.8083, category: 'locality_tn', flag: '🇮🇳' },
-  { id: 'poonamallee', name: 'Poonamallee', rawName: 'Poonamallee', state: 'Tamil Nadu', country: 'India', latitude: 13.0489, longitude: 80.0963, category: 'locality_tn', flag: '🇮🇳' },
-  { id: 'porur', name: 'Porur', rawName: 'Porur', state: 'Tamil Nadu', country: 'India', latitude: 13.0382, longitude: 80.1565, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'poonamallee', name: 'Poonamallee', rawName: 'Poonamallee', specificPlace: 'Poonamallee, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0489, longitude: 80.0963, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'porur', name: 'Porur', rawName: 'Porur', specificPlace: 'Porur, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 13.0382, longitude: 80.1565, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'pudukkottai', name: 'Pudukkottai', rawName: 'Pudukkottai', state: 'Tamil Nadu', country: 'India', latitude: 10.3833, longitude: 78.8000, category: 'district_tn', flag: '🇮🇳' },
   { id: 'pune', name: 'Pune', rawName: 'Pune', state: 'Maharashtra', country: 'India', latitude: 18.5204, longitude: 73.8567, category: 'metro_in', flag: '🇮🇳' },
 
@@ -599,7 +723,7 @@ export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
   { id: 'seoul', name: 'Seoul', rawName: 'Seoul', state: 'Seoul Capital', country: 'South Korea', latitude: 37.5665, longitude: 126.9780, category: 'global', flag: '🇰🇷' },
   { id: 'shillong', name: 'Shillong', rawName: 'Shillong', state: 'Meghalaya', country: 'India', latitude: 25.5788, longitude: 91.8933, category: 'capital_in', flag: '🇮🇳' },
   { id: 'shimla', name: 'Shimla', rawName: 'Shimla', state: 'Himachal Pradesh', country: 'India', latitude: 31.1048, longitude: 77.1734, category: 'capital_in', flag: '🇮🇳' },
-  { id: 'sholinganallur', name: 'Sholinganallur', rawName: 'Sholinganallur', state: 'Tamil Nadu', country: 'India', latitude: 12.8997, longitude: 80.2279, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'sholinganallur', name: 'Sholinganallur', rawName: 'Sholinganallur', specificPlace: 'Sholinganallur, OMR', state: 'Tamil Nadu', country: 'India', latitude: 12.8997, longitude: 80.2279, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'singapore', name: 'Singapore', rawName: 'Singapore', state: 'Central Region', country: 'Singapore', latitude: 1.3521, longitude: 103.8198, category: 'global', flag: '🇸🇬' },
   { id: 'sivaganga', name: 'Sivaganga', rawName: 'Sivaganga', state: 'Tamil Nadu', country: 'India', latitude: 9.8433, longitude: 78.4809, category: 'district_tn', flag: '🇮🇳' },
   { id: 'srinagar', name: 'Srinagar', rawName: 'Srinagar', state: 'Jammu and Kashmir', country: 'India', latitude: 34.0837, longitude: 74.7973, category: 'capital_in', flag: '🇮🇳' },
@@ -607,12 +731,15 @@ export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
   { id: 'sydney', name: 'Sydney', rawName: 'Sydney', state: 'New South Wales', country: 'Australia', latitude: -33.8688, longitude: 151.2093, category: 'global', flag: '🇦🇺' },
 
   // --- T ---
-  { id: 'tambaram', name: 'Tambaram', rawName: 'Tambaram', state: 'Tamil Nadu', country: 'India', latitude: 12.9249, longitude: 80.1000, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'tambaram', name: 'Tambaram', rawName: 'Tambaram', specificPlace: 'Tambaram, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 12.9249, longitude: 80.1000, category: 'locality_tn', flag: '🇮🇳' },
   { id: 'tenkasi', name: 'Tenkasi', rawName: 'Tenkasi', state: 'Tamil Nadu', country: 'India', latitude: 8.9594, longitude: 77.3150, category: 'district_tn', flag: '🇮🇳' },
   { id: 'thanjavur', name: 'Thanjavur', rawName: 'Thanjavur', state: 'Tamil Nadu', country: 'India', latitude: 10.7870, longitude: 79.1378, category: 'district_tn', flag: '🇮🇳' },
   { id: 'theni', name: 'Theni', rawName: 'Theni', state: 'Tamil Nadu', country: 'India', latitude: 10.0104, longitude: 77.4768, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'thirukalukundram', name: 'Thirukalukundram', rawName: 'Thirukalukundram', specificPlace: 'Thirukalukundram, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.6074, longitude: 80.0543, category: 'locality_tn', flag: '📍' },
+  { id: 'thiruporur', name: 'Thiruporur', rawName: 'Thiruporur', specificPlace: 'Thiruporur, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.7233, longitude: 80.1873, category: 'locality_tn', flag: '📍' },
   { id: 'thiruvananthapuram', name: 'Thiruvananthapuram', rawName: 'Thiruvananthapuram', state: 'Kerala', country: 'India', latitude: 8.5241, longitude: 76.9366, category: 'capital_in', flag: '🇮🇳' },
   { id: 'thoothukudi', name: 'Thoothukudi', rawName: 'Thoothukudi', state: 'Tamil Nadu', country: 'India', latitude: 8.7642, longitude: 78.1348, category: 'district_tn', flag: '🇮🇳' },
+  { id: 'tindivanam', name: 'Tindivanam', rawName: 'Tindivanam', specificPlace: 'Tindivanam Town', state: 'Tamil Nadu', country: 'India', latitude: 12.2333, longitude: 79.6500, category: 'locality_tn', flag: '📍' },
   { id: 'tiruchirappalli', name: 'Tiruchirappalli', rawName: 'Tiruchirappalli', state: 'Tamil Nadu', country: 'India', latitude: 10.7905, longitude: 78.7047, category: 'district_tn', flag: '🇮🇳' },
   { id: 'tirunelveli', name: 'Tirunelveli', rawName: 'Tirunelveli', state: 'Tamil Nadu', country: 'India', latitude: 8.7139, longitude: 77.7567, category: 'district_tn', flag: '🇮🇳' },
   { id: 'tirupathur', name: 'Tirupathur', rawName: 'Tirupathur', state: 'Tamil Nadu', country: 'India', latitude: 12.4958, longitude: 78.5678, category: 'district_tn', flag: '🇮🇳' },
@@ -622,6 +749,18 @@ export const ALL_AVAILABLE_PLACES_ALPHABETICAL = [
   { id: 'tiruvarur', name: 'Tiruvarur', rawName: 'Tiruvarur', state: 'Tamil Nadu', country: 'India', latitude: 10.7725, longitude: 79.6365, category: 'district_tn', flag: '🇮🇳' },
   { id: 'tokyo', name: 'Tokyo', rawName: 'Tokyo', state: 'Kanto', country: 'Japan', latitude: 35.6762, longitude: 139.6503, category: 'global', flag: '🇯🇵' },
   { id: 'toronto', name: 'Toronto', rawName: 'Toronto', state: 'Ontario', country: 'Canada', latitude: 43.6532, longitude: -79.3832, category: 'global', flag: '🇨🇦' },
+
+  // --- U ---
+  { id: 'uthiramerur', name: 'Uthiramerur', rawName: 'Uthiramerur', specificPlace: 'Uthiramerur Heritage Town', state: 'Tamil Nadu', country: 'India', latitude: 12.6147, longitude: 79.7570, category: 'locality_tn', flag: '📍' },
+
+  // --- V ---
+  { id: 'vadodara', name: 'Vadodara', rawName: 'Vadodara', state: 'Gujarat', country: 'India', latitude: 22.3072, longitude: 73.1812, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'vancouver', name: 'Vancouver', rawName: 'Vancouver', state: 'British Columbia', country: 'Canada', latitude: 49.2827, longitude: -123.1207, category: 'global', flag: '🇨🇦' },
+  { id: 'vandavasi', name: 'Vandavasi', rawName: 'Vandavasi', specificPlace: 'Vandavasi Taluk, Tiruvannamalai', state: 'Tamil Nadu', country: 'India', latitude: 12.5028, longitude: 79.6105, category: 'locality_tn', flag: '📍' },
+  { id: 'varanasi', name: 'Varanasi', rawName: 'Varanasi', state: 'Uttar Pradesh', country: 'India', latitude: 25.3176, longitude: 82.9739, category: 'metro_in', flag: '🇮🇳' },
+  { id: 'vedachalam-nagar', name: 'Vedachalam Nagar', rawName: 'Vedachalam Nagar', specificPlace: 'Vedachalam Nagar, Chengalpattu', state: 'Tamil Nadu', country: 'India', latitude: 12.6841, longitude: 79.9836, category: 'locality_tn', flag: '📍' },
+  { id: 'velachery', name: 'Velachery', rawName: 'Velachery', specificPlace: 'Velachery, Chennai', state: 'Tamil Nadu', country: 'India', latitude: 12.9750, longitude: 80.2207, category: 'locality_tn', flag: '🇮🇳' },
+  { id: 'vellore', name: 'Vellore', rawName: 'Vellore', state: 'Tamil Nadu', country: 'India', latitude: 12.9165, longitude: 79.1325, category: 'district_tn', flag: '🇮🇳' },
 
   // --- U ---
   { id: 'udaipur', name: 'Udaipur', rawName: 'Udaipur', state: 'Rajasthan', country: 'India', latitude: 24.5854, longitude: 73.7125, category: 'metro_in', flag: '🇮🇳' },
@@ -689,6 +828,7 @@ export function getAlphabeticalPlacesFiltered({ query = '', letter = 'ALL', cate
 // ============================================================================
 export function generateFullSpokenWeatherBulletin({
   locationName = 'Chennai',
+  specificPlace = '',
   weatherData,
   aqiData,
   riskData,
@@ -711,6 +851,10 @@ export function generateFullSpokenWeatherBulletin({
   const uvVal = current.uv_index !== undefined ? current.uv_index : (daily.uv_index_max?.[0] || 6);
 
   const localizedCity = getLocalizedPlaceName(locationName, lang) || locationName;
+  const localizedSpecific = specificPlace ? (getLocalizedPlaceName(specificPlace, lang) || specificPlace) : '';
+  const fullLocTitle = localizedSpecific && localizedSpecific.toLowerCase() !== localizedCity.toLowerCase()
+    ? `${localizedCity} (${localizedSpecific})`
+    : localizedCity;
   const targetLang = lang.split(/[-_]/)[0].toLowerCase();
 
   // 1. TAMIL (தமிழ்)
@@ -720,7 +864,7 @@ export function generateFullSpokenWeatherBulletin({
     const sprayAdvice = windKmh <= 15 && parseFloat(rainMm) === 0 ? 'பயிர்களுக்கு ஊட்டச்சத்து மற்றும் பூச்சி மருந்து தெளிக்க மிகவும் உகந்தது' : 'பலத்த காற்று அல்லது மழை வாய்ப்பால் தெளிப்பதை ஒத்திவைக்கவும்';
     const aqiRating = aqiVal <= 50 ? 'நல்ல நிலை' : aqiVal <= 100 ? 'மிதமான நிலை' : 'மாசுபட்ட நிலை, முகக்கவசம் அணியவும்';
 
-    return `வணக்கம்! ${localizedCity} பகுதிக்கான WeatherGPT நேரலை வானிலை முழு அறிக்கை. தற்போதைய வெப்பநிலை ${tempC} டிகிரி செல்சியஸ். காற்றில் உள்ள ஈரப்பதம் காரணமாக ${feelsLike} டிகிரி செல்சியஸ் போல் உணரப்படுகிறது. வானம் ${condition} ஆக காணப்படுகிறது. மழை நிலவரம்: இன்றைய மழை வாய்ப்பு ${rainProb} சதவீதம். எதிர்பார்க்கப்படும் மழையின் அளவு ${rainMm} மில்லிமீட்டர். காற்று மணிக்கு ${windKmh} கிலோமீட்டர் வேகத்தில் வீசுகிறது, அதிகபட்சமாக ${windGust} கிலோமீட்டர் வரை பலத்த காற்று வீசக்கூடும். காற்றில் ஈரப்பதம் ${humidity} சதவீதமாக உள்ளது. காற்று தரம் குறியீடு ${aqiVal} ஆக பதிவாகியுள்ளது, இது ${aqiRating} ஆகும். சூரிய புற ஊதாக்கதிர் குறியீடு ${uvVal} ஆகும். முக்கிய செயல்பாட்டு வழிகாட்டி: ${roadAdvice}. ${laundryAdvice}. மேலும் விவசாய செயல்பாட்டிற்கு, ${sprayAdvice}. WeatherGPT உடன் தொடர்ந்து வானிலை தகவல்களை அறிந்து பாதுகாப்பாக இருங்கள்.`;
+    return `வணக்கம்! ${fullLocTitle} பகுதிக்கான WeatherGPT நேரலை வானிலை முழு அறிக்கை. தற்போதைய வெப்பநிலை ${tempC} டிகிரி செல்சியஸ். காற்றில் உள்ள ஈரப்பதம் காரணமாக ${feelsLike} டிகிரி செல்சியஸ் போல் உணரப்படுகிறது. வானம் ${condition} ஆக காணப்படுகிறது. மழை நிலவரம்: இன்றைய மழை வாய்ப்பு ${rainProb} சதவீதம். எதிர்பார்க்கப்படும் மழையின் அளவு ${rainMm} மில்லிமீட்டர். காற்று மணிக்கு ${windKmh} கிலோமீட்டர் வேகத்தில் வீசுகிறது, அதிகபட்சமாக ${windGust} கிலோமீட்டர் வரை பலத்த காற்று வீசக்கூடும். காற்றில் ஈரப்பதம் ${humidity} சதவீதமாக உள்ளது. காற்று தரம் குறியீடு ${aqiVal} ஆக பதிவாகியுள்ளது, இது ${aqiRating} ஆகும். சூரிய புற ஊதாக்கதிர் குறியீடு ${uvVal} ஆகும். முக்கிய செயல்பாட்டு வழிகாட்டி: ${roadAdvice}. ${laundryAdvice}. மேலும் விவசாய செயல்பாட்டிற்கு, ${sprayAdvice}. WeatherGPT உடன் தொடர்ந்து வானிலை தகவல்களை அறிந்து பாதுகாப்பாக இருங்கள்.`;
   }
 
   // 2. HINDI (हिन्दी)
@@ -821,73 +965,216 @@ export function getLocalizedPlaceName(placeName, lang = 'en') {
   return clean;
 }
 
-// Geocoding: Search any location / village / city in India & Worldwide
+// Geocoding: Search any location / village / city in India & Worldwide with dual-level specificity
 export async function searchLocation(query, lang = 'en') {
   const trimmed = (query || '').trim();
   if (!trimmed) return [];
+  const targetLang = typeof lang === 'string' ? lang : 'en';
 
-  // 1. Try remote geocoding
+  // 1. Try Nominatim OSM for high-accuracy specific place & locality resolution
   try {
-    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(trimmed)}&count=6&language=${lang}&format=json`);
+    const nomRes = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&addressdetails=1&limit=8&accept-language=${targetLang},en;q=0.8`,
+      { headers: { 'User-Agent': 'WeatherGPT-Yuvi/2.0' } }
+    );
+    if (nomRes.ok) {
+      const nomData = await nomRes.json();
+      if (Array.isArray(nomData) && nomData.length > 0) {
+        return nomData.map((item, idx) => {
+          const addr = item.address || {};
+          const specific = [addr.neighbourhood, addr.suburb, addr.village, addr.hamlet, addr.residential, addr.quarter, addr.road]
+            .filter(Boolean)
+            .filter((v, i, a) => a.indexOf(v) === i)
+            .join(', ');
+          const city = addr.city || addr.town || addr.municipality || addr.county || addr.state_district || addr.village || item.name || '';
+          const dist = addr.state_district || addr.county || '';
+          const state = addr.state || 'Tamil Nadu';
+          const country = addr.country || 'India';
+          const lat = parseFloat(item.lat);
+          const lon = parseFloat(item.lon);
+
+          const localizedCity = getLocalizedPlaceName(city, targetLang) || city;
+          const localizedSpecific = specific ? specific.split(', ').map(s => getLocalizedPlaceName(s, targetLang) || s).join(', ') : '';
+          const localizedDistrict = dist ? (getLocalizedPlaceName(dist, targetLang) || dist) : '';
+          const localizedState = state ? (getLocalizedPlaceName(state, targetLang) || state) : 'Tamil Nadu';
+          const localizedCountry = getLocalizedPlaceName(country, targetLang) || country;
+
+          return {
+            id: `nom-${item.place_id || idx}-${lat}-${lon}`,
+            name: localizedCity,
+            specificPlace: localizedSpecific && localizedSpecific.toLowerCase() !== localizedCity.toLowerCase() ? localizedSpecific : '',
+            district: localizedDistrict,
+            admin1: localizedState,
+            country: localizedCountry,
+            rawName: city,
+            rawSpecificPlace: specific,
+            rawDistrict: dist,
+            rawAdmin1: state,
+            rawCountry: country,
+            latitude: lat,
+            longitude: lon,
+          };
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('Nominatim search error, falling back to Open-Meteo:', err);
+  }
+
+  // 2. Try Open-Meteo geocoding search
+  try {
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(trimmed)}&count=6&language=${targetLang}&format=json`);
     if (res.ok) {
       const data = await res.json();
       if (data.results && data.results.length > 0) {
-        return data.results;
+        return data.results.map(r => ({
+          ...r,
+          specificPlace: '',
+          rawName: r.name,
+        }));
       }
     }
   } catch (err) {
     console.warn('Remote geocoding unavailable, falling back to local places registry:', err);
   }
 
-  // 2. Local / Offline fallback from ALL_AVAILABLE_PLACES_ALPHABETICAL
+  // 3. Local / Offline fallback from ALL_AVAILABLE_PLACES_ALPHABETICAL
   const qLower = trimmed.toLowerCase();
   const localMatches = ALL_AVAILABLE_PLACES_ALPHABETICAL.filter(p => 
     p.name.toLowerCase() === qLower ||
     p.name.toLowerCase().includes(qLower) || 
-    (p.rawName && p.rawName.toLowerCase().includes(qLower))
+    (p.rawName && p.rawName.toLowerCase().includes(qLower)) ||
+    (p.specificPlace && p.specificPlace.toLowerCase().includes(qLower))
   );
 
   if (localMatches.length > 0) {
     return localMatches.map(p => ({
-      name: p.name,
+      name: getLocalizedPlaceName(p.name, targetLang) || p.name,
+      specificPlace: p.specificPlace ? (getLocalizedPlaceName(p.specificPlace, targetLang) || p.specificPlace) : '',
       latitude: p.latitude,
       longitude: p.longitude,
       admin1: p.state || 'Tamil Nadu',
       country: p.country || 'India',
+      rawName: p.rawName || p.name,
+      rawSpecificPlace: p.specificPlace || '',
     }));
   }
 
   return [];
 }
 
-// Reverse Geocode from lat/long coordinates with robust multi-level name extraction
+// Reverse Geocode from lat/long coordinates with robust multi-level name extraction (City + Specific Locality)
 export async function reverseGeocode(lat, lon, lang = 'en') {
   const targetLang = typeof lang === 'string' ? lang : 'en';
 
-  // Method 1: BigDataCloud client-side reverse geocoding (fast, accurate, no CORS restrictions)
+  // Method 1: High-precision Nominatim OpenStreetMap (zoom=18, addressdetails=1 for exact neighborhood/village)
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=${targetLang},en;q=0.8`,
+      { headers: { 'User-Agent': 'WeatherGPT-Yuvi/2.0' } }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+
+      // Specific locality / neighborhood / suburb / village / hamlet / road
+      const specificParts = [
+        addr.neighbourhood,
+        addr.suburb,
+        addr.village,
+        addr.hamlet,
+        addr.residential,
+        addr.quarter,
+        addr.road
+      ].filter(Boolean).filter((item, idx, arr) => arr.indexOf(item) === idx);
+
+      // Primary town / city / municipality
+      const primaryCity = addr.city ||
+                          addr.town ||
+                          addr.municipality ||
+                          addr.county ||
+                          addr.state_district ||
+                          addr.village ||
+                          data.name ||
+                          '';
+
+      const dist = addr.state_district || addr.county || '';
+      const state = addr.state || 'Tamil Nadu';
+      const country = addr.country || 'India';
+
+      if (primaryCity || specificParts.length > 0) {
+        let rawSpecific = specificParts.join(', ');
+        let rawCity = primaryCity || specificParts[0] || 'Tamil Nadu';
+
+        if (rawSpecific && rawCity && rawSpecific.toLowerCase() === rawCity.toLowerCase()) {
+          rawSpecific = '';
+        }
+
+        const localizedCity = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
+        const localizedSpecific = rawSpecific ? rawSpecific.split(', ').map(part => getLocalizedPlaceName(part, targetLang) || part).join(', ') : '';
+        const localizedDistrict = dist ? (getLocalizedPlaceName(dist, targetLang) || dist) : '';
+        const localizedState = state ? (getLocalizedPlaceName(state, targetLang) || state) : 'Tamil Nadu';
+        const localizedCountry = getLocalizedPlaceName(country, targetLang) || country;
+
+        return {
+          name: localizedCity,
+          specificPlace: localizedSpecific,
+          district: localizedDistrict,
+          admin1: localizedState,
+          country: localizedCountry,
+          rawName: rawCity,
+          rawSpecificPlace: rawSpecific,
+          rawDistrict: dist,
+          rawAdmin1: state,
+          rawCountry: country,
+          latitude: lat,
+          longitude: lon,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Nominatim reverse geocode error:', err);
+  }
+
+  // Method 2: BigDataCloud client-side reverse geocoding with granular sub-localities
   try {
     const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=${targetLang}`);
     if (res.ok) {
       const data = await res.json();
-      const rawCity = data.locality ||
-                      data.city ||
+      const adminList = data.localityInfo?.administrative || [];
+      const informList = data.localityInfo?.informative || [];
+
+      const fineLocalities = [
+        ...adminList.filter(a => a.order >= 11).map(a => a.name),
+        ...informList.filter(a => a.order >= 10).map(a => a.name),
+      ].filter(Boolean).filter((v, i, a) => a.indexOf(v) === i);
+
+      const rawCity = data.city ||
+                      data.locality ||
                       data.principalSubdivision ||
-                      data.localityInfo?.administrative?.[3]?.name ||
-                      data.localityInfo?.administrative?.[2]?.name ||
+                      adminList[3]?.name ||
+                      adminList[2]?.name ||
                       '';
+
       if (rawCity) {
-        const rawState = data.principalSubdivision || '';
+        let rawSpecific = fineLocalities.filter(l => l.toLowerCase() !== rawCity.toLowerCase()).join(', ');
+        const rawState = data.principalSubdivision || 'Tamil Nadu';
         const rawCountry = data.countryName || 'India';
 
         const city = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
+        const specific = rawSpecific ? rawSpecific.split(', ').map(p => getLocalizedPlaceName(p, targetLang) || p).join(', ') : '';
         const state = getLocalizedPlaceName(rawState, targetLang) || rawState;
         const country = getLocalizedPlaceName(rawCountry, targetLang) || rawCountry;
 
         return {
           name: city,
+          specificPlace: specific,
+          district: '',
           admin1: state,
           country: country,
           rawName: rawCity,
+          rawSpecificPlace: rawSpecific,
+          rawDistrict: '',
           rawAdmin1: rawState,
           rawCountry: rawCountry,
           latitude: lat,
@@ -899,52 +1186,16 @@ export async function reverseGeocode(lat, lon, lang = 'en') {
     console.warn('BigDataCloud reverse geocode error:', e);
   }
 
-  // Method 2: Nominatim OpenStreetMap
-  try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12&addressdetails=1&accept-language=${targetLang},en;q=0.8`);
-    if (res.ok) {
-      const data = await res.json();
-      const addr = data.address || {};
-      const rawCity = addr.city ||
-                      addr.town ||
-                      addr.suburb ||
-                      addr.neighbourhood ||
-                      addr.village ||
-                      addr.municipality ||
-                      addr.county ||
-                      addr.state_district ||
-                      data.name ||
-                      '';
-      if (rawCity) {
-        const rawState = addr.state || '';
-        const rawCountry = addr.country || 'India';
-
-        const city = getLocalizedPlaceName(rawCity, targetLang) || rawCity;
-        const state = getLocalizedPlaceName(rawState, targetLang) || rawState;
-        const country = getLocalizedPlaceName(rawCountry, targetLang) || rawCountry;
-
-        return {
-          name: city,
-          admin1: state,
-          country: country,
-          rawName: rawCity,
-          rawAdmin1: rawState,
-          rawCountry: rawCountry,
-          latitude: lat,
-          longitude: lon,
-        };
-      }
-    }
-  } catch (err) {
-    console.warn('Nominatim reverse geocode error:', err);
-  }
-
   return {
     name: getLocalizedPlaceName('Live Location', targetLang) || 'Live Location',
-    admin1: '',
+    specificPlace: '',
+    district: '',
+    admin1: 'Tamil Nadu',
     country: 'India',
     rawName: 'Live Location',
-    rawAdmin1: '',
+    rawSpecificPlace: '',
+    rawDistrict: '',
+    rawAdmin1: 'Tamil Nadu',
     rawCountry: 'India',
     latitude: lat,
     longitude: lon,

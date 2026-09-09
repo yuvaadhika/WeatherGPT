@@ -95,7 +95,11 @@ export default function App() {
     } catch {}
     return {
       name: 'Chennai',
+      specificPlace: '',
+      district: 'Chennai',
       rawName: 'Chennai',
+      rawSpecificPlace: '',
+      rawDistrict: 'Chennai',
       admin1: 'Tamil Nadu',
       rawAdmin1: 'Tamil Nadu',
       country: 'India',
@@ -214,9 +218,13 @@ export default function App() {
             const loc = await reverseGeocode(lat, lon, targetLang);
             const finalLoc = loc && loc.name ? loc : {
               name: 'Live GPS Location',
+              specificPlace: '',
+              district: '',
               rawName: 'Live GPS Location',
-              admin1: '',
-              rawAdmin1: '',
+              rawSpecificPlace: '',
+              rawDistrict: '',
+              admin1: 'Tamil Nadu',
+              rawAdmin1: 'Tamil Nadu',
               country: 'India',
               rawCountry: 'India',
               latitude: lat,
@@ -268,23 +276,31 @@ export default function App() {
     }
   }, []);
 
-  // Update localized city name on language switch
+  // Update localized city & specific locality names on language switch
   useEffect(() => {
     if (currentLocation?.latitude && currentLocation?.longitude) {
       const raw = currentLocation.rawName || currentLocation.name || 'Chennai';
+      const rawSpec = currentLocation.rawSpecificPlace || currentLocation.specificPlace || '';
+      const rawDist = currentLocation.rawDistrict || currentLocation.district || '';
       const rawAdm = currentLocation.rawAdmin1 || currentLocation.admin1 || 'Tamil Nadu';
       const rawCnt = currentLocation.rawCountry || currentLocation.country || 'India';
 
       const localName = getLocalizedPlaceName(raw, activeLanguage) || currentLocation.name;
+      const localSpec = rawSpec ? rawSpec.split(', ').map(s => getLocalizedPlaceName(s, activeLanguage) || s).join(', ') : '';
+      const localDist = rawDist ? (getLocalizedPlaceName(rawDist, activeLanguage) || rawDist) : '';
       const localState = getLocalizedPlaceName(rawAdm, activeLanguage) || currentLocation.admin1;
       const localCountry = getLocalizedPlaceName(rawCnt, activeLanguage) || currentLocation.country;
 
       setCurrentLocation((prev) => ({
         ...prev,
         name: localName,
+        specificPlace: localSpec,
+        district: localDist,
         admin1: localState,
         country: localCountry,
         rawName: raw,
+        rawSpecificPlace: rawSpec,
+        rawDistrict: rawDist,
         rawAdmin1: rawAdm,
         rawCountry: rawCnt,
       }));
@@ -295,9 +311,13 @@ export default function App() {
             setCurrentLocation((prev) => ({
               ...prev,
               name: loc.name,
+              specificPlace: loc.specificPlace || prev.specificPlace,
+              district: loc.district || prev.district,
               admin1: loc.admin1,
               country: loc.country,
               rawName: loc.rawName || prev.rawName,
+              rawSpecificPlace: loc.rawSpecificPlace || prev.rawSpecificPlace,
+              rawDistrict: loc.rawDistrict || prev.rawDistrict,
               rawAdmin1: loc.rawAdmin1 || prev.rawAdmin1,
               rawCountry: loc.rawCountry || prev.rawCountry,
             }));

@@ -107,11 +107,18 @@ export default function AlphabeticalLocationModal({
 
   const handleSelect = (place) => {
     const rawName = place.rawName || place.name;
+    const rawSpecific = place.rawSpecificPlace || place.specificPlace || '';
     const localizedName = getLocalizedPlaceName(rawName, activeLanguage) || place.name;
+    const localizedSpecific = rawSpecific ? (getLocalizedPlaceName(rawSpecific, activeLanguage) || rawSpecific) : '';
     onSelectLocation({
       ...place,
       rawName,
       name: localizedName,
+      specificPlace: localizedSpecific,
+      rawSpecificPlace: rawSpecific,
+      district: place.district || '',
+      admin1: place.state || place.admin1 || 'Tamil Nadu',
+      country: place.country || 'India',
     });
     onClose();
   };
@@ -261,6 +268,7 @@ export default function AlphabeticalLocationModal({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {liveApiResults.map((item) => {
                   const localizedCity = getLocalizedPlaceName(item.name, activeLanguage) || item.name;
+                  const localizedSpecific = item.specificPlace ? (getLocalizedPlaceName(item.specificPlace, activeLanguage) || item.specificPlace) : '';
                   const localizedCountry = getLocalizedPlaceName(item.country, activeLanguage) || item.country;
                   const adminStr = item.admin1 ? `${getLocalizedPlaceName(item.admin1, activeLanguage) || item.admin1}, ` : '';
 
@@ -278,7 +286,12 @@ export default function AlphabeticalLocationModal({
                           <div className="text-sm font-bold text-slate-900 group-hover:text-sky-600 truncate">
                             {localizedCity}
                           </div>
-                          <div className="text-[11px] text-slate-500 truncate">
+                          {localizedSpecific ? (
+                            <div className="text-[11px] font-medium text-sky-700 truncate">
+                              📍 {localizedSpecific}
+                            </div>
+                          ) : null}
+                          <div className="text-[10px] text-slate-500 truncate">
                             {adminStr}{localizedCountry}
                           </div>
                         </div>
@@ -309,6 +322,7 @@ export default function AlphabeticalLocationModal({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {placesInLetter.map((place) => {
                       const localizedName = getLocalizedPlaceName(place.name, activeLanguage);
+                      const localizedSpecific = place.specificPlace ? (getLocalizedPlaceName(place.specificPlace, activeLanguage) || place.specificPlace) : '';
                       const isCurrent = currentLocation?.rawName === place.rawName || currentLocation?.name === place.name;
 
                       let categoryBadge = 'District';
@@ -345,6 +359,11 @@ export default function AlphabeticalLocationModal({
                                   {localizedName !== place.name ? `${localizedName} (${place.name})` : place.name}
                                 </span>
                               </div>
+                              {localizedSpecific && (
+                                <div className="text-[10.5px] font-medium text-sky-700 truncate">
+                                  📍 {localizedSpecific}
+                                </div>
+                              )}
                               <div className="flex items-center space-x-2 text-[11px] text-slate-500 truncate">
                                 <span className="truncate">{place.state}, {place.country}</span>
                                 <span className={`px-1.5 py-0.2 rounded-md text-[9px] font-semibold border ${badgeColor}`}>

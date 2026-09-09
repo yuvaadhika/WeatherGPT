@@ -73,10 +73,16 @@ export default function Header({
 
   const handleSelectCity = (city) => {
     const localizedName = getLocalizedPlaceName(city.name, activeLanguage) || city.name;
+    const localizedSpecific = city.specificPlace ? (getLocalizedPlaceName(city.specificPlace, activeLanguage) || city.specificPlace) : '';
     onSelectLocation({
       ...city,
-      rawName: city.name,
+      rawName: city.rawName || city.name,
       name: localizedName,
+      specificPlace: localizedSpecific,
+      rawSpecificPlace: city.rawSpecificPlace || city.specificPlace || '',
+      district: city.district || '',
+      admin1: city.admin1 || 'Tamil Nadu',
+      country: city.country || 'India',
     });
     setSearchQuery('');
     setSearchResults([]);
@@ -85,6 +91,12 @@ export default function Header({
   const displayLocationName = currentLocation
     ? (getLocalizedPlaceName(currentLocation.rawName || currentLocation.name, activeLanguage) || currentLocation.name)
     : (t.header?.detecting || 'Detecting...');
+
+  const displaySpecificName = currentLocation?.specificPlace
+    ? (getLocalizedPlaceName(currentLocation.rawSpecificPlace || currentLocation.specificPlace, activeLanguage) || currentLocation.specificPlace)
+    : (currentLocation?.district && currentLocation.district !== currentLocation.name
+        ? (getLocalizedPlaceName(currentLocation.rawDistrict || currentLocation.district, activeLanguage) || currentLocation.district)
+        : '');
 
   return (
     <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/95 backdrop-blur-xl px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-3 flex-shrink-0 z-30 shadow-2xs">
@@ -98,19 +110,32 @@ export default function Header({
           <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
-        {/* Current Location Pill & Directory Opener */}
+        {/* Current Location Pill & Directory Opener (Dual-level: Place + Specific Place Underneath) */}
         <button
           onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
           title={activeLanguage === 'ta' ? 'அனைத்து இடங்களையும் (A-Z) காண்க' : 'Browse All Places Directory (A-Z)'}
-          className="flex items-center space-x-1 sm:space-x-1.5 px-2 sm:px-3 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group min-w-0"
+          className="flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-2.5 py-1 rounded-xl bg-white/95 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group min-w-0"
         >
           <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="truncate max-w-[95px] xs:max-w-[130px] sm:max-w-[180px] font-bold text-slate-900 group-hover:text-sky-700">
-            {displayLocationName}
-          </span>
-          <span className="text-[9px] sm:text-[10px] text-sky-600 font-bold px-1 py-0.2 rounded bg-sky-100/90 border border-sky-200 flex-shrink-0">
-            A-Z ▾
-          </span>
+          <div className="flex flex-col text-left min-w-0">
+            <div className="flex items-center space-x-1 min-w-0">
+              <span className="truncate max-w-[90px] xs:max-w-[125px] sm:max-w-[160px] font-extrabold text-slate-900 group-hover:text-sky-700 leading-tight">
+                {displayLocationName}
+              </span>
+              <span className="text-[9px] text-sky-600 font-bold px-1 py-0.2 rounded bg-sky-100/90 border border-sky-200 flex-shrink-0">
+                A-Z ▾
+              </span>
+            </div>
+            {displaySpecificName ? (
+              <span className="text-[10px] text-sky-700 font-semibold truncate max-w-[110px] xs:max-w-[140px] sm:max-w-[180px] leading-tight">
+                📍 {displaySpecificName}
+              </span>
+            ) : (
+              <span className="text-[9px] text-slate-400 truncate max-w-[100px] leading-tight">
+                {currentLocation?.admin1 || 'Tamil Nadu'}
+              </span>
+            )}
+          </div>
         </button>
       </div>
 
@@ -151,6 +176,7 @@ export default function Header({
           <div className="absolute top-full mt-1.5 w-full bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden z-50 divide-y divide-slate-100">
             {searchResults.map((item) => {
               const itemCity = getLocalizedPlaceName(item.name, activeLanguage) || item.name;
+              const itemSpecific = item.specificPlace ? (getLocalizedPlaceName(item.specificPlace, activeLanguage) || item.specificPlace) : '';
               const itemCountry = getLocalizedPlaceName(item.country, activeLanguage) || item.country;
               const itemAdmin = item.admin1 ? `${getLocalizedPlaceName(item.admin1, activeLanguage) || item.admin1}, ` : '';
 
@@ -160,12 +186,15 @@ export default function Header({
                   onClick={() => handleSelectCity(item)}
                   className="w-full px-3 py-2 text-left hover:bg-slate-50 text-xs flex items-center justify-between text-slate-700 transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center space-x-1.5 truncate">
+                  <div className="flex items-center space-x-2 truncate">
                     <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
-                    <span className="font-semibold text-slate-900">{itemCity}</span>
-                    <span className="text-[10px] text-slate-500 truncate">
-                      {itemAdmin}{itemCountry}
-                    </span>
+                    <div className="truncate">
+                      <div className="font-semibold text-slate-900">{itemCity}</div>
+                      <div className="text-[10px] text-slate-500 truncate">
+                        {itemSpecific ? <span className="text-sky-700 font-medium">📍 {itemSpecific} • </span> : null}
+                        {itemAdmin}{itemCountry}
+                      </div>
+                    </div>
                   </div>
                 </button>
               );
