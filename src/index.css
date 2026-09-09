@@ -110,3 +110,34 @@ body {
   animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Route Planner Leaflet Custom Styles */
+@keyframes pulseGlow {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6); }
+  70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+@keyframes pulseStart {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulseDest {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 14px rgba(225, 29, 72, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+}
+
+.pulse-start-marker {
+  animation: pulseStart 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.pulse-dest-marker {
+  animation: pulseDest 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+.route-glow-polyline {
+  filter: drop-shadow(0 0 4px rgba(37, 99, 235, 0.5));
+}
+

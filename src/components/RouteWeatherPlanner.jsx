@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Navigation,
   Car,
@@ -21,10 +21,17 @@ import {
   ArrowLeftRight,
   LocateFixed,
   AlertCircle,
-  X
+  X,
+  ExternalLink,
+  Layers,
+  Maximize2,
+  Minimize2,
+  Fuel,
+  Info
 } from 'lucide-react';
+import L from 'leaflet';
 import { TRANSLATIONS } from '../services/languages';
-import { getWeatherDescription, getLocalizedPlaceName, searchLocation } from '../services/weatherService';
+import { getWeatherDescription, searchLocation, fetchRainViewerMetadata } from '../services/weatherService';
 
 const POPULAR_ROUTES = [
   {
@@ -33,13 +40,13 @@ const POPULAR_ROUTES = [
     fromCoords: { lat: 13.0827, lon: 80.2707 },
     to: 'Bengaluru',
     toCoords: { lat: 12.9716, lon: 77.5946 },
-    distanceKm: 345,
-    driveHours: 6.5,
+    distanceKm: 348,
+    driveHours: 6.2,
     waypoints: [
-      { name: 'Kanchipuram', offsetHour: 1.5, lat: 12.8342, lon: 79.7036 },
-      { name: 'Vellore', offsetHour: 3.0, lat: 12.9165, lon: 79.1325 },
-      { name: 'Krishnagiri', offsetHour: 4.8, lat: 12.5186, lon: 78.2137 },
-      { name: 'Hosur', offsetHour: 5.8, lat: 12.7409, lon: 77.8253 },
+      { name: 'Kanchipuram', offsetHour: 1.4, lat: 12.8342, lon: 79.7036 },
+      { name: 'Vellore', offsetHour: 2.8, lat: 12.9165, lon: 79.1325 },
+      { name: 'Krishnagiri', offsetHour: 4.6, lat: 12.5186, lon: 78.2137 },
+      { name: 'Hosur', offsetHour: 5.5, lat: 12.7409, lon: 77.8253 },
     ],
   },
   {
@@ -48,12 +55,39 @@ const POPULAR_ROUTES = [
     fromCoords: { lat: 11.0168, lon: 76.9558 },
     to: 'Ooty (Nilgiris)',
     toCoords: { lat: 11.4102, lon: 76.6950 },
-    distanceKm: 88,
-    driveHours: 3.2,
+    distanceKm: 86,
+    driveHours: 3.1,
     waypoints: [
       { name: 'Mettupalayam', offsetHour: 0.8, lat: 11.3000, lon: 76.9500 },
       { name: 'Burliyar Ghat', offsetHour: 1.5, lat: 11.3400, lon: 76.8800 },
       { name: 'Coonoor', offsetHour: 2.3, lat: 11.3530, lon: 76.7959 },
+    ],
+  },
+  {
+    id: 'chennai-pondicherry',
+    from: 'Chennai',
+    fromCoords: { lat: 13.0827, lon: 80.2707 },
+    to: 'Puducherry',
+    toCoords: { lat: 11.9416, lon: 79.8083 },
+    distanceKm: 152,
+    driveHours: 3.4,
+    waypoints: [
+      { name: 'Mahabalipuram (ECR)', offsetHour: 1.1, lat: 12.6269, lon: 80.1927 },
+      { name: 'Kalpakkam', offsetHour: 1.7, lat: 12.5012, lon: 80.1587 },
+      { name: 'Marakkanam', offsetHour: 2.4, lat: 12.2000, lon: 79.9500 },
+    ],
+  },
+  {
+    id: 'madurai-kodaikanal',
+    from: 'Madurai',
+    fromCoords: { lat: 9.9252, lon: 78.1198 },
+    to: 'Kodaikanal',
+    toCoords: { lat: 10.2381, lon: 77.4892 },
+    distanceKm: 118,
+    driveHours: 3.4,
+    waypoints: [
+      { name: 'Batlagundu', offsetHour: 1.1, lat: 10.1600, lon: 77.7600 },
+      { name: 'Silver Cascade Ghat', offsetHour: 2.4, lat: 10.2200, lon: 77.5200 },
     ],
   },
   {
@@ -63,24 +97,11 @@ const POPULAR_ROUTES = [
     to: 'Pune',
     toCoords: { lat: 18.5204, lon: 73.8567 },
     distanceKm: 148,
-    driveHours: 3.5,
+    driveHours: 3.3,
     waypoints: [
       { name: 'Navi Mumbai', offsetHour: 0.8, lat: 19.0330, lon: 73.0297 },
       { name: 'Khandala Ghat', offsetHour: 1.8, lat: 18.7500, lon: 73.3700 },
       { name: 'Lonavala', offsetHour: 2.2, lat: 18.7557, lon: 73.4091 },
-    ],
-  },
-  {
-    id: 'madurai-kodaikanal',
-    from: 'Madurai',
-    fromCoords: { lat: 9.9252, lon: 78.1198 },
-    to: 'Kodaikanal',
-    toCoords: { lat: 10.2381, lon: 77.4892 },
-    distanceKm: 116,
-    driveHours: 3.5,
-    waypoints: [
-      { name: 'Batlagundu', offsetHour: 1.0, lat: 10.1600, lon: 77.7600 },
-      { name: 'Silver Cascade Ghat', offsetHour: 2.3, lat: 10.2200, lon: 77.5200 },
     ],
   },
   {
@@ -89,8 +110,8 @@ const POPULAR_ROUTES = [
     fromCoords: { lat: 28.6139, lon: 77.2090 },
     to: 'Jaipur',
     toCoords: { lat: 26.9124, lon: 75.7873 },
-    distanceKm: 280,
-    driveHours: 5.0,
+    distanceKm: 282,
+    driveHours: 5.1,
     waypoints: [
       { name: 'Gurugram', offsetHour: 0.8, lat: 28.4595, lon: 77.0266 },
       { name: 'Rewari', offsetHour: 2.0, lat: 28.1800, lon: 76.6200 },
@@ -112,7 +133,7 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
   return Math.round(R * c);
 }
 
-// Pre-defined High-Accuracy Coordinates for Tamil Nadu & Indian Cities (Instant Zero-Latency Fallback)
+// Pre-defined High-Accuracy Coordinates for Tamil Nadu & Indian Cities
 const TN_CITY_COORDS = {
   'chengalpattu': { name: 'Chengalpattu', latitude: 12.6922, longitude: 79.9774, admin1: 'Tamil Nadu' },
   'chengalpet': { name: 'Chengalpattu', latitude: 12.6922, longitude: 79.9774, admin1: 'Tamil Nadu' },
@@ -134,8 +155,15 @@ const TN_CITY_COORDS = {
   'kanyakumari': { name: 'Kanyakumari', latitude: 8.0883, longitude: 77.5385, admin1: 'Tamil Nadu' },
   'villupuram': { name: 'Villupuram', latitude: 11.9401, longitude: 79.4861, admin1: 'Tamil Nadu' },
   'cuddalore': { name: 'Cuddalore', latitude: 11.7480, longitude: 79.7714, admin1: 'Tamil Nadu' },
+  'puducherry': { name: 'Puducherry', latitude: 11.9416, longitude: 79.8083, admin1: 'Puducherry' },
+  'pondicherry': { name: 'Puducherry', latitude: 11.9416, longitude: 79.8083, admin1: 'Puducherry' },
   'bengaluru': { name: 'Bengaluru', latitude: 12.9716, longitude: 77.5946, admin1: 'Karnataka' },
   'bangalore': { name: 'Bengaluru', latitude: 12.9716, longitude: 77.5946, admin1: 'Karnataka' },
+  'hyderabad': { name: 'Hyderabad', latitude: 17.3850, longitude: 78.4867, admin1: 'Telangana' },
+  'kochi': { name: 'Kochi', latitude: 9.9312, longitude: 76.2673, admin1: 'Kerala' },
+  'mumbai': { name: 'Mumbai', latitude: 19.0760, longitude: 72.8777, admin1: 'Maharashtra' },
+  'pune': { name: 'Pune', latitude: 18.5204, longitude: 73.8567, admin1: 'Maharashtra' },
+  'delhi': { name: 'Delhi', latitude: 28.6139, longitude: 77.2090, admin1: 'Delhi' },
 };
 
 export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLocation }) {
@@ -145,6 +173,13 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   const [isSimulating, setIsSimulating] = useState(false);
   const [overallSafetyScore, setOverallSafetyScore] = useState(88);
   const [hazardPoints, setHazardPoints] = useState([]);
+
+  // Road Polyline Coordinates for Leaflet Map
+  const [routePolyline, setRoutePolyline] = useState([]);
+  const [isFetchingOSRM, setIsFetchingOSRM] = useState(false);
+  const [activeMapLayer, setActiveMapLayer] = useState('streets'); // 'streets' | 'satellite' | 'dark'
+  const [showRadarOverlay, setShowRadarOverlay] = useState(false);
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   // Custom Origin / Destination Search State
   const [originQuery, setOriginQuery] = useState('');
@@ -157,12 +192,222 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   const [isSearchingRoute, setIsSearchingRoute] = useState(false);
   const [searchError, setSearchError] = useState('');
 
-  // Ref to smoothly scroll to answer
-  const resultsRef = React.useRef(null);
+  // Leaflet Map Refs
+  const mapContainerRef = useRef(null);
+  const leafletMapRef = useRef(null);
+  const tileLayerRef = useRef(null);
+  const radarLayerRef = useRef(null);
+  const polylineLayerRef = useRef(null);
+  const markersLayerRef = useRef(null);
+  const markerObjMapRef = useRef({});
 
+  // Ref to smoothly scroll to answer
+  const resultsRef = useRef(null);
+
+  // 1. Fetch Real Road Geometry & Accurate Driving Route from OSRM
+  const fetchOSRMRoute = async (fromCoords, toCoords) => {
+    setIsFetchingOSRM(true);
+    try {
+      const url = `https://router.project-osrm.org/route/v1/driving/${fromCoords.lon},${fromCoords.lat};${toCoords.lon},${toCoords.lat}?overview=full&geometries=geojson&steps=false`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) throw new Error('OSRM service response not ok');
+      const data = await res.json();
+
+      if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+        const primary = data.routes[0];
+        const distKm = Math.round((primary.distance / 1000) * 10) / 10;
+        const driveHrs = Math.max(Math.round((primary.duration / 3600) * 10) / 10, 0.5);
+        // Convert [lon, lat] -> [lat, lon] for Leaflet
+        const coords = primary.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
+
+        return {
+          distanceKm: distKm,
+          driveHours: driveHrs,
+          coordinates: coords,
+          source: 'osrm',
+        };
+      }
+    } catch (e) {
+      console.warn('OSRM Highway routing fallback to direct geometry:', e);
+    } finally {
+      setIsFetchingOSRM(false);
+    }
+
+    // Fallback: Haversine distance with realistic road curvature & straight coordinate line
+    const straightDist = calculateHaversineDistance(fromCoords.lat, fromCoords.lon, toCoords.lat, toCoords.lon);
+    const estimatedRoadDist = Math.round(straightDist * 1.18); // Average road tortuosity factor
+    const driveHrs = Math.max(Math.round((estimatedRoadDist / 50) * 10) / 10, 0.5);
+
+    // Generate 20 intermediate points for a smooth polyline
+    const fallbackCoords = [];
+    const steps = 20;
+    for (let i = 0; i <= steps; i++) {
+      const frac = i / steps;
+      fallbackCoords.push([
+        fromCoords.lat + (toCoords.lat - fromCoords.lat) * frac,
+        fromCoords.lon + (toCoords.lon - fromCoords.lon) * frac,
+      ]);
+    }
+
+    return {
+      distanceKm: estimatedRoadDist,
+      driveHours: driveHrs,
+      coordinates: fallbackCoords,
+      source: 'fallback',
+    };
+  };
+
+  // 2. Initialize Leaflet Map
   useEffect(() => {
-    simulateRouteWeather(selectedRoute, departureOffset);
-  }, [selectedRoute, departureOffset, activeLanguage]);
+    if (!mapContainerRef.current) return;
+
+    if (!leafletMapRef.current) {
+      const initialLat = selectedRoute?.fromCoords?.lat || 13.0827;
+      const initialLon = selectedRoute?.fromCoords?.lon || 80.2707;
+
+      const map = L.map(mapContainerRef.current, {
+        center: [initialLat, initialLon],
+        zoom: 7,
+        zoomControl: true,
+        attributionControl: false,
+      });
+
+      // Street Base Layer (Google Maps-style CartoDB Voyager)
+      tileLayerRef.current = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        {
+          maxZoom: 19,
+          subdomains: 'abcd',
+        }
+      ).addTo(map);
+
+      polylineLayerRef.current = L.featureGroup().addTo(map);
+      markersLayerRef.current = L.layerGroup().addTo(map);
+
+      leafletMapRef.current = map;
+    }
+
+    const timer = setTimeout(() => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.invalidateSize();
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Update Base Tile Layer when activeMapLayer changes
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+
+    if (tileLayerRef.current) {
+      leafletMapRef.current.removeLayer(tileLayerRef.current);
+    }
+
+    let url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    let subdomains = 'abcd';
+    let maxZoom = 19;
+
+    if (activeMapLayer === 'satellite') {
+      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+      subdomains = 'abc';
+    } else if (activeMapLayer === 'dark') {
+      url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+      subdomains = 'abcd';
+    }
+
+    tileLayerRef.current = L.tileLayer(url, { maxZoom, subdomains }).addTo(leafletMapRef.current);
+    tileLayerRef.current.bringToBack();
+  }, [activeMapLayer]);
+
+  // Handle Live Doppler Weather Radar Overlay Layer
+  useEffect(() => {
+    if (!leafletMapRef.current) return;
+
+    if (radarLayerRef.current) {
+      leafletMapRef.current.removeLayer(radarLayerRef.current);
+      radarLayerRef.current = null;
+    }
+
+    if (showRadarOverlay) {
+      fetchRainViewerMetadata()
+        .then((data) => {
+          if (data && data.radar && data.radar.past && data.radar.past.length > 0 && leafletMapRef.current) {
+            const host = data.host || 'https://tilecache.rainviewer.com';
+            const path = data.radar.past[data.radar.past.length - 1].path;
+            const radarUrl = `${host}${path}/256/{z}/{x}/{y}/2/1_1.png`;
+
+            radarLayerRef.current = L.tileLayer(radarUrl, {
+              opacity: 0.65,
+              zIndex: 50,
+            }).addTo(leafletMapRef.current);
+          }
+        })
+        .catch((e) => console.warn('Radar overlay fetch failed:', e));
+    }
+  }, [showRadarOverlay]);
+
+  // 3. Whenever Selected Route or Departure Offset changes, recalculate route and simulate weather
+  useEffect(() => {
+    let isCancelled = false;
+
+    const runRoutePipeline = async () => {
+      if (!selectedRoute?.fromCoords || !selectedRoute?.toCoords) return;
+
+      // 1. Fetch Real Road Geometry
+      const roadData = await fetchOSRMRoute(selectedRoute.fromCoords, selectedRoute.toCoords);
+      if (isCancelled) return;
+
+      setRoutePolyline(roadData.coordinates);
+
+      // Create intermediate waypoints along actual road geometry if not provided
+      let routeWaypoints = selectedRoute.waypoints || [];
+      if (!routeWaypoints.length || isCustomMode) {
+        const coords = roadData.coordinates;
+        const totalPoints = coords.length;
+        const numWaypoints = roadData.distanceKm > 200 ? 3 : 2;
+        routeWaypoints = [];
+
+        for (let i = 1; i <= numWaypoints; i++) {
+          const idx = Math.min(Math.floor((totalPoints * i) / (numWaypoints + 1)), totalPoints - 1);
+          const [wLat, wLon] = coords[idx];
+          const fraction = i / (numWaypoints + 1);
+          const offsetHour = parseFloat((roadData.driveHours * fraction).toFixed(1));
+          const kmMark = Math.round(roadData.distanceKm * fraction);
+
+          routeWaypoints.push({
+            name: `${activeLanguage === 'ta' ? 'வழித்தட புள்ளி' : 'Checkpoint'} ${i} (${kmMark} km)`,
+            offsetHour,
+            lat: wLat,
+            lon: wLon,
+          });
+        }
+      }
+
+      // 2. Simulate Weather along Waypoints
+      await simulateRouteWeather(
+        {
+          ...selectedRoute,
+          distanceKm: roadData.distanceKm,
+          driveHours: roadData.driveHours,
+          waypoints: routeWaypoints,
+        },
+        departureOffset,
+        roadData.coordinates
+      );
+    };
+
+    runRoutePipeline();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedRoute.id, departureOffset, activeLanguage]);
 
   // Robust city resolver with local dictionary fallback
   const resolveCity = async (text) => {
@@ -208,47 +453,40 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
     }
   };
 
-  // Build & Simulate Custom Route
-  const createAndApplyCustomRoute = (originLoc, destLoc) => {
+  // Build & Apply Custom Route
+  const createAndApplyCustomRoute = async (originLoc, destLoc) => {
     if (!originLoc || !destLoc) return;
-    const dist = calculateHaversineDistance(originLoc.latitude, originLoc.longitude, destLoc.latitude, destLoc.longitude);
-    const driveHrs = parseFloat(Math.max(dist / 50, 1).toFixed(1));
 
-    // Generate 3 interpolated intermediate waypoints along the route
-    const waypoints = [];
-    const numWaypoints = dist > 200 ? 3 : 2;
-    for (let i = 1; i <= numWaypoints; i++) {
-      const fraction = i / (numWaypoints + 1);
-      const wLat = originLoc.latitude + (destLoc.latitude - originLoc.latitude) * fraction;
-      const wLon = originLoc.longitude + (destLoc.longitude - originLoc.longitude) * fraction;
-      const offsetHour = parseFloat((driveHrs * fraction).toFixed(1));
-      waypoints.push({
-        name: `Checkpoint ${i} (${Math.round(dist * fraction)} km mark)`,
-        offsetHour,
-        lat: wLat,
-        lon: wLon,
-      });
-    }
+    const fromCoords = {
+      lat: originLoc.latitude ?? originLoc.lat,
+      lon: originLoc.longitude ?? originLoc.lon,
+    };
+    const toCoords = {
+      lat: destLoc.latitude ?? destLoc.lat,
+      lon: destLoc.longitude ?? destLoc.lon,
+    };
+
+    const roadData = await fetchOSRMRoute(fromCoords, toCoords);
 
     const customRouteObj = {
       id: `custom-${Date.now()}`,
       from: originLoc.name || 'Origin',
-      fromCoords: { lat: originLoc.latitude, lon: originLoc.longitude },
+      fromCoords,
       to: destLoc.name || 'Destination',
-      toCoords: { lat: destLoc.latitude, lon: destLoc.longitude },
-      distanceKm: dist,
-      driveHours: driveHrs,
-      waypoints,
+      toCoords,
+      distanceKm: roadData.distanceKm,
+      driveHours: roadData.driveHours,
+      waypoints: [],
     };
 
     setSelectedRoute(customRouteObj);
     setIsCustomMode(true);
     setSearchError('');
 
-    // Smooth scroll to answer
+    // Smooth scroll to results
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 400);
+    }, 350);
   };
 
   // Execute Direct Search & Calculate Route Weather
@@ -300,7 +538,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
 
       setOriginSuggestions([]);
       setDestSuggestions([]);
-      createAndApplyCustomRoute(resolvedOrigin, resolvedDest);
+      await createAndApplyCustomRoute(resolvedOrigin, resolvedDest);
     } catch (err) {
       setSearchError(err.message || 'Route calculation failed');
     } finally {
@@ -359,7 +597,8 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
     setSearchError('');
   };
 
-  const simulateRouteWeather = async (route, depHour) => {
+  // 4. Simulate Weather along Waypoints & Render Leaflet Visual Overlays
+  const simulateRouteWeather = async (route, depHour, polylineCoords) => {
     setIsSimulating(true);
     try {
       const now = new Date();
@@ -444,12 +683,205 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
 
       setOverallSafetyScore(Math.max(score, 30));
       setHazardPoints(hazards);
+
+      // Render Leaflet Map Elements
+      renderLeafletRouteMap(polylineCoords || routePolyline, fetched, route);
     } catch (err) {
       console.error('Route simulation error:', err);
     } finally {
       setIsSimulating(false);
     }
   };
+
+  // 5. Draw Polyline & Markers on Leaflet Map
+  const renderLeafletRouteMap = (coords, waypointsData, route) => {
+    if (!leafletMapRef.current) return;
+    const map = leafletMapRef.current;
+
+    // Clear previous layers
+    if (polylineLayerRef.current) polylineLayerRef.current.clearLayers();
+    if (markersLayerRef.current) markersLayerRef.current.clearLayers();
+    markerObjMapRef.current = {};
+
+    if (!coords || coords.length === 0) return;
+
+    // Outer Glow / Casing Polyline
+    const outerPolyline = L.polyline(coords, {
+      color: '#1d4ed8',
+      weight: 7,
+      opacity: 0.45,
+      lineCap: 'round',
+      lineJoin: 'round',
+    });
+
+    // Inner Google Maps-style Blue Route Polyline
+    const innerPolyline = L.polyline(coords, {
+      color: '#2563eb',
+      weight: 5,
+      opacity: 0.95,
+      lineCap: 'round',
+      lineJoin: 'round',
+    });
+
+    polylineLayerRef.current.addLayer(outerPolyline);
+    polylineLayerRef.current.addLayer(innerPolyline);
+
+    // Fit map bounds to the polyline with pleasant padding
+    try {
+      const bounds = innerPolyline.getBounds();
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, {
+          padding: [45, 45],
+          maxZoom: 13,
+        });
+      }
+    } catch (e) {
+      console.warn('Map fitBounds error:', e);
+    }
+
+    // Add Markers for Start, End, and Waypoints
+    waypointsData.forEach((pt, idx) => {
+      const isStart = idx === 0;
+      const isEnd = idx === waypointsData.length - 1;
+
+      let markerHtml = '';
+      let iconSize = [36, 36];
+      let iconAnchor = [18, 18];
+
+      if (isStart) {
+        // Origin Pin (Green Pulse Marker)
+        markerHtml = `
+          <div class="relative flex items-center justify-center cursor-pointer">
+            <div class="absolute -inset-1 rounded-full bg-emerald-500/40 pulse-start-marker"></div>
+            <div class="relative w-8 h-8 rounded-full bg-emerald-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-black text-xs ring-2 ring-emerald-300">
+              A
+            </div>
+          </div>
+        `;
+        iconSize = [34, 34];
+        iconAnchor = [17, 17];
+      } else if (isEnd) {
+        // Destination Pin (Red/Rose Pulse Marker)
+        markerHtml = `
+          <div class="relative flex items-center justify-center cursor-pointer">
+            <div class="absolute -inset-1 rounded-full bg-rose-500/40 pulse-dest-marker"></div>
+            <div class="relative w-8 h-8 rounded-full bg-rose-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-black text-xs ring-2 ring-rose-300">
+              B
+            </div>
+          </div>
+        `;
+        iconSize = [34, 34];
+        iconAnchor = [17, 17];
+      } else {
+        // Checkpoint Weather Badge Pin
+        const isRainy = pt.isRainy;
+        const isFog = pt.isFoggy;
+        const bgBadge = isRainy
+          ? 'bg-sky-600 text-white border-white'
+          : isFog
+          ? 'bg-amber-600 text-white border-white'
+          : 'bg-white text-slate-800 border-slate-300';
+
+        markerHtml = `
+          <div class="flex items-center space-x-1 px-2 py-1 rounded-full ${bgBadge} border shadow-md text-[10px] font-black cursor-pointer transform hover:scale-110 transition-transform whitespace-nowrap">
+            <span>${isRainy ? '🌧️' : isFog ? '🌫️' : '☀️'}</span>
+            <span>${pt.temp}°C</span>
+          </div>
+        `;
+        iconSize = [64, 26];
+        iconAnchor = [32, 13];
+      }
+
+      const customDivIcon = L.divIcon({
+        className: 'route-map-marker',
+        html: markerHtml,
+        iconSize,
+        iconAnchor,
+      });
+
+      const marker = L.marker([pt.lat, pt.lon], { icon: customDivIcon }).addTo(markersLayerRef.current);
+
+      // Bind Rich Popup
+      const popupHtml = `
+        <div class="p-1 font-sans text-xs min-w-[210px]">
+          <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100">
+            <span class="font-extrabold text-slate-900 text-sm">${pt.name}</span>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${
+              isStart ? 'bg-emerald-100 text-emerald-800' : isEnd ? 'bg-rose-100 text-rose-800' : 'bg-sky-100 text-sky-800'
+            }">${isStart ? 'Origin' : isEnd ? 'Destination' : `Checkpoint #${idx}`}</span>
+          </div>
+          <div class="space-y-1 text-slate-600 text-[11px]">
+            <div class="flex justify-between">
+              <span>ETA Arrival:</span>
+              <b class="text-slate-900">${pt.arrivalStr}</b>
+            </div>
+            <div class="flex justify-between">
+              <span>Weather:</span>
+              <b class="${pt.isRainy ? 'text-sky-600' : 'text-slate-800'}">${pt.wmo?.label || 'Clear'}</b>
+            </div>
+            <div class="flex justify-between">
+              <span>Temperature:</span>
+              <b>${pt.temp}°C</b>
+            </div>
+            <div class="flex justify-between">
+              <span>Rain Probability:</span>
+              <b class="${pt.rainProb >= 40 ? 'text-sky-600' : 'text-slate-700'}">${pt.rainProb}%</b>
+            </div>
+            <div class="flex justify-between">
+              <span>Wind Speed:</span>
+              <b>${pt.wind} km/h</b>
+            </div>
+            <div class="flex justify-between">
+              <span>Visibility:</span>
+              <b class="${pt.vis <= 3 ? 'text-rose-600' : 'text-slate-700'}">${pt.vis} km</b>
+            </div>
+          </div>
+          ${
+            pt.isRainy || pt.isFoggy
+              ? `<div class="mt-1.5 p-1 rounded bg-amber-50 text-[10px] text-amber-800 font-bold border border-amber-200">
+                  ⚠️ ${pt.isRainy ? 'Wet road surface expected' : 'Low visibility fog risk'}
+                 </div>`
+              : ''
+          }
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml, {
+        offset: isStart || isEnd ? [0, -10] : [0, -5],
+      });
+
+      markerObjMapRef.current[idx] = marker;
+    });
+  };
+
+  // Fly to specific waypoint when clicked in the timeline
+  const handleFocusWaypoint = (idx) => {
+    const pt = routeSimulation[idx];
+    if (pt && leafletMapRef.current) {
+      leafletMapRef.current.flyTo([pt.lat, pt.lon], 12, { duration: 1.2 });
+      setTimeout(() => {
+        const marker = markerObjMapRef.current[idx];
+        if (marker) marker.openPopup();
+      }, 1200);
+    }
+  };
+
+  // Fit all route bounds on button click
+  const handleFitRouteBounds = () => {
+    if (leafletMapRef.current && polylineLayerRef.current) {
+      try {
+        const bounds = polylineLayerRef.current.getBounds();
+        if (bounds.isValid()) {
+          leafletMapRef.current.fitBounds(bounds, { padding: [45, 45], maxZoom: 13 });
+        }
+      } catch (e) {
+        console.warn('Fit bounds error:', e);
+      }
+    }
+  };
+
+  // Google Maps Direct Navigation Link URL
+  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${selectedRoute.fromCoords.lat},${selectedRoute.fromCoords.lon}&destination=${selectedRoute.toCoords.lat},${selectedRoute.toCoords.lon}&travelmode=driving`;
 
   return (
     <div className="space-y-4 pb-20 animate-fadeIn">
@@ -462,20 +894,22 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                {activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை & நெடுஞ்சாலை வழிகாட்டி' : 'Smart Travel & Route Weather Planner'}
+                {activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை & நேரலை வரைபடம்' : 'Live Highway Route Map & Weather Planner'}
               </h2>
               <p className="text-xs text-slate-500">
                 {activeLanguage === 'ta'
-                  ? 'நெடுஞ்சாலை வழித்தடங்களில் நேரலை மழை, மூடுபனி & பாதுகாப்பு கணிப்பு'
-                  : 'Multi-waypoint highway telemetry, road hazard index & safe departure window'}
+                  ? 'கூகிள் மேப்ஸ் போன்ற நேரலை வரைபடம், உண்மையான சாலை தூரம் & வழித்தட வானிலை'
+                  : 'Google Maps-style road routing, live road distance telemetry & multi-waypoint weather'}
               </p>
             </div>
           </div>
 
-          <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto flex items-center space-x-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Live Open-Meteo GIS</span>
-          </span>
+          <div className="flex items-center space-x-2 self-start sm:self-auto">
+            <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center space-x-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>OSRM Highway GIS</span>
+            </span>
+          </div>
         </div>
 
         {/* Custom Origin & Destination Input Form */}
@@ -518,13 +952,13 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             {/* Origin Input */}
             <div className="relative">
               <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2.5 py-2 shadow-2xs focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100 transition-all">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600 mr-1.5 flex-shrink-0" />
+                <div className="w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-emerald-200 mr-2 flex-shrink-0" />
                 <input
                   type="text"
                   value={originQuery}
                   onChange={(e) => handleOriginSearch(e.target.value)}
-                  placeholder={customOrigin ? customOrigin.name : (activeLanguage === 'ta' ? 'புறப்படும் ஊர் (எ.கா: மதுரை)' : 'From (Origin city)...')}
-                  className="w-full text-xs text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none"
+                  placeholder={customOrigin ? customOrigin.name : (activeLanguage === 'ta' ? 'புறப்படும் ஊர் (எ.கா: சென்னை)' : 'From (Origin city / town)...')}
+                  className="w-full text-xs text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none font-medium"
                 />
                 {originQuery && (
                   <button
@@ -579,13 +1013,13 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             {/* Destination Input */}
             <div className="relative">
               <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2.5 py-2 shadow-2xs focus-within:border-sky-500 focus-within:ring-2 focus-within:ring-sky-100 transition-all">
-                <MapPin className="w-3.5 h-3.5 text-rose-600 mr-1.5 flex-shrink-0" />
+                <div className="w-3 h-3 rounded-full bg-rose-500 ring-2 ring-rose-200 mr-2 flex-shrink-0" />
                 <input
                   type="text"
                   value={destQuery}
                   onChange={(e) => handleDestSearch(e.target.value)}
-                  placeholder={customDest ? customDest.name : (activeLanguage === 'ta' ? 'சென்றடையும் ஊர் (எ.கா: ராமேஸ்வரம்)' : 'To (Destination city)...')}
-                  className="w-full text-xs text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none"
+                  placeholder={customDest ? customDest.name : (activeLanguage === 'ta' ? 'சென்றடையும் ஊர் (எ.கா: மதுரை)' : 'To (Destination city / town)...')}
+                  className="w-full text-xs text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none font-medium"
                 />
                 {destQuery && (
                   <button
@@ -626,7 +1060,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             </div>
           </div>
 
-          {/* Action Row: Calculate Route Weather Button + Error banner */}
+          {/* Error Banner */}
           {searchError && (
             <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center space-x-2 animate-fadeIn">
               <AlertCircle className="w-4 h-4 text-rose-500 flex-shrink-0" />
@@ -637,16 +1071,16 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-1">
             <div className="text-[11px] text-slate-500 font-medium self-start sm:self-auto">
               {isCustomMode && selectedRoute.from ? (
-                <span className="text-sky-800 font-bold flex items-center space-x-1 bg-white/90 px-2 py-1 rounded-lg border border-sky-200">
-                  <Route className="w-3 h-3 text-sky-600 inline" />
+                <span className="text-sky-800 font-bold flex items-center space-x-1.5 bg-white/90 px-2.5 py-1 rounded-lg border border-sky-200 shadow-2xs">
+                  <Route className="w-3.5 h-3.5 text-sky-600 inline" />
                   <span>{selectedRoute.from} ➔ {selectedRoute.to} ({selectedRoute.distanceKm} km • ~{selectedRoute.driveHours}h)</span>
                 </span>
               ) : (
-                <span>{activeLanguage === 'ta' ? 'ஊர்களை உள்ளிட்டு "Search & Plan" அழுத்தவும்' : 'Enter 2 locations & click Search to analyze road weather'}</span>
+                <span>{activeLanguage === 'ta' ? 'ஊர்களை உள்ளிட்டு "Search & Plan" அழுத்தவும்' : 'Enter 2 locations & click Search to analyze live route & weather'}</span>
               )}
             </div>
 
-            {/* Prominent Search / Calculate Route Weather Button */}
+            {/* Calculate Route Weather Button */}
             <button
               type="submit"
               disabled={isSearchingRoute || (!originQuery.trim() && !customOrigin) || (!destQuery.trim() && !customDest)}
@@ -655,12 +1089,12 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
               {isSearchingRoute || isSimulating ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>{activeLanguage === 'ta' ? 'வானிலை கணக்கிடப்படுகிறது...' : 'Loading Highway Telemetry...'}</span>
+                  <span>{activeLanguage === 'ta' ? 'வரைபடம் ஏற்றப்படுகிறது...' : 'Loading Highway Telemetry...'}</span>
                 </>
               ) : (
                 <>
                   <Search className="w-3.5 h-3.5" />
-                  <span>{activeLanguage === 'ta' ? 'வழித்தட வானிலையைக் கணக்கிடு (Search Route)' : 'Search & Plan Route Weather'}</span>
+                  <span>{activeLanguage === 'ta' ? 'வழித்தடத்தைக் கணக்கிடு (Show Route Map)' : 'Search & Plan Route Map'}</span>
                 </>
               )}
             </button>
@@ -673,7 +1107,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             <Sparkles className="w-3 h-3 text-amber-500" />
             <span>{activeLanguage === 'ta' ? 'பிரபலமான நெடுஞ்சாலை வழித்தடங்கள் (AI Suggested):' : 'AI Popular Highway Corridors:'}</span>
           </label>
-          <div className="flex items-center space-x-2 overflow-x-auto pb-1">
+          <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
             {POPULAR_ROUTES.map((rt) => (
               <button
                 key={rt.id}
@@ -683,7 +1117,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
                 }}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer ${
                   selectedRoute.id === rt.id && !isCustomMode
-                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20'
+                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20 ring-2 ring-sky-300'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80 border border-slate-200/60'
                 }`}
               >
@@ -729,8 +1163,159 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         </div>
       </div>
 
-      {/* 2. Route Safety Score & Overview Card */}
-      <div ref={resultsRef} className="grid grid-cols-1 sm:grid-cols-3 gap-3 scroll-mt-20">
+      {/* 2. ✨ LIVE INTERACTIVE GOOGLE-MAPS STYLE ROUTE MAP */}
+      <div ref={resultsRef} className="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-3xl p-4 shadow-sm space-y-3">
+        {/* Map Header Toolbar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center space-x-2">
+            <div className="p-2 rounded-xl bg-sky-100 text-sky-700">
+              <Route className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-sm font-black text-slate-900">
+                  {selectedRoute.from} ➔ {selectedRoute.to}
+                </h3>
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200">
+                  {selectedRoute.distanceKm} km
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  ~{selectedRoute.driveHours}h
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500">
+                {activeLanguage === 'ta'
+                  ? 'நேரலை நெடுஞ்சாலை வரைபடம் & வானிலை சோதனைச் சாவடிகள்'
+                  : 'Live road polyline & waypoint weather checkpoints'}
+              </p>
+            </div>
+          </div>
+
+          {/* Map Actions: Layer Selectors + Fit Bounds + Google Maps Button */}
+          <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto">
+            {/* Base Layer Switcher */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-[10px] font-bold">
+              <button
+                type="button"
+                onClick={() => setActiveMapLayer('streets')}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                  activeMapLayer === 'streets' ? 'bg-white text-sky-700 shadow-2xs font-black' : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Google Streets View"
+              >
+                🚗 Street
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMapLayer('satellite')}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                  activeMapLayer === 'satellite' ? 'bg-white text-sky-700 shadow-2xs font-black' : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Satellite View"
+              >
+                🛰️ Satellite
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMapLayer('dark')}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                  activeMapLayer === 'dark' ? 'bg-white text-sky-700 shadow-2xs font-black' : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Night Highway Mode"
+              >
+                🌙 Night
+              </button>
+            </div>
+
+            {/* Radar Overlay Toggle */}
+            <button
+              type="button"
+              onClick={() => setShowRadarOverlay(!showRadarOverlay)}
+              className={`text-[10px] font-bold px-2 py-1.5 rounded-xl border transition-all cursor-pointer flex items-center space-x-1 ${
+                showRadarOverlay
+                  ? 'bg-sky-600 text-white border-sky-600 shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200'
+              }`}
+              title="Toggle Live RainViewer Radar Cloud Overlay"
+            >
+              <CloudRain className="w-3 h-3" />
+              <span>{activeLanguage === 'ta' ? 'மழை ரேடார்' : 'Live Radar'}</span>
+            </button>
+
+            {/* Fit Bounds Button */}
+            <button
+              type="button"
+              onClick={handleFitRouteBounds}
+              className="p-1.5 rounded-xl bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-slate-200 shadow-2xs transition-all cursor-pointer"
+              title="Center & Fit Full Route"
+            >
+              <LocateFixed className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Expand / Shrink Map Height */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsMapExpanded(!isMapExpanded);
+                setTimeout(() => {
+                  if (leafletMapRef.current) leafletMapRef.current.invalidateSize();
+                }, 150);
+              }}
+              className="p-1.5 rounded-xl bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-slate-200 shadow-2xs transition-all cursor-pointer"
+              title={isMapExpanded ? 'Collapse Map' : 'Expand Map'}
+            >
+              {isMapExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            </button>
+
+            {/* Open in Google Maps Direct Action */}
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] font-extrabold px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white flex items-center space-x-1 shadow-xs transition-all cursor-pointer"
+              title="Open turn-by-turn navigation in Google Maps"
+            >
+              <span>{activeLanguage === 'ta' ? 'Google Maps திறக்க' : 'Google Maps'}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        {/* Embedded Leaflet Map Container */}
+        <div className="relative rounded-2xl overflow-hidden border border-slate-200/90 shadow-inner">
+          <div
+            ref={mapContainerRef}
+            style={{ height: isMapExpanded ? '600px' : '440px', width: '100%' }}
+            className="z-10 transition-all duration-300"
+          />
+
+          {/* Overlay Map Badge (Bottom Left) */}
+          <div className="absolute bottom-3 left-3 z-20 pointer-events-none">
+            <div className="bg-white/90 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-md flex items-center space-x-2 text-[10px] font-bold text-slate-800">
+              <span className="flex items-center space-x-1 text-emerald-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                <span>A: {selectedRoute.from}</span>
+              </span>
+              <span className="text-slate-300">•</span>
+              <span className="flex items-center space-x-1 text-rose-700">
+                <span className="w-2 h-2 rounded-full bg-rose-600 inline-block"></span>
+                <span>B: {selectedRoute.to}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Loading Indicator for OSRM / Weather Simulation */}
+          {(isSimulating || isFetchingOSRM) && (
+            <div className="absolute top-3 right-3 z-20 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl border border-sky-200 shadow-md flex items-center space-x-1.5 text-xs text-sky-700 font-bold animate-fadeIn">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-sky-600" />
+              <span>{activeLanguage === 'ta' ? 'சாலை தரவு புதுப்பிக்கப்படுகிறது...' : 'Updating Route Data...'}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 3. Route Safety Score & Distance Telemetry Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Safety Score Meter */}
         <div className="p-4 rounded-3xl bg-white/90 backdrop-blur-xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs font-bold">
@@ -768,11 +1353,12 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
           </div>
           <div>
             <div className="text-2xl font-black text-slate-900">{selectedRoute.distanceKm} km</div>
-            <div className="text-xs text-slate-500 font-medium">~{selectedRoute.driveHours} hours drive</div>
+            <div className="text-xs text-slate-500 font-medium">~{selectedRoute.driveHours} hours driving time</div>
           </div>
-          <p className="text-[10px] text-slate-400">
-            {activeLanguage === 'ta' ? 'நெடுஞ்சாலை வேக வரம்பு அடிப்படையில்' : 'Based on average highway traffic'}
-          </p>
+          <div className="flex items-center space-x-2 text-[10px] text-slate-500">
+            <Fuel className="w-3 h-3 text-amber-500" />
+            <span>~{Math.round(selectedRoute.distanceKm / 15)} L fuel / ~{Math.round(selectedRoute.distanceKm * 0.15)} kWh EV</span>
+          </div>
         </div>
 
         {/* AI Optimal Window */}
@@ -788,13 +1374,13 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
           </div>
           <p className="text-[10px] text-slate-500 leading-snug">
             {hazardPoints.length === 0
-              ? (activeLanguage === 'ta' ? 'முழு வழித்தடத்திலும் மழை இல்லை.' : 'Dry roads across all waypoints.')
-              : (activeLanguage === 'ta' ? 'மழை பெய்வதற்கு முன் அல்லது பின் பயணிக்கவும்.' : 'Avoid peak rain window along ghats.')}
+              ? (activeLanguage === 'ta' ? 'முழு வழித்தடத்திலும் தெளிவான வானிலை.' : 'Clear dry highway across all waypoints.')
+              : (activeLanguage === 'ta' ? 'மழை பெய்வதற்கு முன் அல்லது பின் பயணிக்கவும்.' : 'Avoid peak rain window along ghats/highways.')}
           </p>
         </div>
       </div>
 
-      {/* 3. Hazard Warnings Callout */}
+      {/* 4. Hazard Warnings Callout */}
       {hazardPoints.length > 0 && (
         <div className="p-4 rounded-3xl bg-amber-50 border border-amber-200 shadow-xs space-y-2 animate-fadeIn">
           <div className="flex items-center space-x-2 text-amber-800 font-extrabold text-xs">
@@ -815,23 +1401,28 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         </div>
       )}
 
-      {/* 4. Interactive Waypoint-by-Waypoint Telemetry Timeline */}
+      {/* 5. Interactive Waypoint-by-Waypoint Telemetry Timeline */}
       <div className="bg-white/90 backdrop-blur-xl border border-slate-200/90 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs sm:text-sm font-black text-slate-900 flex items-center space-x-2">
-            <Compass className="w-4 h-4 text-sky-600" />
-            <span>{activeLanguage === 'ta' ? 'வழித்தட வாரியான நேரலை முன்னறிவிப்பு' : 'Waypoint-by-Waypoint Live Telemetry'}</span>
-          </h3>
+          <div>
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 flex items-center space-x-2">
+              <Compass className="w-4 h-4 text-sky-600" />
+              <span>{activeLanguage === 'ta' ? 'வழித்தட வாரியான நேரலை முன்னறிவிப்பு' : 'Waypoint-by-Waypoint Live Telemetry'}</span>
+            </h3>
+            <p className="text-[10px] text-slate-400">
+              {activeLanguage === 'ta' ? 'வரைபடத்தில் பார்க்க ஏதேனும் ஒரு சோதனைச் சாவடியைக் கிளிக் செய்யவும்' : 'Click any checkpoint below to focus and inspect on the map'}
+            </p>
+          </div>
           <div className="flex items-center space-x-2">
             <button
               type="button"
-              onClick={() => simulateRouteWeather(selectedRoute, departureOffset)}
+              onClick={() => simulateRouteWeather(selectedRoute, departureOffset, routePolyline)}
               disabled={isSimulating}
               className="text-[11px] font-bold text-sky-700 hover:text-sky-800 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-xl border border-sky-200 flex items-center space-x-1 transition-all cursor-pointer"
               title="Reload Route Forecast"
             >
               <RefreshCw className={`w-3 h-3 ${isSimulating ? 'animate-spin text-sky-600' : ''}`} />
-              <span>{activeLanguage === 'ta' ? 'மீண்டும் ஏற்று (Reload)' : 'Reload Answer'}</span>
+              <span>{activeLanguage === 'ta' ? 'மீண்டும் ஏற்று' : 'Reload'}</span>
             </button>
           </div>
         </div>
@@ -844,11 +1435,13 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             return (
               <div
                 key={idx}
-                className={`p-3 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                onClick={() => handleFocusWaypoint(idx)}
+                className={`p-3 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer ${
                   pt.isRainy || pt.isFoggy
-                    ? 'bg-amber-50/70 border-amber-200'
-                    : 'bg-slate-50/70 hover:bg-slate-50 border-slate-200/70'
+                    ? 'bg-amber-50/70 hover:bg-amber-100/70 border-amber-200'
+                    : 'bg-slate-50/70 hover:bg-sky-50/70 border-slate-200/70'
                 }`}
+                title="Click to pan map to this checkpoint"
               >
                 {/* Waypoint Identity & ETA */}
                 <div className="flex items-center space-x-3">
@@ -914,3 +1507,4 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
     </div>
   );
 }
+
