@@ -406,10 +406,10 @@ export function calculateRainVerdict(nwpData, timeframe = 'current') {
 }
 
 // 🎯 Multilingual Conversational Intent Classifier & Domain Guardrail Engine
-// Strictly filters queries into: 'WEATHER', 'GREETING', 'GRATITUDE', 'OFF_TOPIC'
+// Strictly filters queries into: 'WEATHER', 'GREETING', 'GRATITUDE', 'OFF_TOPIC', 'IMAGE_QUERY'
 export function classifyQueryIntent(query, hasImage = false) {
   if (hasImage) {
-    return { intent: 'WEATHER', reason: 'image_vision' };
+    return { intent: 'IMAGE_QUERY', reason: 'image_vision' };
   }
   if (!query || typeof query !== 'string') {
     return { intent: 'GREETING', reason: 'empty_prompt' };
@@ -802,6 +802,129 @@ export function getOffTopicResponse(lang = 'en') {
     `I apologize! As **WeatherGPT**, I am a specialized AI Assistant dedicated strictly to **Meteorology, Weather Forecasting, Rain Predictions, Climate Analytics, and Severe Disaster Early Warnings** 🌦️.\n\n` +
     `I can only assist with weather forecasts, rain probabilities, storm alerts, air quality (AQI), agricultural climate advisories, marine sea states, and aviation briefings in any language.\n\n` +
     `💡 **Please ask a weather-related question for any location!**\n*(e.g., "Will it rain in Chennai today?" or "What is the temperature in Delhi?")*`
+  );
+}
+
+// 📸 Dedicated Localized Guardrail Responses for Non-Weather Images (10 Languages + Tanglish)
+export function getNonWeatherImageResponse(lang = 'en') {
+  if (lang === 'ta') {
+    return (
+      `📸 ❌ **வானிலை அல்லாத படம் கண்டறியப்பட்டது (Non-Weather Image):**\n\n` +
+      `மன்னிக்கவும்! நீங்கள் பதிவேற்றிய அல்லது கேமராவில் எடுத்த படம் வானிலை தொடர்புடையதாக இல்லை 🌦️.\n\n` +
+      `WeatherGPT-ல் பின்வரும் வானிலை அம்சங்களை மட்டுமே ஆய்வு செய்ய முடியும்:\n` +
+      `• ☁️ **வானம் மற்றும் மேக அமைப்புகள் (Sky & Clouds)**\n` +
+      `• 🌧️ **மழை, இடிமின்னல் மற்றும் புயல் (Rain, Lightning & Storms)**\n` +
+      `• 🌊 **வெள்ளம் மற்றும் மழை நீர் தேக்கம் (Floods & Waterlogging)**\n` +
+      `• 🌫️ **பனிமூட்டம், மூடுபனி & தூசு (Fog, Mist & Smog)**\n` +
+      `• 🌾 **விவசாய நிலம், பயிர் & வெளிப்புற சூழல் (Farmlands & Outdoors)**\n` +
+      `• 📊 **வானிலை வரைபடங்கள் & ரேடார் (Weather Radar / Forecast Charts)**\n\n` +
+      `💡 **தயவுசெய்து வானம், மேகம், மழை அல்லது வெளிப்புற வானிலை நிலவரம் கொண்ட புகைப்படத்தை பதிவேற்றவும் அல்லது கேமராவில் எடுக்கவும்!** 📸✨`
+    );
+  }
+
+  if (lang === 'tanglish') {
+    return (
+      `📸 ❌ **Weather-related image illa (Non-Weather Image):**\n\n` +
+      `Mannikavum! Neenga upload panna / camera-la edutha image weather related ah illa 🌦️.\n\n` +
+      `WeatherGPT-la ivatrai mattum dhaan visual analyze panna mudiyum:\n` +
+      `• ☁️ **Sky, megamootam & cloud types (Clear, Storm, Overcast)**\n` +
+      `• 🌧️ **Mazhai, idi minnal & storm conditions**\n` +
+      `• 🌊 **Vellam & road waterlogging status**\n` +
+      `• 🌫️ **Panimootam, fog & atmospheric haze**\n` +
+      `• 🌾 **Vivasaya nilam, payir & outdoor climate**\n` +
+      `• 📊 **Weather radar charts & live satellite maps**\n\n` +
+      `💡 **Dhayavu seidhu Sky, Clouds, Mazhai illa Outdoor weather photo-va upload/capture pannunga!** 📸✨`
+    );
+  }
+
+  if (lang === 'hi') {
+    return (
+      `📸 ❌ **गैर-मौसम छवि पहचानी गई (Non-Weather Image):**\n\n` +
+      `क्षमा करें! आपके द्वारा अपलोड या कैमरे से ली गई छवि मौसम से संबंधित नहीं लगती है 🌦️।\n\n` +
+      `WeatherGPT केवल इन मौसम तत्वों का विश्लेषण कर सकता है:\n` +
+      `• ☁️ **आसमान और बादलों की स्थिति (Sky & Clouds)**\n` +
+      `• 🌧️ **बारिश, बिजली और आंधी-तूफान (Rain & Storms)**\n` +
+      `• 🌊 **बाढ़ और जलभराव (Floods & Waterlogging)**\n` +
+      `• 🌫️ **कोहरा, धुंध और ओस (Fog & Mist)**\n` +
+      `• 🌾 **खेत, फसल और बाहरी मौसम (Farms & Outdoor Climate)**\n\n` +
+      `💡 **कृपया आसमान, बादल, बारिश या बाहरी मौसम की तस्वीर अपलोड या कैप्चर करें!** 📸✨`
+    );
+  }
+
+  if (lang === 'te') {
+    return (
+      `📸 ❌ **వాతావరణేతర చిత్రం (Non-Weather Image):**\n\n` +
+      `నన్ను క్షమించండి! మీరు అప్‌లోడ్ చేసిన చిత్రం వాతావరణానికి సంబంధించినది కాదు 🌦️.\n\n` +
+      `WeatherGPT ఆకాశం, మేఘాలు, వర్షం, తుఫాను, వరదలు, మంచు లేదా బహిరంగ వాతావరణ పరిస్థితుల చిత్రాలను మాత్రమే విశ్లేషిస్తుంది.\n\n` +
+      `💡 **దయచేసి ఆకాశం లేదా వాతావరణ పరిస్థితుల ఫోటోను అప్‌లోడ్ చేయండి!** 📸✨`
+    );
+  }
+
+  if (lang === 'ml') {
+    return (
+      `📸 ❌ **കാലാവസ്ഥാ ഇതര ചിത്രം (Non-Weather Image):**\n\n` +
+      `ക്ഷമിക്കണം! നിങ്ങൾ അപ്‌ലോഡ് ചെയ്ത ചിത്രം കാലാവസ്ഥയുമായി ബന്ധപ്പെട്ടതല്ല 🌦️.\n\n` +
+      `WeatherGPT ആകാശം, മേഘങ്ങൾ, മഴ, കൊടുങ്കാറ്റ്, വെള്ളപ്പൊക്കം അല്ലെങ്കിൽ മൂടൽമഞ്ഞ് ചിത്രങ്ങൾ മാത്രമേ വിശകലനം ചെയ്യുകയുള്ളൂ.\n\n` +
+      `💡 **ദയവായി ആകാശം അല്ലെങ്കിൽ കാലാവസ്ഥ ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യുക!** 📸✨`
+    );
+  }
+
+  if (lang === 'kn') {
+    return (
+      `📸 ❌ **ಹವಾಮಾನೇತರ ಚಿತ್ರ (Non-Weather Image):**\n\n` +
+      `ಕ್ಷಮಿಸಿ! ನೀವು ಅಪ್‌ಲೋಡ್ ಮಾಡಿದ ಚಿತ್ರ ಹವಾಮಾನಕ್ಕೆ ಸಂಬಂಧಿಸಿಲ್ಲ 🌦️.\n\n` +
+      `WeatherGPT ಆಕಾಶ, ಮೋಡಗಳು, ಮಳೆ, ಚಂಡಮಾರುತ ಅಥವಾ ಪ್ರವಾಹ ಚಿತ್ರಗಳನ್ನು ಮಾತ್ರ ವಿಶ್ಲೇಷಿಸುತ್ತದೆ.\n\n` +
+      `💡 **ದಯವಿಟ್ಟು ಆಕಾಶ ಅಥವಾ ಹವಾಮಾನದ ಫೋಟೋವನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ!** 📸✨`
+    );
+  }
+
+  if (lang === 'bn') {
+    return (
+      `📸 ❌ **আবহাওয়া সংক্রান্ত ছবি নয় (Non-Weather Image):**\n\n` +
+      `ক্ষমা করবেন! আপনার আপলোড করা ছবিটি আবহাওয়া সম্পর্কিত নয় 🌦️।\n\n` +
+      `WeatherGPT কেবল আকাশ, মেঘ, বৃষ্টি, ঝড়, বন্যা বা কুয়াশার ছবি বিশ্লেষণ করে।\n\n` +
+      `💡 **অনুগ্রহ করে আকাশ বা আবহাওয়া সম্পর্কিত ছবি আপলোড বা ক্যাপচার করুন!** 📸✨`
+    );
+  }
+
+  if (lang === 'mr') {
+    return (
+      `📸 ❌ **हवामान संबंधित नसलेली प्रतिमा (Non-Weather Image):**\n\n` +
+      `माफ करा! आपण अपलोड केलेली प्रतिमा हवामानाशी संबंधित नाही 🌦️.\n\n` +
+      `WeatherGPT केवळ आकाश, ढग, पाऊस, वादळ, पूर किंवा धुक्याचे विश्लेषण करते.\n\n` +
+      `💡 **कृपया आकाश किंवा हवामानाचा फोटो अपलोड करा!** 📸✨`
+    );
+  }
+
+  if (lang === 'gu') {
+    return (
+      `📸 ❌ **હવામાન સંબંધિત ન હોય તેવી છબી (Non-Weather Image):**\n\n` +
+      `માફ કરશો! તમે અપલોડ કરેલી તસવીર હવામાન સંબંધિત નથી 🌦️.\n\n` +
+      `WeatherGPT માત્ર આકાશ, વાદળો, વરસાદ, વાવાઝોડું અથવા ધુમ્મસની તસવીરોનું વિશ્લેષણ કરે છે.\n\n` +
+      `💡 **કૃપા કરીને આકાશ અથવા હવામાનનો ફોટો અપલોડ કરો!** 📸✨`
+    );
+  }
+
+  if (lang === 'pa') {
+    return (
+      `📸 ❌ **ਮੌਸਮ ਸੰਬੰਧੀ ਤਸਵੀਰ ਨਹੀਂ ਹੈ (Non-Weather Image):**\n\n` +
+      `ਮਾਫ਼ ਕਰਨਾ! ਤੁਹਾਡੀ ਅੱਪਲੋਡ ਕੀਤੀ ਤਸਵੀਰ ਮੌਸਮ ਨਾਲ ਸੰਬੰਧਿਤ ਨਹੀਂ ਹੈ 🌦️।\n\n` +
+      `WeatherGPT ਸਿਰਫ਼ ਅਸਮਾਨ, ਬੱਦਲ, ਮੀਂਹ, ਤੂਫ਼ਾਨ ਜਾਂ ਧੁੰਦ ਦੀਆਂ ਤਸਵੀਰਾਂ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਕਰਦਾ ਹੈ।\n\n` +
+      `💡 **ਕਿਰਪਾ ਕਰਕੇ ਅਸਮਾਨ ਜਾਂ ਮੌਸਮ ਦੀ ਤਸਵੀਰ ਅੱਪਲੋਡ ਜਾਂ ਕੈਪਚਰ ਕਰੋ!** 📸✨`
+    );
+  }
+
+  return (
+    `📸 ❌ **Non-Weather Image Detected:**\n\n` +
+    `I apologize, but this image does not appear to be related to meteorological or weather conditions 🌦️.\n\n` +
+    `WeatherGPT's vision engine is specialized strictly to analyze:\n` +
+    `• ☁️ **Sky, Cloud Formations & Density (Clear, Cumulus, Storm)**\n` +
+    `• 🌧️ **Precipitation, Rain Showers & Thunderstorms**\n` +
+    `• 🌊 **Floods, Inundation & Street Waterlogging**\n` +
+    `• 🌫️ **Fog, Mist, Smog & Atmospheric Haze**\n` +
+    `• 🌾 **Agricultural Farmlands, Soil & Crop Conditions**\n` +
+    `• 📊 **Weather Radar Charts & Meteorological Maps**\n\n` +
+    `💡 **Please capture or upload a clear photo of the sky, clouds, rain, or outdoor weather conditions to receive an instant vision diagnostic report!** 📸✨`
   );
 }
 
@@ -1231,138 +1354,232 @@ export class WeatherAIAgent {
     return fallbackLocation;
   }
 
-  // Client-side Visual Meteorological Diagnostic Engine (Canvas-based pixel analysis)
+  // Client-side Visual Meteorological Diagnostic Engine (Canvas-based pixel & sky feature analysis)
   async analyzeImageTelemetry(imageDataUrl) {
-  return new Promise((resolve) => {
-    try {
-      if (typeof window === 'undefined' || !imageDataUrl) {
-        resolve(null);
-        return;
-      }
-      const img = new Image();
-      img.crossOrigin = 'Anonymous';
-      img.onload = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const width = 120;
-          const height = Math.round((img.height / img.width) * 120) || 120;
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
-
-          const imgData = ctx.getImageData(0, 0, width, height);
-          const data = imgData.data;
-          let totalLuminance = 0;
-          let skyBluePixels = 0;
-          let grayCloudPixels = 0;
-          let darkStormPixels = 0;
-          let warmSunsetPixels = 0;
-          let greenVegetationPixels = 0;
-          const pixelCount = data.length / 4;
-
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-            totalLuminance += lum;
-
-            // Sky Blue
-            if (b > r + 15 && b > g + 8 && lum > 70) {
-              skyBluePixels++;
-            }
-            // Gray/White Clouds
-            const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
-            if (maxDiff < 25 && lum > 80) {
-              grayCloudPixels++;
-            }
-            // Dark Storm Clouds
-            if (lum < 75 && maxDiff < 35) {
-              darkStormPixels++;
-            }
-            // Warm Sunset/Sunrise
-            if (r > b + 40 && r > 110) {
-              warmSunsetPixels++;
-            }
-            // Vegetation/Crop Green
-            if (g > r + 12 && g > b + 12) {
-              greenVegetationPixels++;
-            }
-          }
-
-          const avgLum = Math.round(totalLuminance / pixelCount);
-          const blueRatio = Math.round((skyBluePixels / pixelCount) * 100);
-          const cloudRatio = Math.round((grayCloudPixels / pixelCount) * 100);
-          const stormRatio = Math.round((darkStormPixels / pixelCount) * 100);
-          const sunsetRatio = Math.round((warmSunsetPixels / pixelCount) * 100);
-          const greenRatio = Math.round((greenVegetationPixels / pixelCount) * 100);
-
-          let classification = 'Partly Cloudy Sky';
-          let cloudType = 'Cumulus / Altocumulus';
-          let visualRainRisk = 15;
-          let visualAdvisoryEn = 'Normal ambient conditions. Suitable for daily activities and travel.';
-          let visualAdvisoryTa = 'இயல்பான வெளிப்புற சூழல். அன்றாட பணிகளுக்கு ஏற்றது.';
-
-          if (stormRatio > 35 || (cloudRatio > 40 && avgLum < 85)) {
-            classification = 'Dense Storm & Rain Cloud Mass';
-            cloudType = 'Cumulonimbus / Nimbostratus (கார்மேகம் / மழை மேகம்)';
-            visualRainRisk = Math.min(95, 60 + Math.round(stormRatio * 0.8));
-            visualAdvisoryEn = 'High probability of imminent precipitation or thunderstorm. Carry rain gear and stay clear of waterlogging.';
-            visualAdvisoryTa = 'கனமழை அல்லது இடியுடன் கூடிய மழைக்கு அதிக வாய்ப்பு உள்ளது. குடை/ரெயின்கோட் எடுத்துச்செல்லவும்.';
-          } else if (cloudRatio > 45) {
-            classification = 'Overcast & Low Cloud Ceiling';
-            cloudType = 'Stratocumulus / Stratus (மந்தாரமான மேகம்)';
-            visualRainRisk = 45;
-            visualAdvisoryEn = 'Overcast sky with light showers or drizzle probability. Sun exposure is low.';
-            visualAdvisoryTa = 'மந்தாரமான வானிலை. லேசான தூறல் பெய்ய வாய்ப்பு உண்டு.';
-          } else if (sunsetRatio > 25) {
-            classification = 'Twilight / Golden Hour Horizon';
-            cloudType = 'Cirrus / Atmospheric Scattering (அந்தி மாலை / விடியல்)';
-            visualRainRisk = 10;
-            visualAdvisoryEn = 'Stable atmospheric scattering during twilight. Clear conditions expected through the evening.';
-            visualAdvisoryTa = 'அந்தி மாலை ஒளிச்சிதறல். மாலை வேளையில் தெளிவான வானிலை நிலவும்.';
-          } else if (greenRatio > 30) {
-            classification = 'Agricultural Field & Crop Canopy';
-            cloudType = 'Farmland Observation (பயிர் / விவசாய நிலம்)';
-            visualRainRisk = 20;
-            visualAdvisoryEn = 'Vegetation canopy detected. Ground moisture levels appear supportive for active farming.';
-            visualAdvisoryTa = 'பயிர்கள் மற்றும் விளைநிலம் கண்டறியப்பட்டுள்ளது. தற்போதைய ஈரப்பதம் விவசாய பணிகளுக்கு உகந்தது.';
-          } else if (blueRatio > 40) {
-            classification = 'Clear Sunny & Fair Sky';
-            cloudType = 'Fair Weather Cumulus (தெளிவான வானம்)';
-            visualRainRisk = 5;
-            visualAdvisoryEn = 'Clear blue sky with abundant solar radiation. Excellent for travel and outdoor operations.';
-            visualAdvisoryTa = 'தெளிவான நீல வானம். நேரடி வெயில் இருக்கும், வெளிப்புற பயணங்களுக்கு சிறந்தது.';
-          }
-
-          resolve({
-            avgLuminance: avgLum,
-            blueRatio,
-            cloudRatio,
-            stormRatio,
-            sunsetRatio,
-            greenRatio,
-            classification,
-            cloudType,
-            visualRainRisk,
-            visualAdvisoryEn,
-            visualAdvisoryTa
-          });
-        } catch {
-          resolve(null);
+    return new Promise((resolve) => {
+      try {
+        if (typeof window === 'undefined' || !imageDataUrl) {
+          resolve({ isWeatherRelated: false, rejectionReason: 'no_image' });
+          return;
         }
-      };
-      img.onerror = () => resolve(null);
-      img.src = imageDataUrl;
-    } catch {
-      resolve(null);
-    }
-  });
-}
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const width = 120;
+            const height = Math.round((img.height / img.width) * 120) || 120;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const imgData = ctx.getImageData(0, 0, width, height);
+            const data = imgData.data;
+            const pixelCount = data.length / 4;
+            const upperBoundary = Math.floor(height * 0.45); // Top 45% of image (sky zone)
+
+            let totalLuminance = 0;
+            let skyBluePixels = 0;
+            let whiteCloudPixels = 0;
+            let grayCloudPixels = 0;
+            let darkStormPixels = 0;
+            let warmSunsetPixels = 0;
+            let greenVegetationPixels = 0;
+            let fogHazePixels = 0;
+            let indoorSkinPixels = 0;
+            let highContrastDocPixels = 0;
+
+            let upperSkyPixels = 0;
+            let upperTotalPixels = 0;
+
+            for (let y = 0; y < height; y++) {
+              for (let x = 0; x < width; x++) {
+                const i = (y * width + x) * 4;
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                totalLuminance += lum;
+
+                const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
+                const isUpper = y <= upperBoundary;
+                if (isUpper) upperTotalPixels++;
+
+                let isSkyFeature = false;
+
+                // 1. Sky Blue (Daytime open clear sky)
+                if (b > r + 14 && b > g + 6 && lum > 65) {
+                  skyBluePixels++;
+                  isSkyFeature = true;
+                }
+                // 2. White / Bright Cumulus Clouds
+                else if (maxDiff < 24 && lum > 170) {
+                  whiteCloudPixels++;
+                  isSkyFeature = true;
+                }
+                // 3. Gray / Overcast Stratus Clouds
+                else if (maxDiff < 22 && lum >= 80 && lum <= 170) {
+                  grayCloudPixels++;
+                  isSkyFeature = true;
+                }
+                // 4. Dark Storm Clouds (Low-light nimbostratus / thunderheads)
+                else if (lum >= 25 && lum < 80 && maxDiff < 28) {
+                  darkStormPixels++;
+                  isSkyFeature = true;
+                }
+                // 5. Warm Sunset / Sunrise Golden Hour Scattering
+                else if (r > 115 && r > b + 35 && g > b + 5) {
+                  warmSunsetPixels++;
+                  isSkyFeature = true;
+                }
+                // 6. Fog / Mist / Smog (Low contrast, mid-luminance)
+                else if (maxDiff < 14 && lum >= 110 && lum <= 210) {
+                  fogHazePixels++;
+                  isSkyFeature = true;
+                }
+
+                if (isUpper && isSkyFeature) {
+                  upperSkyPixels++;
+                }
+
+                // 7. Outdoor Green Vegetation / Farmland Crop Canopy
+                if (g > r + 12 && g > b + 12 && lum > 35) {
+                  greenVegetationPixels++;
+                }
+
+                // 8. Human Skin Tones (Selfie / Portrait / Face detection)
+                if (r > 95 && g > 40 && b > 20 && (r - g > 15) && (r > b) && lum > 60 && lum < 220) {
+                  indoorSkinPixels++;
+                }
+
+                // 9. High Contrast Document / Paper / Text Screen
+                if ((lum < 30 && maxDiff < 10) || (lum > 240 && maxDiff < 10)) {
+                  highContrastDocPixels++;
+                }
+              }
+            }
+
+            const avgLum = Math.round(totalLuminance / pixelCount);
+            const blueRatio = Math.round((skyBluePixels / pixelCount) * 100);
+            const whiteCloudRatio = Math.round((whiteCloudPixels / pixelCount) * 100);
+            const grayCloudRatio = Math.round((grayCloudPixels / pixelCount) * 100);
+            const cloudRatio = whiteCloudRatio + grayCloudRatio;
+            const stormRatio = Math.round((darkStormPixels / pixelCount) * 100);
+            const sunsetRatio = Math.round((warmSunsetPixels / pixelCount) * 100);
+            const greenRatio = Math.round((greenVegetationPixels / pixelCount) * 100);
+            const fogRatio = Math.round((fogHazePixels / pixelCount) * 100);
+            const skinRatio = Math.round((indoorSkinPixels / pixelCount) * 100);
+            const docRatio = Math.round((highContrastDocPixels / pixelCount) * 100);
+            const upperSkyRatio = upperTotalPixels > 0 ? Math.round((upperSkyPixels / upperTotalPixels) * 100) : 0;
+
+            const totalAtmosphericSky = blueRatio + cloudRatio + stormRatio + sunsetRatio + fogRatio;
+
+            // 🛑 STRICT WEATHER IMAGE VALIDATION LOGIC
+            // Image is accepted ONLY IF it has clear meteorological/sky/farm characteristics
+            let isWeatherRelated = false;
+            let classification = '';
+            let cloudType = '';
+            let visualRainRisk = 10;
+            let visualAdvisoryEn = '';
+            let visualAdvisoryTa = '';
+
+            if (skinRatio > 32) {
+              // Human face / portrait / selfie -> Non-weather
+              isWeatherRelated = false;
+            } else if (docRatio > 65 && totalAtmosphericSky < 20) {
+              // Text document / paper / screenshot -> Non-weather
+              isWeatherRelated = false;
+            } else if (stormRatio > 30 || (darkStormPixels > 0 && cloudRatio > 35 && avgLum < 85)) {
+              isWeatherRelated = true;
+              classification = 'Dense Storm & Rain Cloud Mass';
+              cloudType = 'Cumulonimbus / Nimbostratus (கார்மேகம் / மழை மேகம்)';
+              visualRainRisk = Math.min(95, 60 + Math.round(stormRatio * 0.8));
+              visualAdvisoryEn = 'High probability of imminent precipitation or thunderstorm. Carry rain gear and stay clear of waterlogging.';
+              visualAdvisoryTa = 'கனமழை அல்லது இடியுடன் கூடிய மழைக்கு அதிக வாய்ப்பு உள்ளது. குடை/ரெயின்கோட் எடுத்துச்செல்லவும்.';
+            } else if (cloudRatio > 40 || (upperSkyRatio > 35 && cloudRatio > 25)) {
+              isWeatherRelated = true;
+              classification = 'Overcast & Low Cloud Ceiling';
+              cloudType = 'Stratocumulus / Stratus (மந்தாரமான மேகம்)';
+              visualRainRisk = 45;
+              visualAdvisoryEn = 'Overcast sky with light showers or drizzle probability. Sun exposure is low.';
+              visualAdvisoryTa = 'மந்தாரமான வானிலை. லேசான தூறல் பெய்ய வாய்ப்பு உண்டு.';
+            } else if (sunsetRatio > 22 || (upperSkyRatio > 30 && sunsetRatio > 15)) {
+              isWeatherRelated = true;
+              classification = 'Twilight / Golden Hour Horizon';
+              cloudType = 'Cirrus / Atmospheric Scattering (அந்தி மாலை / விடியல்)';
+              visualRainRisk = 10;
+              visualAdvisoryEn = 'Stable atmospheric scattering during twilight. Clear conditions expected through the evening.';
+              visualAdvisoryTa = 'அந்தி மாலை ஒளிச்சிதறல். மாலை வேளையில் தெளிவான வானிலை நிலவும்.';
+            } else if (blueRatio > 30 || (upperSkyRatio > 35 && blueRatio > 18)) {
+              isWeatherRelated = true;
+              classification = 'Clear Sunny & Fair Sky';
+              cloudType = 'Fair Weather Cumulus (தெளிவான வானம்)';
+              visualRainRisk = 5;
+              visualAdvisoryEn = 'Clear blue sky with abundant solar radiation. Excellent for travel and outdoor operations.';
+              visualAdvisoryTa = 'தெளிவான நீல வானம். நேரடி வெயில் இருக்கும், வெளிப்புற பயணங்களுக்கு சிறந்தது.';
+            } else if (fogRatio > 35) {
+              isWeatherRelated = true;
+              classification = 'Dense Fog / Atmospheric Mist';
+              cloudType = 'Radiation Fog / Low Stratus (பனிமூட்டம் / மூடுபனி)';
+              visualRainRisk = 20;
+              visualAdvisoryEn = 'Low visibility due to atmospheric fog/mist. Drive with caution and use low beam headlights.';
+              visualAdvisoryTa = 'அடர்ந்த பனிமூட்டம் காரணமாக பார்வைத் திறன் குறைவாக இருக்கும். எச்சரிக்கையுடன் வாகனங்களை இயக்கவும்.';
+            } else if (greenRatio > 30 && (upperSkyRatio > 12 || totalAtmosphericSky > 15)) {
+              isWeatherRelated = true;
+              classification = 'Agricultural Field & Crop Canopy';
+              cloudType = 'Farmland Observation (பயிர் / விவசாய நிலம்)';
+              visualRainRisk = 20;
+              visualAdvisoryEn = 'Vegetation canopy detected. Ground moisture levels appear supportive for active farming.';
+              visualAdvisoryTa = 'பயிர்கள் மற்றும் விளைநிலம் கண்டறியப்பட்டுள்ளது. தற்போதைய ஈரப்பதம் விவசாய பணிகளுக்கு உகந்தது.';
+            } else if (upperSkyRatio >= 25 && totalAtmosphericSky >= 25) {
+              isWeatherRelated = true;
+              classification = 'Partly Cloudy Ambient Sky';
+              cloudType = 'Scattered Cumulus Layer (சிதறிய மேகங்கள்)';
+              visualRainRisk = 20;
+              visualAdvisoryEn = 'Normal ambient outdoor conditions. Suitable for daily activities and travel.';
+              visualAdvisoryTa = 'இயல்பான வெளிப்புற சூழல். அன்றாட பணிகளுக்கு ஏற்றது.';
+            } else {
+              // Non-weather image (indoor objects, furniture, cars, screens, food, memes, etc.)
+              isWeatherRelated = false;
+            }
+
+            resolve({
+              isWeatherRelated,
+              rejectionReason: isWeatherRelated ? null : 'non_weather_image',
+              avgLuminance: avgLum,
+              blueRatio,
+              cloudRatio,
+              stormRatio,
+              sunsetRatio,
+              greenRatio,
+              upperSkyRatio,
+              skinRatio,
+              classification,
+              cloudType,
+              visualRainRisk,
+              visualAdvisoryEn,
+              visualAdvisoryTa
+            });
+          } catch {
+            resolve({ isWeatherRelated: false, rejectionReason: 'analysis_error' });
+          }
+        };
+        img.onerror = () => resolve({ isWeatherRelated: false, rejectionReason: 'load_error' });
+        img.src = imageDataUrl;
+      } catch {
+        resolve({ isWeatherRelated: false, rejectionReason: 'exception' });
+      }
+    });
+  }
 
   // Synthesize Visual Meteorological Intelligence Response
   synthesizeVisionResponse({ query, locName, imageTelemetry, nwpData, aqiData, alerts, lang = 'en' }) {
+    // 🛑 If image diagnostic detected a non-weather photo, return strict localized guardrail response
+    if (imageTelemetry && !imageTelemetry.isWeatherRelated) {
+      return getNonWeatherImageResponse(lang);
+    }
+
     const current = nwpData?.current || {};
     const daily = nwpData?.daily || {};
     const temp = current.temperature_2m ?? 28;
@@ -1589,11 +1806,48 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
       if (image) {
         imageTelemetry = await this.analyzeImageTelemetry(image);
 
+        // 🛑 STRICT GUARDRAIL: If local pixel diagnostic explicitly determined non-weather image (selfie, indoor, document, food, etc.)
+        if (imageTelemetry && !imageTelemetry.isWeatherRelated) {
+          // If no external high-level vision API is configured
+          if (!this.geminiApiKey && !this.openaiApiKey) {
+            const nonWeatherText = getNonWeatherImageResponse(effectiveLang);
+            dbService.insertChatLog({
+              sessionId: `sql_sess_${Date.now()}`,
+              sender: 'ai',
+              text: nonWeatherText,
+              detectedLanguage: effectiveLang,
+              modelUsed: 'WeatherGPT Vision Guardrail',
+              locationName: null,
+              hasImage: true
+            });
+            return {
+              text: nonWeatherText,
+              location: null,
+              domain: 'general',
+              timeframe: 'current',
+              detectedLanguage: effectiveLang,
+              weatherData: null,
+              aqiData: null,
+              alerts: [],
+              modelUsed: 'WeatherGPT Vision Guardrail',
+              isWeatherQuery: false,
+              sources: ['WeatherGPT Vision Guardrail']
+            };
+          }
+        }
+
+        const ragVisionSystemPrompt = `You are WeatherGPT, an advanced Meteorological Vision AI Assistant.
+CRITICAL VISION CLASSIFICATION RULE:
+1. First evaluate if the image is strictly related to weather, meteorology, sky conditions, cloud formations, rain, snow, fog, lightning, storms, floods, agricultural crops/farmlands, or meteorological radar/satellite charts.
+2. If the image is NOT related to weather (such as human selfies, portraits, indoor rooms, furniture, pets, animals, vehicles, documents, food, memes, gadgets, non-meteorological items), you MUST decline and refuse to analyze it as weather.
+Explain politely in the user's detected language (${effectiveLang}) that WeatherGPT is a dedicated weather assistant that only accepts photos of the sky, clouds, rain, snow, storms, or outdoor weather conditions. DO NOT invent false weather forecasts or describe indoor elements as clouds.
+3. If the image is a valid weather/sky image, provide a comprehensive meteorological diagnosis and rain risk assessment in ${effectiveLang}.`;
+
         if (this.selectedModel === 'gemini' && this.geminiApiKey) {
           try {
             responseText = await this.callGeminiVision({
               prompt: q || 'Analyze this weather/sky/cloud/crop image and give detailed meteorological insights.',
-              systemPrompt: ragSystemPrompt,
+              systemPrompt: ragVisionSystemPrompt,
               imageBase64: image,
               mimeType
             });
@@ -1605,7 +1859,7 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
           try {
             responseText = await this.callOpenAIVision({
               prompt: q || 'Analyze this weather/sky/cloud/crop image and give detailed meteorological insights.',
-              systemPrompt: ragSystemPrompt,
+              systemPrompt: ragVisionSystemPrompt,
               imageBase64: image,
               mimeType
             });
@@ -1616,16 +1870,21 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
         }
 
         if (!responseText) {
-          responseText = this.synthesizeVisionResponse({
-            query: q,
-            locName,
-            imageTelemetry,
-            nwpData,
-            aqiData,
-            alerts,
-            lang: effectiveLang
-          });
-          modelUsedLabel = 'WeatherGPT Vision Telemetry Engine';
+          if (imageTelemetry && !imageTelemetry.isWeatherRelated) {
+            responseText = getNonWeatherImageResponse(effectiveLang);
+            modelUsedLabel = 'WeatherGPT Vision Guardrail';
+          } else {
+            responseText = this.synthesizeVisionResponse({
+              query: q,
+              locName,
+              imageTelemetry,
+              nwpData,
+              aqiData,
+              alerts,
+              lang: effectiveLang
+            });
+            modelUsedLabel = 'WeatherGPT Vision Telemetry Engine';
+          }
         }
       } else {
         // Standard Text / Voice Query Flow
@@ -1671,6 +1930,8 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
         }
       }
 
+      const isNonWeatherGuardrail = modelUsedLabel === 'WeatherGPT Vision Guardrail' || (imageTelemetry && !imageTelemetry.isWeatherRelated);
+
       // Persist session to SQL database table
       dbService.insertChatLog({
         sessionId: `sql_sess_${Date.now()}`,
@@ -1678,29 +1939,31 @@ Alert Status: ${alerts[0]?.title || 'Normal Stable Weather'}`;
         text: responseText,
         detectedLanguage: effectiveLang,
         modelUsed: modelUsedLabel,
-        locationName: locName,
+        locationName: isNonWeatherGuardrail ? null : locName,
         hasImage: !!image
       });
 
       return {
         text: responseText,
-        location: targetLocation,
-        domain,
-        timeframe,
+        location: isNonWeatherGuardrail ? null : targetLocation,
+        domain: isNonWeatherGuardrail ? 'general' : domain,
+        timeframe: isNonWeatherGuardrail ? 'current' : timeframe,
         detectedLanguage: effectiveLang,
-        weatherData: nwpData,
-        aqiData,
-        alerts,
-        agriAdvisory,
-        aviationBriefing,
-        marineBriefing,
+        weatherData: isNonWeatherGuardrail ? null : nwpData,
+        aqiData: isNonWeatherGuardrail ? null : aqiData,
+        alerts: isNonWeatherGuardrail ? [] : alerts,
+        agriAdvisory: isNonWeatherGuardrail ? null : agriAdvisory,
+        aviationBriefing: isNonWeatherGuardrail ? null : aviationBriefing,
+        marineBriefing: isNonWeatherGuardrail ? null : marineBriefing,
         modelUsed: modelUsedLabel,
-        isWeatherQuery: true,
-        sources: [
-          'Open-Meteo High-Resolution NWP (GFS / WRF / ECMWF)',
-          'WAQI Global Air Quality Telemetry',
-          'RainViewer Real-Time Radar & Satellite GIS Stream'
-        ]
+        isWeatherQuery: !isNonWeatherGuardrail,
+        sources: isNonWeatherGuardrail
+          ? ['WeatherGPT Vision Guardrail']
+          : [
+              'Open-Meteo High-Resolution NWP (GFS / WRF / ECMWF)',
+              'WAQI Global Air Quality Telemetry',
+              'RainViewer Real-Time Radar & Satellite GIS Stream'
+            ]
       };
     } catch (err) {
       console.warn('Network / Tower outage during AI query, switching to Offline Disaster Vault:', err);

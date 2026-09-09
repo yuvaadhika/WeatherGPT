@@ -509,6 +509,17 @@ export default function ChatInterface({
                     : 'bg-sky-600 text-white font-normal'
                 }`}
               >
+                {/* User Attached Image Preview */}
+                {msg.image && (
+                  <div className="mb-2.5">
+                    <img
+                      src={msg.image}
+                      alt="Uploaded query"
+                      className="max-w-[240px] max-h-[160px] rounded-xl object-cover border-2 border-white/40 shadow-sm"
+                    />
+                  </div>
+                )}
+
                 {/* Text Content */}
                 <div className="whitespace-pre-line space-y-1">
                   {msg.text.split('\n').map((line, idx) => {
@@ -901,7 +912,7 @@ export default function ChatInterface({
             onChange={(e) => setInputQuery(e.target.value)}
             placeholder={
               selectedImage
-                ? (activeLanguage === 'ta' ? 'படத்தைப் பற்றி கேளுங்கள்...' : 'Ask about this photo...')
+                ? (activeLanguage === 'ta' ? 'வானிலை/மேகம் படத்தைப் பற்றி கேளுங்கள்...' : 'Ask about this weather/sky photo...')
                 : isListening
                 ? (t.chat?.voiceListening || 'Listening...')
                 : (activeLanguage === 'ta' ? 'வானிலை பற்றி கேளுங்கள்...' : 'Ask WeatherGPT anything...')
