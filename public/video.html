@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeatherGPT — Real 50-Second Prototype Screencast Video</title>
-  <meta name="description" content="Authentic 50-Second Screen Recording Demonstration of WeatherGPT: Conversational AI, 3-Column Micro-Zone Rain Table, Doppler Radar, Route Planner, Event Score, & Disaster SOS." />
+  <title>WeatherGPT — Real Prototype Video Walkthrough</title>
+  <meta name="description" content="Official 50-Second Screen Recording Demonstration Video of WeatherGPT AI Hyper-Local Climate Intelligence Platform." />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,15 +13,16 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     :root {
-      --bg-dark: #030712;
-      --app-bg: #f0f7ff;
-      --accent-cyan: #0284c7;
-      --accent-blue: #2563eb;
-      --accent-emerald: #059669;
-      --accent-amber: #d97706;
-      --accent-rose: #e11d48;
+      --bg-dark: #040711;
+      --card-bg: #0b1120;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
       --border-glass: rgba(255, 255, 255, 0.12);
     }
     body {
@@ -32,445 +33,157 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 14px 10px 40px;
+      padding: 16px 12px 40px;
       overflow-x: hidden;
     }
-    /* Ambient Glow Background */
     .ambient-glow {
-      position: fixed; inset: 0; pointer-events: none;
-      background: radial-gradient(circle at 10% 15%, rgba(6, 182, 212, 0.12), transparent 45%),
-                  radial-gradient(circle at 90% 85%, rgba(59, 130, 246, 0.12), transparent 45%);
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.15), transparent 45%),
+                  radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.15), transparent 45%);
       z-index: 0;
     }
-    /* Top Bar */
+    /* Top Header */
     .top-nav {
-      width: 100%; max-width: 1040px;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 18px; background: rgba(15, 23, 42, 0.8);
-      border: 1px solid var(--border-glass); border-radius: 14px;
-      backdrop-filter: blur(12px); margin-bottom: 12px; z-index: 10;
-    }
-    .badge-rec {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4);
-      color: #ef4444; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px;
-    }
-    .badge-rec-dot { width: 6px; height: 6px; background: #ef4444; border-radius: 50%; animation: blink 1.2s infinite; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-    /* Video Player Container */
-    .video-theater {
-      position: relative; z-index: 10; width: 100%; max-width: 1040px;
-      background: #090e1a; border: 1px solid var(--border-glass);
-      border-radius: 20px; box-shadow: 0 25px 60px -10px rgba(0,0,0,0.9), 0 0 40px rgba(6, 182, 212, 0.12);
-      overflow: hidden; display: flex; flex-direction: column;
-    }
-
-    /* Browser Mockup Window Inside Video */
-    .browser-window {
-      position: relative; width: 100%; aspect-ratio: 16 / 9;
-      background: #eef6fc; overflow: hidden; display: flex; flex-direction: column;
-      cursor: pointer;
-    }
-    .browser-topbar {
-      height: 32px; background: #1e293b; display: flex; align-items: center;
-      justify-content: space-between; padding: 0 12px; border-bottom: 1px solid rgba(255,255,255,0.08);
-      flex-shrink: 0;
-    }
-    .browser-dots { display: flex; gap: 6px; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; }
-    .dot-red { background: #ef4444; } .dot-yellow { background: #f59e0b; } .dot-green { background: #10b981; }
-    .browser-address {
-      background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px; padding: 2px 14px; font-family: 'JetBrains Mono', monospace;
-      font-size: 10px; color: #94a3b8; display: flex; align-items: center; gap: 6px;
-    }
-
-    /* Screen Views Simulation */
-    .screen-canvas {
-      position: relative; flex: 1; width: 100%; height: calc(100% - 32px);
-      background: linear-gradient(to bottom, #eef6fc, #f4f9fe, #e9f4fd);
-      overflow: hidden;
-    }
-    .frame-scene {
-      position: absolute; inset: 0; display: none; flex-direction: column;
-      padding: 12px 18px; color: #1e293b; opacity: 0; transform: scale(0.98);
-      transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .frame-scene.active { display: flex; opacity: 1; transform: scale(1); }
-
-    /* Animated Simulated Mouse Cursor */
-    .virtual-cursor {
-      position: absolute; width: 20px; height: 20px; pointer-events: none;
-      z-index: 50; transition: top 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
-    }
-
-    /* App Header Simulation */
-    .app-header {
-      background: rgba(255, 255, 255, 0.95); border: 1px solid #e2e8f0;
-      border-radius: 12px; padding: 6px 14px; display: flex; align-items: center;
-      justify-content: space-between; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      flex-shrink: 0;
-    }
-    .app-logo { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13px; color: #0284c7; }
-
-    /* 3-Column Weather Table */
-    .weather-table {
-      width: 100%; border-collapse: separate; border-spacing: 0; font-size: 11px;
-      border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; background: #fff;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.05); margin-top: 6px;
-    }
-    .weather-table th {
-      background: #f1f5f9; color: #475569; font-weight: 700; text-align: left;
-      padding: 6px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .weather-table td {
-      padding: 8px 10px; border-top: 1px solid #f1f5f9; color: #1e293b;
-    }
-    .status-yes {
-      display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px;
-      border-radius: 4px; background: #e0f2fe; border: 1px solid #bae6fd;
-      color: #0284c7; font-weight: 700; font-size: 10px;
-    }
-    .status-no {
-      display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px;
-      border-radius: 4px; background: #dcfce7; border: 1px solid #bbf7d0;
-      color: #16a34a; font-weight: 700; font-size: 10px;
-    }
-
-    /* Radar View */
-    .radar-box {
-      background: #0f172a; border-radius: 12px; padding: 10px; display: flex;
-      align-items: center; justify-content: center; position: relative; overflow: hidden;
-      height: 100%; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .radar-sweep-ring {
-      width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(56, 189, 248, 0.4);
-      position: relative; display: flex; align-items: center; justify-content: center;
-    }
-    .radar-sweep-blade {
-      position: absolute; inset: 0; border-radius: 50%;
-      background: conic-gradient(from 0deg, rgba(56, 189, 248, 0.7) 0deg, transparent 60deg, transparent 360deg);
-      animation: spinBlade 2.5s linear infinite;
-    }
-    @keyframes spinBlade { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    /* Bottom Overlay Subtitles */
-    .subtitles-pill {
-      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.15); padding: 5px 16px; border-radius: 9999px;
-      font-size: 11px; color: #fff; font-weight: 600; text-align: center; max-width: 90%;
-      z-index: 40; pointer-events: none; box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-    }
-
-    /* Controls Bar */
-    .video-controls {
-      padding: 10px 16px; background: rgba(15, 23, 42, 0.98);
-      border-top: 1px solid var(--border-glass); display: flex; flex-direction: column; gap: 6px;
-    }
-    .progress-bar-track {
-      width: 100%; height: 5px; background: rgba(255, 255, 255, 0.12);
-      border-radius: 3px; cursor: pointer; position: relative;
-    }
-    .progress-bar-fill {
-      height: 100%; width: 0%; background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
-      border-radius: 3px; transition: width 0.1s linear;
-    }
-    .controls-actions {
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-    .btn-action {
-      background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-glass);
-      color: #f1f5f9; padding: 5px 12px; border-radius: 8px; cursor: pointer;
-      font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;
-      transition: all 0.2s;
-    }
-    .btn-action:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
-    .btn-primary-action {
-      background: linear-gradient(135deg, #0284c7, #2563eb); border: none; color: #fff;
-    }
-    .btn-primary-action:hover { box-shadow: 0 0 15px rgba(2, 132, 199, 0.4); }
-    .time-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #94a3b8; }
-
-    /* Chapter Pills */
-    .chapters-row {
-      display: flex; gap: 6px; overflow-x: auto; padding: 6px 14px;
-      background: rgba(15, 23, 42, 0.85); border-bottom: 1px solid var(--border-glass);
-      scrollbar-width: none;
-    }
-    .chapters-row::-webkit-scrollbar { display: none; }
-    .chapter-btn {
-      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #94a3b8; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
-      white-space: nowrap; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
-    }
-    .chapter-btn.active { background: rgba(2, 132, 199, 0.25); border-color: #0284c7; color: #38bdf8; }
-
-    /* Info Footer */
-    .info-footer {
-      width: 100%; max-width: 1040px; margin-top: 14px;
-      background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-glass);
-      border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 10px;
+      width: 100%;
+      max-width: 1080px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      margin-bottom: 16px;
       z-index: 10;
     }
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 15px;
+      color: #fff;
+    }
+    .badge-video {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+    /* Main Video Theater Box */
+    .video-theater {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1080px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 45px rgba(6, 182, 212, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Video Element */
+    .video-player-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+    /* Bottom Info Card */
+    .info-footer {
+      width: 100%;
+      max-width: 1080px;
+      margin-top: 18px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-glass);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+    }
+    .btn-action {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      color: #f1f5f9;
+      padding: 7px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.16);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      border: none;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0891b2, #2563eb);
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    }
     .link-row {
-      background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px; padding: 8px 12px; display: flex; align-items: center;
-      justify-content: space-between; flex-wrap: wrap; gap: 6px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
     }
   </style>
 </head>
 <body>
   <div class="ambient-glow"></div>
 
-  <!-- Top Navigation Header -->
+  <!-- Top Bar -->
   <header class="top-nav">
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <span class="badge-rec"><span class="badge-rec-dot"></span> 50S SCREANCAST</span>
-      <span style="font-weight: 800; font-size: 14px; color: #fff;">WeatherGPT Real Prototype Video Tour</span>
+    <div class="brand-title">
+      <span class="badge-video">OFFICIAL DEMO VIDEO</span>
+      <span>WeatherGPT Real Prototype Screencast</span>
     </div>
     <div style="display: flex; align-items: center; gap: 8px;">
-      <a href="/" class="btn-action btn-primary-action" style="text-decoration: none; font-size: 11px; padding: 5px 12px;">
-        <i data-lucide="external-link" style="width: 13px; height: 13px;"></i> Open Live Prototype
+      <a href="/" class="btn-action btn-primary" style="text-decoration: none;">
+        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> Open Live Prototype
       </a>
     </div>
   </header>
 
-  <!-- Video Theater Player Box -->
+  <!-- Video Theater Player -->
   <main class="video-theater">
-    <!-- Chapter Pills Navigation -->
-    <div class="chapters-row">
-      <button class="chapter-btn active" onclick="seekTo(0)"><i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> 1. Login & Auth (0s)</button>
-      <button class="chapter-btn" onclick="seekTo(8)"><i data-lucide="layout-dashboard" style="width: 10px; height: 10px;"></i> 2. Live Dashboard (8s)</button>
-      <button class="chapter-btn" onclick="seekTo(16)"><i data-lucide="table" style="width: 10px; height: 10px;"></i> 3. 3-Column Table AI (16s)</button>
-      <button class="chapter-btn" onclick="seekTo(25)"><i data-lucide="radio" style="width: 10px; height: 10px;"></i> 4. Doppler Radar (25s)</button>
-      <button class="chapter-btn" onclick="seekTo(33)"><i data-lucide="navigation" style="width: 10px; height: 10px;"></i> 5. Route & Event Score (33s)</button>
-      <button class="chapter-btn" onclick="seekTo(41)"><i data-lucide="shield-alert" style="width: 10px; height: 10px;"></i> 6. Spotter & SOS (41s)</button>
-    </div>
-
-    <!-- Browser Window Canvas (Screen Recording Simulation) -->
-    <div class="browser-window" id="browserWindow">
-      <!-- Browser Top Window Bar -->
-      <div class="browser-topbar">
-        <div class="browser-dots">
-          <div class="dot dot-red"></div>
-          <div class="dot dot-yellow"></div>
-          <div class="dot dot-green"></div>
-        </div>
-        <div class="browser-address">
-          <i data-lucide="lock" style="width: 10px; height: 10px; color: #10b981;"></i>
-          <span>https://weather-gpt-yuvi.vercel.app/</span>
-        </div>
-        <div style="font-size: 10px; color: #64748b;">1080p 60fps</div>
-      </div>
-
-      <!-- Screen Viewport Canvas -->
-      <div class="screen-canvas" id="screenCanvas">
-        <!-- Animated Virtual Mouse Cursor -->
-        <svg class="virtual-cursor" id="virtualCursor" viewBox="0 0 24 24" style="top: 50%; left: 50%;">
-          <path d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.86a.5.5 0 0 0-.85.35Z" fill="#0284c7" stroke="#ffffff" stroke-width="1.5"/>
-        </svg>
-
-        <!-- SCENE 1: (00:00 - 00:08) Real Login & Biometric Auth Screen -->
-        <div class="frame-scene active" id="fScene1">
-          <div class="app-header">
-            <div class="app-logo"><i data-lucide="cloud-sun" style="width: 16px; height: 16px;"></i> WeatherGPT</div>
-            <div style="display: flex; gap: 6px; font-size: 10px;">
-              <span style="padding: 2px 6px; background: #e0f2fe; color: #0284c7; border-radius: 4px; font-weight: 700;">தமிழ்</span>
-              <span style="padding: 2px 6px; background: #f1f5f9; color: #64748b; border-radius: 4px;">English</span>
-            </div>
-          </div>
-          <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px 20px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
-              <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">Sign in to WeatherGPT</div>
-              <p style="font-size: 10px; color: #64748b; margin-bottom: 10px;">Hyper-local climate intelligence platform</p>
-              <div style="padding: 8px; background: #0284c7; color: #fff; border-radius: 8px; font-size: 11px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                <i data-lucide="fingerprint" style="width: 14px; height: 14px;"></i> Quick Guest Access / Biometric
-              </div>
-              <div style="font-size: 10px; color: #16a34a; font-weight: 600;">✓ Connected to Chennai Live Radar Feed</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SCENE 2: (00:08 - 00:16) Real Mobile Dashboard & 24h Hourly Forecast -->
-        <div class="frame-scene" id="fScene2">
-          <div class="app-header">
-            <div class="app-logo"><i data-lucide="cloud-rain" style="width: 16px; height: 16px;"></i> WeatherGPT</div>
-            <div style="font-size: 11px; font-weight: 700; color: #0f172a;">📍 Chennai, Tamil Nadu • 31°C</div>
-            <div style="padding: 2px 8px; background: #fee2e2; color: #dc2626; border-radius: 6px; font-size: 10px; font-weight: 700;">Rain Alert</div>
-          </div>
-          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; flex: 1;">
-            <!-- Current Weather Card -->
-            <div style="background: linear-gradient(135deg, #0284c7, #2563eb); border-radius: 12px; padding: 12px; color: #fff; display: flex; flex-direction: column; justify-content: space-between;">
-              <div>
-                <div style="font-size: 10px; opacity: 0.9;">NOWCAST REAL-TIME</div>
-                <div style="font-size: 26px; font-weight: 800;">31°C <span style="font-size: 12px; font-weight: 500;">Thunderstorm Likely</span></div>
-              </div>
-              <div style="display: flex; gap: 10px; font-size: 10px; opacity: 0.95;">
-                <span>💧 Humidity: 78%</span>
-                <span>💨 Wind: 18 km/h</span>
-                <span>☀️ UV: 6.2 (Mod)</span>
-              </div>
-            </div>
-            <!-- AQI & Agri Score -->
-            <div style="display: flex; flex-direction: column; gap: 6px;">
-              <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; text-align: center;">
-                <div style="font-size: 9px; color: #64748b;">Air Quality (AQI)</div>
-                <div style="font-size: 14px; font-weight: 800; color: #16a34a;">42 • Good</div>
-              </div>
-              <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; text-align: center;">
-                <div style="font-size: 9px; color: #64748b;">Agri Risk Index</div>
-                <div style="font-size: 14px; font-weight: 800; color: #d97706;">Moderate Alert</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SCENE 3: (00:16 - 00:25) Conversational AI & 3-Column Micro-Zone Table -->
-        <div class="frame-scene" id="fScene3">
-          <div class="app-header">
-            <div class="app-logo"><i data-lucide="bot" style="width: 16px; height: 16px;"></i> AI Weather Assistant</div>
-            <div style="font-size: 10px; color: #0284c7; font-weight: 700;">Model: Gemini 2.0 Flash / Llama 3.3</div>
-          </div>
-          <!-- User Query -->
-          <div style="display: flex; justify-content: flex-end; margin-bottom: 6px;">
-            <div style="background: #0284c7; color: #fff; padding: 5px 10px; border-radius: 10px 10px 2px 10px; font-size: 11px; font-weight: 600;">
-              🎤 "Chennai la mazhai eppo varum? Micro-zone status sollu..."
-            </div>
-          </div>
-          <!-- 3-Column Table Response -->
-          <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-            <div style="font-size: 10px; font-weight: 700; color: #0284c7; margin-bottom: 2px;">
-              ⚡ Hyper-Local Micro-Zone Prediction Table (Doppler & NWP Sync)
-            </div>
-            <table class="weather-table">
-              <thead>
-                <tr>
-                  <th>📍 Place Name</th>
-                  <th>🌧️ Rain / Alert Status</th>
-                  <th>⏰ Timing Window</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><b>Anna Nagar</b></td>
-                  <td><span class="status-yes">🌧️ YES (85% • 14mm)</span></td>
-                  <td>Today 2:30 PM – 4:00 PM</td>
-                </tr>
-                <tr>
-                  <td><b>Velachery</b></td>
-                  <td><span class="status-yes">⛈️ YES (90% • Heavy)</span></td>
-                  <td>Today 3:00 PM – 5:30 PM</td>
-                </tr>
-                <tr>
-                  <td><b>T. Nagar</b></td>
-                  <td><span class="status-no">☀️ NO (Safe)</span></td>
-                  <td>Clear next 24 Hours</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- SCENE 4: (00:25 - 00:33) Interactive Doppler Radar Map -->
-        <div class="frame-scene" id="fScene4">
-          <div class="app-header">
-            <div class="app-logo"><i data-lucide="radio" style="width: 16px; height: 16px;"></i> Live Doppler GIS Radar</div>
-            <div style="font-size: 10px; color: #16a34a; font-weight: 700;">● Live 500km Convective Satellite Feed</div>
-          </div>
-          <div class="radar-box">
-            <div class="radar-sweep-ring">
-              <div class="radar-sweep-blade"></div>
-              <div style="z-index: 2; text-align: center; font-size: 10px; font-weight: 800; color: #38bdf8;">
-                DOPPLER GIS<br/><span style="font-size: 8px; color: #94a3b8;">Chennai IMD</span>
-              </div>
-            </div>
-            <div style="position: absolute; bottom: 8px; right: 12px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 6px; font-size: 9px; color: #38bdf8;">
-              Precipitation Intensity: 28 dBZ
-            </div>
-          </div>
-        </div>
-
-        <!-- SCENE 5: (00:33 - 00:41) Route Weather Planner & Event Score -->
-        <div class="frame-scene" id="fScene5">
-          <div class="app-header">
-            <div class="app-logo"><i data-lucide="navigation" style="width: 16px; height: 16px;"></i> Innovations: Route & Event Score</div>
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1;">
-            <!-- Route -->
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
-              <div style="font-size: 11px; font-weight: 700; color: #0284c7; margin-bottom: 4px;">🚗 Smart Route Hazard Planner</div>
-              <p style="font-size: 9px; color: #64748b; margin-bottom: 6px;">Corridor: Chennai ➔ Bangalore (NH 48)</p>
-              <div style="padding: 4px 8px; background: #dcfce7; color: #16a34a; border-radius: 6px; font-size: 9px; font-weight: 700;">
-                ✓ Safe Departure: 4:00 PM (Zero Flood Risk)
-              </div>
-            </div>
-            <!-- Event Score -->
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
-              <div style="font-size: 11px; font-weight: 700; color: #d97706; margin-bottom: 4px;">📅 Event Weather Score (0-100)</div>
-              <p style="font-size: 9px; color: #64748b; margin-bottom: 6px;">Outdoor Sports & Crop Spraying</p>
-              <div style="padding: 4px 8px; background: #e0f2fe; color: #0284c7; border-radius: 6px; font-size: 9px; font-weight: 700;">
-                ⭐ Score: 88/100 (Optimal Conditions)
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SCENE 6: (00:41 - 00:50) Spotter Network, Disaster SOS & PDF Exporter -->
-        <div class="frame-scene" id="fScene6">
-          <div class="app-header">
-            <div class="app-logo"><i data-lucide="shield-alert" style="width: 16px; height: 16px;"></i> Spotter Network & Disaster SOS</div>
-            <div style="font-size: 10px; color: #dc2626; font-weight: 700;">NDRF Emergency Mesh Active</div>
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1;">
-            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px;">
-              <div style="font-size: 11px; font-weight: 700; color: #0284c7; margin-bottom: 4px;">👥 Community Spotter</div>
-              <p style="font-size: 9px; color: #64748b; margin-bottom: 6px;">Geotagged Waterlogging Reports</p>
-              <div style="font-size: 9px; color: #16a34a; font-weight: 700;">✓ 12 Reports Verified Today</div>
-            </div>
-            <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 10px; padding: 10px;">
-              <div style="font-size: 11px; font-weight: 700; color: #dc2626; margin-bottom: 4px;">🚨 Offline Disaster SOS</div>
-              <p style="font-size: 9px; color: #64748b; margin-bottom: 6px;">No-Internet WebRTC Mesh Relay</p>
-              <div style="font-size: 9px; color: #dc2626; font-weight: 700;">✓ 1-Tap Geocoded Dispatch</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Dynamic Subtitles Bar -->
-        <div class="subtitles-pill" id="subtitlesPill">
-          Welcome to WeatherGPT: AI-driven hyper-local climate intelligence system.
-        </div>
-      </div>
-    </div>
-
-    <!-- Video Controls Timeline Bar -->
-    <div class="video-controls">
-      <div class="progress-bar-track" id="progressTrack">
-        <div class="progress-bar-fill" id="progressFill"></div>
-      </div>
-      <div class="controls-actions">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button id="playBtn" class="btn-action btn-primary-action">
-            <i data-lucide="play" id="playIcon" style="width: 14px; height: 14px;"></i>
-            <span id="playBtnText">Play (50s)</span>
-          </button>
-          <button id="replayBtn" class="btn-action">
-            <i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i> Replay
-          </button>
-          <span class="time-badge" id="timeBadge">00:00 / 00:50</span>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button id="langToggleBtn" class="btn-action" style="font-size: 11px;">
-            <i data-lucide="languages" style="width: 13px; height: 13px;"></i> Voice: <b id="langLabel">English</b>
-          </button>
-          <button id="voiceToggleBtn" class="btn-action" style="font-size: 11px;">
-            <i data-lucide="volume-2" id="voiceIcon" style="width: 13px; height: 13px;"></i> Audio
-          </button>
-        </div>
-      </div>
+    <div class="video-player-container">
+      <video id="demoVideo" controls autoplay playsinline preload="auto">
+        <source src="/demo-video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
     </div>
   </main>
 
@@ -478,37 +191,37 @@
   <section class="info-footer">
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
       <div>
-        <h3 style="font-size: 15px; font-weight: 800; color: #fff;">WeatherGPT — SIH 2026 Presentation Links</h3>
-        <p style="font-size: 11px; color: #94a3b8;">Use these two distinct links for your Hackathon Submission:</p>
+        <h3 style="font-size: 16px; font-weight: 800; color: #fff;">WeatherGPT — SIH 2026 Presentation Links</h3>
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Use these 2 separate links for your submission deck & judges:</p>
       </div>
       <div style="display: flex; gap: 6px;">
-        <span style="padding: 2px 8px; background: rgba(16,185,129,0.2); color: #34d399; border-radius: 6px; font-size: 10px; font-weight: 700;">✓ Live Verified</span>
+        <span style="padding: 3px 8px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; font-size: 11px; font-weight: 700;">✓ Real MP4 Video Live</span>
       </div>
     </div>
 
     <!-- Link 1: Chatbot Prototype -->
     <div class="link-row">
       <div>
-        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">1️⃣ Live Chatbot Prototype:</div>
-        <a href="/" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-decoration: none;">
+        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">1️⃣ Live Chatbot Prototype Website:</div>
+        <a href="/" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-decoration: none;">
           https://weather-gpt-yuvi.vercel.app/
         </a>
       </div>
-      <a href="/" class="btn-action" style="font-size: 10px; text-decoration: none;">
-        <i data-lucide="external-link" style="width: 11px; height: 11px;"></i> Open Prototype
+      <a href="/" class="btn-action" style="font-size: 11px; text-decoration: none;">
+        <i data-lucide="external-link" style="width: 12px; height: 12px;"></i> Open Prototype
       </a>
     </div>
 
     <!-- Link 2: Video Website -->
     <div class="link-row">
       <div>
-        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">2️⃣ Real 50s Video Demo Website (This Page):</div>
-        <span style="color: #a78bfa; font-family: 'JetBrains Mono', monospace; font-size: 12px;">
+        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">2️⃣ Real Video Demo Website (Plays this MP4 Video):</div>
+        <span style="color: #a78bfa; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
           https://weather-gpt-yuvi.vercel.app/video.html
         </span>
       </div>
-      <button id="copyLinkBtn" class="btn-action" style="font-size: 10px;">
-        <i data-lucide="copy" style="width: 11px; height: 11px;"></i> Copy Video Link
+      <button id="copyLinkBtn" class="btn-action" style="font-size: 11px;">
+        <i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy Video Link
       </button>
     </div>
   </section>
@@ -516,257 +229,15 @@
   <script>
     lucide.createIcons();
 
-    const TOTAL_DURATION = 50;
-    let currentTime = 0;
-    let isPlaying = false;
-    let isVoiceEnabled = true;
-    let selectedLanguage = 'en';
-    let timerInterval = null;
-
-    const frames = [
-      {
-        id: 'fScene1',
-        start: 0,
-        end: 8,
-        cursorX: '50%',
-        cursorY: '60%',
-        subEn: "1/6 Biometric & Multi-Lingual Sign-In: 6 Indian Languages + Tanglish with instant passkey access.",
-        subTa: "1/6 பலமொழி & பயோமெட்ரிக் உள்நுழைவு: தமிழ் உட்பட 6 பிராந்திய மொழிகளில் அதிவேக உள்நுழைவு.",
-        voiceEn: "Welcome to WeatherGPT. Instant multi-lingual and biometric access across six regional languages.",
-        voiceTa: "WeatherGPT-க்கு நல்வரவு. தமிழ் உட்பட பல மொழிகளில் அதிவேகமாக உள்நுழையலாம்."
-      },
-      {
-        id: 'fScene2',
-        start: 8,
-        end: 16,
-        cursorX: '70%',
-        cursorY: '40%',
-        subEn: "2/6 Real-Time Mobile Dashboard: Live 31°C telemetry, AQI, and hourly precipitation forecast.",
-        subTa: "2/6 நேரடி மொபைல் டாஷ்போர்டு: 31°C வெப்பநிலை, காற்று தரம் (AQI) மற்றும் மணிநேர மழை கணிப்பு.",
-        voiceEn: "Real-time dashboard displaying hyper-local temperature, atmospheric telemetry, and air quality.",
-        voiceTa: "நேரடி வெப்பநிலை, காற்றின் தரம் மற்றும் மணிநேர வானிலை கணிப்புகள்."
-      },
-      {
-        id: 'fScene3',
-        start: 16,
-        end: 25,
-        cursorX: '55%',
-        cursorY: '70%',
-        subEn: "3/6 Conversational AI: Micro-zone rain prediction delivered in a clean 3-column table (Place | Rain YES/NO | Timing).",
-        subTa: "3/6 AI உரையாடல்: இடம், மழை அளவு மற்றும் நேரத்துடன் கூடிய 3-காலம் அட்டவணை.",
-        voiceEn: "Conversational AI returns micro zone rain predictions in a clean 3-column table with voice synthesis.",
-        voiceTa: "எங்கள் AI சாட்பாட் இடம், மழை அளவு மற்றும் நேரத்துடன் கூடிய 3 காலம் அட்டவணையில் பதிலளிக்கிறது."
-      },
-      {
-        id: 'fScene4',
-        start: 25,
-        end: 33,
-        cursorX: '50%',
-        cursorY: '50%',
-        subEn: "4/6 Live GIS Doppler Radar: 500km convective storm tracking and cloud satellite feeds.",
-        subTa: "4/6 நேரடி டாப்ளர் ரேடார்: 500 கிமீ புயல் கண்காணிப்பு மற்றும் மேக வரைபடம்.",
-        voiceEn: "Live 500 kilometer Doppler radar map tracking convective storms in real-time.",
-        voiceTa: "நேரடி 500 கிமீ டாப்ளர் ரேடார் வரைபடம் மற்றும் மேகக் கண்காணிப்பு."
-      },
-      {
-        id: 'fScene5',
-        start: 33,
-        end: 41,
-        cursorX: '35%',
-        cursorY: '55%',
-        subEn: "5/6 Route Planner & Event Score: Transit hazard avoidance and 0-100 outdoor safety index.",
-        subTa: "5/6 வழித்தட வானிலை & நிகழ்வு ஸ்கோர்: பயண புயல் தவிர்ப்பு மற்றும் நிகழ்வு பாதுகாப்பு குறியீடு.",
-        voiceEn: "Smart route weather planner and event weather safety score engine from 0 to 100.",
-        voiceTa: "பயண வழித்தட புயல் எச்சரிக்கை மற்றும் நிகழ்வு பாதுகாப்பு ஸ்கோர்."
-      },
-      {
-        id: 'fScene6',
-        start: 41,
-        end: 50,
-        cursorX: '75%',
-        cursorY: '60%',
-        subEn: "6/6 Spotter Network & Disaster SOS: Crowdsourced reports and offline WebRTC emergency mesh dispatch.",
-        subTa: "6/6 ஸ்பாட்டர் நெட்வொர்க் & SOS: பொதுமக்கள் வெள்ளப் பதிவுகள் மற்றும் இணையமில்லா அவசர SOS உதவி.",
-        voiceEn: "Crowdsourced waterlogging spotter network and offline disaster emergency SOS mesh relay.",
-        voiceTa: "பொதுமக்கள் வெள்ளப் பதிவுகள் மற்றும் இணையம் இல்லாத அவசர SOS எச்சரிக்கை அமைப்பு."
-      }
-    ];
-
-    let currentFrameIdx = -1;
-
-    const browserWindow = document.getElementById('browserWindow');
-    const playBtn = document.getElementById('playBtn');
-    const playBtnText = document.getElementById('playBtnText');
-    const playIcon = document.getElementById('playIcon');
-    const replayBtn = document.getElementById('replayBtn');
-    const progressFill = document.getElementById('progressFill');
-    const progressTrack = document.getElementById('progressTrack');
-    const timeBadge = document.getElementById('timeBadge');
-    const subtitlesPill = document.getElementById('subtitlesPill');
-    const virtualCursor = document.getElementById('virtualCursor');
-    const langToggleBtn = document.getElementById('langToggleBtn');
-    const langLabel = document.getElementById('langLabel');
-    const voiceToggleBtn = document.getElementById('voiceToggleBtn');
     const copyLinkBtn = document.getElementById('copyLinkBtn');
-
-    function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      return `0${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    }
-
-    function speakText(text, lang) {
-      if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang === 'ta' ? 'ta-IN' : 'en-US';
-      utterance.rate = 1.05;
-      window.speechSynthesis.speak(utterance);
-    }
-
-    function updateFrame(time) {
-      const frameIdx = frames.findIndex(f => time >= f.start && time < f.end);
-      if (frameIdx !== -1 && frameIdx !== currentFrameIdx) {
-        currentFrameIdx = frameIdx;
-        const currentFrame = frames[frameIdx];
-
-        document.querySelectorAll('.frame-scene').forEach(el => el.classList.remove('active'));
-        const activeEl = document.getElementById(currentFrame.id);
-        if (activeEl) activeEl.classList.add('active');
-
-        // Animate Virtual Mouse Cursor
-        virtualCursor.style.left = currentFrame.cursorX;
-        virtualCursor.style.top = currentFrame.cursorY;
-
-        // Update Chapter Buttons
-        document.querySelectorAll('.chapter-btn').forEach((btn, idx) => {
-          btn.classList.toggle('active', idx === frameIdx);
-        });
-
-        // Update Subtitles
-        subtitlesPill.textContent = selectedLanguage === 'ta' ? currentFrame.subTa : currentFrame.subEn;
-
-        // Speak Voiceover
-        if (isPlaying) {
-          const speechText = selectedLanguage === 'ta' ? currentFrame.voiceTa : currentFrame.voiceEn;
-          speakText(speechText, selectedLanguage);
-        }
-      }
-    }
-
-    function tick() {
-      if (currentTime >= TOTAL_DURATION) {
-        pauseVideo();
-        currentTime = TOTAL_DURATION;
-        updateUI();
-        return;
-      }
-      currentTime += 0.2;
-      updateUI();
-    }
-
-    function updateUI() {
-      const pct = (currentTime / TOTAL_DURATION) * 100;
-      progressFill.style.width = pct + '%';
-      timeBadge.textContent = `${formatTime(currentTime)} / 00:50`;
-      updateFrame(currentTime);
-    }
-
-    function playVideo() {
-      isPlaying = true;
-      playBtnText.textContent = "Pause";
-      playIcon.setAttribute('data-lucide', 'pause');
-      lucide.createIcons();
-      if (currentTime >= TOTAL_DURATION) currentTime = 0;
-
-      if (currentFrameIdx !== -1) {
-        const frame = frames[currentFrameIdx];
-        speakText(selectedLanguage === 'ta' ? frame.voiceTa : frame.voiceEn, selectedLanguage);
-      } else {
-        updateFrame(0);
-      }
-
-      timerInterval = setInterval(tick, 200);
-    }
-
-    function pauseVideo() {
-      isPlaying = false;
-      playBtnText.textContent = "Play (50s)";
-      playIcon.setAttribute('data-lucide', 'play');
-      lucide.createIcons();
-      clearInterval(timerInterval);
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    }
-
-    function seekTo(sec) {
-      currentTime = sec;
-      updateUI();
-      if (!isPlaying) playVideo();
-    }
-
-    browserWindow.addEventListener('click', () => {
-      if (isPlaying) pauseVideo();
-      else playVideo();
-    });
-
-    playBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (isPlaying) pauseVideo();
-      else playVideo();
-    });
-
-    replayBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      pauseVideo();
-      currentTime = 0;
-      currentFrameIdx = -1;
-      updateUI();
-      playVideo();
-    });
-
-    progressTrack.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const rect = progressTrack.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-      currentTime = ratio * TOTAL_DURATION;
-      updateUI();
-      if (isPlaying) {
-        currentFrameIdx = -1;
-        updateFrame(currentTime);
-      }
-    });
-
-    langToggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      selectedLanguage = selectedLanguage === 'en' ? 'ta' : 'en';
-      langLabel.textContent = selectedLanguage === 'ta' ? 'தமிழ்' : 'English';
-      if (currentFrameIdx !== -1) {
-        const frame = frames[currentFrameIdx];
-        subtitlesPill.textContent = selectedLanguage === 'ta' ? frame.subTa : frame.subEn;
-        if (isPlaying) speakText(selectedLanguage === 'ta' ? frame.voiceTa : frame.voiceEn, selectedLanguage);
-      }
-    });
-
-    voiceToggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isVoiceEnabled = !isVoiceEnabled;
-      voiceToggleBtn.style.opacity = isVoiceEnabled ? '1' : '0.5';
-      if (!isVoiceEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
-    });
-
     copyLinkBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(window.location.origin + '/video.html');
-      copyLinkBtn.innerHTML = '<i data-lucide="check" style="width: 11px; height: 11px;"></i> Copied!';
+      copyLinkBtn.innerHTML = '<i data-lucide="check" style="width: 12px; height: 12px;"></i> Copied!';
       lucide.createIcons();
       setTimeout(() => {
-        copyLinkBtn.innerHTML = '<i data-lucide="copy" style="width: 11px; height: 11px;"></i> Copy Video Link';
+        copyLinkBtn.innerHTML = '<i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy Video Link';
         lucide.createIcons();
       }, 2000);
-    });
-
-    window.addEventListener('load', () => {
-      updateUI();
     });
   </script>
 </body>
