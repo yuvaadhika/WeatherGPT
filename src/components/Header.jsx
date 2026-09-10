@@ -100,8 +100,8 @@ export default function Header({
   const displaySpecificName = currentLocation?.specificPlace
     ? (getLocalizedPlaceName(currentLocation.rawSpecificPlace || currentLocation.specificPlace, activeLanguage) || currentLocation.specificPlace)
     : (currentLocation?.district && currentLocation.district !== currentLocation.name
-        ? (getLocalizedPlaceName(currentLocation.rawDistrict || currentLocation.district, activeLanguage) || currentLocation.district)
-        : '');
+      ? (getLocalizedPlaceName(currentLocation.rawDistrict || currentLocation.district, activeLanguage) || currentLocation.district)
+      : '');
 
   return (
     <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/95 backdrop-blur-xl px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-3 flex-shrink-0 z-30 shadow-2xs">
@@ -144,11 +144,10 @@ export default function Header({
           onClick={() => onDetectLocation && onDetectLocation(activeLanguage)}
           disabled={isLocating}
           title={activeLanguage === 'ta' ? 'நேரலை ஜிபிஎஸ் இடம் கண்டறி (Live GPS)' : 'Lock Current Live GPS Location'}
-          className={`p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center flex-shrink-0 ${
-            isLocating
+          className={`p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center flex-shrink-0 ${isLocating
               ? 'bg-sky-100 text-sky-700 border-sky-400 shadow-xs'
               : 'bg-white/90 hover:bg-sky-50 text-sky-600 border-sky-200/80 hover:border-sky-400'
-          }`}
+            }`}
         >
           <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin text-sky-600' : 'text-sky-600'}`} />
         </button>
@@ -256,11 +255,10 @@ export default function Header({
         <button
           onClick={onOpenAlertModal || onToggleNotifications}
           title="Configure Weather Alerts & Notifications"
-          className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1.5 transition-all shadow-2xs cursor-pointer ${
-            notificationsEnabled
+          className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1.5 transition-all shadow-2xs cursor-pointer ${notificationsEnabled
               ? 'bg-sky-50 border-sky-300 text-sky-700 hover:bg-sky-100'
               : 'bg-white/90 border-slate-200 text-slate-500 hover:text-slate-800'
-          }`}
+            }`}
         >
           {notificationsEnabled ? (
             <BellRing className="w-3.5 h-3.5 text-sky-600 animate-pulse" />
@@ -276,13 +274,12 @@ export default function Header({
         {topAlert && topAlert.level !== 'green' && (
           <div
             onClick={onOpenAlertModal}
-            className={`hidden sm:flex px-2 py-1 rounded-xl text-[10px] font-bold border items-center space-x-1 cursor-pointer ${
-              topAlert.level === 'red'
+            className={`hidden sm:flex px-2 py-1 rounded-xl text-[10px] font-bold border items-center space-x-1 cursor-pointer ${topAlert.level === 'red'
                 ? 'bg-rose-50 border-rose-200 text-rose-700'
                 : topAlert.level === 'orange'
-                ? 'bg-amber-50 border-amber-200 text-amber-700'
-                : 'bg-yellow-50 border-yellow-200 text-yellow-700'
-            }`}
+                  ? 'bg-amber-50 border-amber-200 text-amber-700'
+                  : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+              }`}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
             <span>{topAlert.level.toUpperCase()} Alert</span>

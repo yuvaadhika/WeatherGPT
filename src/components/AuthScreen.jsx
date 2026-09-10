@@ -11,7 +11,8 @@ import {
   ArrowRight,
   Globe,
   Radio,
-  Wheat
+  Wheat,
+  Play
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { userRegistryService } from '../services/userRegistryService';
@@ -19,7 +20,8 @@ import { userRegistryService } from '../services/userRegistryService';
 export default function AuthScreen({
   onLogin,
   activeLanguage = 'en',
-  setActiveLanguage
+  setActiveLanguage,
+  onOpenVideoTour
 }) {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [name, setName] = useState('');
@@ -148,6 +150,21 @@ export default function AuthScreen({
         </div>
 
         <div className="flex items-center space-x-2 flex-shrink-0">
+          {/* 50s Demo Video Tour Button */}
+          {onOpenVideoTour && (
+            <button
+              type="button"
+              onClick={onOpenVideoTour}
+              title={activeLanguage === 'ta' ? '50-விநாடி வீடியோ விளக்கத்தைக் காண்க' : 'Watch 50-Second Feature Walkthrough Video'}
+              className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-xs flex items-center space-x-1.5 shadow-sm transition-all cursor-pointer ring-1 ring-sky-300/40 hover:scale-105"
+            >
+              <Play className="w-3 h-3 fill-white shrink-0" />
+              <span className="text-[11px] font-black tracking-tight whitespace-nowrap">
+                {activeLanguage === 'ta' ? '🎥 50s வீடியோ' : '🎥 50s Demo'}
+              </span>
+            </button>
+          )}
+
           {/* Language Selector Dropdown */}
           <div className="flex items-center space-x-1.5 bg-white/90 hover:bg-white border border-sky-200/90 rounded-xl px-2.5 py-1.5 shadow-2xs transition-all">
             <Globe className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
@@ -187,11 +204,10 @@ export default function AuthScreen({
                 setMode('signin');
                 setError('');
               }}
-              className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
-                mode === 'signin'
+              className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${mode === 'signin'
                   ? 'bg-white text-sky-700 shadow-2xs border border-sky-100'
                   : 'hover:text-slate-900'
-              }`}
+                }`}
             >
               {activeLanguage === 'ta' ? 'உள்நுழைவு' : 'Sign In'}
             </button>
@@ -201,11 +217,10 @@ export default function AuthScreen({
                 setMode('signup');
                 setError('');
               }}
-              className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
-                mode === 'signup'
+              className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${mode === 'signup'
                   ? 'bg-white text-sky-700 shadow-2xs border border-sky-100'
                   : 'hover:text-slate-900'
-              }`}
+                }`}
             >
               {activeLanguage === 'ta' ? 'புதிய கணக்கு' : 'Create Account'}
             </button>
@@ -315,8 +330,8 @@ export default function AuthScreen({
                 {isLoading
                   ? (activeLanguage === 'ta' ? 'சரிபார்க்கிறது...' : 'Verifying...')
                   : mode === 'signin'
-                  ? (activeLanguage === 'ta' ? 'உள்நுழைக' : 'Sign In')
-                  : (activeLanguage === 'ta' ? 'கணக்கை உருவாக்குங்கள்' : 'Create Free Account')}
+                    ? (activeLanguage === 'ta' ? 'உள்நுழைக' : 'Sign In')
+                    : (activeLanguage === 'ta' ? 'கணக்கை உருவாக்குங்கள்' : 'Create Free Account')}
               </span>
               {!isLoading && <ArrowRight className="w-4 h-4" />}
             </button>

@@ -20,7 +20,7 @@ import CommunityWeatherSpotter from './components/CommunityWeatherSpotter';
 import DisasterEmergencySOS from './components/DisasterEmergencySOS';
 import AdminUserRegistryModal from './components/AdminUserRegistryModal';
 import EmergencyNetworkBanner from './components/EmergencyNetworkBanner';
-import FeatureVideoTourModal from './components/FeatureVideoTourModal';
+
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -93,7 +93,7 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.latitude && parsed.longitude) return parsed;
       }
-    } catch {}
+    } catch { }
     return {
       name: 'Chennai',
       specificPlace: '',
@@ -133,6 +133,24 @@ export default function App() {
     userRegistryService.autoRegisterVisitor(currentUser, currentLocation);
   }, [currentUser, currentLocation?.name]);
 
+  // 🎥 Auto-open 50-second video walkthrough if ?video=true, ?tour=true, or #video is present
+  useEffect(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+      if (
+        urlParams.get('video') === 'true' ||
+        urlParams.get('tour') === 'true' ||
+        urlParams.get('demo') === 'true' ||
+        hash === '#video' ||
+        hash === '#tour' ||
+        hash === '#demo'
+      ) {
+        setIsVideoTourOpen(true);
+      }
+    } catch { }
+  }, []);
+
   const handleSignOut = () => {
     localStorage.removeItem('weathergpt_auth_user');
     sessionStorage.removeItem('weathergpt_auth_user');
@@ -151,7 +169,7 @@ export default function App() {
       setCurrentLocation(resolvedLoc);
       try {
         localStorage.setItem('weathergpt_saved_location', JSON.stringify(resolvedLoc));
-      } catch {}
+      } catch { }
     } else if (allowLocation) {
       detectUserLocation(activeLanguage);
     }
@@ -160,7 +178,7 @@ export default function App() {
       setNotificationsEnabled(true);
       try {
         await notificationService.requestBrowserPermission();
-      } catch {}
+      } catch { }
       notificationService.sendTestAlert(resolvedLoc?.name || currentLocation?.name || 'Your Location');
       setIsAlertModalOpen(true);
     }
@@ -225,7 +243,7 @@ export default function App() {
             setCurrentLocation(loc);
             try {
               localStorage.setItem('weathergpt_saved_location', JSON.stringify(loc));
-            } catch {}
+            } catch { }
           }
         } catch (e) {
           console.warn('Reverse geocode error:', e);
@@ -368,14 +386,36 @@ export default function App() {
 
   if (!currentUser) {
     return (
-      <AuthScreen
-        onLogin={(user) => {
-          setCurrentUser(user);
-          setIsOnboardingOpen(true);
-        }}
-        activeLanguage={activeLanguage}
-        setActiveLanguage={setActiveLanguage}
-      />
+      <>
+        <AuthScreen
+          onLogin={(user) => {
+            setCurrentUser(user);
+            setIsOnboardingOpen(true);
+          }}
+          activeLanguage={activeLanguage}
+          setActiveLanguage={setActiveLanguage}
+          onOpenVideoTour={() => setIsVideoTourOpen(true)}
+        />
+        <FeatureVideoTourModal
+          isOpen={isVideoTourOpen}
+          onClose={() => setIsVideoTourOpen(false)}
+          activeLanguage={activeLanguage}
+          onNavigateView={(view) => {
+            const demoUser = {
+              id: `demo-${Date.now()}`,
+              name: 'Demo Visitor',
+              email: 'demo@weathergpt.live',
+              avatarType: 'initials',
+              avatar: '',
+              provider: 'Video Tour Guest 🎥',
+              role: 'Demo Member',
+              joinedAt: new Date().toISOString()
+            };
+            setCurrentUser(demoUser);
+            setActiveView(view);
+          }}
+        />
+      </>
     );
   }
 
@@ -383,9 +423,8 @@ export default function App() {
     <div className="h-screen w-screen flex bg-gradient-to-b from-[#eef6fc] via-[#f2f8fe] to-[#e8f4fd] text-slate-800 overflow-hidden font-sans">
       {/* 1. Desktop Left Sidebar (Visible on Tablet/Desktop, Drawer on Mobile) */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#f8fbff]/95 backdrop-blur-xl border-r border-sky-100 flex flex-col justify-between transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#f8fbff]/95 backdrop-blur-xl border-r border-sky-100 flex flex-col justify-between transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-sky-100">
@@ -432,11 +471,10 @@ export default function App() {
                 setActiveView('home');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'home'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'home'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+                }`}
             >
               <Home className="w-4 h-4 text-sky-600" />
               <span>{activeLanguage === 'ta' ? 'முகப்பு டாஷ்போர்டு' : 'Home Dashboard'}</span>
@@ -448,11 +486,10 @@ export default function App() {
                 setActiveView('chat');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'chat'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'chat'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+                }`}
             >
               <MessageSquare className="w-4 h-4 text-sky-600" />
               <span>{t.sidebar?.forecastAssistant || 'Forecast & AI Chatbot'}</span>
@@ -464,11 +501,10 @@ export default function App() {
                 setActiveView('radar');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'radar'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'radar'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+                }`}
             >
               <Radio className="w-4 h-4 text-emerald-600" />
               <span>{t.sidebar?.liveRadarMap || 'Live Doppler Radar Map'}</span>
@@ -480,11 +516,10 @@ export default function App() {
                 setActiveView('alerts');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'alerts'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'alerts'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+                }`}
             >
               <ShieldAlert className="w-4 h-4 text-rose-600" />
               <span>{activeLanguage === 'ta' ? 'முன்னெச்சரிக்கை மையம்' : 'Early Warnings & Alerts'}</span>
@@ -501,11 +536,10 @@ export default function App() {
                 setActiveView('climate');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'climate'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'climate'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+                }`}
             >
               <TrendingUp className="w-4 h-4 text-indigo-600" />
               <span>{t.sidebar?.climateTrends || 'Climate & 7-Day Trends'}</span>
@@ -525,11 +559,10 @@ export default function App() {
                 setActiveView('route');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'route'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'route'
                   ? 'bg-sky-50 text-sky-700 border border-sky-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+                }`}
             >
               <Navigation className="w-4 h-4 text-sky-600" />
               <span>{activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை' : 'Route Weather Planner'}</span>
@@ -541,11 +574,10 @@ export default function App() {
                 setActiveView('event');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'event'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'event'
                   ? 'bg-rose-50 text-rose-700 border border-rose-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+                }`}
             >
               <Heart className="w-4 h-4 text-rose-500" />
               <span>{activeLanguage === 'ta' ? 'சுபகாரிய விழா கணிப்பு' : 'Event & Wedding Score'}</span>
@@ -557,11 +589,10 @@ export default function App() {
                 setActiveView('spotter');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'spotter'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'spotter'
                   ? 'bg-teal-50 text-teal-700 border border-teal-200'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
+                }`}
             >
               <Users className="w-4 h-4 text-teal-600" />
               <span>{activeLanguage === 'ta' ? 'மக்கள் நேரடி சமூகம்' : 'Community Sky Spotter'}</span>
@@ -573,11 +604,10 @@ export default function App() {
                 setActiveView('sos');
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                activeView === 'sos'
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'sos'
                   ? 'bg-rose-100 text-rose-900 border border-rose-300 font-bold'
                   : 'text-rose-600 hover:bg-rose-50 hover:text-rose-900'
-              }`}
+                }`}
             >
               <ShieldAlert className="w-4 h-4 text-rose-600 animate-pulse" />
               <span>{activeLanguage === 'ta' ? 'புயல் வெள்ள SOS மையம்' : 'Disaster SOS & Alerts'}</span>
@@ -605,11 +635,10 @@ export default function App() {
                     setActiveView('decision');
                     setSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                    isSelected
+                  className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${isSelected
                       ? 'bg-sky-50 text-sky-700 border border-sky-200'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4 text-slate-500" />
                   <span className="truncate">{s.label}</span>
@@ -1053,13 +1082,7 @@ export default function App() {
         onClose={() => setIsAdminModalOpen(false)}
         activeLanguage={activeLanguage}
       />
-
-      <FeatureVideoTourModal
-        isOpen={isVideoTourOpen}
-        onClose={() => setIsVideoTourOpen(false)}
-        activeLanguage={activeLanguage}
-        onNavigateView={(view) => setActiveView(view)}
-      />
     </div>
   );
 }
+

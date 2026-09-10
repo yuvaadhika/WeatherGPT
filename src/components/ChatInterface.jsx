@@ -236,9 +236,8 @@ function RenderMessageContent({ text, isAi = true }) {
                     {block.rows.map((row, rIdx) => (
                       <tr
                         key={rIdx}
-                        className={`transition-colors hover:bg-sky-50/60 ${
-                          rIdx % 2 === 1 ? 'bg-slate-50/40' : 'bg-white'
-                        }`}
+                        className={`transition-colors hover:bg-sky-50/60 ${rIdx % 2 === 1 ? 'bg-slate-50/40' : 'bg-white'
+                          }`}
                       >
                         {row.map((cell, cIdx) => (
                           <td key={cIdx} className="py-2.5 px-3.5 text-slate-800 align-middle">
@@ -778,28 +777,25 @@ export default function ChatInterface({
           return (
             <div
               key={msg.id}
-              className={`flex items-start space-x-3 max-w-3xl mx-auto ${
-                isAi ? 'justify-start' : 'justify-end flex-row-reverse space-x-reverse'
-              }`}
+              className={`flex items-start space-x-3 max-w-3xl mx-auto ${isAi ? 'justify-start' : 'justify-end flex-row-reverse space-x-reverse'
+                }`}
             >
               {/* Sender Tag */}
               <div
-                className={`px-2 py-0.5 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-bold ${
-                  isAi
+                className={`px-2 py-0.5 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-bold ${isAi
                     ? 'bg-slate-100 text-slate-700 border border-slate-200'
                     : 'bg-sky-50 text-sky-700 border border-sky-200'
-                }`}
+                  }`}
               >
                 {isAi ? 'WeatherGPT' : 'You'}
               </div>
 
               {/* Bubble */}
               <div
-                className={`rounded-2xl p-4 shadow-2xs text-xs sm:text-sm leading-relaxed max-w-[88%] ${
-                  isAi
+                className={`rounded-2xl p-4 shadow-2xs text-xs sm:text-sm leading-relaxed max-w-[88%] ${isAi
                     ? 'bg-white/90 backdrop-blur-md border border-sky-100/90 text-slate-800'
                     : 'bg-sky-600 text-white font-normal'
-                }`}
+                  }`}
               >
                 {/* User Attached Image Preview */}
                 {msg.image && (
@@ -887,15 +883,15 @@ export default function ChatInterface({
                           {msg.detectedLanguage === 'ta' || activeLanguage === 'ta'
                             ? '📊 இந்த முன்னறிவிப்பிற்கான முழுமையான வானிலை & ரேடார் அறிக்கையைப் பதிவிறக்க வேண்டுமா?'
                             : msg.detectedLanguage === 'tanglish'
-                            ? '📊 Full Weather & Live Radar Report-ஐ Download பண்ணவா?'
-                            : '📊 Would you like to download the complete Weather & Radar Intelligence Report?'}
+                              ? '📊 Full Weather & Live Radar Report-ஐ Download பண்ணவா?'
+                              : '📊 Would you like to download the complete Weather & Radar Intelligence Report?'}
                         </span>
                         <span className="text-[10px] text-slate-500 block mt-0.5">
                           {msg.detectedLanguage === 'ta' || activeLanguage === 'ta'
                             ? 'நேரலை அளவீடுகள், மழை நேரம், GIS ரேடார் வரைபடம், காற்று தரம் & விவசாய வழிகாட்டல்கள் அடங்கியது'
                             : msg.detectedLanguage === 'tanglish'
-                            ? 'Includes Live Telemetry, Rain Timing, GIS Radar, AQI & Sector Directives'
-                            : 'Includes live telemetry, 48h rain timing, GIS radar stream, AQI & sector advisories'}
+                              ? 'Includes Live Telemetry, Rain Timing, GIS Radar, AQI & Sector Directives'
+                              : 'Includes live telemetry, 48h rain timing, GIS radar stream, AQI & sector advisories'}
                         </span>
                       </div>
                     </div>
@@ -925,11 +921,10 @@ export default function ChatInterface({
                       <button
                         onClick={() => handleSpeak(msg.id, msg.text, msg.detectedLanguage)}
                         title={isSpeakingThis ? "Stop speaking" : "Listen to weather report (Voice Synthesis)"}
-                        className={`p-1 rounded-lg transition-colors cursor-pointer ${
-                          isSpeakingThis
+                        className={`p-1 rounded-lg transition-colors cursor-pointer ${isSpeakingThis
                             ? 'bg-sky-100 text-sky-700 animate-pulse'
                             : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'
-                        }`}
+                          }`}
                       >
                         {isSpeakingThis ? <VolumeX className="w-3.5 h-3.5 text-sky-600" /> : <Volume2 className="w-3.5 h-3.5" />}
                       </button>
@@ -1007,8 +1002,8 @@ export default function ChatInterface({
                   {messages.find(m => m.id === speakingMsgId)?.detectedLanguage === 'tanglish'
                     ? 'WeatherGPT Tanglish Voice (குரல் விளக்கம்)'
                     : (messages.find(m => m.id === speakingMsgId)?.detectedLanguage === 'ta' || activeLanguage === 'ta')
-                    ? 'வானிலை AI குரலில் விளக்குகிறது...'
-                    : `WeatherGPT Voice Assistant (${activeLangObj.nativeName})`}
+                      ? 'வானிலை AI குரலில் விளக்குகிறது...'
+                      : `WeatherGPT Voice Assistant (${activeLangObj.nativeName})`}
                 </span>
                 <span className="text-[10px] text-slate-300 hidden sm:inline">
                   {activeLanguage === 'ta' ? 'அறிக்கையை குரலில் விவரிக்கிறது' : 'Speaking verified weather bulletin'}
@@ -1117,11 +1112,10 @@ export default function ChatInterface({
                 setAutoSpeak(true);
               }
             }}
-            className={`flex-shrink-0 px-2.5 py-1 rounded-xl text-[10px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${
-              autoSpeak
+            className={`flex-shrink-0 px-2.5 py-1 rounded-xl text-[10px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${autoSpeak
                 ? 'bg-sky-50 text-sky-700 border border-sky-300 shadow-2xs'
                 : 'bg-slate-100 text-slate-500 border border-slate-200 hover:text-slate-800'
-            }`}
+              }`}
             title={autoSpeak ? 'Auto Voice: ON (AI will speak all outputs aloud)' : 'Auto Voice: OFF (AI text only)'}
           >
             {autoSpeak ? <Volume2 className="w-3 h-3 text-sky-600 animate-pulse" /> : <VolumeX className="w-3 h-3 text-slate-400" />}
@@ -1163,11 +1157,10 @@ export default function ChatInterface({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             title={activeLanguage === 'ta' ? 'படத்தை பதிவேற்றவும் (Upload from Gallery)' : 'Upload from Gallery / Files'}
-            className={`p-2 sm:p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${
-              selectedImage
+            className={`p-2 sm:p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${selectedImage
                 ? 'bg-sky-600 text-white shadow-md'
                 : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs'
-            }`}
+              }`}
           >
             <ImageIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
@@ -1177,11 +1170,10 @@ export default function ChatInterface({
             type="button"
             onClick={handleToggleVoice}
             title={isListening ? (t.chat?.voiceListening || 'Listening...') : 'Speak with Voice (10 Languages)'}
-            className={`p-2 sm:p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${
-              isListening
+            className={`p-2 sm:p-2.5 rounded-xl transition-all flex items-center justify-center flex-shrink-0 cursor-pointer ${isListening
                 ? 'bg-rose-600 text-white animate-pulse shadow-md'
                 : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200/70 shadow-2xs'
-            }`}
+              }`}
           >
             {isListening ? <MicOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
@@ -1195,8 +1187,8 @@ export default function ChatInterface({
               selectedImage
                 ? (activeLanguage === 'ta' ? 'வானிலை/மேகம் படத்தைப் பற்றி கேளுங்கள்...' : 'Ask about this weather/sky photo...')
                 : isListening
-                ? (t.chat?.voiceListening || 'Listening...')
-                : (activeLanguage === 'ta' ? 'வானிலை பற்றி கேளுங்கள்...' : 'Ask WeatherGPT anything...')
+                  ? (t.chat?.voiceListening || 'Listening...')
+                  : (activeLanguage === 'ta' ? 'வானிலை பற்றி கேளுங்கள்...' : 'Ask WeatherGPT anything...')
             }
             className="flex-1 min-w-0 bg-transparent px-1 sm:px-2.5 py-1.5 sm:py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 placeholder:truncate focus:outline-none"
           />
@@ -1212,11 +1204,10 @@ export default function ChatInterface({
             disabled={(!inputQuery.trim() && !selectedImage) || isLoading}
             title={activeLanguage === 'ta' ? 'அனுப்பு' : 'Send'}
             aria-label="Send Message"
-            className={`p-2 sm:p-2.5 rounded-xl font-medium flex items-center justify-center transition-all flex-shrink-0 cursor-pointer ml-auto ${
-              (inputQuery.trim() || selectedImage) && !isLoading
+            className={`p-2 sm:p-2.5 rounded-xl font-medium flex items-center justify-center transition-all flex-shrink-0 cursor-pointer ml-auto ${(inputQuery.trim() || selectedImage) && !isLoading
                 ? 'bg-sky-600 text-white hover:bg-sky-700 active:scale-95 shadow-sm'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-            }`}
+              }`}
           >
             <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
