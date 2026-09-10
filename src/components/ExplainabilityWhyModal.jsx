@@ -68,16 +68,16 @@ export default function ExplainabilityWhyModal({
         {/* Modal Content Body */}
         <div className="p-6 space-y-5 overflow-y-auto">
           {/* 1. Core Synthesis Summary */}
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-900 to-slate-900 text-white space-y-2 shadow-md">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-sky-50 via-indigo-50/70 to-white text-slate-850 border border-sky-200/90 space-y-2 shadow-2xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black tracking-wider uppercase text-indigo-300">
+              <span className="text-[10px] font-black tracking-wider uppercase text-sky-800">
                 {isTa ? 'முக்கிய முடிவு காரணி' : 'Primary Meteorological Drivers'}
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-indigo-500/30 border border-indigo-400/40 text-[10px] font-bold text-indigo-200">
+              <span className="px-2 py-0.5 rounded-full bg-sky-100 border border-sky-300 text-[10px] font-bold text-sky-800">
                 {currentLocationName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
               {isTa
                 ? `தற்போதைய மழை வாய்ப்பு ${rainProb}%, காற்றின் வேகம் ${windGust.toFixed(0)} km/h மற்றும் ஈரப்பதம் ${humidity}% ஆக உள்ளதால், விவசாய தெளிப்பு மற்றும் தாழ்வான போக்குவரத்து ஆகியவற்றில் இடர் அதிகரிக்கிறது.`
                 : `Atmospheric model shows ${rainProb}% rain probability with peak wind gusts of ${windGust.toFixed(0)} km/h and ${humidity}% relative humidity, causing elevated agricultural drift and low-lying transit friction.`}

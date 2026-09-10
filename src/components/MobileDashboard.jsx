@@ -235,16 +235,6 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* 3. DECISION-FIRST HERO ENGINE: "What do you want to decide?" */}
-      <WeatherDecisionEngine
-        activeLanguage={activeLanguage}
-        weatherData={weatherData}
-        currentLocation={currentLocation}
-        onOpenExplainability={onOpenExplainability}
-        onOpenSimulator={onOpenSimulator}
-        onPromptChat={onOpenChat}
-      />
-
       {/* 4. Active Severe Weather Alert Warning Banner (Official IMD vs AI Risk Classification) */}
       {alerts && alerts.length > 0 && alerts[0].level !== 'green' && (
         <div
@@ -781,34 +771,44 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* 6. SCIENTIFIC ANSWER SOURCE PROVENANCE BOX (Judge-Proof Traceability) */}
-      <div className="p-3.5 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-md space-y-2">
+      {/* 6. "WHAT DO YOU WANT TO DECIDE?" ACTIONABLE DECISION ENGINE */}
+      <WeatherDecisionEngine
+        activeLanguage={activeLanguage}
+        weatherData={weatherData}
+        currentLocation={currentLocation}
+        onOpenExplainability={onOpenExplainability}
+        onOpenSimulator={onOpenSimulator}
+        onPromptChat={onOpenChat}
+      />
+
+      {/* 7. SCIENTIFIC ANSWER SOURCE PROVENANCE BOX (Mild, Soft & Pleasant Light Glass Palette) */}
+      <div className="p-4 rounded-3xl bg-white/90 backdrop-blur-xl text-slate-800 border border-sky-200/80 shadow-2xs space-y-2.5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-xs font-black text-sky-300">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center space-x-2 text-xs font-black text-sky-850">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>{activeLanguage === 'ta' ? 'அறிவியல் தரவு ஆதாரங்கள் (Verified Answer Provenance)' : 'Verified Answer Data Provenance'}</span>
           </div>
-          <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[9px] font-extrabold uppercase">
+          <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-extrabold uppercase">
             {weatherData?.isCached ? 'Cached Sync' : 'Live Sync'}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
-          <div className="flex items-center space-x-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-rose-400"></span>
-            <span><strong>IMD Warning Feed:</strong> Regional Coastal Synoptic Bulletin</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-650 font-medium">
+          <div className="flex items-center space-x-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100/90">
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-500 flex-shrink-0"></span>
+            <span><strong>IMD Warning Feed:</strong> Regional Synoptic Bulletin</span>
           </div>
-          <div className="flex items-center space-x-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-sky-400"></span>
-            <span><strong>NWP Models:</strong> ECMWF IFS (9km) / NOAA GFS (13km) Seamless</span>
+          <div className="flex items-center space-x-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100/90">
+            <span className="h-1.5 w-1.5 rounded-full bg-sky-500 flex-shrink-0"></span>
+            <span><strong>NWP Models:</strong> ECMWF IFS (9km) / NOAA GFS (13km)</span>
           </div>
-          <div className="flex items-center space-x-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-            <span><strong>Radar Telemetry:</strong> RainViewer Doppler GIS Composite</span>
+          <div className="flex items-center space-x-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100/90">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+            <span><strong>Radar Telemetry:</strong> RainViewer Doppler GIS</span>
           </div>
-          <div className="flex items-center space-x-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
-            <span><strong>AI Impact Layer:</strong> WeatherGPT Explainable Decision Engine</span>
+          <div className="flex items-center space-x-1.5 p-2 rounded-xl bg-slate-50 border border-slate-100/90">
+            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 flex-shrink-0"></span>
+            <span><strong>AI Impact Layer:</strong> WeatherGPT Decision Engine</span>
           </div>
         </div>
       </div>
