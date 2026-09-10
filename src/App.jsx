@@ -20,6 +20,7 @@ import CommunityWeatherSpotter from './components/CommunityWeatherSpotter';
 import DisasterEmergencySOS from './components/DisasterEmergencySOS';
 import AdminUserRegistryModal from './components/AdminUserRegistryModal';
 import EmergencyNetworkBanner from './components/EmergencyNetworkBanner';
+import FeatureVideoTourModal from './components/FeatureVideoTourModal';
 import {
   fetchNWPForecast,
   fetchAirQuality,
@@ -120,6 +121,7 @@ export default function App() {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isVideoTourOpen, setIsVideoTourOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
     return localStorage.getItem('weather_onboarding_shown') !== 'true';
   });
@@ -712,6 +714,7 @@ export default function App() {
           onOpenAlertModal={() => setIsAlertModalOpen(true)}
           onOpenLocationModal={() => setIsLocationModalOpen(true)}
           onOpenAdminDatabase={() => setIsAdminModalOpen(true)}
+          onOpenVideoTour={() => setIsVideoTourOpen(true)}
           currentUser={currentUser}
           onSignOut={handleSignOut}
         />
@@ -776,6 +779,7 @@ export default function App() {
                 setExportReportParams(msg);
                 setIsExportOpen(true);
               }}
+              onOpenVideoTour={() => setIsVideoTourOpen(true)}
             />
           </div>
 
@@ -1048,6 +1052,13 @@ export default function App() {
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
         activeLanguage={activeLanguage}
+      />
+
+      <FeatureVideoTourModal
+        isOpen={isVideoTourOpen}
+        onClose={() => setIsVideoTourOpen(false)}
+        activeLanguage={activeLanguage}
+        onNavigateView={(view) => setActiveView(view)}
       />
     </div>
   );

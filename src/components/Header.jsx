@@ -15,7 +15,8 @@ import {
   Shield,
   Cpu,
   Navigation,
-  Crosshair
+  Crosshair,
+  Play
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getLocalizedPlaceName, searchLocation } from '../services/weatherService';
@@ -35,6 +36,7 @@ export default function Header({
   onOpenAlertModal,
   onOpenLocationModal,
   onOpenAdminDatabase,
+  onOpenVideoTour,
   currentUser,
   onSignOut
 }) {
@@ -218,6 +220,21 @@ export default function Header({
 
       {/* Right Controls */}
       <div className="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+        {/* 50-Second Product Walkthrough Demo Video Button */}
+        {onOpenVideoTour && (
+          <button
+            type="button"
+            onClick={onOpenVideoTour}
+            title={activeLanguage === 'ta' ? '50-விநாடி வீடியோ விளக்கத்தைக் காண்க' : 'Watch 50-Second Feature Walkthrough Video'}
+            className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-xs flex items-center space-x-1.5 shadow-sm transition-all cursor-pointer ring-1 ring-sky-300/40 hover:scale-105"
+          >
+            <Play className="w-3 h-3 fill-white shrink-0" />
+            <span className="text-[11px] font-black tracking-tight whitespace-nowrap">
+              {activeLanguage === 'ta' ? '🎥 50s வீடியோ' : '🎥 50s Demo'}
+            </span>
+          </button>
+        )}
+
         {/* Language Selector in Header */}
         <div className="flex items-center space-x-1 bg-white/90 border border-slate-200 hover:border-sky-400 rounded-xl px-1.5 sm:px-2 py-1 shadow-2xs transition-all">
           <Globe className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
