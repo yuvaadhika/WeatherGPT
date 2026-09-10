@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeatherGPT — Real Prototype Video Walkthrough</title>
-  <meta name="description" content="Official 50-Second Screen Recording Demonstration Video of WeatherGPT AI Hyper-Local Climate Intelligence Platform." />
+  <title>WeatherGPT — Fullscreen Prototype Video Demo</title>
+  <meta name="description" content="Fullscreen Edge-to-Edge Screen Recording Video Demonstration of WeatherGPT AI Hyper-Local Climate Intelligence Platform." />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,113 +18,110 @@
       margin: 0;
       padding: 0;
     }
-    :root {
-      --bg-dark: #040711;
-      --card-bg: #0b1120;
-      --accent-cyan: #06b6d4;
-      --accent-blue: #3b82f6;
-      --border-glass: rgba(255, 255, 255, 0.12);
-    }
-    body {
-      background-color: var(--bg-dark);
-      color: #f8fafc;
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      color: #fff;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px 12px 40px;
-      overflow-x: hidden;
-    }
-    .ambient-glow {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background: radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.15), transparent 45%),
-                  radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.15), transparent 45%);
-      z-index: 0;
-    }
-    /* Top Header */
-    .top-nav {
-      width: 100%;
-      max-width: 1080px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid var(--border-glass);
-      border-radius: 16px;
-      backdrop-filter: blur(14px);
-      margin-bottom: 16px;
-      z-index: 10;
-    }
-    .brand-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 800;
-      font-size: 15px;
-      color: #fff;
-    }
-    .badge-video {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
-      letter-spacing: 0.05em;
-    }
-    /* Main Video Theater Box */
-    .video-theater {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      max-width: 1080px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-glass);
-      border-radius: 20px;
-      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 45px rgba(6, 182, 212, 0.15);
       overflow: hidden;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
     }
-    /* Video Element */
-    .video-player-container {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
+
+    /* Fullscreen Video Container (100vw, 100vh) */
+    .fullscreen-theater {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
       background: #000;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
     }
+
     video {
       width: 100%;
       height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
       object-fit: contain;
       background: #000;
+      cursor: pointer;
+      transition: object-fit 0.3s ease;
     }
-    /* Bottom Info Card */
-    .info-footer {
-      width: 100%;
-      max-width: 1080px;
-      margin-top: 18px;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--border-glass);
-      border-radius: 18px;
-      padding: 20px;
+    video.fill-cover {
+      object-fit: cover;
+    }
+
+    /* Floating Glassmorphic Top Overlay Header */
+    .top-floating-bar {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
       display: flex;
-      flex-direction: column;
-      gap: 14px;
-      z-index: 10;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      z-index: 50;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
     }
-    .btn-action {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border-glass);
-      color: #f1f5f9;
+    .top-floating-bar.hidden-ui {
+      opacity: 0;
+      transform: translateY(-20px);
+      pointer-events: none;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .dot-live {
+      width: 6px;
+      height: 6px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulseDot 1.2s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(1.3); }
+    }
+    .video-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .btn-glass {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f8fafc;
       padding: 7px 14px;
       border-radius: 10px;
       cursor: pointer;
@@ -133,111 +130,263 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      text-decoration: none;
     }
-    .btn-action:hover {
-      background: rgba(255, 255, 255, 0.16);
+    .btn-glass:hover {
+      background: rgba(255, 255, 255, 0.2);
       transform: translateY(-1px);
     }
     .btn-primary {
-      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      background: linear-gradient(135deg, #0284c7, #2563eb);
       border: none;
       color: #fff;
     }
     .btn-primary:hover {
-      background: linear-gradient(135deg, #0891b2, #2563eb);
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+      box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);
     }
-    .link-row {
-      background: rgba(0, 0, 0, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 12px 16px;
+
+    /* Center Big Play / Unmute Button */
+    .center-overlay-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(2, 132, 199, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 40px rgba(2, 132, 199, 0.6);
+      transition: transform 0.2s ease, opacity 0.3s ease;
+      z-index: 40;
+    }
+    .center-overlay-btn:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      background: rgba(2, 132, 199, 1);
+    }
+    .center-overlay-btn.hidden-play {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.7);
+    }
+
+    /* Bottom Quick-Tip HUD */
+    .bottom-hud {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 18px;
+      border-radius: 9999px;
+      font-size: 11px;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(8px);
+      z-index: 50;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .bottom-hud.hidden-ui {
+      opacity: 0;
     }
   </style>
 </head>
 <body>
-  <div class="ambient-glow"></div>
-
-  <!-- Top Bar -->
-  <header class="top-nav">
-    <div class="brand-title">
-      <span class="badge-video">OFFICIAL DEMO VIDEO</span>
-      <span>WeatherGPT Real Prototype Screencast</span>
-    </div>
-    <div style="display: flex; align-items: center; gap: 8px;">
-      <a href="/" class="btn-action btn-primary" style="text-decoration: none;">
-        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> Open Live Prototype
-      </a>
-    </div>
-  </header>
-
-  <!-- Video Theater Player -->
-  <main class="video-theater">
-    <div class="video-player-container">
-      <video id="demoVideo" controls autoplay playsinline preload="auto">
-        <source src="/demo-video.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  </main>
-
-  <!-- Presentation Links Section -->
-  <section class="info-footer">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-      <div>
-        <h3 style="font-size: 16px; font-weight: 800; color: #fff;">WeatherGPT — SIH 2026 Presentation Links</h3>
-        <p style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Use these 2 separate links for your submission deck & judges:</p>
+  <!-- Fullscreen Edge-to-Edge Theater -->
+  <div class="fullscreen-theater" id="theater">
+    
+    <!-- Top Floating Controls Header -->
+    <header class="top-floating-bar" id="topBar">
+      <div class="brand-group">
+        <span class="badge-live"><span class="dot-live"></span> SIH DEMO</span>
+        <span class="video-title">WeatherGPT — Fullscreen Prototype Walkthrough</span>
       </div>
-      <div style="display: flex; gap: 6px;">
-        <span style="padding: 3px 8px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; font-size: 11px; font-weight: 700;">✓ Real MP4 Video Live</span>
-      </div>
-    </div>
 
-    <!-- Link 1: Chatbot Prototype -->
-    <div class="link-row">
-      <div>
-        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">1️⃣ Live Chatbot Prototype Website:</div>
-        <a href="/" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-decoration: none;">
-          https://weather-gpt-yuvi.vercel.app/
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="fitToggleBtn" class="btn-glass" title="Toggle Aspect Fit / Cover">
+          <i data-lucide="maximize-2" id="fitIcon" style="width: 14px; height: 14px;"></i>
+          <span id="fitLabel">Fill Screen</span>
+        </button>
+        <button id="fullscreenBtn" class="btn-glass" title="Toggle Fullscreen">
+          <i data-lucide="expand" style="width: 14px; height: 14px;"></i> Fullscreen
+        </button>
+        <a href="/" class="btn-glass btn-primary" title="Open Live Prototype">
+          <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> Open Live App
         </a>
       </div>
-      <a href="/" class="btn-action" style="font-size: 11px; text-decoration: none;">
-        <i data-lucide="external-link" style="width: 12px; height: 12px;"></i> Open Prototype
-      </a>
+    </header>
+
+    <!-- Center Play / Resume Button -->
+    <div class="center-overlay-btn hidden-play" id="centerPlayBtn">
+      <i data-lucide="play" id="centerIcon" style="width: 36px; height: 36px; fill: #fff; margin-left: 4px;"></i>
     </div>
 
-    <!-- Link 2: Video Website -->
-    <div class="link-row">
-      <div>
-        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">2️⃣ Real Video Demo Website (Plays this MP4 Video):</div>
-        <span style="color: #a78bfa; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
-          https://weather-gpt-yuvi.vercel.app/video.html
-        </span>
-      </div>
-      <button id="copyLinkBtn" class="btn-action" style="font-size: 11px;">
-        <i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy Video Link
-      </button>
+    <!-- 100vw x 100vh Video Player -->
+    <video
+      id="mainVideo"
+      controls
+      autoplay
+      playsinline
+      preload="auto"
+    >
+      <source src="/demo-video.mp4" type="video/mp4" />
+      Your browser does not support HTML5 video.
+    </video>
+
+    <!-- Bottom HUD Shortcuts Info -->
+    <div class="bottom-hud" id="bottomHud">
+      <span>⌨️ <b>Space</b>: Play/Pause</span>
+      <span><b>F</b>: Fullscreen</span>
+      <span><b>M</b>: Mute</span>
+      <span><b>← / →</b>: Seek 5s</span>
     </div>
-  </section>
+  </div>
 
   <script>
     lucide.createIcons();
 
-    const copyLinkBtn = document.getElementById('copyLinkBtn');
-    copyLinkBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(window.location.origin + '/video.html');
-      copyLinkBtn.innerHTML = '<i data-lucide="check" style="width: 12px; height: 12px;"></i> Copied!';
+    const mainVideo = document.getElementById('mainVideo');
+    const theater = document.getElementById('theater');
+    const topBar = document.getElementById('topBar');
+    const bottomHud = document.getElementById('bottomHud');
+    const centerPlayBtn = document.getElementById('centerPlayBtn');
+    const centerIcon = document.getElementById('centerIcon');
+    const fitToggleBtn = document.getElementById('fitToggleBtn');
+    const fitIcon = document.getElementById('fitIcon');
+    const fitLabel = document.getElementById('fitLabel');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+    let hideUITimer = null;
+    let isCover = false;
+
+    // Auto-hide Top and Bottom UI when playing and mouse is idle
+    function showUI() {
+      topBar.classList.remove('hidden-ui');
+      bottomHud.classList.remove('hidden-ui');
+      clearTimeout(hideUITimer);
+      if (!mainVideo.paused) {
+        hideUITimer = setTimeout(() => {
+          topBar.classList.add('hidden-ui');
+          bottomHud.classList.add('hidden-ui');
+        }, 3000);
+      }
+    }
+
+    document.addEventListener('mousemove', showUI);
+    document.addEventListener('touchstart', showUI);
+
+    // Play/Pause Center Overlay Logic
+    mainVideo.addEventListener('play', () => {
+      centerPlayBtn.classList.add('hidden-play');
+      showUI();
+    });
+
+    mainVideo.addEventListener('pause', () => {
+      centerPlayBtn.classList.remove('hidden-play');
+      centerIcon.setAttribute('data-lucide', 'play');
       lucide.createIcons();
-      setTimeout(() => {
-        copyLinkBtn.innerHTML = '<i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy Video Link';
-        lucide.createIcons();
-      }, 2000);
+      topBar.classList.remove('hidden-ui');
+      bottomHud.classList.remove('hidden-ui');
+    });
+
+    mainVideo.addEventListener('ended', () => {
+      centerPlayBtn.classList.remove('hidden-play');
+      centerIcon.setAttribute('data-lucide', 'rotate-ccw');
+      lucide.createIcons();
+      topBar.classList.remove('hidden-ui');
+      bottomHud.classList.remove('hidden-ui');
+    });
+
+    centerPlayBtn.addEventListener('click', () => {
+      if (mainVideo.paused) mainVideo.play();
+      else mainVideo.pause();
+    });
+
+    // Toggle Aspect Ratio: Contain vs Cover (Fill Screen)
+    fitToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isCover = !isCover;
+      if (isCover) {
+        mainVideo.classList.add('fill-cover');
+        fitLabel.textContent = "Fit Screen";
+        fitIcon.setAttribute('data-lucide', 'minimize-2');
+      } else {
+        mainVideo.classList.remove('fill-cover');
+        fitLabel.textContent = "Fill Screen";
+        fitIcon.setAttribute('data-lucide', 'maximize-2');
+      }
+      lucide.createIcons();
+    });
+
+    // Toggle Real Fullscreen
+    fullscreenBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!document.fullscreenElement) {
+        theater.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      switch (e.key.toLowerCase()) {
+        case ' ':
+        case 'k':
+          e.preventDefault();
+          if (mainVideo.paused) mainVideo.play();
+          else mainVideo.pause();
+          break;
+        case 'f':
+          e.preventDefault();
+          if (!document.fullscreenElement) theater.requestFullscreen().catch(() => {});
+          else document.exitFullscreen().catch(() => {});
+          break;
+        case 'm':
+          mainVideo.muted = !mainVideo.muted;
+          break;
+        case 'arrowleft':
+          mainVideo.currentTime = Math.max(0, mainVideo.currentTime - 5);
+          break;
+        case 'arrowright':
+          mainVideo.currentTime = Math.min(mainVideo.duration || 50, mainVideo.currentTime + 5);
+          break;
+        case 'arrowup':
+          mainVideo.volume = Math.min(1, mainVideo.volume + 0.1);
+          break;
+        case 'arrowdown':
+          mainVideo.volume = Math.max(0, mainVideo.volume - 0.1);
+          break;
+      }
+      showUI();
+    });
+
+    // Autoplay attempt on load
+    window.addEventListener('load', () => {
+      const playPromise = mainVideo.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // If browser blocked unmuted autoplay, mute and play
+          mainVideo.muted = true;
+          mainVideo.play().catch(() => {
+            centerPlayBtn.classList.remove('hidden-play');
+          });
+        });
+      }
+      showUI();
     });
   </script>
 </body>
