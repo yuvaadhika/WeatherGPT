@@ -16,7 +16,8 @@ import {
   Cpu,
   Navigation,
   Crosshair,
-  Play
+  Play,
+  Download
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getLocalizedPlaceName, searchLocation } from '../services/weatherService';
@@ -36,6 +37,7 @@ export default function Header({
   onOpenAlertModal,
   onOpenLocationModal,
   onOpenAdminDatabase,
+  onOpenInstallApp,
   currentUser,
   onSignOut
 }) {
@@ -234,6 +236,20 @@ export default function Header({
             ))}
           </select>
         </div>
+
+        {/* 📲 1-Click Install App (PWA) Button */}
+        {onOpenInstallApp && (
+          <button
+            onClick={onOpenInstallApp}
+            title={activeLanguage === 'ta' ? 'மொபைல் / கம்ப்யூட்டரில் ஆப் ஆக நிறுவுக (PWA Install)' : 'Install WeatherGPT as Native App (PWA)'}
+            className="px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-700 hover:from-sky-700 hover:to-indigo-800 text-white flex items-center space-x-1.5 transition-all shadow-sm hover:shadow-md cursor-pointer hover:scale-105 active:scale-95"
+          >
+            <Download className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="text-[11px] font-bold hidden xs:inline">
+              {activeLanguage === 'ta' ? 'ஆப் நிறுவு' : 'Install App'}
+            </span>
+          </button>
+        )}
 
         {/* Weather Alert Push & SMS / Email Notification Bell */}
         <button

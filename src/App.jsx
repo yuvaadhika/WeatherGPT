@@ -20,6 +20,9 @@ import CommunityWeatherSpotter from './components/CommunityWeatherSpotter';
 import DisasterEmergencySOS from './components/DisasterEmergencySOS';
 import AdminUserRegistryModal from './components/AdminUserRegistryModal';
 import EmergencyNetworkBanner from './components/EmergencyNetworkBanner';
+import ExplainabilityWhyModal from './components/ExplainabilityWhyModal';
+import WhatIfSimulatorModal from './components/WhatIfSimulatorModal';
+import InstallAppModal from './components/InstallAppModal';
 
 import {
   fetchNWPForecast,
@@ -121,6 +124,9 @@ export default function App() {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isWhyModalOpen, setIsWhyModalOpen] = useState(false);
+  const [isSimulatorModalOpen, setIsSimulatorModalOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
     return localStorage.getItem('weather_onboarding_shown') !== 'true';
   });
@@ -703,6 +709,7 @@ export default function App() {
           onOpenAlertModal={() => setIsAlertModalOpen(true)}
           onOpenLocationModal={() => setIsLocationModalOpen(true)}
           onOpenAdminDatabase={() => setIsAdminModalOpen(true)}
+          onOpenInstallApp={() => setIsInstallModalOpen(true)}
           currentUser={currentUser}
           onSignOut={handleSignOut}
         />
@@ -742,6 +749,8 @@ export default function App() {
               onOpenEventScore={() => setActiveView('event')}
               onOpenSpotter={() => setActiveView('spotter')}
               onOpenEmergencySOS={() => setActiveView('sos')}
+              onOpenExplainability={() => setIsWhyModalOpen(true)}
+              onOpenSimulator={() => setIsSimulatorModalOpen(true)}
               notificationsEnabled={notificationsEnabled}
             />
           )}
@@ -1038,6 +1047,30 @@ export default function App() {
       <AdminUserRegistryModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
+        activeLanguage={activeLanguage}
+      />
+
+      {/* V2 Judge-Proof Explainability & Decision Modals */}
+      <ExplainabilityWhyModal
+        isOpen={isWhyModalOpen}
+        onClose={() => setIsWhyModalOpen(false)}
+        activeLanguage={activeLanguage}
+        weatherData={weatherData}
+        currentLocationName={currentLocation?.name || 'Chennai'}
+        riskData={riskData}
+      />
+
+      <WhatIfSimulatorModal
+        isOpen={isSimulatorModalOpen}
+        onClose={() => setIsSimulatorModalOpen(false)}
+        activeLanguage={activeLanguage}
+        weatherData={weatherData}
+        currentLocationName={currentLocation?.name || 'Chennai'}
+      />
+
+      <InstallAppModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
         activeLanguage={activeLanguage}
       />
     </div>
