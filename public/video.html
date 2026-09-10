@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeatherGPT — Official Product Demo Video (50s)</title>
+  <meta name="description" content="Official 50-Second Product Review and Demonstration Video of WeatherGPT AI Hyper-Local Climate Intelligence System." />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --bg-dark: #060913;
+      --player-bg: #0b1120;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-white: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-glass: rgba(255, 255, 255, 0.12);
+    }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+      overflow-x: hidden;
+    }
+    /* Ambient Glow */
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 15% 20%, rgba(6, 182, 212, 0.12), transparent 50%),
+                  radial-gradient(circle at 85% 75%, rgba(59, 130, 246, 0.12), transparent 50%);
+      z-index: 0;
+    }
+    /* Navigation Bar */
+    .nav-header {
+      width: 100%;
+      max-width: 1040px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      margin-bottom: 20px;
+      z-index: 10;
+    }
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 16px;
+      color: #fff;
+    }
+    .badge-video {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+    /* Video Theater Frame */
+    .video-theater {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 1040px;
+      background: var(--player-bg);
+      border: 1px solid var(--border-glass);
+      border-radius: 24px;
+      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(6, 182, 212, 0.12);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    /* 16:9 Screen Viewport */
+    .video-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #020617;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    /* Scene Slides */
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      transform: scale(0.97);
+      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .scene.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+    }
+    .scene-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: var(--accent-cyan);
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    /* High-Fidelity UI Mockup Cards inside Video */
+    .mockup-card {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 16px 20px;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
+    }
+    /* Table Styling */
+    .demo-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 13px;
+      margin-top: 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .demo-table th {
+      background: rgba(30, 41, 59, 0.9);
+      color: #94a3b8;
+      font-weight: 600;
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .demo-table td {
+      background: rgba(15, 23, 42, 0.7);
+      padding: 9px 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      color: #f1f5f9;
+    }
+    .badge-rain {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+      font-weight: 700;
+      font-size: 11px;
+    }
+    .badge-safe {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      font-weight: 700;
+      font-size: 11px;
+    }
+    /* Radar animation */
+    .radar-circle {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 2px solid rgba(6, 182, 212, 0.45);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.25);
+    }
+    .radar-sweep {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(6, 182, 212, 0.6) 0deg, transparent 65deg, transparent 360deg);
+      animation: spin 2.8s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    /* Subtitles */
+    .subtitle-bar {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      padding: 8px 20px;
+      border-radius: 9999px;
+      font-size: 13px;
+      color: #f8fafc;
+      font-weight: 600;
+      text-align: center;
+      max-width: 88%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      z-index: 30;
+      pointer-events: none;
+    }
+    /* Play Overlay Icon */
+    .play-overlay {
+      position: absolute;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(6, 182, 212, 0.9);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 35px rgba(6, 182, 212, 0.6);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      z-index: 25;
+      pointer-events: none;
+    }
+    .video-viewport.playing .play-overlay {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    /* Video Controls */
+    .video-controls {
+      padding: 14px 20px;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6);
+      border-radius: 4px;
+      transition: width 0.1s linear;
+    }
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn-ctrl {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      color: #f1f5f9;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-ctrl:hover {
+      background: rgba(255, 255, 255, 0.16);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      border: none;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0891b2, #2563eb);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+    .time-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    /* Info Card Below Video */
+    .video-info {
+      width: 100%;
+      max-width: 1040px;
+      margin-top: 24px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 10;
+    }
+    .info-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .link-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <!-- Top Navbar -->
+  <header class="nav-header">
+    <div class="brand-title">
+      <span class="badge-video">DEMO VIDEO</span>
+      <span>WeatherGPT Official 50s Tour</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <a href="/" class="btn-ctrl btn-primary" style="text-decoration: none; font-size: 12px; padding: 6px 14px;">
+        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> Open Chatbot App
+      </a>
+    </div>
+  </header>
+
+  <!-- Video Theater Player -->
+  <main class="video-theater">
+    <!-- Viewport Screen -->
+    <div class="video-viewport" id="viewport">
+      <div class="play-overlay" id="playOverlay">
+        <i data-lucide="play" style="width: 34px; height: 34px; fill: #fff; margin-left: 4px;"></i>
+      </div>
+
+      <!-- SCENE 1 (00:00 - 00:10): Intro & Multi-lingual Auth -->
+      <div class="scene active" id="scene1">
+        <span class="scene-badge"><i data-lucide="sparkles" style="width: 13px; height: 13px;"></i> SMART INDIA HACKATHON 2026</span>
+        <h1 style="font-size: 26px; font-weight: 800; text-align: center; margin-bottom: 6px; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          WeatherGPT — Hyper-Local Climate AI
+        </h1>
+        <p style="color: #94a3b8; font-size: 13px; max-width: 500px; text-align: center; margin-bottom: 14px;">
+          Next-generation climate intelligence with street-level accuracy and native Tamil & English voice AI.
+        </p>
+        <div class="mockup-card" style="max-width: 440px; text-align: center; padding: 12px 16px;">
+          <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 8px;">
+            <span style="padding: 3px 10px; background: rgba(59,130,246,0.25); border: 1px solid #3b82f6; border-radius: 6px; font-size: 11px; font-weight: 700; color: #60a5fa;">தமிழ் (Tamil)</span>
+            <span style="padding: 3px 10px; background: rgba(255,255,255,0.06); border-radius: 6px; font-size: 11px; color: #94a3b8;">English</span>
+            <span style="padding: 3px 10px; background: rgba(255,255,255,0.06); border-radius: 6px; font-size: 11px; color: #94a3b8;">Tanglish</span>
+          </div>
+          <div style="font-size: 12px; color: #34d399; font-weight: 600;">✓ Biometric Passkey & Quick Guest Access</div>
+        </div>
+      </div>
+
+      <!-- SCENE 2 (00:10 - 00:25): Conversational AI & 3-Column Table -->
+      <div class="scene" id="scene2">
+        <span class="scene-badge" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.35); color: #34d399;">
+          <i data-lucide="bot" style="width: 13px; height: 13px;"></i> CONVERSATIONAL AI & 3-COLUMN MICRO-ZONE TABLE
+        </span>
+        <div class="mockup-card">
+          <!-- User Bubble -->
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+            <div style="background: #2563eb; color: #fff; padding: 7px 12px; border-radius: 12px 12px 2px 12px; font-size: 12px; font-weight: 500;">
+              🎤 "Chennai la mazhai eppo varum? Anna Nagar, Velachery, T.Nagar status sollu..."
+            </div>
+          </div>
+          <!-- AI Table -->
+          <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #38bdf8; font-weight: 700; margin-bottom: 4px;">
+              <i data-lucide="zap" style="width: 12px; height: 12px;"></i> AI Micro-Zone Prediction (Doppler + NWP Model Sync)
+            </div>
+            <table class="demo-table">
+              <thead>
+                <tr>
+                  <th>📍 Place Name</th>
+                  <th>🌧️ Rain / Alert Status</th>
+                  <th>⏰ Timing Window</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>Anna Nagar</b></td>
+                  <td><span class="badge-rain">🌧️ YES (85% • 14mm)</span></td>
+                  <td>Today 2:30 PM – 4:00 PM</td>
+                </tr>
+                <tr>
+                  <td><b>Velachery</b></td>
+                  <td><span class="badge-rain">⛈️ YES (90% • Heavy)</span></td>
+                  <td>Today 3:00 PM – 5:30 PM</td>
+                </tr>
+                <tr>
+                  <td><b>T. Nagar</b></td>
+                  <td><span class="badge-safe">☀️ NO (Safe)</span></td>
+                  <td>Clear next 24 Hours</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 3 (00:25 - 00:38): Doppler Radar & Agri Impact -->
+      <div class="scene" id="scene3">
+        <span class="scene-badge" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.35); color: #c084fc;">
+          <i data-lucide="radio" style="width: 13px; height: 13px;"></i> REAL-TIME DOPPLER RADAR & AGRI RISK ENGINE
+        </span>
+        <div style="display: flex; align-items: center; gap: 20px; width: 100%; max-width: 660px;">
+          <div class="radar-circle">
+            <div class="radar-sweep"></div>
+            <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-align: center; z-index: 2;">
+              LIVE RADAR<br/><span style="font-size: 9px; color: #94a3b8;">500km Range</span>
+            </div>
+          </div>
+          <div class="mockup-card" style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <span style="font-size: 12px; color: #94a3b8;">Air Quality Index (AQI)</span>
+              <span style="font-size: 12px; color: #34d399; font-weight: 700;">42 • Good</span>
+            </div>
+            <div style="height: 5px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 12px;">
+              <div style="width: 42%; height: 100%; background: #10b981;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+              <span style="font-size: 12px; color: #94a3b8;">Agricultural Impact Risk</span>
+              <span style="font-size: 12px; color: #f59e0b; font-weight: 700;">Moderate • Harvest Alert</span>
+            </div>
+            <div style="height: 5px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+              <div style="width: 58%; height: 100%; background: #f59e0b;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4 (00:38 - 00:46): Disaster Emergency SOS -->
+      <div class="scene" id="scene4">
+        <span class="scene-badge" style="background: rgba(244, 63, 94, 0.15); border-color: rgba(244, 63, 94, 0.35); color: #fb7185;">
+          <i data-lucide="shield-alert" style="width: 13px; height: 13px;"></i> DISASTER EMERGENCY SOS & OFFLINE MESH
+        </span>
+        <div class="mockup-card" style="border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05); text-align: center;">
+          <div style="width: 50px; height: 50px; border-radius: 50%; background: #ef4444; color: #fff; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 0 25px rgba(239,68,68,0.5);">
+            <i data-lucide="alert-triangle" style="width: 24px; height: 24px;"></i>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 700; color: #f8fafc; margin-bottom: 4px;">Instant SOS & Offline Beacon Dispatch</h3>
+          <p style="font-size: 11px; color: #94a3b8; max-width: 440px; margin: 0 auto 10px;">
+            Broadcasts location coords & emergency telemetry to NDRF responders even without mobile internet.
+          </p>
+          <div style="display: inline-flex; gap: 8px; font-size: 11px; font-weight: 600;">
+            <span style="padding: 3px 8px; background: rgba(16,185,129,0.2); color: #34d399; border-radius: 6px;">✓ WebRTC P2P Mesh</span>
+            <span style="padding: 3px 8px; background: rgba(59,130,246,0.2); color: #60a5fa; border-radius: 6px;">✓ NDMA Geocoded Dispatch</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 5 (00:46 - 00:50): SIH Outro & Live Prototype -->
+      <div class="scene" id="scene5">
+        <span class="scene-badge"><i data-lucide="trophy" style="width: 13px; height: 13px;"></i> PRODUCTION READY</span>
+        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 6px; text-align: center; color: #f8fafc;">
+          Empowering Millions with Actionable Climate Intelligence
+        </h2>
+        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px; text-align: center;">
+          Built for Smart India Hackathon • Micro-Zone Precision • Multi-Lingual
+        </p>
+        <a href="/" class="btn-ctrl btn-primary" style="font-size: 13px; padding: 9px 20px; text-decoration: none;">
+          <i data-lucide="globe" style="width: 15px; height: 15px;"></i> Launch Live Chatbot App
+        </a>
+      </div>
+
+      <!-- Live Subtitle Overlay -->
+      <div class="subtitle-bar" id="subtitles">
+        Welcome to WeatherGPT: AI-driven hyper-local climate intelligence platform.
+      </div>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="video-controls">
+      <div class="progress-track" id="progressTrack">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="controls-row">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button id="playBtn" class="btn-ctrl btn-primary">
+            <i data-lucide="play" id="playIcon" style="width: 15px; height: 15px;"></i>
+            <span id="playBtnText">Play (50s)</span>
+          </button>
+          <button id="replayBtn" class="btn-ctrl">
+            <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i> Replay
+          </button>
+          <span class="time-code" id="timeDisplay">00:00 / 00:50</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="langToggleBtn" class="btn-ctrl" style="font-size: 11px; padding: 5px 10px;">
+            <i data-lucide="languages" style="width: 13px; height: 13px;"></i> Voice: <b id="langLabel">English</b>
+          </button>
+          <button id="voiceToggleBtn" class="btn-ctrl" style="font-size: 11px; padding: 5px 10px;">
+            <i data-lucide="volume-2" id="voiceIcon" style="width: 13px; height: 13px;"></i> Audio
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Video Details & Links Section -->
+  <section class="video-info">
+    <div class="info-header">
+      <div>
+        <h2 style="font-size: 20px; font-weight: 800; color: #fff;">WeatherGPT — AI Climate & Disaster Intelligence</h2>
+        <p style="font-size: 13px; color: #94a3b8; margin-top: 2px;">Smart India Hackathon (SIH) Official Project Walkthrough</p>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <span style="padding: 4px 10px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; font-size: 11px; font-weight: 700;">✓ Live Vercel Deploy</span>
+        <span style="padding: 4px 10px; background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; font-size: 11px; font-weight: 700;">✓ 50s Overview</span>
+      </div>
+    </div>
+
+    <!-- Presentation Links Box -->
+    <div class="link-box">
+      <div>
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">1️⃣ Chatbot Prototype Link:</div>
+        <a href="/" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-decoration: none;">
+          https://weather-gpt-yuvi.vercel.app/
+        </a>
+      </div>
+      <a href="/" class="btn-ctrl" style="font-size: 11px; text-decoration: none;">
+        <i data-lucide="external-link" style="width: 12px; height: 12px;"></i> Open Prototype
+      </a>
+    </div>
+
+    <div class="link-box">
+      <div>
+        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">2️⃣ Demo Video Website Link (This Page):</div>
+        <span style="color: #a78bfa; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
+          https://weather-gpt-yuvi.vercel.app/video.html
+        </span>
+      </div>
+      <button id="copyVideoLinkBtn" class="btn-ctrl" style="font-size: 11px;">
+        <i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy Video Link
+      </button>
+    </div>
+  </section>
+
+  <script>
+    lucide.createIcons();
+
+    const TOTAL_DURATION = 50;
+    let currentTime = 0;
+    let isPlaying = false;
+    let isVoiceEnabled = true;
+    let selectedLanguage = 'en';
+    let timerInterval = null;
+
+    const scenes = [
+      {
+        id: 'scene1',
+        start: 0,
+        end: 10,
+        subEn: "Welcome to WeatherGPT: An AI-driven hyper-local climate intelligence platform.",
+        subTa: "WeatherGPT-க்கு வரவேற்கிறோம்: தெருவாரியான துல்லியமான வானிலை AI தளம்.",
+        voiceEn: "Welcome to WeatherGPT. An AI driven hyper local climate intelligence platform solving the forecast accuracy gap with instant multilingual access.",
+        voiceTa: "WeatherGPT-க்கு நல்வரவு. தெருவாரியான வானிலை கணிப்புகள் மற்றும் பலமொழி ஆதரவுடன் இயங்கும் அதிநவீன AI தளம்."
+      },
+      {
+        id: 'scene2',
+        start: 10,
+        end: 25,
+        subEn: "Conversational AI delivers micro-zone rain forecasts in a clean 3-column table (Place | Rain Status | Timing).",
+        subTa: "AI உரையாடல் மூலம் 3-காலம் அட்டவணையில் துல்லியமான மழை நிலவரம் (இடம் | மழை/எச்சரிக்கை | நேரம்).",
+        voiceEn: "Our conversational AI delivers micro zone rain forecasts in a clean 3-column table with place name, rain probability, and exact timing window with natural speech.",
+        voiceTa: "எங்கள் AI சாட்பாட் இடம், மழை அளவு மற்றும் நேரத்துடன் கூடிய 3 காலம் அட்டவணையில் துல்லியமாக பதிலளிக்கிறது."
+      },
+      {
+        id: 'scene3',
+        start: 25,
+        end: 38,
+        subEn: "Real-time Doppler Radar integration with Air Quality Index and Agricultural Impact Risk scoring.",
+        subTa: "நேரடி டாப்ளர் ரேடார், காற்று தரம் (AQI) மற்றும் விவசாய பாதிப்பு முன்னெச்சரிக்கை கால்குலேட்டர்.",
+        voiceEn: "Integrated with live 500 kilometer Doppler Radar, satellite cloud coverage, and agricultural impact risk scoring for farmers.",
+        voiceTa: "நேரடி டாப்ளர் ரேடார் வரைபடம், காற்றின் தரம் மற்றும் விவசாயிகளுக்கான பாதிப்பு கணிப்பு இயங்குகிறது."
+      },
+      {
+        id: 'scene4',
+        start: 38,
+        end: 46,
+        subEn: "Disaster Emergency SOS dispatch with offline mesh network capability during extreme cyclones and floods.",
+        subTa: "புயல், வெள்ளம் போன்ற பேரிடர் காலத்தில் இணையம் இல்லாவிட்டாலும் இயங்கும் அவசர SOS எச்சரிக்கை அமைப்பு.",
+        voiceEn: "During extreme cyclones and floods, the disaster emergency SOS broadcasts geocoded telemetry to rescue teams even without internet.",
+        voiceTa: "புயல், வெள்ளம் போன்ற ஆபத்தான காலங்களில் மீட்பு குழுக்களுக்கு நேரடி SOS தகவலை அனுப்பி வைக்கிறது."
+      },
+      {
+        id: 'scene5',
+        start: 46,
+        end: 50,
+        subEn: "WeatherGPT: Empowering communities with actionable climate intelligence. Built for SIH 2026.",
+        subTa: "WeatherGPT: அனைவருக்குமான நம்பகமான வானிலை நுண்ணறிவு. நேரலையில் இயங்குகிறது.",
+        voiceEn: "WeatherGPT. Empowering communities with actionable climate intelligence. Built for Smart India Hackathon. Try it live today!",
+        voiceTa: "WeatherGPT. அனைவருக்குமான அதிநவீன வானிலை வழிகாட்டி. இப்போதே பயன்படுத்தி பாருங்கள்!"
+      }
+    ];
+
+    let currentSceneIdx = -1;
+
+    const viewport = document.getElementById('viewport');
+    const playBtn = document.getElementById('playBtn');
+    const playBtnText = document.getElementById('playBtnText');
+    const playIcon = document.getElementById('playIcon');
+    const replayBtn = document.getElementById('replayBtn');
+    const progressFill = document.getElementById('progressFill');
+    const progressTrack = document.getElementById('progressTrack');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const subtitlesEl = document.getElementById('subtitles');
+    const langToggleBtn = document.getElementById('langToggleBtn');
+    const langLabel = document.getElementById('langLabel');
+    const voiceToggleBtn = document.getElementById('voiceToggleBtn');
+    const copyVideoLinkBtn = document.getElementById('copyVideoLinkBtn');
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `0${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    function speakText(text, lang) {
+      if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang === 'ta' ? 'ta-IN' : 'en-US';
+      utterance.rate = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function updateScene(time) {
+      const sceneIdx = scenes.findIndex(s => time >= s.start && time < s.end);
+      if (sceneIdx !== -1 && sceneIdx !== currentSceneIdx) {
+        currentSceneIdx = sceneIdx;
+        const currentScene = scenes[sceneIdx];
+
+        document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
+        const activeEl = document.getElementById(currentScene.id);
+        if (activeEl) activeEl.classList.add('active');
+
+        subtitlesEl.textContent = selectedLanguage === 'ta' ? currentScene.subTa : currentScene.subEn;
+
+        if (isPlaying) {
+          const speechText = selectedLanguage === 'ta' ? currentScene.voiceTa : currentScene.voiceEn;
+          speakText(speechText, selectedLanguage);
+        }
+      }
+    }
+
+    function tick() {
+      if (currentTime >= TOTAL_DURATION) {
+        pauseVideo();
+        currentTime = TOTAL_DURATION;
+        updateUI();
+        return;
+      }
+      currentTime += 0.2;
+      updateUI();
+    }
+
+    function updateUI() {
+      const pct = (currentTime / TOTAL_DURATION) * 100;
+      progressFill.style.width = pct + '%';
+      timeDisplay.textContent = `${formatTime(currentTime)} / 00:50`;
+      updateScene(currentTime);
+    }
+
+    function playVideo() {
+      isPlaying = true;
+      viewport.classList.add('playing');
+      playBtnText.textContent = "Pause";
+      playIcon.setAttribute('data-lucide', 'pause');
+      lucide.createIcons();
+      if (currentTime >= TOTAL_DURATION) currentTime = 0;
+
+      if (currentSceneIdx !== -1) {
+        const scene = scenes[currentSceneIdx];
+        speakText(selectedLanguage === 'ta' ? scene.voiceTa : scene.voiceEn, selectedLanguage);
+      } else {
+        updateScene(0);
+      }
+
+      timerInterval = setInterval(tick, 200);
+    }
+
+    function pauseVideo() {
+      isPlaying = false;
+      viewport.classList.remove('playing');
+      playBtnText.textContent = "Play (50s)";
+      playIcon.setAttribute('data-lucide', 'play');
+      lucide.createIcons();
+      clearInterval(timerInterval);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
+
+    viewport.addEventListener('click', () => {
+      if (isPlaying) pauseVideo();
+      else playVideo();
+    });
+
+    playBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isPlaying) pauseVideo();
+      else playVideo();
+    });
+
+    replayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pauseVideo();
+      currentTime = 0;
+      currentSceneIdx = -1;
+      updateUI();
+      playVideo();
+    });
+
+    progressTrack.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = progressTrack.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      currentTime = ratio * TOTAL_DURATION;
+      updateUI();
+      if (isPlaying) {
+        currentSceneIdx = -1;
+        updateScene(currentTime);
+      }
+    });
+
+    langToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectedLanguage = selectedLanguage === 'en' ? 'ta' : 'en';
+      langLabel.textContent = selectedLanguage === 'ta' ? 'தமிழ்' : 'English';
+      if (currentSceneIdx !== -1) {
+        const scene = scenes[currentSceneIdx];
+        subtitlesEl.textContent = selectedLanguage === 'ta' ? scene.subTa : scene.subEn;
+        if (isPlaying) speakText(selectedLanguage === 'ta' ? scene.voiceTa : scene.voiceEn, selectedLanguage);
+      }
+    });
+
+    voiceToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isVoiceEnabled = !isVoiceEnabled;
+      voiceToggleBtn.style.opacity = isVoiceEnabled ? '1' : '0.5';
+      if (!isVoiceEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    });
+
+    copyVideoLinkBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(window.location.origin + '/video.html');
+      copyVideoLinkBtn.innerHTML = '<i data-lucide="check" style="width: 12px; height: 12px;"></i> Copied!';
+      lucide.createIcons();
+      setTimeout(() => {
+        copyVideoLinkBtn.innerHTML = '<i data-lucide="copy" style="width: 12px; height: 12px;"></i> Copy Video Link';
+        lucide.createIcons();
+      }, 2000);
+    });
+
+    window.addEventListener('load', () => {
+      updateUI();
+    });
+  </script>
+</body>
+</html>
