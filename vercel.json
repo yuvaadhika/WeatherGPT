@@ -12,7 +12,15 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/demo",
+      "destination": "/demo.html"
+    },
+    {
+      "source": "/video",
+      "destination": "/demo.html"
+    },
+    {
+      "source": "/((?!api/|demo\\.html|video\\.html).*)",
       "destination": "/index.html"
     }
   ]
