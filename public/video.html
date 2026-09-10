@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeatherGPT — Official Product Demo Video (50s)</title>
-  <meta name="description" content="Official 50-Second Product Review and Demonstration Video of WeatherGPT AI Hyper-Local Climate Intelligence System." />
+  <title>WeatherGPT — Complete 50-Second All-Features Innovation Video</title>
+  <meta name="description" content="Complete 50-second walkthrough showcasing all innovations of WeatherGPT: Conversational AI, 3-Column Micro-Zone Table, Doppler Radar, Route Planner, Event Score, Spotter Network, Disaster SOS, & PDF Reports." />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -19,10 +19,11 @@
       padding: 0;
     }
     :root {
-      --bg-dark: #060913;
-      --player-bg: #0b1120;
+      --bg-dark: #050811;
+      --player-bg: #090e1a;
       --accent-cyan: #06b6d4;
       --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
       --accent-emerald: #10b981;
       --accent-amber: #f59e0b;
       --accent-rose: #f43f5e;
@@ -38,7 +39,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 16px 40px;
+      padding: 16px 12px 40px;
       overflow-x: hidden;
     }
     /* Ambient Glow */
@@ -46,23 +47,24 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background: radial-gradient(circle at 15% 20%, rgba(6, 182, 212, 0.12), transparent 50%),
-                  radial-gradient(circle at 85% 75%, rgba(59, 130, 246, 0.12), transparent 50%);
+      background: radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.14), transparent 45%),
+                  radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.14), transparent 45%),
+                  radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08), transparent 60%);
       z-index: 0;
     }
     /* Navigation Bar */
     .nav-header {
       width: 100%;
-      max-width: 1040px;
+      max-width: 1080px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 12px 20px;
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(15, 23, 42, 0.75);
       border: 1px solid var(--border-glass);
       border-radius: 16px;
-      backdrop-filter: blur(12px);
-      margin-bottom: 20px;
+      backdrop-filter: blur(14px);
+      margin-bottom: 14px;
       z-index: 10;
     }
     .brand-title {
@@ -70,13 +72,13 @@
       align-items: center;
       gap: 10px;
       font-weight: 800;
-      font-size: 16px;
+      font-size: 15px;
       color: #fff;
     }
     .badge-video {
       background: linear-gradient(135deg, #ef4444, #dc2626);
       color: #fff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       padding: 3px 8px;
       border-radius: 6px;
@@ -87,14 +89,46 @@
       position: relative;
       z-index: 10;
       width: 100%;
-      max-width: 1040px;
+      max-width: 1080px;
       background: var(--player-bg);
       border: 1px solid var(--border-glass);
-      border-radius: 24px;
-      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(6, 182, 212, 0.12);
+      border-radius: 20px;
+      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.9), 0 0 45px rgba(6, 182, 212, 0.15);
       overflow: hidden;
       display: flex;
       flex-direction: column;
+    }
+    /* Feature Quick-Jump Chapter Pills */
+    .chapters-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 1px solid var(--border-glass);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .chapters-bar::-webkit-scrollbar { display: none; }
+    .chapter-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .chapter-pill:hover, .chapter-pill.active {
+      background: rgba(6, 182, 212, 0.2);
+      border-color: rgba(6, 182, 212, 0.5);
+      color: #38bdf8;
     }
     /* 16:9 Screen Viewport */
     .video-viewport {
@@ -116,10 +150,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px 24px;
       opacity: 0;
       transform: scale(0.97);
-      transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .scene.active {
       display: flex;
@@ -130,50 +164,50 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 12px;
+      padding: 4px 12px;
       background: rgba(6, 182, 212, 0.15);
       border: 1px solid rgba(6, 182, 212, 0.35);
       color: var(--accent-cyan);
       border-radius: 9999px;
       font-size: 11px;
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-    /* High-Fidelity UI Mockup Cards inside Video */
+    /* High-Fidelity UI Mockup Cards */
     .mockup-card {
       background: rgba(15, 23, 42, 0.88);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 16px 20px;
+      border-radius: 14px;
+      padding: 14px 18px;
       width: 100%;
-      max-width: 650px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(16px);
+      max-width: 660px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(14px);
     }
     /* Table Styling */
     .demo-table {
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      font-size: 13px;
-      margin-top: 10px;
-      border-radius: 10px;
+      font-size: 12px;
+      margin-top: 8px;
+      border-radius: 8px;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .demo-table th {
-      background: rgba(30, 41, 59, 0.9);
+      background: rgba(30, 41, 59, 0.95);
       color: #94a3b8;
       font-weight: 600;
       text-align: left;
-      padding: 8px 12px;
-      font-size: 11px;
+      padding: 6px 10px;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     .demo-table td {
-      background: rgba(15, 23, 42, 0.7);
-      padding: 9px 12px;
+      background: rgba(15, 23, 42, 0.75);
+      padding: 7px 10px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       color: #f1f5f9;
     }
@@ -181,37 +215,37 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 8px;
-      border-radius: 6px;
+      padding: 2px 7px;
+      border-radius: 5px;
       background: rgba(56, 189, 248, 0.18);
       border: 1px solid rgba(56, 189, 248, 0.35);
       color: #38bdf8;
       font-weight: 700;
-      font-size: 11px;
+      font-size: 10px;
     }
     .badge-safe {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 8px;
-      border-radius: 6px;
+      padding: 2px 7px;
+      border-radius: 5px;
       background: rgba(16, 185, 129, 0.18);
       border: 1px solid rgba(16, 185, 129, 0.35);
       color: #34d399;
       font-weight: 700;
-      font-size: 11px;
+      font-size: 10px;
     }
-    /* Radar animation */
+    /* Radar Circle */
     .radar-circle {
-      width: 130px;
-      height: 130px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       border: 2px solid rgba(6, 182, 212, 0.45);
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 30px rgba(6, 182, 212, 0.25);
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.25);
     }
     .radar-sweep {
       position: absolute;
@@ -224,31 +258,31 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
-    /* Subtitles */
+    /* Subtitles Bar */
     .subtitle-bar {
       position: absolute;
-      bottom: 20px;
+      bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.18);
-      padding: 8px 20px;
+      padding: 6px 18px;
       border-radius: 9999px;
-      font-size: 13px;
+      font-size: 12px;
       color: #f8fafc;
       font-weight: 600;
       text-align: center;
-      max-width: 88%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      max-width: 90%;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
       z-index: 30;
       pointer-events: none;
     }
-    /* Play Overlay Icon */
+    /* Play Overlay */
     .play-overlay {
       position: absolute;
-      width: 76px;
-      height: 76px;
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
       background: rgba(6, 182, 212, 0.9);
       color: #fff;
@@ -264,18 +298,18 @@
       opacity: 0;
       transform: scale(0.7);
     }
-    /* Video Controls */
+    /* Controls */
     .video-controls {
-      padding: 14px 20px;
+      padding: 12px 18px;
       background: rgba(15, 23, 42, 0.95);
       border-top: 1px solid var(--border-glass);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
     .progress-track {
       width: 100%;
-      height: 6px;
+      height: 5px;
       background: rgba(255, 255, 255, 0.12);
       border-radius: 4px;
       cursor: pointer;
@@ -299,10 +333,10 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--border-glass);
       color: #f1f5f9;
-      padding: 8px 14px;
-      border-radius: 10px;
+      padding: 6px 12px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
@@ -320,106 +354,135 @@
     }
     .btn-primary:hover {
       background: linear-gradient(135deg, #0891b2, #2563eb);
-      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
     }
     .time-code {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
+      font-size: 12px;
       color: #94a3b8;
     }
-    /* Info Card Below Video */
+    /* Info Card */
     .video-info {
       width: 100%;
-      max-width: 1040px;
-      margin-top: 24px;
+      max-width: 1080px;
+      margin-top: 18px;
       background: rgba(15, 23, 42, 0.6);
       border: 1px solid var(--border-glass);
-      border-radius: 20px;
-      padding: 24px;
+      border-radius: 18px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       z-index: 10;
     }
-    .info-header {
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .feature-card {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .feature-card h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 2px;
       display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+      align-items: center;
+      gap: 6px;
+    }
+    .feature-card p {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.4;
     }
     .link-box {
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.45);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
   </style>
 </head>
 <body>
   <div class="ambient-glow"></div>
 
-  <!-- Top Navbar -->
+  <!-- Top Navigation Header -->
   <header class="nav-header">
     <div class="brand-title">
-      <span class="badge-video">DEMO VIDEO</span>
-      <span>WeatherGPT Official 50s Tour</span>
+      <span class="badge-video">ALL-FEATURES DEMO</span>
+      <span>WeatherGPT — 50-Second Innovation Tour</span>
     </div>
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <a href="/" class="btn-ctrl btn-primary" style="text-decoration: none; font-size: 12px; padding: 6px 14px;">
-        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> Open Chatbot App
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <a href="/" class="btn-ctrl btn-primary" style="text-decoration: none; padding: 6px 14px;">
+        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> Open Prototype App
       </a>
     </div>
   </header>
 
-  <!-- Video Theater Player -->
+  <!-- Video Theater Main Box -->
   <main class="video-theater">
-    <!-- Viewport Screen -->
+    <!-- Quick-Jump Chapter Bar -->
+    <div class="chapters-bar">
+      <button class="chapter-pill active" onclick="jumpTo(0)"><i data-lucide="sparkles" style="width: 12px; height: 12px;"></i> 1. Multi-Lingual</button>
+      <button class="chapter-pill" onclick="jumpTo(8)"><i data-lucide="table" style="width: 12px; height: 12px;"></i> 2. 3-Column AI Table</button>
+      <button class="chapter-pill" onclick="jumpTo(17)"><i data-lucide="radio" style="width: 12px; height: 12px;"></i> 3. Live Radar & AQI</button>
+      <button class="chapter-pill" onclick="jumpTo(25)"><i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> 4. Route & Event Score</button>
+      <button class="chapter-pill" onclick="jumpTo(34)"><i data-lucide="users" style="width: 12px; height: 12px;"></i> 5. Spotter & SOS Mesh</button>
+      <button class="chapter-pill" onclick="jumpTo(42)"><i data-lucide="file-text" style="width: 12px; height: 12px;"></i> 6. PDF Audit & Outro</button>
+    </div>
+
+    <!-- Viewport Screen with 6 Dynamic Scenes -->
     <div class="video-viewport" id="viewport">
       <div class="play-overlay" id="playOverlay">
-        <i data-lucide="play" style="width: 34px; height: 34px; fill: #fff; margin-left: 4px;"></i>
+        <i data-lucide="play" style="width: 32px; height: 32px; fill: #fff; margin-left: 3px;"></i>
       </div>
 
-      <!-- SCENE 1 (00:00 - 00:10): Intro & Multi-lingual Auth -->
+      <!-- SCENE 1: (00:00 - 00:08) Multi-Lingual & Biometric Passkey -->
       <div class="scene active" id="scene1">
-        <span class="scene-badge"><i data-lucide="sparkles" style="width: 13px; height: 13px;"></i> SMART INDIA HACKATHON 2026</span>
-        <h1 style="font-size: 26px; font-weight: 800; text-align: center; margin-bottom: 6px; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-          WeatherGPT — Hyper-Local Climate AI
+        <span class="scene-badge"><i data-lucide="sparkles" style="width: 12px; height: 12px;"></i> FEATURE 1: ACCESSIBLE CLIMATE AI</span>
+        <h1 style="font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          WeatherGPT — Next-Gen Climate Intelligence
         </h1>
-        <p style="color: #94a3b8; font-size: 13px; max-width: 500px; text-align: center; margin-bottom: 14px;">
-          Next-generation climate intelligence with street-level accuracy and native Tamil & English voice AI.
+        <p style="color: #94a3b8; font-size: 12px; max-width: 480px; text-align: center; margin-bottom: 12px;">
+          Instant biometric sign-in, GPS auto-telemetry, and 6 Regional Indian Languages + Tanglish.
         </p>
-        <div class="mockup-card" style="max-width: 440px; text-align: center; padding: 12px 16px;">
-          <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 8px;">
-            <span style="padding: 3px 10px; background: rgba(59,130,246,0.25); border: 1px solid #3b82f6; border-radius: 6px; font-size: 11px; font-weight: 700; color: #60a5fa;">தமிழ் (Tamil)</span>
-            <span style="padding: 3px 10px; background: rgba(255,255,255,0.06); border-radius: 6px; font-size: 11px; color: #94a3b8;">English</span>
-            <span style="padding: 3px 10px; background: rgba(255,255,255,0.06); border-radius: 6px; font-size: 11px; color: #94a3b8;">Tanglish</span>
+        <div class="mockup-card" style="max-width: 480px; text-align: center; padding: 10px 14px;">
+          <div style="display: flex; justify-content: center; gap: 6px; margin-bottom: 8px;">
+            <span style="padding: 3px 8px; background: rgba(59,130,246,0.25); border: 1px solid #3b82f6; border-radius: 5px; font-size: 11px; font-weight: 700; color: #60a5fa;">தமிழ் (Tamil)</span>
+            <span style="padding: 3px 8px; background: rgba(255,255,255,0.06); border-radius: 5px; font-size: 11px; color: #94a3b8;">English</span>
+            <span style="padding: 3px 8px; background: rgba(255,255,255,0.06); border-radius: 5px; font-size: 11px; color: #94a3b8;">Tanglish</span>
+            <span style="padding: 3px 8px; background: rgba(255,255,255,0.06); border-radius: 5px; font-size: 11px; color: #94a3b8;">हिन्दी</span>
+            <span style="padding: 3px 8px; background: rgba(255,255,255,0.06); border-radius: 5px; font-size: 11px; color: #94a3b8;">తెలుగు</span>
           </div>
-          <div style="font-size: 12px; color: #34d399; font-weight: 600;">✓ Biometric Passkey & Quick Guest Access</div>
+          <div style="font-size: 11px; color: #34d399; font-weight: 600;">✓ Passkey Biometric Login • Automatic Reverse Geocoding</div>
         </div>
       </div>
 
-      <!-- SCENE 2 (00:10 - 00:25): Conversational AI & 3-Column Table -->
+      <!-- SCENE 2: (00:08 - 00:17) Conversational AI & 3-Column Table -->
       <div class="scene" id="scene2">
         <span class="scene-badge" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.35); color: #34d399;">
-          <i data-lucide="bot" style="width: 13px; height: 13px;"></i> CONVERSATIONAL AI & 3-COLUMN MICRO-ZONE TABLE
+          <i data-lucide="bot" style="width: 12px; height: 12px;"></i> FEATURE 2: 3-COLUMN MICRO-ZONE PREDICTION TABLE
         </span>
         <div class="mockup-card">
-          <!-- User Bubble -->
-          <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-            <div style="background: #2563eb; color: #fff; padding: 7px 12px; border-radius: 12px 12px 2px 12px; font-size: 12px; font-weight: 500;">
-              🎤 "Chennai la mazhai eppo varum? Anna Nagar, Velachery, T.Nagar status sollu..."
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+            <div style="background: #2563eb; color: #fff; padding: 6px 12px; border-radius: 10px 10px 2px 10px; font-size: 12px; font-weight: 500;">
+              🎤 "Chennai la mazhai eppo varum? Micro-zone status sollu..."
             </div>
           </div>
-          <!-- AI Table -->
-          <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px;">
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #38bdf8; font-weight: 700; margin-bottom: 4px;">
-              <i data-lucide="zap" style="width: 12px; height: 12px;"></i> AI Micro-Zone Prediction (Doppler + NWP Model Sync)
+          <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #38bdf8; font-weight: 700; margin-bottom: 4px;">
+              <span><i data-lucide="zap" style="width: 11px; height: 11px; display: inline;"></i> Live RAG Forecast</span>
+              <span style="color: #a78bfa; font-size: 10px;">Model: Gemini 2.0 / Llama 3.3 70B</span>
             </div>
             <table class="demo-table">
               <thead>
@@ -451,74 +514,117 @@
         </div>
       </div>
 
-      <!-- SCENE 3 (00:25 - 00:38): Doppler Radar & Agri Impact -->
+      <!-- SCENE 3: (00:17 - 00:25) GIS Doppler Radar & Atmospheric Telemetry -->
       <div class="scene" id="scene3">
         <span class="scene-badge" style="background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.35); color: #c084fc;">
-          <i data-lucide="radio" style="width: 13px; height: 13px;"></i> REAL-TIME DOPPLER RADAR & AGRI RISK ENGINE
+          <i data-lucide="radio" style="width: 12px; height: 12px;"></i> FEATURE 3: LIVE GIS DOPPLER RADAR & AQI
         </span>
-        <div style="display: flex; align-items: center; gap: 20px; width: 100%; max-width: 660px;">
+        <div style="display: flex; align-items: center; gap: 16px; width: 100%; max-width: 660px;">
           <div class="radar-circle">
             <div class="radar-sweep"></div>
-            <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-align: center; z-index: 2;">
-              LIVE RADAR<br/><span style="font-size: 9px; color: #94a3b8;">500km Range</span>
+            <div style="font-size: 10px; font-weight: 800; color: #38bdf8; text-align: center; z-index: 2;">
+              LIVE RADAR<br/><span style="font-size: 8px; color: #94a3b8;">500km Range</span>
             </div>
           </div>
-          <div class="mockup-card" style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-              <span style="font-size: 12px; color: #94a3b8;">Air Quality Index (AQI)</span>
-              <span style="font-size: 12px; color: #34d399; font-weight: 700;">42 • Good</span>
+          <div class="mockup-card" style="flex: 1; padding: 10px 14px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="font-size: 11px; color: #94a3b8;">Air Quality Index (AQI)</span>
+              <span style="font-size: 11px; color: #34d399; font-weight: 700;">42 • Good</span>
             </div>
-            <div style="height: 5px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 12px;">
+            <div style="height: 4px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; margin-bottom: 8px;">
               <div style="width: 42%; height: 100%; background: #10b981;"></div>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-              <span style="font-size: 12px; color: #94a3b8;">Agricultural Impact Risk</span>
-              <span style="font-size: 12px; color: #f59e0b; font-weight: 700;">Moderate • Harvest Alert</span>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span style="font-size: 11px; color: #94a3b8;">Agri Impact Risk (Paddy/Harvest)</span>
+              <span style="font-size: 11px; color: #f59e0b; font-weight: 700;">Moderate • Advisory Issued</span>
             </div>
-            <div style="height: 5px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+            <div style="height: 4px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
               <div style="width: 58%; height: 100%; background: #f59e0b;"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SCENE 4 (00:38 - 00:46): Disaster Emergency SOS -->
+      <!-- SCENE 4: (00:25 - 00:34) Route Weather Planner & Event Weather Score -->
       <div class="scene" id="scene4">
-        <span class="scene-badge" style="background: rgba(244, 63, 94, 0.15); border-color: rgba(244, 63, 94, 0.35); color: #fb7185;">
-          <i data-lucide="shield-alert" style="width: 13px; height: 13px;"></i> DISASTER EMERGENCY SOS & OFFLINE MESH
+        <span class="scene-badge" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.35); color: #fbbf24;">
+          <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i> INNOVATION: ROUTE PLANNER & EVENT VIABILITY
         </span>
-        <div class="mockup-card" style="border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.05); text-align: center;">
-          <div style="width: 50px; height: 50px; border-radius: 50%; background: #ef4444; color: #fff; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 0 25px rgba(239,68,68,0.5);">
-            <i data-lucide="alert-triangle" style="width: 24px; height: 24px;"></i>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 660px;">
+          <!-- Route Planner -->
+          <div class="mockup-card" style="padding: 10px 12px;">
+            <div style="font-size: 11px; font-weight: 700; color: #38bdf8; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="navigation" style="width: 12px; height: 12px;"></i> Smart Route Hazard Planner
+            </div>
+            <p style="font-size: 10px; color: #94a3b8; margin-bottom: 6px;">Chennai ➔ Bangalore (NH 48)</p>
+            <div style="padding: 4px 8px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; font-size: 10px; color: #34d399; font-weight: 600;">
+              ✓ Safe Departure: 4:00 PM (No Flash Floods)
+            </div>
           </div>
-          <h3 style="font-size: 15px; font-weight: 700; color: #f8fafc; margin-bottom: 4px;">Instant SOS & Offline Beacon Dispatch</h3>
-          <p style="font-size: 11px; color: #94a3b8; max-width: 440px; margin: 0 auto 10px;">
-            Broadcasts location coords & emergency telemetry to NDRF responders even without mobile internet.
-          </p>
-          <div style="display: inline-flex; gap: 8px; font-size: 11px; font-weight: 600;">
-            <span style="padding: 3px 8px; background: rgba(16,185,129,0.2); color: #34d399; border-radius: 6px;">✓ WebRTC P2P Mesh</span>
-            <span style="padding: 3px 8px; background: rgba(59,130,246,0.2); color: #60a5fa; border-radius: 6px;">✓ NDMA Geocoded Dispatch</span>
+          <!-- Event Score -->
+          <div class="mockup-card" style="padding: 10px 12px;">
+            <div style="font-size: 11px; font-weight: 700; color: #fbbf24; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="calendar" style="width: 12px; height: 12px;"></i> Event Weather Score (0-100)
+            </div>
+            <p style="font-size: 10px; color: #94a3b8; margin-bottom: 6px;">Outdoor Sports & Harvest Index</p>
+            <div style="padding: 4px 8px; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); border-radius: 6px; font-size: 10px; color: #60a5fa; font-weight: 600;">
+              ⭐ Score: 88/100 (Optimal Conditions)
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- SCENE 5 (00:46 - 00:50): SIH Outro & Live Prototype -->
+      <!-- SCENE 5: (00:34 - 00:42) Community Spotter & Disaster Emergency SOS -->
       <div class="scene" id="scene5">
-        <span class="scene-badge"><i data-lucide="trophy" style="width: 13px; height: 13px;"></i> PRODUCTION READY</span>
-        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 6px; text-align: center; color: #f8fafc;">
-          Empowering Millions with Actionable Climate Intelligence
-        </h2>
-        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px; text-align: center;">
-          Built for Smart India Hackathon • Micro-Zone Precision • Multi-Lingual
-        </p>
-        <a href="/" class="btn-ctrl btn-primary" style="font-size: 13px; padding: 9px 20px; text-decoration: none;">
-          <i data-lucide="globe" style="width: 15px; height: 15px;"></i> Launch Live Chatbot App
-        </a>
+        <span class="scene-badge" style="background: rgba(244, 63, 94, 0.15); border-color: rgba(244, 63, 94, 0.35); color: #fb7185;">
+          <i data-lucide="shield-alert" style="width: 12px; height: 12px;"></i> INNOVATION: SPOTTER NETWORK & DISASTER SOS
+        </span>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 660px;">
+          <!-- Spotter -->
+          <div class="mockup-card" style="padding: 10px 12px;">
+            <div style="font-size: 11px; font-weight: 700; color: #38bdf8; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="camera" style="width: 12px; height: 12px;"></i> Crowdsourced Spotter Network
+            </div>
+            <p style="font-size: 10px; color: #94a3b8; margin-bottom: 6px;">Citizen Waterlogging Reports</p>
+            <div style="padding: 4px 8px; background: rgba(16,185,129,0.15); border-radius: 6px; font-size: 10px; color: #34d399; font-weight: 600;">
+              📍 12 Local Reports Verified Today
+            </div>
+          </div>
+          <!-- SOS -->
+          <div class="mockup-card" style="padding: 10px 12px; border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.06);">
+            <div style="font-size: 11px; font-weight: 700; color: #fb7185; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="alert-triangle" style="width: 12px; height: 12px;"></i> Offline Mesh Disaster SOS
+            </div>
+            <p style="font-size: 10px; color: #94a3b8; margin-bottom: 6px;">No-Internet P2P Rescue Relay</p>
+            <div style="padding: 4px 8px; background: rgba(239,68,68,0.2); border-radius: 6px; font-size: 10px; color: #fca5a5; font-weight: 700;">
+              🚨 1-Tap NDRF Telemetry Dispatch
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Live Subtitle Overlay -->
+      <!-- SCENE 6: (00:42 - 00:50) Automated PDF Reports & SIH Finale -->
+      <div class="scene" id="scene6">
+        <span class="scene-badge"><i data-lucide="trophy" style="width: 12px; height: 12px;"></i> SMART INDIA HACKATHON 2026</span>
+        <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 4px; text-align: center; color: #f8fafc;">
+          1-Click PDF Audit & Real-Time Climate Intelligence
+        </h2>
+        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 14px; text-align: center;">
+          Full Production Ready • Micro-Zone Precision • Multi-Lingual Speech
+        </p>
+        <div style="display: flex; gap: 10px;">
+          <a href="/" class="btn-ctrl btn-primary" style="font-size: 12px; padding: 8px 18px; text-decoration: none;">
+            <i data-lucide="globe" style="width: 14px; height: 14px;"></i> Launch Live Chatbot App
+          </a>
+          <a href="https://github.com/yuvaadhika/WeatherGPT" target="_blank" class="btn-ctrl" style="font-size: 12px; padding: 8px 14px; text-decoration: none;">
+            <i data-lucide="github" style="width: 14px; height: 14px;"></i> GitHub Repo
+          </a>
+        </div>
+      </div>
+
+      <!-- Subtitle Text -->
       <div class="subtitle-bar" id="subtitles">
-        Welcome to WeatherGPT: AI-driven hyper-local climate intelligence platform.
+        Welcome to WeatherGPT: An AI-driven hyper-local climate intelligence platform.
       </div>
     </div>
 
@@ -528,22 +634,22 @@
         <div class="progress-fill" id="progressFill"></div>
       </div>
       <div class="controls-row">
-        <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
           <button id="playBtn" class="btn-ctrl btn-primary">
-            <i data-lucide="play" id="playIcon" style="width: 15px; height: 15px;"></i>
+            <i data-lucide="play" id="playIcon" style="width: 14px; height: 14px;"></i>
             <span id="playBtnText">Play (50s)</span>
           </button>
           <button id="replayBtn" class="btn-ctrl">
-            <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i> Replay
+            <i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i> Replay
           </button>
           <span class="time-code" id="timeDisplay">00:00 / 00:50</span>
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
-          <button id="langToggleBtn" class="btn-ctrl" style="font-size: 11px; padding: 5px 10px;">
+          <button id="langToggleBtn" class="btn-ctrl" style="font-size: 11px; padding: 4px 10px;">
             <i data-lucide="languages" style="width: 13px; height: 13px;"></i> Voice: <b id="langLabel">English</b>
           </button>
-          <button id="voiceToggleBtn" class="btn-ctrl" style="font-size: 11px; padding: 5px 10px;">
+          <button id="voiceToggleBtn" class="btn-ctrl" style="font-size: 11px; padding: 4px 10px;">
             <i data-lucide="volume-2" id="voiceIcon" style="width: 13px; height: 13px;"></i> Audio
           </button>
         </div>
@@ -551,24 +657,52 @@
     </div>
   </main>
 
-  <!-- Video Details & Links Section -->
+  <!-- Complete Features Grid & SIH Presentation Links -->
   <section class="video-info">
-    <div class="info-header">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
       <div>
-        <h2 style="font-size: 20px; font-weight: 800; color: #fff;">WeatherGPT — AI Climate & Disaster Intelligence</h2>
-        <p style="font-size: 13px; color: #94a3b8; margin-top: 2px;">Smart India Hackathon (SIH) Official Project Walkthrough</p>
+        <h2 style="font-size: 18px; font-weight: 800; color: #fff;">WeatherGPT — Complete Feature Architecture</h2>
+        <p style="font-size: 12px; color: #94a3b8;">All 6 Major Innovations Showcase for SIH 2026</p>
       </div>
-      <div style="display: flex; gap: 8px;">
-        <span style="padding: 4px 10px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; font-size: 11px; font-weight: 700;">✓ Live Vercel Deploy</span>
-        <span style="padding: 4px 10px; background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; font-size: 11px; font-weight: 700;">✓ 50s Overview</span>
+      <div style="display: flex; gap: 6px;">
+        <span style="padding: 3px 8px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; font-size: 10px; font-weight: 700;">✓ 100% Live</span>
+        <span style="padding: 3px 8px; background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); border-radius: 6px; font-size: 10px; font-weight: 700;">✓ 50s Full Tour</span>
       </div>
     </div>
 
-    <!-- Presentation Links Box -->
+    <!-- 6 Feature Highlight Cards -->
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h4><i data-lucide="message-square" style="width: 13px; height: 13px;"></i> 1. Conversational AI</h4>
+        <p>RAG weather chat with 3-column micro-zone table and Tamil/English speech synthesis.</p>
+      </div>
+      <div class="feature-card">
+        <h4><i data-lucide="radio" style="width: 13px; height: 13px;"></i> 2. Live Doppler Radar</h4>
+        <p>500km real-time radar layer, AQI tracking, and agricultural harvest risk analysis.</p>
+      </div>
+      <div class="feature-card">
+        <h4><i data-lucide="navigation" style="width: 13px; height: 13px;"></i> 3. Route Weather Planner</h4>
+        <p>Corridor storm avoidance and departure time safety optimizer for travellers.</p>
+      </div>
+      <div class="feature-card">
+        <h4><i data-lucide="calendar" style="width: 13px; height: 13px;"></i> 4. Event Weather Score</h4>
+        <p>0-100 quantitative outdoor event and agricultural crop spraying viability index.</p>
+      </div>
+      <div class="feature-card">
+        <h4><i data-lucide="users" style="width: 13px; height: 13px;"></i> 5. Community Spotter</h4>
+        <p>Crowdsourced verified waterlogging and rainfall reports with geotagging.</p>
+      </div>
+      <div class="feature-card">
+        <h4><i data-lucide="shield-alert" style="width: 13px; height: 13px;"></i> 6. Disaster SOS Mesh</h4>
+        <p>Offline WebRTC peer-to-peer telemetry dispatch to NDRF emergency responders.</p>
+      </div>
+    </div>
+
+    <!-- Direct Presentation Links -->
     <div class="link-box">
       <div>
-        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">1️⃣ Chatbot Prototype Link:</div>
-        <a href="/" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-decoration: none;">
+        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">1️⃣ Live Chatbot Prototype Link:</div>
+        <a href="/" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 12px; text-decoration: none;">
           https://weather-gpt-yuvi.vercel.app/
         </a>
       </div>
@@ -579,8 +713,8 @@
 
     <div class="link-box">
       <div>
-        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">2️⃣ Demo Video Website Link (This Page):</div>
-        <span style="color: #a78bfa; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
+        <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">2️⃣ All-Features Video Demo Link (This Page):</div>
+        <span style="color: #a78bfa; font-family: 'JetBrains Mono', monospace; font-size: 12px;">
           https://weather-gpt-yuvi.vercel.app/video.html
         </span>
       </div>
@@ -604,47 +738,56 @@
       {
         id: 'scene1',
         start: 0,
-        end: 10,
-        subEn: "Welcome to WeatherGPT: An AI-driven hyper-local climate intelligence platform.",
-        subTa: "WeatherGPT-க்கு வரவேற்கிறோம்: தெருவாரியான துல்லியமான வானிலை AI தளம்.",
-        voiceEn: "Welcome to WeatherGPT. An AI driven hyper local climate intelligence platform solving the forecast accuracy gap with instant multilingual access.",
-        voiceTa: "WeatherGPT-க்கு நல்வரவு. தெருவாரியான வானிலை கணிப்புகள் மற்றும் பலமொழி ஆதரவுடன் இயங்கும் அதிநவீன AI தளம்."
+        end: 8,
+        subEn: "1/6 Multi-Lingual & Biometric Access: 6 regional languages + Tanglish with instant passkey login.",
+        subTa: "1/6 பலமொழி & பயோமெட்ரிக் உள்நுழைவு: தமிழ் உட்பட 6 பிராந்திய மொழிகள் மற்றும் விரைவு உள்நுழைவு.",
+        voiceEn: "Welcome to WeatherGPT. Supporting 6 regional languages and instant biometric access for every citizen.",
+        voiceTa: "WeatherGPT-க்கு நல்வரவு. தமிழ் உட்பட பல மொழிகளில் அதிவேகமாக உள்நுழையலாம்."
       },
       {
         id: 'scene2',
-        start: 10,
-        end: 25,
-        subEn: "Conversational AI delivers micro-zone rain forecasts in a clean 3-column table (Place | Rain Status | Timing).",
-        subTa: "AI உரையாடல் மூலம் 3-காலம் அட்டவணையில் துல்லியமான மழை நிலவரம் (இடம் | மழை/எச்சரிக்கை | நேரம்).",
-        voiceEn: "Our conversational AI delivers micro zone rain forecasts in a clean 3-column table with place name, rain probability, and exact timing window with natural speech.",
-        voiceTa: "எங்கள் AI சாட்பாட் இடம், மழை அளவு மற்றும் நேரத்துடன் கூடிய 3 காலம் அட்டவணையில் துல்லியமாக பதிலளிக்கிறது."
+        start: 8,
+        end: 17,
+        subEn: "2/6 Conversational AI: Micro-zone rain prediction delivered in a clean 3-column table with voice readout.",
+        subTa: "2/6 AI உரையாடல்: இடம், மழை நிலவரம் மற்றும் நேரத்துடன் கூடிய 3-காலம் அட்டவணை.",
+        voiceEn: "Conversational AI provides micro zone rain forecasts in a clean 3-column table with voice readout.",
+        voiceTa: "எங்கள் AI சாட்பாட் இடம், மழை அளவு மற்றும் நேரத்துடன் கூடிய 3 காலம் அட்டவணையில் பதிலளிக்கிறது."
       },
       {
         id: 'scene3',
-        start: 25,
-        end: 38,
-        subEn: "Real-time Doppler Radar integration with Air Quality Index and Agricultural Impact Risk scoring.",
-        subTa: "நேரடி டாப்ளர் ரேடார், காற்று தரம் (AQI) மற்றும் விவசாய பாதிப்பு முன்னெச்சரிக்கை கால்குலேட்டர்.",
-        voiceEn: "Integrated with live 500 kilometer Doppler Radar, satellite cloud coverage, and agricultural impact risk scoring for farmers.",
+        start: 17,
+        end: 25,
+        subEn: "3/6 Real-Time Doppler Radar & AQI: 500km live precipitation map and farmer impact risk scoring.",
+        subTa: "3/6 நேரடி டாப்ளர் ரேடார் & காற்று தரம்: 500 கிமீ நேரலை வரைபடம் மற்றும் விவசாய ஆலோசனை.",
+        voiceEn: "Live 500km Doppler radar and real-time air quality index with farmer crop impact scoring.",
         voiceTa: "நேரடி டாப்ளர் ரேடார் வரைபடம், காற்றின் தரம் மற்றும் விவசாயிகளுக்கான பாதிப்பு கணிப்பு இயங்குகிறது."
       },
       {
         id: 'scene4',
-        start: 38,
-        end: 46,
-        subEn: "Disaster Emergency SOS dispatch with offline mesh network capability during extreme cyclones and floods.",
-        subTa: "புயல், வெள்ளம் போன்ற பேரிடர் காலத்தில் இணையம் இல்லாவிட்டாலும் இயங்கும் அவசர SOS எச்சரிக்கை அமைப்பு.",
-        voiceEn: "During extreme cyclones and floods, the disaster emergency SOS broadcasts geocoded telemetry to rescue teams even without internet.",
-        voiceTa: "புயல், வெள்ளம் போன்ற ஆபத்தான காலங்களில் மீட்பு குழுக்களுக்கு நேரடி SOS தகவலை அனுப்பி வைக்கிறது."
+        start: 25,
+        end: 34,
+        subEn: "4/6 Route Planner & Event Score: Corridor storm avoidance and 0-100 outdoor event safety viability index.",
+        subTa: "4/6 வழித்தட வானிலை & நிகழ்வு ஸ்கோர்: பயண புயல் எச்சரிக்கை மற்றும் நிகழ்வு பாதுகாப்பு குறியீடு.",
+        voiceEn: "Smart route weather corridor planner and 0 to 100 event weather safety score engine.",
+        voiceTa: "பயண வழித்தட புயல் முன்னெச்சரிக்கை மற்றும் நிகழ்வு பாதுகாப்பு ஸ்கோர் இயங்குகிறது."
       },
       {
         id: 'scene5',
-        start: 46,
+        start: 34,
+        end: 42,
+        subEn: "5/6 Spotter Network & SOS Mesh: Crowdsourced waterlogging reports with offline P2P emergency rescue relay.",
+        subTa: "5/6 பொது மக்கள் ஸ்பாட்டர் & SOS மெஷ்: நேரடி வெள்ளப் பதிவுகள் மற்றும் ஆஃப்லைன் அவசர உதவி.",
+        voiceEn: "Crowdsourced spotter flood reports and offline mesh network for disaster emergency SOS dispatch.",
+        voiceTa: "பொதுமக்கள் வெள்ளப் பதிவுகள் மற்றும் இணையம் இல்லாத அவசர SOS எச்சரிக்கை அமைப்பு."
+      },
+      {
+        id: 'scene6',
+        start: 42,
         end: 50,
-        subEn: "WeatherGPT: Empowering communities with actionable climate intelligence. Built for SIH 2026.",
-        subTa: "WeatherGPT: அனைவருக்குமான நம்பகமான வானிலை நுண்ணறிவு. நேரலையில் இயங்குகிறது.",
-        voiceEn: "WeatherGPT. Empowering communities with actionable climate intelligence. Built for Smart India Hackathon. Try it live today!",
-        voiceTa: "WeatherGPT. அனைவருக்குமான அதிநவீன வானிலை வழிகாட்டி. இப்போதே பயன்படுத்தி பாருங்கள்!"
+        subEn: "6/6 Automated PDF Reports & SIH Finale: 1-click climate audit reports. Built for Smart India Hackathon.",
+        subTa: "6/6 தானியங்கி PDF அறிக்கைகள்: ஒரே கிளிக்கில் வானிலை தணிக்கை அறிக்கை பதிவிறக்கம்.",
+        voiceEn: "One-click PDF climate audit reports. WeatherGPT: Empowering communities with actionable intelligence.",
+        voiceTa: "ஒரே கிளிக்கில் வானிலை PDF அறிக்கை. WeatherGPT: அனைவருக்குமான அதிநவீன வானிலை வழிகாட்டி."
       }
     ];
 
@@ -675,7 +818,7 @@
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = lang === 'ta' ? 'ta-IN' : 'en-US';
-      utterance.rate = 1.0;
+      utterance.rate = 1.05;
       window.speechSynthesis.speak(utterance);
     }
 
@@ -688,6 +831,11 @@
         document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
         const activeEl = document.getElementById(currentScene.id);
         if (activeEl) activeEl.classList.add('active');
+
+        // Update Chapter Pills active state
+        document.querySelectorAll('.chapter-pill').forEach((btn, idx) => {
+          btn.classList.toggle('active', idx === sceneIdx);
+        });
 
         subtitlesEl.textContent = selectedLanguage === 'ta' ? currentScene.subTa : currentScene.subEn;
 
@@ -742,6 +890,12 @@
       lucide.createIcons();
       clearInterval(timerInterval);
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
+
+    function jumpTo(sec) {
+      currentTime = sec;
+      updateUI();
+      if (!isPlaying) playVideo();
     }
 
     viewport.addEventListener('click', () => {
