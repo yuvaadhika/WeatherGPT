@@ -30,13 +30,269 @@ import {
   Camera,
   Image as ImageIcon,
   RotateCw,
-  X
+  X,
+  MapPin,
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { weatherAI } from '../services/aiService';
 import { speechEngine } from '../services/speechService';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
 import { getWeatherDescription, generateFullSpokenWeatherBulletin } from '../services/weatherService';
 import { createWeatherIntelligenceReport, downloadHTMLReport } from '../services/reportService';
+
+// 🌟 Inline Markdown Parser (Bold, Italic, Code)
+function renderInlineFormatted(str) {
+  if (!str || typeof str !== 'string') return str;
+  const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  let keyIdx = 0;
+
+  while ((match = regex.exec(str)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(str.slice(lastIndex, match.index));
+    }
+    const token = match[0];
+    if (token.startsWith('**') && token.endsWith('**')) {
+      parts.push(
+        <strong key={keyIdx++} className="font-bold text-slate-900">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    } else if (token.startsWith('*') && token.endsWith('*')) {
+      parts.push(
+        <em key={keyIdx++} className="italic text-slate-700">
+          {token.slice(1, -1)}
+        </em>
+      );
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      parts.push(
+        <code key={keyIdx++} className="bg-slate-100 text-sky-700 px-1.5 py-0.5 rounded text-[11px] font-mono border border-slate-200">
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < str.length) {
+    parts.push(str.slice(lastIndex));
+  }
+  return parts.length > 0 ? parts : str;
+}
+
+// 🌟 Formatted Table Cell with Dynamic Color-Coded Badges
+function FormattedTableCell({ cellText = '', colIndex, headerText = '' }) {
+  const raw = (cellText || '').trim();
+  const isPlaceCol = colIndex === 0 || /place|location|பகுதி|இடம்|area|district/i.test(headerText);
+  const isStatusCol = colIndex === 1 || /yes|no|maybe|rain|alert|மழை|எச்சரிக்கை|நிலை|status|verdict/i.test(headerText);
+  const isTimingCol = colIndex === 2 || /time|timing|நேரம்|காலம்|window/i.test(headerText);
+
+  if (isStatusCol) {
+    const isYes = /\b(yes|aam|ஆம்|rain|heavy|கனமழை|உண்டு)\b/i.test(raw) || raw.includes('🌧️');
+    const isMaybe = /\b(maybe|drizzle|thooral|தூறல்|வாய்ப்பு)\b/i.test(raw) || raw.includes('🌦️');
+    const isNo = /\b(no|illai|இல்லை|dry|clear|safe|வறண்ட|பாதுகாப்பானது)\b/i.test(raw) || raw.includes('☀️');
+
+    if (isYes) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-sky-50 to-blue-50 text-sky-900 border border-sky-300 font-bold text-[11px] shadow-2xs">
+          <span>{renderInlineFormatted(raw)}</span>
+        </span>
+      );
+    }
+    if (isMaybe) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 text-amber-900 border border-amber-300 font-semibold text-[11px] shadow-2xs">
+          <span>{renderInlineFormatted(raw)}</span>
+        </span>
+      );
+    }
+    if (isNo) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-900 border border-emerald-300 font-medium text-[11px] shadow-2xs">
+          <span>{renderInlineFormatted(raw)}</span>
+        </span>
+      );
+    }
+    return <span className="font-semibold text-slate-800">{renderInlineFormatted(raw)}</span>;
+  }
+
+  if (isTimingCol) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-800 font-mono text-[11px] border border-slate-200">
+        <Clock className="w-3 h-3 text-slate-500 shrink-0" />
+        <span>{renderInlineFormatted(raw.replace(/^⏰\s*/, ''))}</span>
+      </span>
+    );
+  }
+
+  if (isPlaceCol) {
+    return (
+      <span className="font-bold text-slate-900 inline-flex items-center gap-1.5">
+        <MapPin className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+        <span>{renderInlineFormatted(raw.replace(/^📍\s*/, ''))}</span>
+      </span>
+    );
+  }
+
+  return <span>{renderInlineFormatted(raw)}</span>;
+}
+
+// 🌟 Message Blocks Parser
+function parseMessageBlocks(text) {
+  if (!text) return [];
+  const lines = text.split('\n');
+  const blocks = [];
+  let currentTable = null;
+  let currentTextLines = [];
+
+  const flushText = () => {
+    if (currentTextLines.length > 0) {
+      blocks.push({ type: 'text', content: currentTextLines.join('\n') });
+      currentTextLines = [];
+    }
+  };
+
+  const flushTable = () => {
+    if (currentTable && currentTable.length > 0) {
+      const headerLine = currentTable[0];
+      const headers = headerLine
+        .split('|')
+        .slice(1, -1)
+        .map((c) => c.trim());
+
+      const dataLines = currentTable.slice(1).filter((l) => !l.match(/^\|?\s*[:\-\s|]{3,}\s*\|?$/));
+      const rows = dataLines.map((l) =>
+        l
+          .split('|')
+          .slice(1, -1)
+          .map((c) => c.trim())
+      );
+
+      blocks.push({
+        type: 'table',
+        headers,
+        rows,
+      });
+      currentTable = null;
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      flushText();
+      if (!currentTable) currentTable = [];
+      currentTable.push(trimmed);
+    } else {
+      if (currentTable) {
+        flushTable();
+      }
+      currentTextLines.push(lines[i]);
+    }
+  }
+
+  flushText();
+  if (currentTable) {
+    flushTable();
+  }
+
+  return blocks;
+}
+
+// 🌟 Message Content Renderer Component
+function RenderMessageContent({ text, isAi = true }) {
+  if (!text) return null;
+  const blocks = parseMessageBlocks(text);
+
+  return (
+    <div className="space-y-2 text-xs sm:text-sm leading-relaxed">
+      {blocks.map((block, bIdx) => {
+        if (block.type === 'table') {
+          return (
+            <div
+              key={bIdx}
+              className="my-3 overflow-hidden rounded-2xl border border-sky-200/90 bg-white/95 shadow-2xs backdrop-blur-xs transition-all"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 text-white">
+                      {block.headers.map((h, hIdx) => (
+                        <th
+                          key={hIdx}
+                          className="py-2.5 px-3.5 font-bold text-[11px] tracking-wide border-b border-sky-800/50 whitespace-nowrap"
+                        >
+                          {renderInlineFormatted(h)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-sky-100/70 bg-white">
+                    {block.rows.map((row, rIdx) => (
+                      <tr
+                        key={rIdx}
+                        className={`transition-colors hover:bg-sky-50/60 ${
+                          rIdx % 2 === 1 ? 'bg-slate-50/40' : 'bg-white'
+                        }`}
+                      >
+                        {row.map((cell, cIdx) => (
+                          <td key={cIdx} className="py-2.5 px-3.5 text-slate-800 align-middle">
+                            <FormattedTableCell
+                              cellText={cell}
+                              colIndex={cIdx}
+                              headerText={block.headers[cIdx] || ''}
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        }
+
+        const lines = block.content.split('\n');
+        return (
+          <div key={bIdx} className="space-y-1">
+            {lines.map((line, lIdx) => {
+              if (line.startsWith('•') || line.startsWith('-')) {
+                return (
+                  <div
+                    key={lIdx}
+                    className="pl-2.5 border-l-2 border-sky-400 text-slate-800 my-0.5 font-normal flex items-start space-x-1.5"
+                  >
+                    <span className="flex-1">{renderInlineFormatted(line)}</span>
+                  </div>
+                );
+              }
+              if (line.startsWith('📍 **') || line.startsWith('### ') || line.startsWith('## ')) {
+                return (
+                  <div key={lIdx} className="font-bold text-slate-900 text-xs sm:text-sm mt-2 mb-0.5">
+                    {renderInlineFormatted(line.replace(/^#+\s*/, ''))}
+                  </div>
+                );
+              }
+              if (!line.trim()) {
+                return <div key={lIdx} className="h-1" />;
+              }
+              return (
+                <div key={lIdx} className={isAi ? 'text-slate-800' : 'text-white'}>
+                  {renderInlineFormatted(line)}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function ChatInterface({
   activeLanguage = 'en',
@@ -520,19 +776,8 @@ export default function ChatInterface({
                   </div>
                 )}
 
-                {/* Text Content */}
-                <div className="whitespace-pre-line space-y-1">
-                  {msg.text.split('\n').map((line, idx) => {
-                    if (line.startsWith('•')) {
-                      return (
-                        <div key={idx} className="pl-2 border-l-2 border-sky-400 text-slate-700 my-0.5 font-medium">
-                          {line}
-                        </div>
-                      );
-                    }
-                    return <div key={idx}>{line}</div>;
-                  })}
-                </div>
+                {/* Text Content with Rich Table & Markdown Formatting */}
+                <RenderMessageContent text={msg.text} isAi={isAi} />
 
                 {/* Compact Weather Metrics Strip (if AI message has telemetry) */}
                 {isAi && msg.weatherData?.current && (

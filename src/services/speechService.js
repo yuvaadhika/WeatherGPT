@@ -74,13 +74,20 @@ class SpeechEngine {
     let cleaned = text
       // Remove URLs
       .replace(/https?:\/\/\S+/gi, '')
-      // Remove Markdown formatting, code blocks, bold, italics, tables
+      // Remove code blocks
       .replace(/```[\s\S]*?```/g, '')
       .replace(/`([^`]+)`/g, '$1')
+      // Remove table separator lines like | :--- | :--- |
+      .replace(/\|?\s*[:\-\s|]{3,}\s*\|?/g, '')
+      // Convert table data rows "| Place | Status | Time |" to "Place: Status, Time."
+      .replace(/^\|\s*(.*?)\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|$/gm, '$1: $2, $3.')
+      // Remove leftover Markdown characters
       .replace(/[*_#~[\]()><|]/g, ' ')
       // Convert bullet points to natural pauses
       .replace(/^[•\-\*]\s+/gm, '')
-      .replace(/[•\-\*]\s+/g, ', ');
+      .replace(/[•\-\*]\s+/g, ', ')
+      // Normalize multiple spaces and extra punctuation
+      .replace(/\s+/g, ' ');
 
     const lang = targetLang.split(/[-_]/)[0].toLowerCase();
 

@@ -1875,6 +1875,7 @@ CRITICAL DOMAIN RULES:
 1. You ONLY answer queries related to weather, rainfall, storm, cyclone, flood, temperatures, winds, humidity, cloud formations, air quality (AQI), disaster early warnings, agriculture/crop climate advisories, marine sea states, and aviation briefings.
 2. If the user asks a completely non-weather question (e.g. coding, history, politics, cinema, math, recipes), politely decline in the detected language (${effectiveLang}) stating that you are WeatherGPT and only answer weather questions.
 3. For weather inquiries in ANY language, provide rich, accurate, and actionable meteorological guidance based on the live station data below.
+4. When discussing multiple areas, sub-districts, specific localities, or rain timing distributions, present them in a clean Markdown Table with 3 columns: | Place Name | Rain/Alert (YES/NO/MAYBE) | Timing Window | so that it is neat, uncluttered, and easy to read.
 
 Location: ${locName}
 Current Temperature: ${temp}°C (Feels like: ${current.apparent_temperature || temp}°C)
@@ -2118,51 +2119,88 @@ Explain politely in the user's detected language (${effectiveLang}) that Weather
     const todayDateEn = `${dayNamesEn[now.getDay()]}, ${now.getDate()} ${monthNamesEn[now.getMonth()]}`;
     const tomorrowDateEn = `${dayNamesEn[tomorrow.getDay()]}, ${tomorrow.getDate()} ${monthNamesEn[tomorrow.getMonth()]}`;
 
-    // Helper to format sub-district breakdown text
-    const formatMicroZoneTextTa = () => {
-      let txt = '';
-      if (microBreakdown.rainZones.length > 0) {
-        txt += `\n\n🌧️ **மழை பெய்யும் குறிப்பிட்ட பகுதிகள் (Rain Expected Areas in ${locName}):**\n` +
-          microBreakdown.rainZones.map((z) => `  • 📍 **${z.nameTa}**: ${z.timingTa} (${z.prob}% வாய்ப்பு, ~${z.mm} மி.மீ)`).join('\n');
+    // Helper to format sub-district breakdown as a clean, modern 3-column table
+    const formatMicroZoneTable = (targetLang = 'en') => {
+      if (!microBreakdown || !microBreakdown.zones || microBreakdown.zones.length === 0) return '';
+      
+      const isTa = targetLang === 'ta';
+      const isTanglish = targetLang === 'tanglish';
+      const isHi = targetLang === 'hi';
+      const isTe = targetLang === 'te';
+      const isKn = targetLang === 'kn';
+      const isMl = targetLang === 'ml';
+
+      let title = `📍 **Specific Location-Wise Rain & Alert Timing Table (${locName}):**`;
+      let colPlace = '📍 Place Name';
+      let colStatus = '🌧️ Rain / Alert Status';
+      let colTiming = '⏰ Timing Window';
+
+      if (isTa) {
+        title = `📍 **குறிப்பிட்ட பகுதிகள் வாரியான மழை & எச்சரிக்கை அட்டவணை (${locName}):**`;
+        colPlace = '📍 பகுதி (Place Name)';
+        colStatus = '🌧️ மழை / எச்சரிக்கை நிலை';
+        colTiming = '⏰ எதிர்பார்க்கப்படும் நேரம்';
+      } else if (isTanglish) {
+        title = `📍 **Specific Location-Wise Rain & Alert Table (${locName}):**`;
+        colPlace = '📍 Place Name';
+        colStatus = '🌧️ Rain / Alert Status (Yes/No)';
+        colTiming = '⏰ Timing Window';
+      } else if (isHi) {
+        title = `📍 **स्थानवार वर्षा एवं चेतावनी समय सारणी (${locName}):**`;
+        colPlace = '📍 स्थान (Place Name)';
+        colStatus = '🌧️ वर्षा / अलर्ट स्थिति';
+        colTiming = '⏰ संभावित समय';
+      } else if (isTe) {
+        title = `📍 **ప్రాంతాల వారీగా వర్ష & హెచ్చరిక సమయ పట్టిక (${locName}):**`;
+        colPlace = '📍 ప్రాంతం (Place Name)';
+        colStatus = '🌧️ వర్షం / హెచ్చరిక స్థితి';
+        colTiming = '⏰ అంచనా సమయం';
       }
-      if (microBreakdown.dryZones.length > 0) {
-        txt += `\n\n☀️ **மழை இல்லாத / வறண்ட பகுதிகள் (Dry & Clear Areas):**\n` +
-          microBreakdown.dryZones.map((z) => `  • 📍 **${z.nameTa}**: மழை வாய்ப்பு இல்லை (0 மி.மீ, தெளிவான வானிலை)`).join('\n');
-      }
-      txt += `\n\n⚠️ **பகுதிவாரி இடர் & வெள்ள அபாயப் பகுப்பாய்வு (Hyper-Local Risk Distribution):**\n` +
-        microBreakdown.zones.map((z) => `  • **${z.nameTa}**: ${z.riskBadgeTa} — *${z.riskAdvisoryTa}*`).join('\n');
+
+      let txt = `\n\n${title}\n\n` +
+        `| ${colPlace} | ${colStatus} | ${colTiming} |\n` +
+        `| :--- | :--- | :--- |\n`;
+
+      microBreakdown.zones.forEach((z) => {
+        const placeName = (isTa || isTanglish) ? (z.nameTa || z.nameEn) : z.nameEn;
+        let rainStatus = '';
+        const timing = (isTa || isTanglish) ? (z.timingTa || z.timingEn) : z.timingEn;
+
+        if (isTa) {
+          if (z.status === 'rain') {
+            rainStatus = `🌧️ **ஆம் (YES)** • ${z.prob}% மழை (~${z.mm} மி.மீ)`;
+          } else if (z.status === 'drizzle') {
+            rainStatus = `🌦️ **வாய்ப்பு (MAYBE)** • தூறல் (${z.prob}%)`;
+          } else {
+            rainStatus = `☀️ **இல்லை (NO)** • தெளிவான வானிலை`;
+          }
+        } else if (isTanglish) {
+          if (z.status === 'rain') {
+            rainStatus = `🌧️ **YES** (Mazhai ${z.prob}% • ~${z.mm} mm)`;
+          } else if (z.status === 'drizzle') {
+            rainStatus = `🌦️ **MAYBE** (Lesana Thooral / ${z.prob}%)`;
+          } else {
+            rainStatus = `☀️ **NO** (Mazhai Illai / Safe)`;
+          }
+        } else {
+          if (z.status === 'rain') {
+            rainStatus = `🌧️ **YES** (Rain ${z.prob}% • ~${z.mm} mm)`;
+          } else if (z.status === 'drizzle') {
+            rainStatus = `🌦️ **MAYBE** (Passing Drizzle / ${z.prob}%)`;
+          } else {
+            rainStatus = `☀️ **NO** (Dry & Clear Skies)`;
+          }
+        }
+
+        txt += `| 📍 **${placeName}** | ${rainStatus} | ⏰ ${timing} |\n`;
+      });
+
       return txt;
     };
 
-    const formatMicroZoneTextTanglish = () => {
-      let txt = '';
-      if (microBreakdown.rainZones.length > 0) {
-        txt += `\n\n🌧️ **Mazhai Peyyum Kurippitta Idangal (Rain Expected Areas in ${locName}):**\n` +
-          microBreakdown.rainZones.map((z) => `  • 📍 **${z.nameTa}**: ${z.timingTa} (${z.prob}% vaippu, ~${z.mm} mm)`).join('\n');
-      }
-      if (microBreakdown.dryZones.length > 0) {
-        txt += `\n\n☀️ **Mazhai Illadha / Varanja Idangal (Dry & Clear Areas):**\n` +
-          microBreakdown.dryZones.map((z) => `  • 📍 **${z.nameTa}**: Mazhai vaippu illa (0 mm, thelivana climate)`).join('\n');
-      }
-      txt += `\n\n⚠️ **Paghuthivaari Idar / Flood Risk Distribution (Specific Area Risk):**\n` +
-        microBreakdown.zones.map((z) => `  • **${z.nameTa}**: ${z.riskBadgeTa} — *${z.riskAdvisoryTa}*`).join('\n');
-      return txt;
-    };
-
-    const formatMicroZoneTextEn = () => {
-      let txt = '';
-      if (microBreakdown.rainZones.length > 0) {
-        txt += `\n\n🌧️ **Specific Localities Expecting Rain in ${locName}:**\n` +
-          microBreakdown.rainZones.map((z) => `  • 📍 **${z.nameEn}**: ${z.timingEn} (${z.prob}% chance, ~${z.mm} mm)`).join('\n');
-      }
-      if (microBreakdown.dryZones.length > 0) {
-        txt += `\n\n☀️ **Specific Localities Remaining Dry / Clear:**\n` +
-          microBreakdown.dryZones.map((z) => `  • 📍 **${z.nameEn}**: No rain expected (0.0 mm, fair & clear)`).join('\n');
-      }
-      txt += `\n\n⚠️ **Hyper-Local Inundation & Hazard Risk Distribution:**\n` +
-        microBreakdown.zones.map((z) => `  • **${z.nameEn}**: [${z.riskLevel.toUpperCase()}] ${z.riskBadgeEn} — *${z.riskAdvisoryEn}*`).join('\n');
-      return txt;
-    };
+    const formatMicroZoneTextTa = () => formatMicroZoneTable('ta');
+    const formatMicroZoneTextTanglish = () => formatMicroZoneTable('tanglish');
+    const formatMicroZoneTextEn = () => formatMicroZoneTable(lang);
 
     // 🌟 Special Language: TANGLISH (Conversational Tamil in English letters)
     if (lang === 'tanglish') {
