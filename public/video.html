@@ -659,19 +659,23 @@
     let currentSceneIdx = -1;
 
     // Speed Sync for exact 50-second completion
-    mainVideo.addEventListener('loadedmetadata', () => {
-      const realDur = mainVideo.duration || 50;
-      // Adjust video playback speed so full video fits cleanly in ~50 seconds
+    function apply50sRate() {
+      const realDur = mainVideo.duration || 98;
       if (realDur > 50) {
         mainVideo.playbackRate = realDur / TARGET_DURATION;
       } else {
         mainVideo.playbackRate = 1.0;
       }
-    });
+    }
+
+    mainVideo.addEventListener('loadedmetadata', apply50sRate);
+    mainVideo.addEventListener('play', apply50sRate);
+    mainVideo.addEventListener('canplay', apply50sRate);
 
     function formatTime(sec) {
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
+      const clamped = Math.max(0, Math.min(TARGET_DURATION, Math.floor(sec)));
+      const m = Math.floor(clamped / 60);
+      const s = Math.floor(clamped % 60);
       return `0${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
@@ -680,12 +684,12 @@
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = lang === 'ta' ? 'ta-IN' : 'en-US';
-      utterance.rate = 1.08;
+      utterance.rate = 1.1;
       window.speechSynthesis.speak(utterance);
     }
 
-    function updateScene(time) {
-      const idx = fxScenes.findIndex(s => time >= s.start && time < s.end);
+    function updateScene(time50) {
+      const idx = fxScenes.findIndex(s => time50 >= s.start && time50 < s.end);
       if (idx !== -1 && idx !== currentSceneIdx) {
         currentSceneIdx = idx;
         const cur = fxScenes[idx];
@@ -706,13 +710,16 @@
       }
     }
 
-    // Video Timeupdate Event
+    // Video Timeupdate Event (Strictly Normalized to 00:00 - 00:50)
     mainVideo.addEventListener('timeupdate', () => {
-      const curTime = mainVideo.currentTime;
-      const progress = (curTime / (mainVideo.duration || 50)) * 100;
+      const realDur = mainVideo.duration || 98;
+      const curRaw = mainVideo.currentTime;
+      const progress = Math.min(100, Math.max(0, (curRaw / realDur) * 100));
+      const normalized50s = Math.min(TARGET_DURATION, (progress / 100) * TARGET_DURATION);
+      
       progressFill.style.width = progress + '%';
-      timeTxt.textContent = `${formatTime(curTime)} / 00:50`;
-      updateScene(curTime);
+      timeTxt.textContent = `${formatTime(normalized50s)} / 00:50`;
+      updateScene(normalized50s);
     });
 
     // UI Auto-Hide
