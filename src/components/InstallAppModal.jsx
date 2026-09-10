@@ -147,23 +147,21 @@ export default function InstallAppModal({ isOpen, onClose, activeLanguage = 'en'
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
-              {/* 1-Click Install Button (Active when beforeinstallprompt is ready) */}
-              {pwaState.canInstall && (
-                <button
-                  type="button"
-                  onClick={handleInstallClick}
-                  disabled={isInstalling}
-                  className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-700 hover:from-sky-700 hover:to-indigo-800 text-white font-black text-sm sm:text-base flex items-center justify-center space-x-2 shadow-md shadow-sky-600/20 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50"
-                >
-                  <Download className="w-5 h-5 animate-bounce" />
-                  <span>
-                    {isInstalling
-                      ? (isTa ? 'நிறுவப்படுகிறது...' : 'Installing...')
-                      : (isTa ? '📲 WeatherGPT செயலியை 1-கிளிக்-ல் நிறுவு (Install App)' : '📲 Install WeatherGPT App (1-Click)')}
-                  </span>
-                </button>
-              )}
+            <div className="space-y-3">
+              {/* Primary 1-Click Install Button (Always clickable) */}
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                disabled={isInstalling}
+                className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-700 hover:from-sky-700 hover:to-indigo-800 text-white font-black text-sm sm:text-base flex items-center justify-center space-x-2 shadow-md shadow-sky-600/20 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50"
+              >
+                <Download className="w-5 h-5 animate-bounce" />
+                <span>
+                  {isInstalling
+                    ? (isTa ? 'நிறுவப்படுகிறது...' : 'Installing...')
+                    : (isTa ? '📲 WeatherGPT செயலியை நிறுவு (Install App)' : '📲 Install WeatherGPT App (1-Click)')}
+                </span>
+              </button>
 
               {/* OS-Specific Guided Instructions */}
               <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-200/80 space-y-2.5">
