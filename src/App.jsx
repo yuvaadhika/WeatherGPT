@@ -121,7 +121,6 @@ export default function App() {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
-  const [isVideoTourOpen, setIsVideoTourOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
     return localStorage.getItem('weather_onboarding_shown') !== 'true';
   });
@@ -133,23 +132,6 @@ export default function App() {
     userRegistryService.autoRegisterVisitor(currentUser, currentLocation);
   }, [currentUser, currentLocation?.name]);
 
-  // 🎥 Auto-open 50-second video walkthrough if ?video=true, ?tour=true, or #video is present
-  useEffect(() => {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const hash = window.location.hash;
-      if (
-        urlParams.get('video') === 'true' ||
-        urlParams.get('tour') === 'true' ||
-        urlParams.get('demo') === 'true' ||
-        hash === '#video' ||
-        hash === '#tour' ||
-        hash === '#demo'
-      ) {
-        setIsVideoTourOpen(true);
-      }
-    } catch { }
-  }, []);
 
   const handleSignOut = () => {
     localStorage.removeItem('weathergpt_auth_user');
@@ -386,36 +368,14 @@ export default function App() {
 
   if (!currentUser) {
     return (
-      <>
-        <AuthScreen
-          onLogin={(user) => {
-            setCurrentUser(user);
-            setIsOnboardingOpen(true);
-          }}
-          activeLanguage={activeLanguage}
-          setActiveLanguage={setActiveLanguage}
-          onOpenVideoTour={() => setIsVideoTourOpen(true)}
-        />
-        <FeatureVideoTourModal
-          isOpen={isVideoTourOpen}
-          onClose={() => setIsVideoTourOpen(false)}
-          activeLanguage={activeLanguage}
-          onNavigateView={(view) => {
-            const demoUser = {
-              id: `demo-${Date.now()}`,
-              name: 'Demo Visitor',
-              email: 'demo@weathergpt.live',
-              avatarType: 'initials',
-              avatar: '',
-              provider: 'Video Tour Guest 🎥',
-              role: 'Demo Member',
-              joinedAt: new Date().toISOString()
-            };
-            setCurrentUser(demoUser);
-            setActiveView(view);
-          }}
-        />
-      </>
+      <AuthScreen
+        onLogin={(user) => {
+          setCurrentUser(user);
+          setIsOnboardingOpen(true);
+        }}
+        activeLanguage={activeLanguage}
+        setActiveLanguage={setActiveLanguage}
+      />
     );
   }
 
@@ -743,7 +703,6 @@ export default function App() {
           onOpenAlertModal={() => setIsAlertModalOpen(true)}
           onOpenLocationModal={() => setIsLocationModalOpen(true)}
           onOpenAdminDatabase={() => setIsAdminModalOpen(true)}
-          onOpenVideoTour={() => setIsVideoTourOpen(true)}
           currentUser={currentUser}
           onSignOut={handleSignOut}
         />
@@ -808,7 +767,6 @@ export default function App() {
                 setExportReportParams(msg);
                 setIsExportOpen(true);
               }}
-              onOpenVideoTour={() => setIsVideoTourOpen(true)}
             />
           </div>
 

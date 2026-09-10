@@ -20,8 +20,7 @@ import { userRegistryService } from '../services/userRegistryService';
 export default function AuthScreen({
   onLogin,
   activeLanguage = 'en',
-  setActiveLanguage,
-  onOpenVideoTour
+  setActiveLanguage
 }) {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [name, setName] = useState('');
@@ -150,21 +149,6 @@ export default function AuthScreen({
         </div>
 
         <div className="flex items-center space-x-2 flex-shrink-0">
-          {/* 50s Demo Video Tour Button */}
-          {onOpenVideoTour && (
-            <button
-              type="button"
-              onClick={onOpenVideoTour}
-              title={activeLanguage === 'ta' ? '50-விநாடி வீடியோ விளக்கத்தைக் காண்க' : 'Watch 50-Second Feature Walkthrough Video'}
-              className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-600 hover:from-sky-600 hover:to-indigo-700 text-white font-extrabold text-xs flex items-center space-x-1.5 shadow-sm transition-all cursor-pointer ring-1 ring-sky-300/40 hover:scale-105"
-            >
-              <Play className="w-3 h-3 fill-white shrink-0" />
-              <span className="text-[11px] font-black tracking-tight whitespace-nowrap">
-                {activeLanguage === 'ta' ? '🎥 50s வீடியோ' : '🎥 50s Demo'}
-              </span>
-            </button>
-          )}
-
           {/* Language Selector Dropdown */}
           <div className="flex items-center space-x-1.5 bg-white/90 hover:bg-white border border-sky-200/90 rounded-xl px-2.5 py-1.5 shadow-2xs transition-all">
             <Globe className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />

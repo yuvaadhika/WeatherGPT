@@ -306,8 +306,7 @@ export default function ChatInterface({
   setMessages: externalSetMessages,
   onOpenRadar,
   onOpenDecision,
-  onOpenExport,
-  onOpenVideoTour
+  onOpenExport
 }) {
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
   const activeLangObj = SUPPORTED_LANGUAGES.find((l) => l.code === activeLanguage) || SUPPORTED_LANGUAGES[0];
@@ -677,40 +676,6 @@ export default function ChatInterface({
                 {t.chat?.welcomeSubtitle || 'Real-time weather reports, hourly rain forecasts, atmospheric telemetry, and sector advisories.'}
               </p>
             </div>
-
-            {/* 🎥 50-Second Video Walkthrough Hero Banner */}
-            {onOpenVideoTour && (
-              <button
-                type="button"
-                onClick={onOpenVideoTour}
-                className="w-full p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border border-sky-500/40 hover:border-sky-400 shadow-xl flex items-center justify-between group transition-all cursor-pointer text-left ring-1 ring-white/10 hover:ring-sky-400/40"
-              >
-                <div className="flex items-center space-x-3 min-w-0">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
-                    <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-extrabold text-xs sm:text-sm text-white truncate">
-                        {activeLanguage === 'ta' ? '🎥 50-விநாடி வீடியோ விளக்கம் (Watch 50s Demo Video)' : '🎥 Watch 50-Second Feature Video Walkthrough'}
-                      </span>
-                      <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase bg-sky-500/30 text-sky-200 border border-sky-400/40 shrink-0">
-                        50s HD
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 mt-0.5 truncate hidden xs:block">
-                      {activeLanguage === 'ta'
-                        ? 'Login, 3-Column மழை Table AI, நேரலை Radar, விவசாய ஆலோசனை மற்றும் அனைத்து அம்சங்களின் வீடியோ ஆய்வு.'
-                        : 'Explore Login, 3-Column Table AI, Live Radar, Farmer Directives, & Disaster SOS.'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1 text-xs font-bold text-sky-300 group-hover:text-white transition-colors flex-shrink-0 pl-2">
-                  <span className="hidden sm:inline">{activeLanguage === 'ta' ? 'இயக்கு' : 'Play Tour'}</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </div>
-              </button>
-            )}
 
             {/* 4 Feature Suggestion Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
