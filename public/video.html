@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeatherGPT — Fullscreen Prototype Video Demo</title>
-  <meta name="description" content="Fullscreen Edge-to-Edge Screen Recording Video Demonstration of WeatherGPT AI Hyper-Local Climate Intelligence Platform." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>WeatherGPT — 50s Fullscreen Mobile & Desktop Video Tour</title>
+  <meta name="description" content="50-Second Fullscreen Motion Graphic & Real Screencast Demonstration of WeatherGPT AI Hyper-Local Climate Intelligence Platform." />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -17,319 +17,822 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
     html, body {
-      width: 100%;
-      height: 100%;
-      background-color: #000;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      background-color: #020617;
       color: #fff;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: fixed;
+      inset: 0;
       user-select: none;
     }
 
-    /* Fullscreen Video Container (100vw, 100vh) */
-    .fullscreen-theater {
-      position: fixed;
+    /* 100dvh Fullscreen Theater Container */
+    .mobile-theater {
+      position: absolute;
       inset: 0;
       width: 100vw;
       height: 100vh;
-      background: #000;
+      height: 100dvh;
+      background: radial-gradient(circle at 50% 30%, #0c1527 0%, #030712 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
     }
 
+    /* Video Media (Edge-to-Edge Fill) */
     video {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
-      max-width: 100vw;
-      max-height: 100vh;
-      object-fit: contain;
+      object-fit: cover;
       background: #000;
-      cursor: pointer;
+      z-index: 1;
+      filter: contrast(1.05) brightness(1.02);
       transition: object-fit 0.3s ease;
     }
-    video.fill-cover {
-      object-fit: cover;
+    video.fit-contain {
+      object-fit: contain;
     }
 
-    /* Floating Glassmorphic Top Overlay Header */
-    .top-floating-bar {
+    /* Animated Canvas Particle Overlay (Rain & Light Beams) */
+    #fxCanvas {
       position: absolute;
-      top: 16px;
-      left: 16px;
-      right: 16px;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Center Holographic HUD Overlay & Animation Effects */
+    .center-hud-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 20;
+      padding: 16px;
+    }
+
+    /* Dynamic Floating Feature Cards in Center */
+    .fx-card {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      border-radius: 18px;
+      padding: 14px 20px;
+      max-width: 90vw;
+      width: 440px;
+      box-shadow: 0 0 35px rgba(6, 182, 212, 0.35), 0 20px 50px rgba(0,0,0,0.8);
+      backdrop-filter: blur(16px);
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.85) translateY(20px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      display: none;
+    }
+    .fx-card.active {
+      display: block;
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      animation: floatGlow 3s ease-in-out infinite alternate;
+    }
+    @keyframes floatGlow {
+      0% { transform: translateY(0); box-shadow: 0 0 30px rgba(6, 182, 212, 0.3); }
+      100% { transform: translateY(-6px); box-shadow: 0 0 45px rgba(59, 130, 246, 0.5); }
+    }
+
+    /* 3-Column Weather Table Inside Center FX */
+    .fx-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 11px;
+      margin-top: 8px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(10, 15, 30, 0.75);
+    }
+    .fx-table th {
+      background: rgba(30, 41, 59, 0.9);
+      color: #94a3b8;
+      font-weight: 700;
+      text-align: left;
+      padding: 6px 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    .fx-table td {
+      padding: 7px 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+    }
+    .badge-rain-fx {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(56, 189, 248, 0.25);
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      font-weight: 800;
+      font-size: 10px;
+      animation: pulseNeon 1.5s infinite;
+    }
+    .badge-safe-fx {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(16, 185, 129, 0.25);
+      border: 1px solid #10b981;
+      color: #34d399;
+      font-weight: 800;
+      font-size: 10px;
+    }
+    @keyframes pulseNeon {
+      0%, 100% { box-shadow: 0 0 5px rgba(56, 189, 248, 0.4); }
+      50% { box-shadow: 0 0 16px rgba(56, 189, 248, 0.8); }
+    }
+
+    /* Radar Center Ring Animation */
+    .radar-fx-ring {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: 2px solid #06b6d4;
+      position: relative;
+      margin: 6px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+    }
+    .radar-sweep-beam {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(6, 182, 212, 0.8) 0deg, transparent 65deg, transparent 360deg);
+      animation: spinSweep 2s linear infinite;
+    }
+    @keyframes spinSweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* SOS Pulsing Center Beacon */
+    .sos-beacon {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 6px;
+      box-shadow: 0 0 35px rgba(239, 68, 68, 0.8);
+      animation: sosPulse 1s infinite alternate;
+    }
+    @keyframes sosPulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 20px rgba(239,68,68,0.6); }
+      100% { transform: scale(1.15); box-shadow: 0 0 45px rgba(239,68,68,1); }
+    }
+
+    /* Top Floating Header (Phone & Desktop Safe) */
+    .mobile-top-bar {
+      position: absolute;
+      top: env(safe-area-inset-top, 12px);
+      top: 12px;
+      left: 12px;
+      right: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 18px;
-      background: rgba(15, 23, 42, 0.75);
+      padding: 8px 14px;
+      background: rgba(15, 23, 42, 0.8);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
+      border-radius: 14px;
       backdrop-filter: blur(14px);
       z-index: 50;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
     }
-    .top-floating-bar.hidden-ui {
+    .mobile-top-bar.hidden-ui {
       opacity: 0;
       transform: translateY(-20px);
       pointer-events: none;
     }
 
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .badge-live {
+    .badge-50s {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(239, 68, 68, 0.25);
-      border: 1px solid rgba(239, 68, 68, 0.5);
-      color: #ef4444;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: 9999px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .dot-live {
-      width: 6px;
-      height: 6px;
-      background: #ef4444;
-      border-radius: 50%;
-      animation: pulseDot 1.2s infinite;
-    }
-    @keyframes pulseDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.3; transform: scale(1.3); }
-    }
-    .video-title {
-      font-size: 14px;
-      font-weight: 800;
+      gap: 5px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
       color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
     }
-
     .btn-glass {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.12);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #f8fafc;
-      padding: 7px 14px;
-      border-radius: 10px;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
+      gap: 4px;
       text-decoration: none;
+      transition: all 0.2s;
     }
     .btn-glass:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.25);
     }
-    .btn-primary {
+    .btn-live-app {
       background: linear-gradient(135deg, #0284c7, #2563eb);
       border: none;
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #0369a1, #1d4ed8);
-      box-shadow: 0 0 20px rgba(2, 132, 199, 0.5);
     }
 
-    /* Center Big Play / Unmute Button */
-    .center-overlay-btn {
+    /* Soundwave Equalizer Bars (Bottom Left) */
+    .soundwave-box {
       position: absolute;
-      top: 50%;
+      bottom: 70px;
+      left: 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 24px;
+      z-index: 45;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 4px 8px;
+      border-radius: 8px;
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+    .sound-bar {
+      width: 3px;
+      background: #38bdf8;
+      border-radius: 2px;
+      animation: soundDance 1s ease-in-out infinite alternate;
+    }
+    .sound-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+    .sound-bar:nth-child(2) { height: 80%; animation-delay: 0.3s; }
+    .sound-bar:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+    .sound-bar:nth-child(4) { height: 100%; animation-delay: 0.4s; }
+    .sound-bar:nth-child(5) { height: 50%; animation-delay: 0.15s; }
+    @keyframes soundDance {
+      0% { height: 20%; background: #38bdf8; }
+      100% { height: 100%; background: #818cf8; }
+    }
+
+    /* Bottom Subtitles Pill */
+    .subtitles-box {
+      position: absolute;
+      bottom: 58px;
       left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80px;
-      height: 80px;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      font-size: 11px;
+      color: #f8fafc;
+      font-weight: 700;
+      text-align: center;
+      max-width: 92vw;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 45;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+    }
+
+    /* Bottom Floating Timeline Controls */
+    .bottom-controls-bar {
+      position: absolute;
+      bottom: env(safe-area-inset-bottom, 10px);
+      bottom: 10px;
+      left: 12px;
+      right: 12px;
+      padding: 8px 14px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      backdrop-filter: blur(14px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 50;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+    }
+    .bottom-controls-bar.hidden-ui {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #06b6d4, #3b82f6, #a855f7);
+      border-radius: 4px;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+    }
+    .controls-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .time-txt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    /* Center Big Play Button */
+    .center-play-circle {
+      position: absolute;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
       background: rgba(2, 132, 199, 0.9);
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.4);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 0 40px rgba(2, 132, 199, 0.6);
-      transition: transform 0.2s ease, opacity 0.3s ease;
-      z-index: 40;
+      box-shadow: 0 0 40px rgba(2, 132, 199, 0.8);
+      z-index: 45;
+      transition: all 0.25s ease;
     }
-    .center-overlay-btn:hover {
-      transform: translate(-50%, -50%) scale(1.1);
-      background: rgba(2, 132, 199, 1);
-    }
-    .center-overlay-btn.hidden-play {
+    .center-play-circle.hidden-play {
       opacity: 0;
       pointer-events: none;
-      transform: translate(-50%, -50%) scale(0.7);
-    }
-
-    /* Bottom Quick-Tip HUD */
-    .bottom-hud {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 6px 18px;
-      border-radius: 9999px;
-      font-size: 11px;
-      color: #94a3b8;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      backdrop-filter: blur(8px);
-      z-index: 50;
-      transition: opacity 0.4s ease;
-      pointer-events: none;
-    }
-    .bottom-hud.hidden-ui {
-      opacity: 0;
+      transform: scale(0.7);
     }
   </style>
 </head>
 <body>
-  <!-- Fullscreen Edge-to-Edge Theater -->
-  <div class="fullscreen-theater" id="theater">
-    
-    <!-- Top Floating Controls Header -->
-    <header class="top-floating-bar" id="topBar">
-      <div class="brand-group">
-        <span class="badge-live"><span class="dot-live"></span> SIH DEMO</span>
-        <span class="video-title">WeatherGPT — Fullscreen Prototype Walkthrough</span>
-      </div>
 
+  <!-- Fullscreen Phone & Desktop Theater Container -->
+  <div class="mobile-theater" id="theater">
+    
+    <!-- Top Floating Header -->
+    <header class="mobile-top-bar" id="topBar">
       <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="badge-50s">50s PROTOTYPE</span>
+        <span style="font-size: 12px; font-weight: 800; color: #fff;">WeatherGPT</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
         <button id="fitToggleBtn" class="btn-glass" title="Toggle Aspect Fit / Cover">
-          <i data-lucide="maximize-2" id="fitIcon" style="width: 14px; height: 14px;"></i>
-          <span id="fitLabel">Fill Screen</span>
+          <i data-lucide="maximize-2" id="fitIcon" style="width: 12px; height: 12px;"></i>
+          <span id="fitLabel">Fit</span>
         </button>
-        <button id="fullscreenBtn" class="btn-glass" title="Toggle Fullscreen">
-          <i data-lucide="expand" style="width: 14px; height: 14px;"></i> Fullscreen
+        <button id="langToggleBtn" class="btn-glass" title="Audio Language">
+          <i data-lucide="languages" style="width: 12px; height: 12px;"></i> <span id="langLabel">English</span>
         </button>
-        <a href="/" class="btn-glass btn-primary" title="Open Live Prototype">
-          <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> Open Live App
+        <a href="/" class="btn-glass btn-live-app" title="Launch Prototype">
+          <i data-lucide="external-link" style="width: 12px; height: 12px;"></i> App
         </a>
       </div>
     </header>
 
-    <!-- Center Play / Resume Button -->
-    <div class="center-overlay-btn hidden-play" id="centerPlayBtn">
-      <i data-lucide="play" id="centerIcon" style="width: 36px; height: 36px; fill: #fff; margin-left: 4px;"></i>
-    </div>
+    <!-- Canvas Animation Particle FX Overlay -->
+    <canvas id="fxCanvas"></canvas>
 
-    <!-- 100vw x 100vh Video Player -->
+    <!-- Real MP4 Video -->
     <video
       id="mainVideo"
-      controls
-      autoplay
       playsinline
+      webkit-playsinline
       preload="auto"
     >
       <source src="/demo-video.mp4" type="video/mp4" />
       Your browser does not support HTML5 video.
     </video>
 
-    <!-- Bottom HUD Shortcuts Info -->
-    <div class="bottom-hud" id="bottomHud">
-      <span>⌨️ <b>Space</b>: Play/Pause</span>
-      <span><b>F</b>: Fullscreen</span>
-      <span><b>M</b>: Mute</span>
-      <span><b>← / →</b>: Seek 5s</span>
+    <!-- Center Dynamic Holographic Animations & Feature HUD -->
+    <div class="center-hud-overlay">
+      
+      <!-- FX 1: (0-8s) Multi-Lingual & Biometric Passkey -->
+      <div class="fx-card" id="fxCard1">
+        <div style="font-size: 10px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 2px;">
+          ✨ Feature 1: Hyper-Local Access
+        </div>
+        <h3 style="font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 6px;">
+          Multi-Lingual Voice & Biometric Login
+        </h3>
+        <div style="display: flex; justify-content: center; gap: 6px; margin-bottom: 6px;">
+          <span style="padding: 2px 8px; background: rgba(59,130,246,0.3); border: 1px solid #3b82f6; border-radius: 5px; font-size: 10px; font-weight: 800; color: #60a5fa;">தமிழ்</span>
+          <span style="padding: 2px 8px; background: rgba(255,255,255,0.08); border-radius: 5px; font-size: 10px; color: #94a3b8;">English</span>
+          <span style="padding: 2px 8px; background: rgba(255,255,255,0.08); border-radius: 5px; font-size: 10px; color: #94a3b8;">Tanglish</span>
+        </div>
+        <p style="font-size: 10px; color: #34d399; font-weight: 700;">✓ Instant Passkey & GPS Micro-Zone Telemetry</p>
+      </div>
+
+      <!-- FX 2: (8-18s) 3-Column Weather Prediction Table -->
+      <div class="fx-card" id="fxCard2">
+        <div style="font-size: 10px; font-weight: 800; color: #34d399; text-transform: uppercase; margin-bottom: 2px;">
+          🌧️ Feature 2: Conversational AI Forecast
+        </div>
+        <h3 style="font-size: 13px; font-weight: 900; color: #fff;">
+          3-Column Micro-Zone Prediction Table
+        </h3>
+        <table class="fx-table">
+          <thead>
+            <tr>
+              <th>📍 Place Name</th>
+              <th>🌧️ Rain / Alert</th>
+              <th>⏰ Timing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Anna Nagar</b></td>
+              <td><span class="badge-rain-fx">🌧️ YES (85% • 14mm)</span></td>
+              <td>2:30 PM – 4:00 PM</td>
+            </tr>
+            <tr>
+              <td><b>Velachery</b></td>
+              <td><span class="badge-rain-fx">⛈️ YES (90% • Heavy)</span></td>
+              <td>3:00 PM – 5:30 PM</td>
+            </tr>
+            <tr>
+              <td><b>T. Nagar</b></td>
+              <td><span class="badge-safe-fx">☀️ NO (Safe)</span></td>
+              <td>Clear next 24 Hours</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FX 3: (18-28s) Doppler Radar & AQI -->
+      <div class="fx-card" id="fxCard3">
+        <div style="font-size: 10px; font-weight: 800; color: #c084fc; text-transform: uppercase; margin-bottom: 2px;">
+          🛰️ Feature 3: GIS Climate Analytics
+        </div>
+        <h3 style="font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 4px;">
+          Live Doppler Radar & AQI Tracker
+        </h3>
+        <div class="radar-fx-ring">
+          <div class="radar-sweep-beam"></div>
+          <div style="font-size: 9px; font-weight: 800; color: #38bdf8; text-align: center; z-index: 2;">
+            500km Range<br/><span style="color: #34d399;">AQI: 42 (Good)</span>
+          </div>
+        </div>
+        <p style="font-size: 10px; color: #f59e0b; font-weight: 700;">✓ Real-Time Convective Satellite Sync</p>
+      </div>
+
+      <!-- FX 4: (28-38s) Route Planner & Event Score -->
+      <div class="fx-card" id="fxCard4">
+        <div style="font-size: 10px; font-weight: 800; color: #fbbf24; text-transform: uppercase; margin-bottom: 2px;">
+          🚗 Innovation: Route & Event Score
+        </div>
+        <h3 style="font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 6px;">
+          Corridor Hazard Avoidance & Viability
+        </h3>
+        <div style="display: flex; gap: 6px; justify-content: center; font-size: 10px;">
+          <span style="padding: 3px 8px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; border-radius: 6px; color: #34d399; font-weight: 700;">
+            ✓ Safe Route: 4:00 PM
+          </span>
+          <span style="padding: 3px 8px; background: rgba(59,130,246,0.2); border: 1px solid #3b82f6; border-radius: 6px; color: #60a5fa; font-weight: 700;">
+            ⭐ Event Score: 88/100
+          </span>
+        </div>
+      </div>
+
+      <!-- FX 5: (38-46s) Disaster SOS Beacon -->
+      <div class="fx-card" id="fxCard5">
+        <div style="font-size: 10px; font-weight: 800; color: #fb7185; text-transform: uppercase; margin-bottom: 2px;">
+          🚨 Innovation: Disaster Emergency SOS
+        </div>
+        <div class="sos-beacon">
+          <i data-lucide="alert-triangle" style="width: 28px; height: 28px;"></i>
+        </div>
+        <h3 style="font-size: 14px; font-weight: 900; color: #fff; margin-bottom: 2px;">
+          Offline P2P Mesh Emergency Relay
+        </h3>
+        <p style="font-size: 10px; color: #94a3b8;">Broadcasts telemetry to NDRF responders without Internet.</p>
+      </div>
+
+      <!-- FX 6: (46-50s) SIH 2026 Finale -->
+      <div class="fx-card" id="fxCard6">
+        <div style="font-size: 10px; font-weight: 800; color: #f59e0b; text-transform: uppercase; margin-bottom: 2px;">
+          🏆 Smart India Hackathon 2026
+        </div>
+        <h3 style="font-size: 15px; font-weight: 900; color: #fff; margin-bottom: 8px;">
+          WeatherGPT Climate AI Platform
+        </h3>
+        <a href="/" class="btn-glass btn-live-app" style="font-size: 12px; padding: 6px 16px; margin: 0 auto; display: inline-flex;">
+          <i data-lucide="external-link" style="width: 14px; height: 14px;"></i> Open Live Prototype
+        </a>
+      </div>
+
     </div>
+
+    <!-- Center Big Play Button Overlay -->
+    <div class="center-play-circle" id="centerPlayCircle">
+      <i data-lucide="play" id="centerPlayIcon" style="width: 32px; height: 32px; fill: #fff; margin-left: 3px;"></i>
+    </div>
+
+    <!-- Animated Soundwave Visualizer (Bottom Left) -->
+    <div class="soundwave-box" id="soundwaveBox">
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+    </div>
+
+    <!-- Bottom Subtitle Pill -->
+    <div class="subtitles-box" id="subtitlesBox">
+      1/6 Multi-Lingual & Biometric Passkey Access (Tamil / English / Tanglish)
+    </div>
+
+    <!-- Bottom Floating Timeline Bar -->
+    <div class="bottom-controls-bar" id="bottomBar">
+      <div class="progress-track" id="progressTrack">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="controls-inner">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="playBtn" class="btn-glass" style="padding: 4px 8px;">
+            <i data-lucide="play" id="playIcon" style="width: 12px; height: 12px;"></i>
+            <span id="playText">Play</span>
+          </button>
+          <button id="replayBtn" class="btn-glass" style="padding: 4px 8px;">
+            <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
+          </button>
+          <span class="time-txt" id="timeTxt">00:00 / 00:50</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button id="voiceToggleBtn" class="btn-glass" style="padding: 4px 8px;">
+            <i data-lucide="volume-2" id="voiceIcon" style="width: 12px; height: 12px;"></i>
+          </button>
+          <button id="fullscreenBtn" class="btn-glass" style="padding: 4px 8px;">
+            <i data-lucide="expand" style="width: 12px; height: 12px;"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
     lucide.createIcons();
 
+    // Elements
     const mainVideo = document.getElementById('mainVideo');
     const theater = document.getElementById('theater');
     const topBar = document.getElementById('topBar');
-    const bottomHud = document.getElementById('bottomHud');
-    const centerPlayBtn = document.getElementById('centerPlayBtn');
-    const centerIcon = document.getElementById('centerIcon');
+    const bottomBar = document.getElementById('bottomBar');
+    const centerPlayCircle = document.getElementById('centerPlayCircle');
+    const centerPlayIcon = document.getElementById('centerPlayIcon');
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const playText = document.getElementById('playText');
+    const replayBtn = document.getElementById('replayBtn');
+    const progressTrack = document.getElementById('progressTrack');
+    const progressFill = document.getElementById('progressFill');
+    const timeTxt = document.getElementById('timeTxt');
+    const subtitlesBox = document.getElementById('subtitlesBox');
     const fitToggleBtn = document.getElementById('fitToggleBtn');
     const fitIcon = document.getElementById('fitIcon');
     const fitLabel = document.getElementById('fitLabel');
+    const langToggleBtn = document.getElementById('langToggleBtn');
+    const langLabel = document.getElementById('langLabel');
+    const voiceToggleBtn = document.getElementById('voiceToggleBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const soundwaveBox = document.getElementById('soundwaveBox');
 
-    let hideUITimer = null;
-    let isCover = false;
+    // 50-Second Target Playback Setup
+    const TARGET_DURATION = 50; // exact 50 seconds
+    let isPlaying = false;
+    let isVoiceEnabled = true;
+    let selectedLang = 'en';
+    let isCoverMode = true;
+    let hideTimer = null;
 
-    // Auto-hide Top and Bottom UI when playing and mouse is idle
+    // Center FX Scenes configuration (0s to 50s)
+    const fxScenes = [
+      { id: 'fxCard1', start: 0, end: 8, subEn: "1/6 Multi-Lingual & Biometric Passkey Access across 6 Regional Languages", subTa: "1/6 பலமொழி & பயோமெட்ரிக் உள்நுழைவு (தமிழ் / English / Tanglish)", voiceEn: "Welcome to WeatherGPT. Instant multi-lingual and biometric access across six regional languages.", voiceTa: "WeatherGPT-க்கு நல்வரவு. தமிழ் உட்பட பல மொழிகளில் அதிவேகமாக உள்நுழையலாம்." },
+      { id: 'fxCard2', start: 8, end: 18, subEn: "2/6 Conversational AI: Micro-Zone Rain Prediction in 3-Column Table", subTa: "2/6 AI உரையாடல்: இடம், மழை நிலவரம் (YES/NO) மற்றும் 3-காலம் அட்டவணை", voiceEn: "Conversational AI delivers hyper-local rain predictions in a clean 3-column table.", voiceTa: "எங்கள் AI சாட்பாட் இடம், மழை அளவு மற்றும் நேரத்துடன் கூடிய 3 காலம் அட்டவணையில் பதிலளிக்கிறது." },
+      { id: 'fxCard3', start: 18, end: 28, subEn: "3/6 Real-Time 500km Doppler Radar & Air Quality Index (AQI 42 Good)", subTa: "3/6 நேரடி 500 கிமீ டாப்ளர் ரேடார் வரைபடம் மற்றும் காற்று தரம் (AQI 42)", voiceEn: "Live 500 kilometer Doppler radar map and real-time air quality tracking.", voiceTa: "நேரடி 500 கிமீ டாப்ளர் ரேடார் வரைபடம் மற்றும் மேகக் கண்காணிப்பு." },
+      { id: 'fxCard4', start: 28, end: 38, subEn: "4/6 Smart Route Weather Hazard Planner & 88/100 Event Safety Score", subTa: "4/6 வழித்தட புயல் தவிர்ப்பு மற்றும் 88/100 நிகழ்வு பாதுகாப்பு ஸ்கோர்", voiceEn: "Smart route weather planner and event weather safety score engine from zero to one hundred.", voiceTa: "பயண வழித்தட புயல் எச்சரிக்கை மற்றும் நிகழ்வு பாதுகாப்பு ஸ்கோர்." },
+      { id: 'fxCard5', start: 38, end: 46, subEn: "5/6 Spotter Network & Offline Mesh Disaster Emergency SOS Dispatch", subTa: "5/6 பொது மக்கள் வெள்ளப் பதிவுகள் & ஆஃப்லைன் SOS Mesh உதவி", voiceEn: "Crowdsourced waterlogging spotter network and offline disaster emergency SOS mesh relay.", voiceTa: "பொதுமக்கள் வெள்ளப் பதிவுகள் மற்றும் இணையம் இல்லாத அவசர SOS எச்சரிக்கை அமைப்பு." },
+      { id: 'fxCard6', start: 46, end: 50, subEn: "6/6 Automated PDF Reports & SIH 2026 Production Ready Platform", subTa: "6/6 தானியங்கி PDF வானிலை அறிக்கை. SIH 2026 லைவ் ப்ராஜெக்ட்.", voiceEn: "WeatherGPT: Empowering communities with actionable climate intelligence. Try it live today!", voiceTa: "WeatherGPT. அனைவருக்குமான அதிநவீன வானிலை வழிகாட்டி. இப்போதே பயன்படுத்தி பாருங்கள்!" }
+    ];
+
+    let currentSceneIdx = -1;
+
+    // Speed Sync for exact 50-second completion
+    mainVideo.addEventListener('loadedmetadata', () => {
+      const realDur = mainVideo.duration || 50;
+      // Adjust video playback speed so full video fits cleanly in ~50 seconds
+      if (realDur > 50) {
+        mainVideo.playbackRate = realDur / TARGET_DURATION;
+      } else {
+        mainVideo.playbackRate = 1.0;
+      }
+    });
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `0${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function speakText(text, lang) {
+      if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang === 'ta' ? 'ta-IN' : 'en-US';
+      utterance.rate = 1.08;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function updateScene(time) {
+      const idx = fxScenes.findIndex(s => time >= s.start && time < s.end);
+      if (idx !== -1 && idx !== currentSceneIdx) {
+        currentSceneIdx = idx;
+        const cur = fxScenes[idx];
+
+        // Hide all FX cards, show active card
+        document.querySelectorAll('.fx-card').forEach(c => c.classList.remove('active'));
+        const activeCard = document.getElementById(cur.id);
+        if (activeCard) activeCard.classList.add('active');
+
+        // Subtitles
+        subtitlesBox.textContent = selectedLang === 'ta' ? cur.subTa : cur.subEn;
+
+        // Voiceover
+        if (isPlaying) {
+          const spk = selectedLang === 'ta' ? cur.voiceTa : cur.voiceEn;
+          speakText(spk, selectedLang);
+        }
+      }
+    }
+
+    // Video Timeupdate Event
+    mainVideo.addEventListener('timeupdate', () => {
+      const curTime = mainVideo.currentTime;
+      const progress = (curTime / (mainVideo.duration || 50)) * 100;
+      progressFill.style.width = progress + '%';
+      timeTxt.textContent = `${formatTime(curTime)} / 00:50`;
+      updateScene(curTime);
+    });
+
+    // UI Auto-Hide
     function showUI() {
       topBar.classList.remove('hidden-ui');
-      bottomHud.classList.remove('hidden-ui');
-      clearTimeout(hideUITimer);
-      if (!mainVideo.paused) {
-        hideUITimer = setTimeout(() => {
+      bottomBar.classList.remove('hidden-ui');
+      clearTimeout(hideTimer);
+      if (isPlaying) {
+        hideTimer = setTimeout(() => {
           topBar.classList.add('hidden-ui');
-          bottomHud.classList.add('hidden-ui');
+          bottomBar.classList.add('hidden-ui');
         }, 3000);
       }
     }
 
-    document.addEventListener('mousemove', showUI);
-    document.addEventListener('touchstart', showUI);
+    theater.addEventListener('mousemove', showUI);
+    theater.addEventListener('touchstart', showUI);
 
-    // Play/Pause Center Overlay Logic
-    mainVideo.addEventListener('play', () => {
-      centerPlayBtn.classList.add('hidden-play');
-      showUI();
+    // Play/Pause
+    function togglePlay() {
+      if (mainVideo.paused) {
+        mainVideo.play().then(() => {
+          isPlaying = true;
+          centerPlayCircle.classList.add('hidden-play');
+          playIcon.setAttribute('data-lucide', 'pause');
+          playText.textContent = "Pause";
+          soundwaveBox.style.display = 'flex';
+          lucide.createIcons();
+          showUI();
+        }).catch(() => {
+          // If browser requires muted autoplay
+          mainVideo.muted = true;
+          mainVideo.play();
+        });
+      } else {
+        mainVideo.pause();
+        isPlaying = false;
+        centerPlayCircle.classList.remove('hidden-play');
+        centerPlayIcon.setAttribute('data-lucide', 'play');
+        playIcon.setAttribute('data-lucide', 'play');
+        playText.textContent = "Play";
+        soundwaveBox.style.display = 'none';
+        lucide.createIcons();
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      }
+    }
+
+    theater.addEventListener('click', (e) => {
+      if (e.target.closest('button') || e.target.closest('a') || e.target.closest('.bottom-controls-bar') || e.target.closest('.mobile-top-bar')) return;
+      togglePlay();
     });
 
-    mainVideo.addEventListener('pause', () => {
-      centerPlayBtn.classList.remove('hidden-play');
-      centerIcon.setAttribute('data-lucide', 'play');
+    playBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePlay();
+    });
+
+    centerPlayCircle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePlay();
+    });
+
+    replayBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mainVideo.currentTime = 0;
+      currentSceneIdx = -1;
+      mainVideo.play();
+      isPlaying = true;
+      centerPlayCircle.classList.add('hidden-play');
       lucide.createIcons();
-      topBar.classList.remove('hidden-ui');
-      bottomHud.classList.remove('hidden-ui');
     });
 
-    mainVideo.addEventListener('ended', () => {
-      centerPlayBtn.classList.remove('hidden-play');
-      centerIcon.setAttribute('data-lucide', 'rotate-ccw');
-      lucide.createIcons();
-      topBar.classList.remove('hidden-ui');
-      bottomHud.classList.remove('hidden-ui');
+    // Seek Timeline
+    progressTrack.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const rect = progressTrack.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+      mainVideo.currentTime = ratio * (mainVideo.duration || 50);
+      if (mainVideo.paused) togglePlay();
     });
 
-    centerPlayBtn.addEventListener('click', () => {
-      if (mainVideo.paused) mainVideo.play();
-      else mainVideo.pause();
-    });
-
-    // Toggle Aspect Ratio: Contain vs Cover (Fill Screen)
+    // Aspect Toggle: Cover (Full Screen Edge-to-Edge) vs Contain
     fitToggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      isCover = !isCover;
-      if (isCover) {
-        mainVideo.classList.add('fill-cover');
-        fitLabel.textContent = "Fit Screen";
+      isCoverMode = !isCoverMode;
+      if (isCoverMode) {
+        mainVideo.classList.remove('fit-contain');
+        fitLabel.textContent = "Fit";
         fitIcon.setAttribute('data-lucide', 'minimize-2');
       } else {
-        mainVideo.classList.remove('fill-cover');
-        fitLabel.textContent = "Fill Screen";
+        mainVideo.classList.add('fit-contain');
+        fitLabel.textContent = "Fill";
         fitIcon.setAttribute('data-lucide', 'maximize-2');
       }
       lucide.createIcons();
     });
 
-    // Toggle Real Fullscreen
+    // Language Toggle
+    langToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectedLang = selectedLang === 'en' ? 'ta' : 'en';
+      langLabel.textContent = selectedLang === 'ta' ? 'தமிழ்' : 'English';
+      if (currentSceneIdx !== -1) {
+        const cur = fxScenes[currentSceneIdx];
+        subtitlesBox.textContent = selectedLang === 'ta' ? cur.subTa : cur.subEn;
+        if (isPlaying) speakText(selectedLang === 'ta' ? cur.voiceTa : cur.voiceEn, selectedLang);
+      }
+    });
+
+    // Audio Mute Toggle
+    voiceToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isVoiceEnabled = !isVoiceEnabled;
+      mainVideo.muted = !isVoiceEnabled;
+      voiceToggleBtn.style.opacity = isVoiceEnabled ? '1' : '0.5';
+      if (!isVoiceEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    });
+
+    // Fullscreen Toggle
     fullscreenBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (!document.fullscreenElement) {
@@ -339,53 +842,76 @@
       }
     });
 
-    // Keyboard Shortcuts
+    // Keyboard controls
     document.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-      
-      switch (e.key.toLowerCase()) {
-        case ' ':
-        case 'k':
-          e.preventDefault();
-          if (mainVideo.paused) mainVideo.play();
-          else mainVideo.pause();
-          break;
-        case 'f':
-          e.preventDefault();
-          if (!document.fullscreenElement) theater.requestFullscreen().catch(() => {});
-          else document.exitFullscreen().catch(() => {});
-          break;
-        case 'm':
-          mainVideo.muted = !mainVideo.muted;
-          break;
-        case 'arrowleft':
-          mainVideo.currentTime = Math.max(0, mainVideo.currentTime - 5);
-          break;
-        case 'arrowright':
-          mainVideo.currentTime = Math.min(mainVideo.duration || 50, mainVideo.currentTime + 5);
-          break;
-        case 'arrowup':
-          mainVideo.volume = Math.min(1, mainVideo.volume + 0.1);
-          break;
-        case 'arrowdown':
-          mainVideo.volume = Math.max(0, mainVideo.volume - 0.1);
-          break;
-      }
+      if (e.key === ' ' || e.key === 'k') { e.preventDefault(); togglePlay(); }
+      if (e.key === 'f') { if (!document.fullscreenElement) theater.requestFullscreen().catch(()=>{}); else document.exitFullscreen().catch(()=>{}); }
+      if (e.key === 'ArrowRight') mainVideo.currentTime = Math.min(mainVideo.duration, mainVideo.currentTime + 5);
+      if (e.key === 'ArrowLeft') mainVideo.currentTime = Math.max(0, mainVideo.currentTime - 5);
       showUI();
     });
 
-    // Autoplay attempt on load
-    window.addEventListener('load', () => {
-      const playPromise = mainVideo.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // If browser blocked unmuted autoplay, mute and play
-          mainVideo.muted = true;
-          mainVideo.play().catch(() => {
-            centerPlayBtn.classList.remove('hidden-play');
-          });
-        });
+    // ==========================================
+    // Particle Canvas Animation Engine
+    // ==========================================
+    const canvas = document.getElementById('fxCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
       }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -100;
+        this.length = Math.random() * 20 + 10;
+        this.speed = Math.random() * 8 + 4;
+        this.opacity = Math.random() * 0.4 + 0.1;
+      }
+      update() {
+        this.y += this.speed;
+        this.x += 1;
+        if (this.y > canvas.height) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(56, 189, 248, ${this.opacity})`;
+        ctx.lineWidth = 1.5;
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x + 2, this.y + this.length);
+        ctx.stroke();
+      }
+    }
+
+    for (let i = 0; i < 40; i++) particles.push(new Particle());
+
+    function animateFX() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateFX);
+    }
+    animateFX();
+
+    // Auto-start on load
+    window.addEventListener('load', () => {
+      mainVideo.play().then(() => {
+        isPlaying = true;
+        centerPlayCircle.classList.add('hidden-play');
+        playIcon.setAttribute('data-lucide', 'pause');
+        playText.textContent = "Pause";
+        lucide.createIcons();
+      }).catch(() => {
+        // Fallback: waiting for user tap
+        centerPlayCircle.classList.remove('hidden-play');
+      });
       showUI();
     });
   </script>
