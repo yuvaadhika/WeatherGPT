@@ -68,7 +68,6 @@ import {
   Heart,
   Users,
   Cpu,
-  Film,
   LogOut
 } from 'lucide-react';
 import { notificationService } from './services/notificationService';
@@ -520,19 +519,6 @@ export default function App() {
               <span>{activeLanguage === 'ta' ? 'புதிய கண்டுபிடிப்புகள்' : 'AI Innovation Suite'}</span>
             </div>
 
-            {/* Tool 0: Cinematic Simulation Link */}
-            <a
-              href="/simulation/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-bold bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 text-amber-900 border border-amber-300/80 transition-all cursor-pointer shadow-2xs group"
-            >
-              <Film className="w-4 h-4 text-amber-600 group-hover:scale-110 transition-transform flex-shrink-0" />
-              <div className="flex items-center justify-between flex-1 min-w-0">
-                <span className="truncate">{activeLanguage === 'ta' ? 'சினிமாட்டிக் கதை சிமுலேஷன்' : 'Cinematic Story Simulation'}</span>
-                <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-500 text-white flex-shrink-0 ml-1 shadow-2xs">SIH 2026</span>
-              </div>
-            </a>
 
             {/* Tool 1: Route Planner */}
             <button

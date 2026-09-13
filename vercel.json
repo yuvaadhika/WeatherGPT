@@ -38,11 +38,7 @@
       "destination": "/video.html"
     },
     {
-      "source": "/simulation",
-      "destination": "/simulation/index.html"
-    },
-    {
-      "source": "/((?!api/|video\\.html|simulation).*)",
+      "source": "/((?!api/|video\\.html).*)",
       "destination": "/index.html"
     }
   ]

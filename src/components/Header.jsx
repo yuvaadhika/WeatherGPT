@@ -17,7 +17,6 @@ import {
   Navigation,
   Crosshair,
   Play,
-  Film,
   Download
 } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from '../services/languages';
@@ -238,19 +237,6 @@ export default function Header({
           </select>
         </div>
 
-        {/* 🎬 SIH 2026 Real-Life Simulation Link */}
-        <a
-          href="/simulation/"
-          target="_blank"
-          rel="noopener noreferrer"
-          title={activeLanguage === 'ta' ? 'நேரலை AI கதை சிமுலேஷன் (Simulation)' : 'Watch WeatherGPT Cinematic Real-Life Simulation (SIH 2026)'}
-          className="px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 flex items-center space-x-1.5 transition-all shadow-2xs hover:shadow-xs cursor-pointer hover:scale-105 active:scale-95"
-        >
-          <Film className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 animate-pulse" />
-          <span className="text-[11px] font-bold hidden sm:inline">
-            {activeLanguage === 'ta' ? 'சிமுலேஷன்' : 'Simulation'}
-          </span>
-        </a>
 
         {/* 📲 1-Click Install App (PWA) Button */}
         {onOpenInstallApp && (
