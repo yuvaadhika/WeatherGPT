@@ -1,0 +1,9 @@
+.git
+node_modules
+android
+k8s
+docker-compose.yml
+Dockerfile
+scratch
+dist
+.env.local

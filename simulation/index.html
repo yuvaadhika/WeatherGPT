@@ -6,12 +6,12 @@
   <title>WeatherGPT — Cinematic Real-Life Simulation (SIH 2026)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌧️</text></svg>">
 </head>
 <body>
-  <!-- Ambient Audio Unlock Overlay (First interaction or Auto) -->
+  <!-- Ambient Audio Unlock Overlay -->
   <div id="audio-consent-hint" class="audio-hint hidden">
     <span>🔊 Click anywhere for immersive cinematic audio</span>
   </div>
@@ -29,7 +29,7 @@
 
     <!-- Center Scene Title Tracker -->
     <div class="scene-tracker" id="scene-tracker">
-      <span class="scene-num" id="scene-num">SCENE 1 / 8</span>
+      <span class="scene-num" id="scene-num">SCENE 1 / 9</span>
       <span class="scene-divider">•</span>
       <span class="scene-title-text" id="scene-title-text">Outdoor Shopping Street</span>
     </div>
@@ -66,17 +66,32 @@
     </div>
   </header>
 
-  <!-- Global Particle & Rain Canvas Overlay -->
+  <!-- Global Particle & Weather Canvas Overlay (Rain, wind, leaves, splashes) -->
   <canvas id="weather-particle-canvas" class="weather-canvas"></canvas>
 
-  <!-- Main Cinematic Stage Viewport (16:9 Aspect Ratio Container) -->
+  <!-- Master Cinematic Stage Viewport (16:9 Aspect Ratio) -->
   <main class="cinematic-stage" id="cinematic-stage">
 
-    <!-- ==================== SCENE 1: SHOPPING ==================== -->
+    <!-- ==================== SCENE 1: SHOPPING / OUTDOOR WALK ==================== -->
     <section class="scene active" id="scene-1" data-duration="8000" data-title="Scene 1 — Outdoor Shopping Street" data-num="1">
-      <div class="scene-media-wrapper kenburns-pan-right">
-        <img src="assets/scene1_shopping.jpg" alt="Person shopping on vibrant Indian street" class="scene-image">
-        <div class="cinematic-vignette"></div>
+      <div class="scene-media-wrapper stage-parallax-container">
+        <!-- Photorealistic Environment Base -->
+        <img src="assets/scene1_walk.jpg" alt="Arjun walking through vibrant Chennai shopping street" class="scene-image base-environment">
+        
+        <!-- Live Parallax Depth Layers (Moving Background Pedestrians & Auto-Rickshaw) -->
+        <div class="parallax-layer auto-rickshaw-layer">
+          <div class="moving-auto-rickshaw" id="auto-rickshaw-s1"></div>
+        </div>
+
+        <div class="cinematic-vignette sunny-vignette"></div>
+      </div>
+
+      <!-- Live Character Gait Motion Overlay Layer -->
+      <div class="character-action-layer" id="char-layer-s1">
+        <div class="protagonist-character walking-forward" id="protagonist-s1">
+          <!-- Character Shadow on Pavement -->
+          <div class="character-shadow"></div>
+        </div>
       </div>
 
       <div class="scene-hud">
@@ -92,106 +107,112 @@
           <span class="hud-icon">☀️</span>
           <div>
             <div class="hud-label">ATMOSPHERIC STATE</div>
-            <div class="hud-val">32°C • Partly Cloudy • 0% Rain</div>
+            <div class="hud-val">32°C • Clear Sunny Skies • 0% Rain</div>
           </div>
         </div>
       </div>
 
       <div class="cinema-lower-third">
         <div class="dialogue-box">
-          <div class="narrative-tag">A NORMAL SATURDAY AFTERNOON</div>
-          <p class="narrative-text">A young citizen is out shopping at the local market. The skies are clear with no signs of rain.</p>
+          <div class="narrative-tag">SCENE 1 • A NORMAL SATURDAY AFTERNOON</div>
+          <p class="narrative-text">Arjun is out shopping along the lively market bazaar. The sky is bright and sunny with no immediate sign of rain.</p>
         </div>
       </div>
     </section>
 
-    <!-- ==================== SCENE 2: AI RADAR ANALYSIS ==================== -->
-    <section class="scene" id="scene-2" data-duration="5500" data-title="Scene 2 — WeatherGPT Neural Analysis" data-num="2">
-      <div class="scene-media-wrapper kenburns-zoom-in">
-        <img src="assets/scene2_radar.jpg" alt="WeatherGPT AI Neural Doppler Radar Screen" class="scene-image">
-        <div class="cinematic-vignette darker"></div>
-        <div class="radar-scan-line"></div>
+    <!-- ==================== SCENE 2: WEATHER CHANGE & LOOKING AT SKY ==================== -->
+    <section class="scene" id="scene-2" data-duration="7000" data-title="Scene 2 — Atmosphere Shifts & Cloud Observation" data-num="2">
+      <div class="scene-media-wrapper">
+        <img src="assets/scene2_skywatch.jpg" alt="Arjun slowing down and looking upward at gathering storm clouds" class="scene-image base-environment">
+        <div class="sky-darken-filter" id="sky-darken-filter"></div>
+        <div class="cinematic-vignette overcast-vignette"></div>
       </div>
 
-      <div class="ai-telemetry-overlay">
-        <div class="telemetry-card">
-          <div class="telemetry-header">
-            <div class="pulse-beacon"></div>
-            <span class="telemetry-title">WEATHERGPT NEURAL FORECAST ENGINE</span>
-            <span class="telemetry-live">LIVE RECON</span>
-          </div>
+      <!-- Animated Character Head-Tilt & Observation Rig -->
+      <div class="character-action-layer" id="char-layer-s2">
+        <div class="protagonist-character looking-up" id="protagonist-s2">
+          <div class="character-shadow"></div>
+        </div>
+      </div>
 
-          <div class="telemetry-flow">
-            <div class="flow-step">
-              <div class="flow-icon">📡</div>
-              <div class="flow-info">
-                <span class="flow-title">Doppler Satellite</span>
-                <span class="flow-sub">Cloud Reflectivity 52 dBZ</span>
-              </div>
-            </div>
-            <div class="flow-arrow">→</div>
-            <div class="flow-step">
-              <div class="flow-icon">📍</div>
-              <div class="flow-info">
-                <span class="flow-title">Location Anchor</span>
-                <span class="flow-sub">13.04° N, 80.23° E</span>
-              </div>
-            </div>
-            <div class="flow-arrow">→</div>
-            <div class="flow-step">
-              <div class="flow-icon">🧠</div>
-              <div class="flow-info">
-                <span class="flow-title">WeatherGPT AI</span>
-                <span class="flow-sub">ECMWF / IMD Convective Model</span>
-              </div>
-            </div>
-            <div class="flow-arrow">→</div>
-            <div class="flow-step alert-step">
-              <div class="flow-icon">⚡</div>
-              <div class="flow-info">
-                <span class="flow-title text-amber">RAIN IN 58 MINS</span>
-                <span class="flow-sub">Severe Downpour Likelihood 94%</span>
-              </div>
-            </div>
+      <div class="scene-hud">
+        <div class="hud-pill top-left">
+          <span class="hud-icon">💨</span>
+          <div>
+            <div class="hud-label">METEOROLOGICAL SENSORS</div>
+            <div class="hud-val">Wind: 22 km/h NE • Barometer: 1007 hPa (Dropping)</div>
+          </div>
+        </div>
+
+        <div class="hud-pill top-right alert-pulsing">
+          <span class="hud-icon">☁️</span>
+          <div>
+            <div class="hud-label">SATELLITE REFLECTIVITY</div>
+            <div class="hud-val text-amber">Convective Cumulonimbus Forming (48 dBZ)</div>
           </div>
         </div>
       </div>
 
       <div class="cinema-lower-third">
         <div class="dialogue-box tech-box">
-          <div class="narrative-tag tech-tag">BACKGROUND INTELLIGENCE</div>
-          <p class="narrative-text">WeatherGPT continuously fuses live satellite radar, numerical physics models, and real-time hyperlocal coordinates.</p>
+          <div class="narrative-tag tech-tag">SCENE 2 • ATMOSPHERIC SHIFT</div>
+          <p class="narrative-text">The temperature dips noticeably. Arjun slows his pace, sensing the sudden pre-storm breeze, and looks up as dark clouds roll across the sun.</p>
         </div>
       </div>
     </section>
 
-    <!-- ==================== SCENE 3: PHONE ALERT ==================== -->
-    <section class="scene" id="scene-3" data-duration="7000" data-title="Scene 3 — Hyperlocal Phone Alert" data-num="3">
-      <div class="scene-media-wrapper kenburns-pan-left">
-        <img src="assets/scene3_alert.jpg" alt="Smartphone displaying WeatherGPT push notification" class="scene-image">
-        <div class="cinematic-vignette"></div>
+    <!-- ==================== SCENE 3: WEATHERGPT PHONE ALERT ==================== -->
+    <section class="scene" id="scene-3" data-duration="8000" data-title="Scene 3 — Hyperlocal Phone Alert" data-num="3">
+      <div class="scene-media-wrapper">
+        <img src="assets/scene2_skywatch.jpg" alt="Arjun holding smartphone on the street" class="scene-image base-environment blurred-bg">
+        <div class="cinematic-vignette darker"></div>
       </div>
 
-      <!-- Realistic Floating WeatherGPT Lockscreen Notification Banner -->
-      <div class="phone-notification-container">
-        <div class="ios-weather-banner" id="notif-card">
-          <div class="notif-header">
-            <div class="notif-app">
-              <div class="notif-app-icon">🌧️</div>
-              <span class="notif-app-name">WEATHERGPT</span>
-              <span class="notif-dot">•</span>
-              <span class="notif-time">NOW</span>
+      <!-- 3D Smartphone Holding & Screen Glow Animation -->
+      <div class="phone-hand-stage" id="phone-hand-stage">
+        <div class="smartphone-frame" id="smartphone-frame">
+          <div class="phone-speaker-notch"></div>
+          <div class="phone-screen-display">
+            <!-- Status Bar -->
+            <div class="phone-status-bar">
+              <span>5:02 PM</span>
+              <div class="phone-icons">
+                <span>5G 📶</span>
+                <span>88% 🔋</span>
+              </div>
             </div>
-            <span class="notif-badge">CRITICAL WARNING</span>
-          </div>
 
-          <div class="notif-body">
-            <div class="notif-title">🌧️ Heavy Rain Incoming in ~1 Hour</div>
-            <div class="notif-msg">
-              A high-intensity convective cloudburst is advancing towards <strong>T. Nagar</strong>. Rain expected to commence in <strong>55 minutes</strong>.
-            </div>
-            <div class="notif-action-hint">
-              💡 <em>Recommendation: Conclude outdoor errands and return home before downpour starts.</em>
+            <!-- WeatherGPT App Live Banner -->
+            <div class="weathergpt-phone-app">
+              <div class="app-header-bar">
+                <div class="app-badge-logo">🌧️ WeatherGPT</div>
+                <div class="radar-live-indicator">LIVE DOPPLER</div>
+              </div>
+
+              <!-- Animated Lockscreen / In-App Notification Card -->
+              <div class="phone-notif-card" id="phone-notif-anim">
+                <div class="notif-card-header">
+                  <div class="notif-pill-danger">CRITICAL EARLY WARNING</div>
+                  <span class="notif-timestamp">JUST NOW</span>
+                </div>
+
+                <div class="notif-main-headline">
+                  ⚡ Heavy Rain Incoming in ~1 Hour
+                </div>
+
+                <div class="notif-details-text">
+                  Severe convective cloudburst detected moving towards <strong>T. Nagar</strong>. Rain expected in <strong>55 minutes</strong>.
+                </div>
+
+                <div class="notif-action-pill">
+                  💡 <strong>Action:</strong> Conclude outdoor errands and return home before downpour starts.
+                </div>
+
+                <div class="notif-radar-preview">
+                  <div class="radar-wave-ring"></div>
+                  <span class="radar-txt">Cloudburst Impact Zone: T. Nagar, Chennai</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -199,43 +220,97 @@
 
       <div class="cinema-lower-third">
         <div class="dialogue-box">
-          <div class="narrative-tag alert-tag">EARLY WARNING ISSUED</div>
-          <p class="narrative-text">The phone vibrates with a personalized alert. The citizen receives an exact 1-hour advance warning before any raindrop falls.</p>
+          <div class="narrative-tag alert-tag">SCENE 3 • HYPERLOCAL AI ALERT</div>
+          <p class="narrative-text">Arjun's smartphone vibrates with a targeted notification. WeatherGPT provides a precise 1-hour advance warning before torrential rain begins.</p>
         </div>
       </div>
     </section>
 
-    <!-- ==================== SCENE 4: PERSON DECIDES TO RETURN ==================== -->
-    <section class="scene" id="scene-4" data-duration="6000" data-title="Scene 4 — Person Acts Promptly" data-num="4">
-      <div class="scene-media-wrapper kenburns-zoom-out">
-        <img src="assets/scene4_leaving.jpg" alt="Person looking at sky and turning back" class="scene-image">
+    <!-- ==================== SCENE 4: DECISION TO RETURN ==================== -->
+    <section class="scene" id="scene-4" data-duration="6500" data-title="Scene 4 — Person Acts Promptly" data-num="4">
+      <div class="scene-media-wrapper">
+        <img src="assets/scene2_skywatch.jpg" alt="Arjun turning decisively to head home" class="scene-image base-environment">
         <div class="cinematic-vignette"></div>
+      </div>
+
+      <!-- Character Decision & 180° Turn Animation -->
+      <div class="character-action-layer" id="char-layer-s4">
+        <div class="protagonist-character turning-back" id="protagonist-s4">
+          <div class="character-shadow"></div>
+        </div>
       </div>
 
       <div class="cinematic-quote-badge">
         <div class="quote-pill">
           <span class="quote-icon">⚡</span>
-          <span class="quote-text">WeatherGPT Early Warning &rarr; Timely Citizen Action</span>
+          <span class="quote-text">Informed Decision: Trusting AI Intelligence Over Uncertainty</span>
         </div>
       </div>
 
       <div class="cinema-lower-third">
         <div class="dialogue-box">
-          <div class="narrative-tag action-tag">INFORMED DECISION</div>
-          <p class="narrative-text">Glancing at the subtle shift in high clouds, the citizen trusts the forecast, wraps up shopping, and heads straight home.</p>
+          <div class="narrative-tag action-tag">SCENE 4 • TIMELY DECISION</div>
+          <p class="narrative-text">Glancing from his phone back toward the ominous sky, Arjun makes an instant decision. He puts his phone away, turns around, and heads straight home.</p>
         </div>
       </div>
     </section>
 
-    <!-- ==================== SCENE 5: ARRIVES HOME & REALIZATION ==================== -->
-    <section class="scene" id="scene-5" data-duration="7000" data-title="Scene 5 — Arrival & Sudden Realization" data-num="5">
-      <div class="scene-media-wrapper kenburns-tilt-up">
-        <img src="assets/scene5_home.jpg" alt="Person entering home and looking toward terrace" class="scene-image">
+    <!-- ==================== SCENE 5: RETURN HOME (RESIDENTIAL STREET) ==================== -->
+    <section class="scene" id="scene-5" data-duration="7500" data-title="Scene 5 — Walking Home Through Residential Area" data-num="5">
+      <div class="scene-media-wrapper stage-parallax-container">
+        <img src="assets/scene4_leaving.jpg" alt="Arjun briskly walking along residential road" class="scene-image base-environment residential-bg">
+        <div class="cinematic-vignette overcast-vignette"></div>
+      </div>
+
+      <!-- Character Fast Power-Walk Motion Rig -->
+      <div class="character-action-layer" id="char-layer-s5">
+        <div class="protagonist-character power-walk" id="protagonist-s5">
+          <div class="character-shadow"></div>
+        </div>
+      </div>
+
+      <div class="scene-hud">
+        <div class="hud-pill top-left">
+          <span class="hud-icon">⏱️</span>
+          <div>
+            <div class="hud-label">COUNTDOWN TO IMPACT</div>
+            <div class="hud-val text-amber">42 Minutes Remaining</div>
+          </div>
+        </div>
+
+        <div class="hud-pill top-right">
+          <span class="hud-icon">🏠</span>
+          <div>
+            <div class="hud-label">DESTINATION</div>
+            <div class="hud-val">Home Residential Avenue (600m away)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cinema-lower-third">
+        <div class="dialogue-box">
+          <div class="narrative-tag">SCENE 5 • RETURNING HOME</div>
+          <p class="narrative-text">With plenty of lead time, Arjun walks briskly along the tree-lined residential street as gusty pre-storm winds whip through the trees.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SCENE 6: ARRIVING HOME & SUDDEN REALIZATION ==================== -->
+    <section class="scene" id="scene-6" data-duration="7000" data-title="Scene 6 — Arrival & Sudden Realization" data-num="6">
+      <div class="scene-media-wrapper">
+        <img src="assets/scene5_home.jpg" alt="Arjun entering home and looking upward in realization" class="scene-image base-environment">
         <div class="cinematic-vignette"></div>
       </div>
 
+      <!-- Character Realization & Upward Look Rig -->
+      <div class="character-action-layer" id="char-layer-s6">
+        <div class="protagonist-character realization-pose" id="protagonist-s6">
+          <div class="character-shadow"></div>
+        </div>
+      </div>
+
       <!-- Realization Thought Bubble -->
-      <div class="thought-bubble-container">
+      <div class="thought-bubble-container" id="thought-bubble-s6">
         <div class="thought-bubble">
           <span class="thought-emoji">💡</span>
           <div class="thought-content">
@@ -247,58 +322,72 @@
 
       <div class="cinema-lower-third">
         <div class="dialogue-box">
-          <div class="narrative-tag">40 MINUTES BEFORE RAIN</div>
-          <p class="narrative-text">Arriving home early gave plenty of buffer. Suddenly, they remember the laundry drying under the open sky.</p>
+          <div class="narrative-tag alert-tag">SCENE 6 • SUDDEN REALIZATION</div>
+          <p class="narrative-text">Arjun enters his house and sets down his bag. Suddenly, he freezes and looks up at the ceiling: all the family's fresh laundry is out on the open terrace!</p>
         </div>
       </div>
     </section>
 
-    <!-- ==================== SCENE 6: CLOTHES ON TERRACE ==================== -->
-    <section class="scene" id="scene-6" data-duration="8000" data-title="Scene 6 — Protecting Household Assets" data-num="6">
-      <div class="scene-media-wrapper kenburns-pan-right">
-        <img src="assets/scene6_clothes.jpg" alt="Person collecting laundry on rooftop terrace as storm clouds gather" class="scene-image">
+    <!-- ==================== SCENE 7: TERRACE CLOTHES RESCUE ==================== -->
+    <section class="scene" id="scene-7" data-duration="8500" data-title="Scene 7 — Protecting Household Assets on Terrace" data-num="7">
+      <div class="scene-media-wrapper">
+        <img src="assets/scene6_clothes.jpg" alt="Arjun hurriedly gathering clothes from terrace clothesline" class="scene-image base-environment">
         <div class="cinematic-vignette darker"></div>
       </div>
 
+      <!-- Terrace Animated Clothesline & Hand Gathering Motion Layer -->
+      <div class="terrace-clothesline-container" id="terrace-clothesline">
+        <div class="clothes-rope">
+          <div class="cloth-item shirt-blue flutter-wind" id="cloth-1"></div>
+          <div class="cloth-item kurta-white flutter-wind" id="cloth-2"></div>
+          <div class="cloth-item towel-orange flutter-wind" id="cloth-3"></div>
+          <div class="cloth-item bedsheet-yellow flutter-wind" id="cloth-4"></div>
+        </div>
+      </div>
+
+      <!-- Wind Speed Gauge HUD -->
       <div class="wind-hud-meter">
         <div class="meter-row">
           <span class="meter-icon">💨</span>
-          <span class="meter-title">GUST FRONT: 34 km/h</span>
-          <span class="meter-status">CLOUDS DARKENING RAPIDLY</span>
+          <span class="meter-title">GUST FRONT: 36 km/h</span>
+          <span class="meter-status">FIRST DROPS IN 3 MINUTES</span>
         </div>
         <div class="meter-bar-track">
-          <div class="meter-bar-fill"></div>
+          <div class="meter-bar-fill animated-bar"></div>
         </div>
       </div>
 
       <div class="cinema-lower-third">
         <div class="dialogue-box">
-          <div class="narrative-tag urgent-tag">PRE-EMPTIVE ACTION</div>
-          <p class="narrative-text">Pre-monsoon winds accelerate and dark storm clouds loom overhead. Every garment is safely collected in minutes.</p>
+          <div class="narrative-tag urgent-tag">SCENE 7 • TERRACE ACTION</div>
+          <p class="narrative-text">Arjun dashes upstairs to the rooftop. As gale-force winds billow the clothesline, he unpegs and collects every single garment into his arms just in time.</p>
         </div>
       </div>
     </section>
 
-    <!-- ==================== SCENE 7: RAIN ARRIVES ==================== -->
-    <section class="scene" id="scene-7" data-duration="8000" data-title="Scene 7 — Heavy Downpour Arrives" data-num="7">
-      <div class="scene-media-wrapper kenburns-zoom-in">
-        <img src="assets/scene7_heavyrain.jpg" alt="Torrential rain pounding the terrace" class="scene-image">
+    <!-- ==================== SCENE 8: HEAVY DOWNPOUR & SAFE INDOORS ==================== -->
+    <section class="scene" id="scene-8" data-duration="8000" data-title="Scene 8 — Torrential Downpour Arrives" data-num="8">
+      <div class="scene-media-wrapper">
+        <img src="assets/scene7_heavyrain.jpg" alt="Torrential rain pounding outside while Arjun watches safely indoors" class="scene-image base-environment">
         <div class="cinematic-vignette rain-dark"></div>
       </div>
 
-      <!-- Precision Timing Overlay -->
+      <!-- Window Rain Rivulets Layer -->
+      <div class="window-glass-water-layer"></div>
+
+      <!-- Timing Verification Card -->
       <div class="precision-timestamp-card">
         <div class="timestamp-header">
           <span class="radar-dot"></span>
-          <span>IMPACT TIMELINE VERIFICATION</span>
+          <span>TIMELINE VERIFICATION</span>
         </div>
         <div class="timestamp-body">
           <div class="time-stat">
-            <span class="stat-label">WeatherGPT Forecast Arrival:</span>
+            <span class="stat-label">WeatherGPT Predicted Arrival:</span>
             <span class="stat-val">5:48 PM</span>
           </div>
           <div class="time-stat">
-            <span class="stat-label">Actual Rain Onset:</span>
+            <span class="stat-label">Actual Downpour Onset:</span>
             <span class="stat-val text-green">5:51 PM (98.2% Accuracy)</span>
           </div>
         </div>
@@ -306,42 +395,13 @@
 
       <div class="cinema-lower-third">
         <div class="dialogue-box storm-box">
-          <div class="narrative-tag storm-tag">EXACTLY AS PREDICTED</div>
-          <p class="narrative-text">A massive torrential downpour submerges the open terrace. If unprepared, all laundry and outdoor goods would have been ruined.</p>
+          <div class="narrative-tag storm-tag">SCENE 8 • PRECISE AI PREDICTION</div>
+          <p class="narrative-text">Minutes after stepping inside, torrential monsoon rain pounds the terrace with extreme fury. Because of the early alert, Arjun and his household assets are completely safe.</p>
         </div>
       </div>
     </section>
 
-    <!-- ==================== SCENE 8: WEATHERGPT SUCCESS ==================== -->
-    <section class="scene" id="scene-8" data-duration="7000" data-title="Scene 8 — Peace of Mind & Protection" data-num="8">
-      <div class="scene-media-wrapper kenburns-pan-left">
-        <img src="assets/scene8_success.jpg" alt="Person looking out window peacefully with dry clothes" class="scene-image">
-        <div class="cinematic-vignette cozy"></div>
-      </div>
-
-      <!-- Success Card Notification Overlay -->
-      <div class="success-floating-card">
-        <div class="success-badge-row">
-          <div class="green-check-icon">✓</div>
-          <div>
-            <div class="success-title">WEATHERGPT ADVISORY COMPLETE</div>
-            <div class="success-sub">Severe Rainfall Active in T. Nagar (45mm/hr)</div>
-          </div>
-        </div>
-        <div class="success-summary">
-          "Early location-based warning protected your household. Safe indoors with zero property loss."
-        </div>
-      </div>
-
-      <div class="cinema-lower-third">
-        <div class="dialogue-box success-box">
-          <div class="narrative-tag success-tag">REAL-LIFE VALUE DEMONSTRATED</div>
-          <p class="narrative-text">Safe inside with a warm drink, watching the storm safely. One hour of advance AI warning made all the difference.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== FINAL SCREEN: BRAND & SIH 2026 ==================== -->
+    <!-- ==================== SCENE 9: FINAL SUMMARY & SIH 2026 ==================== -->
     <section class="scene final-screen" id="scene-final" data-title="WeatherGPT — SIH 2026 Problem Statement 26068" data-num="9">
       <div class="final-card-backdrop"></div>
       
@@ -353,37 +413,38 @@
 
         <h1 class="final-main-title">WEATHERGPT</h1>
         <p class="final-tagline">Know Before It Happens.</p>
+        <p class="final-subtagline">Early warning. Better preparation. Safer decisions.</p>
 
         <div class="sih-statement-card">
-          <div class="sih-code-badge">SMART INDIA HACKATHON 2026 • PS 26068</div>
-          <div class="sih-desc">Conversational AI for Weather Forecasting, Early Alerts, and Climate Intelligence</div>
+          <div class="sih-code-badge">SMART INDIA HACKATHON 2026 • PROBLEM STATEMENT 26068</div>
+          <div class="sih-desc">Conversational AI for Weather Forecasting, Alerts, and Climate Information</div>
         </div>
 
         <div class="value-pillars-grid">
           <div class="pillar-item">
             <div class="p-icon">⚡</div>
-            <div class="p-title">Early Warnings</div>
-            <div class="p-desc">Sub-hourly extreme weather lead time</div>
+            <div class="p-title">Sub-Hourly Lead Time</div>
+            <div class="p-desc">55+ minutes advance warning for extreme convective rain cells</div>
           </div>
           <div class="pillar-item">
             <div class="p-icon">📍</div>
             <div class="p-title">Hyperlocal Intelligence</div>
-            <div class="p-desc">Precision street-level context</div>
+            <div class="p-desc">Precision street-level context for actionable citizen response</div>
           </div>
           <div class="pillar-item">
             <div class="p-icon">💬</div>
-            <div class="p-title">Conversational AI</div>
-            <div class="p-desc">10 Indic languages with voice support</div>
+            <div class="p-title">Multilingual AI</div>
+            <div class="p-desc">10 Indic languages with voice reasoning and sector advisories</div>
           </div>
           <div class="pillar-item">
             <div class="p-icon">🛡️</div>
-            <div class="p-title">Actionable Protection</div>
-            <div class="p-desc">Practical advice for daily life & sectors</div>
+            <div class="p-title">Zero Property Loss</div>
+            <div class="p-desc">Empowering citizens, farmers, aviation, and smart cities to act early</div>
           </div>
         </div>
 
         <div class="final-quote-block">
-          "1 Hour Warning. One Simple Action. Real-World Protection."
+          "1 Hour Advance Warning &rarr; One Prompt Decision &rarr; Real-World Life & Asset Protection."
         </div>
 
         <!-- End Action Buttons -->
@@ -393,7 +454,7 @@
               <polyline points="1 4 1 10 7 10"></polyline>
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
             </svg>
-            <span>Replay Simulation ↻</span>
+            <span>↻ Replay Simulation</span>
           </button>
 
           <a href="../" class="launch-app-btn">
@@ -416,15 +477,15 @@
     </div>
 
     <div class="timeline-nodes" id="timeline-nodes">
-      <button class="t-node active" data-scene-index="0" title="Scene 1: Shopping">1. Shopping</button>
-      <button class="t-node" data-scene-index="1" title="Scene 2: AI Radar">2. AI Radar</button>
+      <button class="t-node active" data-scene-index="0" title="Scene 1: Shopping Walk">1. Shopping</button>
+      <button class="t-node" data-scene-index="1" title="Scene 2: Sky Changes">2. Sky Watch</button>
       <button class="t-node" data-scene-index="2" title="Scene 3: Phone Alert">3. Alert</button>
-      <button class="t-node" data-scene-index="3" title="Scene 4: Decides to Return">4. Decision</button>
-      <button class="t-node" data-scene-index="4" title="Scene 5: Arrives Home">5. Home</button>
-      <button class="t-node" data-scene-index="5" title="Scene 6: Clothes on Terrace">6. Terrace</button>
-      <button class="t-node" data-scene-index="6" title="Scene 7: Rain Arrives">7. Downpour</button>
-      <button class="t-node" data-scene-index="7" title="Scene 8: WeatherGPT Success">8. Success</button>
-      <button class="t-node" data-scene-index="8" title="Final Overview">Summary</button>
+      <button class="t-node" data-scene-index="3" title="Scene 4: Decision">4. Decision</button>
+      <button class="t-node" data-scene-index="4" title="Scene 5: Walks Home">5. Walk Home</button>
+      <button class="t-node" data-scene-index="5" title="Scene 6: Realization">6. Realize</button>
+      <button class="t-node" data-scene-index="6" title="Scene 7: Terrace Rescue">7. Terrace</button>
+      <button class="t-node" data-scene-index="7" title="Scene 8: Rain Arrives">8. Downpour</button>
+      <button class="t-node" data-scene-index="8" title="Scene 9: Summary & Impact">9. Summary</button>
     </div>
   </footer>
 
