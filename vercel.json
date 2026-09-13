@@ -38,7 +38,11 @@
       "destination": "/video.html"
     },
     {
-      "source": "/((?!api/|video\\.html).*)",
+      "source": "/video/",
+      "destination": "/video.html"
+    },
+    {
+      "source": "/((?!api/|video|video\\.html|demo-video\\.mp4).*)",
       "destination": "/index.html"
     }
   ]
