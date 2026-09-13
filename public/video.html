@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>WeatherGPT Video</title>
   <style>
     * {
@@ -30,8 +33,19 @@
   </style>
 </head>
 <body>
-  <video controls autoplay playsinline src="/demo-video.mp4">
+  <video id="demoVideo" controls autoplay playsinline>
+    <source src="/demo-video.mp4?v=20260913_new" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
+  <script>
+    // Ensure service worker unregisters for video standalone view or updates cache
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let reg of registrations) {
+          reg.update();
+        }
+      });
+    }
+  </script>
 </body>
 </html>

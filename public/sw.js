@@ -3,8 +3,8 @@
 // Allows WeatherGPT to launch and operate with Zero Cell Tower / Zero Network
 // ============================================================================
 
-const CACHE_NAME = 'weathergpt-core-v1.1';
-const RUNTIME_CACHE = 'weathergpt-runtime-v1.1';
+const CACHE_NAME = 'weathergpt-core-v2.0';
+const RUNTIME_CACHE = 'weathergpt-runtime-v2.0';
 
 // Critical core assets to pre-cache on install
 const PRECACHE_ASSETS = [
@@ -59,6 +59,11 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests (e.g. POST to backend)
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // Bypass video files and video pages from Service Worker completely (Network Only)
+  if (url.pathname.endsWith('.mp4') || url.pathname.endsWith('.webm') || url.pathname.includes('/video') || url.pathname.includes('demo-video')) {
     return;
   }
 

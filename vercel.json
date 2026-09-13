@@ -23,6 +23,15 @@
       ]
     },
     {
+      "source": "/(demo-video.mp4|video.html|video)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
