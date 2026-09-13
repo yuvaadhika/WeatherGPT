@@ -9,8 +9,9 @@
   },
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 2000,
-      "backgroundColor": "#0284c7"
+      "launchShowDuration": 1500,
+      "backgroundColor": "#f0f8ff",
+      "showSpinner": false
     }
   }
 }

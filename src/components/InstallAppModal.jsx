@@ -195,6 +195,33 @@ export default function InstallAppModal({ isOpen, onClose, activeLanguage = 'en'
                       <span>மேலே உள்ள <strong>'Add'</strong> என்பதை அழுத்தவும். இப்போது ஆப் தயாராகிவிடும்!</span>
                     </li>
                   </ol>
+                ) : platform === 'windows' || platform === 'mac' ? (
+                  <ol className="text-xs text-slate-700 space-y-2 pl-1 list-none">
+                    <li className="flex items-start space-x-2">
+                      <span className="w-5 h-5 rounded-full bg-sky-200 text-sky-800 font-bold flex items-center justify-center text-[11px] flex-shrink-0 mt-0.5">1</span>
+                      <span>
+                        {isTa
+                          ? 'பிரவுசரின் முகவரிப் பட்டியில் (URL Bar) வலது ஓரத்தில் உள்ள ⊕ (Install App) ஐகானை கிளிக் செய்யவும்.'
+                          : 'Click the ⊕ (Install App) icon on the right side of your Chrome / Edge address bar.'}
+                      </span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="w-5 h-5 rounded-full bg-sky-200 text-sky-800 font-bold flex items-center justify-center text-[11px] flex-shrink-0 mt-0.5">2</span>
+                      <span>
+                        {isTa
+                          ? 'அல்லது Chrome மெனு (⋮) ➔ Save and Share ➔ "Install WeatherGPT as App" என்பதை தேர்வு செய்யவும்.'
+                          : 'Or click Chrome Menu (⋮) ➔ Save and Share ➔ "Install WeatherGPT as App".'}
+                      </span>
+                    </li>
+                    <li className="flex items-start space-x-2">
+                      <span className="w-5 h-5 rounded-full bg-sky-200 text-sky-800 font-bold flex items-center justify-center text-[11px] flex-shrink-0 mt-0.5">3</span>
+                      <span>
+                        {isTa
+                          ? 'இப்போது உங்கள் கம்ப்யூட்டர் Desktop-ல் தனி செயலியாக உருவாகிவிடும்!'
+                          : 'The app will now launch in its own standalone desktop window with a Desktop shortcut!'}
+                      </span>
+                    </li>
+                  </ol>
                 ) : (
                   <ol className="text-xs text-slate-700 space-y-2 pl-1 list-none">
                     <li className="flex items-center space-x-2">
