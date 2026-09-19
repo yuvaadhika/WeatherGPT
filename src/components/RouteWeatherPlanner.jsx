@@ -277,12 +277,13 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
         attributionControl: false,
       });
 
-      // Street Base Layer (Google Maps-style CartoDB Voyager)
+      // Base Tile Layer (Google Maps Roads Standard)
       tileLayerRef.current = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+        'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
         {
-          maxZoom: 19,
-          subdomains: 'abcd',
+          maxZoom: 22,
+          maxNativeZoom: 20,
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
         }
       ).addTo(map);
 
@@ -309,19 +310,28 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
       leafletMapRef.current.removeLayer(tileLayerRef.current);
     }
 
-    let url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-    let subdomains = 'abcd';
-    let maxZoom = 19;
+    let url = 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+    let subdomains = ['mt0', 'mt1', 'mt2', 'mt3'];
+    let maxZoom = 22;
+    let maxNativeZoom = 20;
 
     if (activeMapLayer === 'satellite') {
-      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-      subdomains = 'abc';
+      url = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
+    } else if (activeMapLayer === 'terrain') {
+      url = 'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}';
+    } else if (activeMapLayer === 'osm') {
+      url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+      subdomains = ['a', 'b', 'c'];
+      maxZoom = 21;
+      maxNativeZoom = 19;
     } else if (activeMapLayer === 'dark') {
-      url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      subdomains = 'abcd';
+      url = 'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Base/MapServer/tile/{z}/{y}/{x}';
+      subdomains = ['server', 'services'];
+      maxZoom = 19;
+      maxNativeZoom = 16;
     }
 
-    tileLayerRef.current = L.tileLayer(url, { maxZoom, subdomains }).addTo(leafletMapRef.current);
+    tileLayerRef.current = L.tileLayer(url, { maxZoom, maxNativeZoom, subdomains }).addTo(leafletMapRef.current);
     tileLayerRef.current.bringToBack();
   }, [activeMapLayer]);
 
@@ -1201,7 +1211,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
                 className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
                   activeMapLayer === 'streets' ? 'bg-white text-sky-700 shadow-2xs font-black' : 'text-slate-600 hover:text-slate-900'
                 }`}
-                title="Google Streets View"
+                title="Google Maps Streets"
               >
                 🚗 Street
               </button>
@@ -1211,9 +1221,29 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
                 className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
                   activeMapLayer === 'satellite' ? 'bg-white text-sky-700 shadow-2xs font-black' : 'text-slate-600 hover:text-slate-900'
                 }`}
-                title="Satellite View"
+                title="Google Satellite Hybrid HD"
               >
                 🛰️ Satellite
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMapLayer('terrain')}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                  activeMapLayer === 'terrain' ? 'bg-white text-sky-700 shadow-2xs font-black' : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="Google Terrain Topo"
+              >
+                ⛰️ Terrain
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveMapLayer('osm')}
+                className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                  activeMapLayer === 'osm' ? 'bg-white text-sky-700 shadow-2xs font-black' : 'text-slate-600 hover:text-slate-900'
+                }`}
+                title="OpenStreetMap HD"
+              >
+                🧭 OSM
               </button>
               <button
                 type="button"
@@ -1221,7 +1251,7 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
                 className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
                   activeMapLayer === 'dark' ? 'bg-white text-sky-700 shadow-2xs font-black' : 'text-slate-600 hover:text-slate-900'
                 }`}
-                title="Night Highway Mode"
+                title="Night Mode"
               >
                 🌙 Night
               </button>

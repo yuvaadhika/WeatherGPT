@@ -328,9 +328,9 @@ export function downloadHTMLReport(reportData, filename) {
         var lat = ${reportData.lat || 13.0827};
         var lon = ${reportData.lon || 80.2707};
         var map = L.map('radarMap', { zoomControl: true, attributionControl: false }).setView([lat, lon], 7);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-          maxZoom: 18,
-          subdomains: 'abcd'
+        L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+          maxZoom: 20,
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
         }).addTo(map);
 
         var marker = L.circleMarker([lat, lon], {
