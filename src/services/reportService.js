@@ -353,7 +353,9 @@ export function downloadHTMLReport(reportData, filename) {
               var lastFrame = frames[frames.length - 1];
               var radarLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/radar/' + lastFrame.time + '/256/{z}/{x}/{y}/2/1_1.png', {
                 opacity: 0.75,
-                zIndex: 10
+                zIndex: 10,
+                maxZoom: 20,
+                maxNativeZoom: 6
               });
               radarLayer.addTo(map);
             }

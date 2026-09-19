@@ -355,7 +355,8 @@ export default function WeatherRadarMap({
         opacity: opacity,
         zIndex: 10,
         maxZoom: 22,
-        maxNativeZoom: 12, // Native radar tiles up to zoom 12, interpolated seamlessly above zoom 12!
+        maxNativeZoom: 6, // RainViewer only serves radar tiles up to zoom 6. Leaflet automatically stretches z6 tiles for higher zooms, eliminating "Zoom Level Not Supported"
+        tileSize: 256,
       });
       radarLayer.addTo(leafletMap.current);
       radarLayerRef.current = radarLayer;
@@ -699,6 +700,7 @@ export default function WeatherRadarMap({
             className="px-2 py-1 bg-white border border-slate-200 rounded-xl text-sky-800 text-[11px] font-bold focus:outline-none shadow-2xs cursor-pointer"
           >
             <option value="radar">🌧️ Doppler Radar (dBZ)</option>
+            <option value="none">🗺️ Pure Google Map (No Radar)</option>
             <option value="satellite">☁️ Satellite Infrared</option>
             <option value="lightning">⚡ Live Lightning Strikes</option>
             <option value="both">🛰️ Multi-Layer Composite</option>

@@ -355,6 +355,8 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             radarLayerRef.current = L.tileLayer(radarUrl, {
               opacity: 0.65,
               zIndex: 50,
+              maxZoom: 22,
+              maxNativeZoom: 6, // Prevents "Zoom Level Not Supported" tiles from RainViewer on deep zoom
             }).addTo(leafletMapRef.current);
           }
         })
