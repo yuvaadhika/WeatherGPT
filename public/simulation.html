@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="/wyndra-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -56,7 +56,7 @@
     ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.7); }
     .glass-dark {
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.9);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(51, 65, 85, 0.6);
@@ -99,7 +99,7 @@
 
       <!-- 3-Language Selector in Simulation -->
       <div class="relative flex items-center">
-        <select id="simLanguageSelect" onchange="changeLanguage(this.value)" class="bg-slate-800 border-2 border-sky-500/60 text-white text-xs font-black rounded-xl px-3 py-1.5 focus:outline-none focus:border-sky-400 cursor-pointer shadow-md shadow-sky-900/30">
+        <select id="simLanguageSelect" onchange="changeLanguage(this.value)" class="bg-slate-800 border-2 border-sky-500/70 text-white text-xs font-black rounded-xl px-3 py-1.5 focus:outline-none focus:border-sky-400 cursor-pointer shadow-md shadow-sky-900/40">
           <option value="en">🇬🇧 English</option>
           <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
           <option value="hi">🇮🇳 हिंदी (Hindi)</option>
@@ -217,7 +217,7 @@
   <div id="notificationToastContainer" class="fixed top-20 right-4 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- ============================================================================ -->
-  <!-- 6. JAVASCRIPT MULTILINGUAL ENGINE & SIMULATION LOGIC -->
+  <!-- 6. JAVASCRIPT MULTILINGUAL & VOICE SYNTHESIS ENGINE -->
   <!-- ============================================================================ -->
   <script>
     // ============================================================================
@@ -325,6 +325,7 @@
         protectionAdvised: 'Protection Advised',
         good: 'Good',
         replayVoice: 'Replay Voice',
+        listenVoiceBtn: '🔊 Listen Spoken Briefing',
         userInput: '🎤 User Spoken Input:',
         spokenBulletin: '🔊 WeatherGPT Spoken Bulletin:',
         weeklyOutlook: 'Weekly Outlook',
@@ -362,7 +363,27 @@
         reachedLoc: 'Chennai Central, Tamil Nadu, India',
         voiceAlertSpeaking: '🔊 Voice Alert Speaking:',
         stopAlarm: '🛑 Stop Alarm',
-        restartDemo: '🔄 Restart Demo'
+        restartDemo: '🔄 Restart Demo',
+        m1_sub: 'High-Precision GPS Lock & Telemetry Baseline',
+        m2_sub: 'Chengalpattu Live Weather Telemetry',
+        m3_sub: 'Context-Aware Conversational Intelligence',
+        m3_aiReady: 'AI ENGINE READY',
+        m4_sub: 'Multilingual Speech & Sound Synthesis',
+        m5_sub: '24-Hour Hourly Timeline (10 AM – 5 PM)',
+        m6_sub: '7-Day Extended Trend (Monday – Sunday)',
+        m7_sub: 'Doppler Weather Radar Stream (Simulated)',
+        m8_sub: 'Location: Chengalpattu – Chennai Arterial Corridor',
+        m9_sub: 'Air Quality Index (AQI) & PM Telemetry',
+        m10_sub: 'Soil Moisture & Chemical Spraying Windows',
+        m11_sub: 'ICAO METAR & Flight Category',
+        m12_sub: 'Bay of Bengal Coastal Wave & Swell State',
+        m13_sub: 'Climate & Weather Statistics',
+        m14_sub: 'Multilingual WeatherGPT Intelligence',
+        m15_sub: 'Autonomous Weather Notifications',
+        m16_sub: 'WeatherGPT Executive Meteorological Dossier',
+        m17_sub: 'Chengalpattu ➔ Chennai Central (Continuous Telemetry)',
+        m18_sub: '100m Geofence Arrival & Auto Warning',
+        rainLabel: 'Rain'
       },
       ta: {
         simBadge: 'சிமுலேஷன் பயன்முறை',
@@ -401,6 +422,7 @@
         protectionAdvised: 'பாதுகாப்பு தேவை',
         good: 'தெளிவானது',
         replayVoice: 'குரலை மீண்டும் இயக்கு',
+        listenVoiceBtn: '🔊 தமிழில் கேட்க',
         userInput: '🎤 பயனர் குரல் கேள்வி:',
         spokenBulletin: '🔊 WeatherGPT குரல் பதில்:',
         weeklyOutlook: 'வாராந்திர முன்னறிவிப்பு',
@@ -438,7 +460,27 @@
         reachedLoc: 'சென்னை சென்ட்ரல், தமிழ்நாடு, இந்தியா',
         voiceAlertSpeaking: '🔊 குரல் எச்சரிக்கை அறிவிப்பு:',
         stopAlarm: '🛑 அலாரத்தை நிறுத்து',
-        restartDemo: '🔄 மீண்டும் தொடங்கு'
+        restartDemo: '🔄 மீண்டும் தொடங்கு',
+        m1_sub: 'துல்லியமான ஜிபிஎஸ் (GPS) இணைப்பு & அடிப்படைத் தரவுகள்',
+        m2_sub: 'செங்கல்பட்டு நேரலை வானிலை அளவீடுகள்',
+        m3_sub: 'சூழல் சார்ந்த புத்திசாலித்தன வானிலை உரையாடல்',
+        m3_aiReady: 'AI என்ஜின் தயார்',
+        m4_sub: 'பன்மொழி குரல் பேச்சு மற்றும் ஒலி தொகுப்பு',
+        m5_sub: '24-மணி நேர காலவரிசை முன்னறிவிப்பு (மு.ப 10:00 – பி.ப 5:00)',
+        m6_sub: '7-நாள் நீட்டிக்கப்பட்ட முன்னறிவிப்பு (திங்கள் – ஞாயிறு)',
+        m7_sub: 'டாப்ளர் வானிலை ரேடார் நேரலை ஸ்ட்ரீம்',
+        m8_sub: 'இருப்பிடம்: செங்கல்பட்டு – சென்னை பிரதான வழித்தடம்',
+        m9_sub: 'காற்றுத் தரக் குறியீடு (AQI) & மாசுக் கட்டுப்பாடு',
+        m10_sub: 'மண் ஈரப்பதம் & பூச்சிக்கொல்லி மருந்து தெளிக்கும் நேரம்',
+        m11_sub: 'ICAO METAR மற்றும் விமானப் பறப்புப் பிரிவு',
+        m12_sub: 'வங்காள விரிகுடா கடலோர அலைகள் மற்றும் காற்றின் வேகம்',
+        m13_sub: 'காலநிலை & வரலாற்று வானிலை புள்ளிவிவரங்கள்',
+        m14_sub: 'பன்மொழி WeatherGPT நுண்ணறிவு',
+        m15_sub: 'தானியங்கி வானிலை எச்சரிக்கை அறிவிப்புகள்',
+        m16_sub: 'WeatherGPT அதிகாரப்பூர்வ வானிலை அறிக்கை',
+        m17_sub: 'செங்கல்பட்டு ➔ சென்னை சென்ட்ரல் (தொடர் பயணத் தரவுகள்)',
+        m18_sub: '100மீ ஜியோஃபென்ஸ் இலக்கு அடைதல் & குரல் எச்சரிக்கை',
+        rainLabel: 'மழை'
       },
       hi: {
         simBadge: 'सिमुलेशन मोड',
@@ -477,6 +519,7 @@
         protectionAdvised: 'सुरक्षा की सलाह',
         good: 'अच्छी',
         replayVoice: 'आवाज़ दोबारा सुनें',
+        listenVoiceBtn: '🔊 हिंदी में सुनें',
         userInput: '🎤 उपयोगकर्ता द्वारा पूछा गया प्रश्न:',
         spokenBulletin: '🔊 WeatherGPT वाक् उत्तर:',
         weeklyOutlook: 'साप्ताहिक दृष्टिकोण',
@@ -514,7 +557,27 @@
         reachedLoc: 'चेन्नई सेंट्रल, तमिलनाडु, भारत',
         voiceAlertSpeaking: '🔊 वॉयस अलर्ट प्रसारण:',
         stopAlarm: '🛑 अलार्म बंद करें',
-        restartDemo: '🔄 डेमो दोबारा शुरू करें'
+        restartDemo: '🔄 डेमो दोबारा शुरू करें',
+        m1_sub: 'उच्च-सटीक जीपीएस लॉक और टेलीमेट्री बेसलाइन',
+        m2_sub: 'चेंगलपट्टू लाइव मौसम टेलीमेट्री',
+        m3_sub: 'संदर्भ-जागरूक संवादात्मक मौसम बुद्धिमत्ता',
+        m3_aiReady: 'एआई इंजन तैयार',
+        m4_sub: 'बहुभाषी वाक् और ध्वनि संश्लेषण',
+        m5_sub: '24-घंटे का प्रति घंटा टाइमलाइन (10:00 पूर्वाह्न – 5:00 अपराह्न)',
+        m6_sub: '7-दिवसीय विस्तृत रुझान (सोमवार – रविवार)',
+        m7_sub: 'डॉपलर मौसम रडार लाइव स्ट्रीम',
+        m8_sub: 'स्थान: चेंगलपट्टू – चेन्नई मुख्य कॉरिडोर',
+        m9_sub: 'वायु गुणवत्ता सूचकांक (AQI) और पीएम टेलीमेट्री',
+        m10_sub: 'मिट्टी की नमी और कीटनाशक छिड़काव का समय',
+        m11_sub: 'ICAO METAR और उड़ान श्रेणी',
+        m12_sub: 'बंगाल की खाड़ी की तटीय लहरें और स्थिति',
+        m13_sub: 'जलवायु और मौसम सांख्यिकी',
+        m14_sub: 'बहुभाषी WeatherGPT इंटेलिजेंस',
+        m15_sub: 'स्वचालित मौसम सूचनाएं',
+        m16_sub: 'WeatherGPT आधिकारिक मौसम रिपोर्ट',
+        m17_sub: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल (निरंतर टेलीमेट्री)',
+        m18_sub: '100 मीटर जियोफेंस आगमन और स्वचालित चेतावनी',
+        rainLabel: 'बारिश'
       }
     };
 
@@ -733,6 +796,7 @@
     // ============================================================================
     let audioCtx = null;
     let sirenInterval = null;
+    let currentAudioElement = null;
 
     function getAudioContext() {
       if (!audioCtx && typeof window !== 'undefined') {
@@ -797,22 +861,85 @@
       }
     }
 
+    // ============================================================================
+    // COMPREHENSIVE MULTILINGUAL SPEECH SYNTHESIS ENGINE
+    // ============================================================================
+    let cachedVoices = [];
+    function loadAvailableVoices() {
+      if ('speechSynthesis' in window) {
+        cachedVoices = window.speechSynthesis.getVoices() || [];
+      }
+    }
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      loadAvailableVoices();
+      window.speechSynthesis.onvoiceschanged = loadAvailableVoices;
+    }
+
     function speakSimulationText(text, lang = currentLang) {
-      if (!soundEnabled || !('speechSynthesis' in window)) return;
-      try {
+      if (!soundEnabled) return;
+
+      // Stop any existing speech / audio
+      if (currentAudioElement) {
+        currentAudioElement.pause();
+        currentAudioElement = null;
+      }
+      if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.05;
-        if (lang === 'ta') utterance.lang = 'ta-IN';
-        else if (lang === 'hi') utterance.lang = 'hi-IN';
-        else utterance.lang = 'en-US';
-        window.speechSynthesis.speak(utterance);
-      } catch (e) {}
+      }
+
+      const targetLang = lang || currentLang;
+
+      // Format clean text for pronunciation
+      let cleanText = text.replace(/<[^>]*>/g, '').trim();
+
+      // Check if Web Speech API is available
+      if ('speechSynthesis' in window) {
+        try {
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          utterance.rate = 1.0;
+          utterance.pitch = 1.05;
+
+          const langCode = targetLang === 'ta' ? 'ta-IN' : (targetLang === 'hi' ? 'hi-IN' : 'en-US');
+          utterance.lang = langCode;
+
+          // Attempt to find dedicated native voice
+          if (cachedVoices.length === 0) loadAvailableVoices();
+          const matchedVoice = cachedVoices.find(v => {
+            const vLang = (v.lang || '').toLowerCase().replace('_', '-');
+            const vName = (v.name || '').toLowerCase();
+            if (targetLang === 'ta') return vLang.startsWith('ta') || vName.includes('tamil');
+            if (targetLang === 'hi') return vLang.startsWith('hi') || vName.includes('hindi');
+            return vLang.startsWith('en-in') || vLang.startsWith('en-us') || vLang.startsWith('en');
+          });
+
+          if (matchedVoice) {
+            utterance.voice = matchedVoice;
+          }
+
+          window.speechSynthesis.speak(utterance);
+          return;
+        } catch (e) {
+          console.warn('SpeechSynthesis error, trying audio fallback:', e);
+        }
+      }
+
+      // Fallback: Use TTS audio streaming endpoint
+      try {
+        const audioUrl = `/api/tts?text=${encodeURIComponent(cleanText.slice(0, 180))}&lang=${encodeURIComponent(targetLang)}`;
+        currentAudioElement = new Audio(audioUrl);
+        currentAudioElement.play().catch(e => {
+          // secondary direct fallback
+          const directFallback = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetLang}&client=tw-ob&q=${encodeURIComponent(cleanText.slice(0, 180))}`;
+          currentAudioElement = new Audio(directFallback);
+          currentAudioElement.play().catch(console.warn);
+        });
+      } catch (err) {
+        console.warn('Audio fallback error:', err);
+      }
     }
 
     // ============================================================================
-    // LANGUAGE CHANGER
+    // LANGUAGE CHANGER (Instantly updates headers, controls, active module & voice)
     // ============================================================================
     function changeLanguage(lang) {
       currentLang = lang;
@@ -829,9 +956,20 @@
       document.getElementById('allModulesBtnText').innerText = t.allModulesBtn;
       document.getElementById('drawerModalTitle').innerText = t.drawerTitle;
 
-      // Update Active Module & Drawer
+      // Re-render Active Module & Drawer list
       renderCurrentModule();
       renderDrawerList();
+
+      // Automatically speak greeting or active voice prompt in newly selected language!
+      if (currentModuleIndex === 4) {
+        const vm = SIMULATION_DATA.voiceModule;
+        const a = currentLang === 'ta' ? vm.aTa : (currentLang === 'hi' ? vm.aHi : vm.aEn);
+        speakSimulationText(a, currentLang);
+      } else if (currentModuleIndex === 18) {
+        const dr = SIMULATION_DATA.destinationReached;
+        const voiceText = currentLang === 'ta' ? dr.voiceTa : (currentLang === 'hi' ? dr.voiceHi : dr.voiceEn);
+        speakSimulationText(voiceText, currentLang);
+      }
     }
 
     // ============================================================================
@@ -883,6 +1021,7 @@
       if (!soundEnabled) {
         stopSirenAlarm();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        if (currentAudioElement) { currentAudioElement.pause(); currentAudioElement = null; }
       }
     }
 
@@ -971,7 +1110,7 @@
     }
 
     // ============================================================================
-    // MODULE RENDERERS (All 18 Modules fully Multilingual)
+    // MODULE RENDERERS (100% Multilingual & Voice-Enabled)
     // ============================================================================
     function renderCurrentModule() {
       updateProgressUI();
@@ -1018,7 +1157,7 @@
               </span>
               <div>
                 <h2 class="font-display font-black text-lg sm:text-xl text-white">${titles[0]}</h2>
-                <p class="text-xs text-slate-400">High-Precision GPS Lock & Telemetry Baseline</p>
+                <p class="text-xs text-slate-400 font-medium">${t.m1_sub}</p>
               </div>
             </div>
             <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30 flex items-center space-x-1">
@@ -1070,7 +1209,7 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-sky-400 uppercase font-bold tracking-wider">${titles[1]}</span>
-              <h2 class="font-display font-black text-xl text-white">Chengalpattu Live Telemetry</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m2_sub}</h2>
             </div>
             <span class="px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-bold border border-sky-500/30">
               ${cond}
@@ -1137,6 +1276,7 @@
 
     // --- MODULE 3: CHATBOT SIMULATION ---
     function renderModule3_Chatbot(canvas) {
+      const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
@@ -1147,11 +1287,11 @@
               </span>
               <div>
                 <h2 class="font-display font-black text-lg sm:text-xl text-white">${titles[2]}</h2>
-                <p class="text-xs text-slate-400">Context-Aware Conversational Intelligence</p>
+                <p class="text-xs text-slate-400 font-medium">${t.m3_sub}</p>
               </div>
             </div>
             <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
-              AI ENGINE READY
+              ${t.m3_aiReady}
             </span>
           </div>
 
@@ -1195,16 +1335,16 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-3 text-left">
             <div>
               <span class="text-[10px] font-mono text-teal-400 uppercase font-bold tracking-wider">${titles[3]}</span>
-              <h2 class="font-display font-black text-xl text-white">Multilingual Speech & Sound Synthesis</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m4_sub}</h2>
             </div>
             <button onclick="speakSimulationText('${a.replace(/'/g, "\\'")}', '${currentLang}')" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/40 flex items-center space-x-1 cursor-pointer">
-              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
               <span>${t.replayVoice}</span>
             </button>
           </div>
 
           <div class="py-4 space-y-4 max-w-lg mx-auto">
-            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse">
+            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer" onclick="speakSimulationText('${a.replace(/'/g, "\\'")}', '${currentLang}')">
               <i data-lucide="mic" class="w-9 h-9"></i>
             </div>
 
@@ -1240,13 +1380,14 @@
 
     // --- MODULE 5: HOURLY FORECAST ---
     function renderModule5_Hourly(canvas) {
+      const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-5 animate-fadeIn">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-sky-400 uppercase font-bold tracking-wider">${titles[4]}</span>
-              <h2 class="font-display font-black text-xl text-white">24-Hour Hourly Timeline (10 AM – 5 PM)</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m5_sub}</h2>
             </div>
             <span class="text-xs text-slate-400 font-mono">ECMWF IFS 9km</span>
           </div>
@@ -1263,7 +1404,7 @@
                   <div class="w-full bg-slate-700/60 h-1.5 rounded-full overflow-hidden">
                     <div class="bg-sky-400 h-full rounded-full" style="width: ${h.rainProb}%"></div>
                   </div>
-                  <span class="text-[10px] font-bold text-sky-400 block">${h.rainProb}% Rain</span>
+                  <span class="text-[10px] font-bold text-sky-400 block">${h.rainProb}% ${t.rainLabel}</span>
                 </div>
               `;
             }).join('')}
@@ -1281,7 +1422,7 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-indigo-400 uppercase font-bold tracking-wider">${titles[5]}</span>
-              <h2 class="font-display font-black text-xl text-white">7-Day Extended Trend (Monday – Sunday)</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m6_sub}</h2>
             </div>
             <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30">${t.weeklyOutlook}</span>
           </div>
@@ -1295,7 +1436,7 @@
                   <span class="font-bold text-white w-24">${day}</span>
                   <span class="text-slate-300 flex-1 text-center font-medium">${cond}</span>
                   <div class="flex items-center space-x-3 w-40 justify-end">
-                    <span class="text-sky-400 font-bold text-xs">${d.rainProb}% Rain</span>
+                    <span class="text-sky-400 font-bold text-xs">${d.rainProb}% ${t.rainLabel}</span>
                     <div class="font-mono font-bold">
                       <span class="text-white">${d.high}°</span>
                       <span class="text-slate-400 text-xs ml-1">${d.low}°</span>
@@ -1318,7 +1459,7 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-emerald-400 uppercase font-bold tracking-wider">${titles[6]}</span>
-              <h2 class="font-display font-black text-xl text-white">Doppler Weather Radar Stream</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m7_sub}</h2>
             </div>
             <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-mono font-black border border-amber-500/40">
               ${t.radarSim}
@@ -1339,14 +1480,14 @@
             <div class="absolute bottom-6 left-8 flex items-center space-x-1.5 z-10">
               <span class="w-3 h-3 rounded-full bg-sky-400 animate-ping"></span>
               <span class="px-2 py-0.5 rounded bg-slate-900/90 text-white font-mono text-[10px] border border-sky-400/40 font-bold">
-                📍 Chengalpattu (Origin)
+                📍 ${t.currentLoc}
               </span>
             </div>
 
             <div class="absolute top-6 right-8 flex items-center space-x-1.5 z-10">
               <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
               <span class="px-2 py-0.5 rounded bg-slate-900/90 text-white font-mono text-[10px] border border-amber-400/40 font-bold">
-                🎯 Chennai Central (Destination)
+                🎯 ${t.destLoc}
               </span>
             </div>
 
@@ -1391,7 +1532,7 @@
           </div>
 
           <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
-            <span>Chengalpattu – Chennai Arterial Corridor</span>
+            <span>${t.m8_sub}</span>
             <span class="text-emerald-400 font-mono font-bold">${t.sirenReady}</span>
           </div>
         </div>
@@ -1411,7 +1552,7 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-emerald-400 uppercase font-bold tracking-wider">${titles[8]}</span>
-              <h2 class="font-display font-black text-xl text-white">Air Quality Index (AQI)</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m9_sub}</h2>
             </div>
             <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">
               ${stat}
@@ -1463,7 +1604,7 @@
               </span>
               <div>
                 <h2 class="font-display font-black text-xl text-white">${titles[9]}</h2>
-                <p class="text-xs text-slate-400">Soil Moisture & Chemical Spraying Windows</p>
+                <p class="text-xs text-slate-400 font-medium">${t.m10_sub}</p>
               </div>
             </div>
           </div>
@@ -1507,7 +1648,7 @@
               </span>
               <div>
                 <h2 class="font-display font-black text-xl text-white">${titles[10]}</h2>
-                <p class="text-xs text-slate-400">ICAO METAR & Flight Category</p>
+                <p class="text-xs text-slate-400 font-medium">${t.m11_sub}</p>
               </div>
             </div>
             <span class="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-mono text-[10px] font-bold">
@@ -1558,7 +1699,7 @@
               </span>
               <div>
                 <h2 class="font-display font-black text-xl text-white">${titles[11]}</h2>
-                <p class="text-xs text-slate-400">Bay of Bengal Coastal Wave & Swell State</p>
+                <p class="text-xs text-slate-400 font-medium">${t.m12_sub}</p>
               </div>
             </div>
           </div>
@@ -1599,7 +1740,7 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-purple-400 uppercase font-bold tracking-wider">${titles[12]}</span>
-              <h2 class="font-display font-black text-xl text-white">Climate & Weather Statistics</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m13_sub}</h2>
             </div>
           </div>
 
@@ -1627,13 +1768,14 @@
 
     // --- MODULE 14: MULTI-LANGUAGE ---
     function renderModule14_Multilingual(canvas) {
+      const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-pink-400 uppercase font-bold tracking-wider">${titles[13]}</span>
-              <h2 class="font-display font-black text-xl text-white">Multilingual WeatherGPT</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m14_sub}</h2>
             </div>
           </div>
 
@@ -1657,6 +1799,7 @@
 
     // --- MODULE 15: NOTIFICATIONS ---
     function renderModule15_Notifications(canvas) {
+      const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
       const notif1 = {
         en: 'Heavy rain expected in your area around 3:00 PM.',
@@ -1668,13 +1811,23 @@
         ta: 'சேருமிட எச்சரிக்கை: சென்னை சென்ட்ரலில் மழை பெய்வதற்கான வாய்ப்பு சுமார் 70% ஆக உள்ளது.',
         hi: 'गंतव्य चेतावनी: चेन्नई सेंट्रल में बारिश की संभावना लगभग 70% है।'
       };
+      const notifTime1 = {
+        en: 'WeatherGPT Alert • 3:00 PM',
+        ta: 'WeatherGPT எச்சரிக்கை • பிற்பகல் 3:00',
+        hi: 'WeatherGPT अलर्ट • दोपहर 3:00'
+      };
+      const notifTime2 = {
+        en: 'Destination Weather Alert',
+        ta: 'சேருமிட வானிலை எச்சரிக்கை',
+        hi: 'गंतव्य मौसम चेतावनी'
+      };
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-amber-400 uppercase font-bold tracking-wider">${titles[14]}</span>
-              <h2 class="font-display font-black text-xl text-white">Autonomous Weather Notifications</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m15_sub}</h2>
             </div>
           </div>
 
@@ -1684,8 +1837,8 @@
                 <i data-lucide="bell-ring" class="w-5 h-5"></i>
               </span>
               <div>
-                <span class="text-[10px] font-mono text-slate-400">WeatherGPT Alert • 3:00 PM</span>
-                <h4 class="text-xs font-bold text-white">${notif1[currentLang] || notif1.en}</h4>
+                <span class="text-[10px] font-mono text-slate-400 font-bold">${notifTime1[currentLang] || notifTime1.en}</span>
+                <h4 class="text-xs font-bold text-white mt-0.5">${notif1[currentLang] || notif1.en}</h4>
               </div>
             </div>
 
@@ -1694,8 +1847,8 @@
                 <i data-lucide="navigation" class="w-5 h-5"></i>
               </span>
               <div>
-                <span class="text-[10px] font-mono text-slate-400">Destination Weather Alert</span>
-                <h4 class="text-xs font-bold text-white">${notif2[currentLang] || notif2.en}</h4>
+                <span class="text-[10px] font-mono text-slate-400 font-bold">${notifTime2[currentLang] || notifTime2.en}</span>
+                <h4 class="text-xs font-bold text-white mt-0.5">${notif2[currentLang] || notif2.en}</h4>
               </div>
             </div>
           </div>
@@ -1728,7 +1881,7 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="text-[10px] font-mono text-sky-400 uppercase font-bold tracking-wider">${titles[15]}</span>
-              <h2 class="font-display font-black text-xl text-white">WeatherGPT Executive Report</h2>
+              <h2 class="font-display font-black text-xl text-white">${t.m16_sub}</h2>
             </div>
             <button onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold flex items-center space-x-1.5 cursor-pointer">
               <i data-lucide="printer" class="w-3.5 h-3.5"></i>
@@ -1762,7 +1915,7 @@
               </span>
               <div>
                 <h2 class="font-display font-black text-xl text-white">${titles[16]}</h2>
-                <p class="text-xs text-slate-400">Chengalpattu ➔ Chennai Central (Continuous Telemetry)</p>
+                <p class="text-xs text-slate-400 font-medium">${t.m17_sub}</p>
               </div>
             </div>
             <span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-mono font-bold border border-amber-500/30">
@@ -1805,7 +1958,7 @@
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border-4 border-rose-500/80 shadow-2xl shadow-rose-900/40 space-y-6 text-center animate-fadeIn">
-          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce">
+          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce cursor-pointer" onclick="speakSimulationText('${voiceText.replace(/'/g, "\\'")}', '${currentLang}')">
             <i data-lucide="bell-ring" class="w-12 h-12 animate-spin"></i>
           </div>
 
