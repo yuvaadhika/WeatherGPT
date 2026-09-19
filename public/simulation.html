@@ -217,7 +217,7 @@
   <div id="notificationToastContainer" class="fixed top-20 right-4 z-50 space-y-2 pointer-events-none"></div>
 
   <!-- ============================================================================ -->
-  <!-- 6. JAVASCRIPT MULTILINGUAL & VOICE SYNTHESIS ENGINE -->
+  <!-- 6. JAVASCRIPT MULTILINGUAL & HIGH-FIDELITY VOICE ENGINE -->
   <!-- ============================================================================ -->
   <script>
     // ============================================================================
@@ -325,7 +325,7 @@
         protectionAdvised: 'Protection Advised',
         good: 'Good',
         replayVoice: 'Replay Voice',
-        listenVoiceBtn: '🔊 Listen Spoken Briefing',
+        listenVoiceBtn: '🔊 Listen Voice',
         userInput: '🎤 User Spoken Input:',
         spokenBulletin: '🔊 WeatherGPT Spoken Bulletin:',
         weeklyOutlook: 'Weekly Outlook',
@@ -523,7 +523,7 @@
         userInput: '🎤 उपयोगकर्ता द्वारा पूछा गया प्रश्न:',
         spokenBulletin: '🔊 WeatherGPT वाक् उत्तर:',
         weeklyOutlook: 'साप्ताहिक दृष्टिकोण',
-        radarSim: 'सिमुलेटेड डॉपलर रडार डेटा',
+        radarSim: 'सिमुलेटेड डॉपलर रडआर डेटा',
         radarFrame: 'फ़्रेम 4/4: वर्षा उत्तर-उत्तर-पूर्व की ओर बढ़ रही है (24 dBZ)',
         severity: 'गंभीरता',
         window: 'समय सीमा',
@@ -796,7 +796,7 @@
     // ============================================================================
     let audioCtx = null;
     let sirenInterval = null;
-    let currentAudioElement = null;
+    let currentSimAudio = null;
 
     function getAudioContext() {
       if (!audioCtx && typeof window !== 'undefined') {
@@ -862,7 +862,7 @@
     }
 
     // ============================================================================
-    // COMPREHENSIVE MULTILINGUAL SPEECH SYNTHESIS ENGINE
+    // DUAL-PIPELINE MULTILINGUAL VOICE ENGINE (Guarantees Tamil, Hindi, English audio)
     // ============================================================================
     let cachedVoices = [];
     function loadAvailableVoices() {
@@ -875,71 +875,96 @@
       window.speechSynthesis.onvoiceschanged = loadAvailableVoices;
     }
 
+    function playStreamingTTSAudio(text, lang) {
+      try {
+        const encoded = encodeURIComponent(text.slice(0, 180));
+        const primaryUrl = `/api/tts?lang=${lang}&text=${encoded}`;
+        const audio = new Audio(primaryUrl);
+        currentSimAudio = audio;
+
+        audio.onerror = () => {
+          // Direct fallback
+          const fallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encoded}`;
+          const altAudio = new Audio(fallbackUrl);
+          currentSimAudio = altAudio;
+          altAudio.play().catch(console.warn);
+        };
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            const fallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encoded}`;
+            const altAudio = new Audio(fallbackUrl);
+            currentSimAudio = altAudio;
+            altAudio.play().catch(console.warn);
+          });
+        }
+      } catch (err) {
+        console.warn('Streaming TTS error:', err);
+      }
+    }
+
     function speakSimulationText(text, lang = currentLang) {
-      if (!soundEnabled) return;
+      if (!soundEnabled || !text) return;
 
-      // Stop any existing speech / audio
-      if (currentAudioElement) {
-        currentAudioElement.pause();
-        currentAudioElement = null;
+      const targetLang = (lang || currentLang || 'en').toLowerCase().split(/[-_]/)[0];
+      const cleanText = text.replace(/<[^>]*>/g, '').trim();
+
+      // Stop any existing audio element or speech synthesis
+      if (currentSimAudio) {
+        try {
+          currentSimAudio.pause();
+          currentSimAudio.currentTime = 0;
+        } catch (e) {}
+        currentSimAudio = null;
       }
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-
-      const targetLang = lang || currentLang;
-
-      // Format clean text for pronunciation
-      let cleanText = text.replace(/<[^>]*>/g, '').trim();
-
-      // Check if Web Speech API is available
       if ('speechSynthesis' in window) {
         try {
-          const utterance = new SpeechSynthesisUtterance(cleanText);
-          utterance.rate = 1.0;
-          utterance.pitch = 1.05;
+          window.speechSynthesis.cancel();
+        } catch (e) {}
+      }
 
-          const langCode = targetLang === 'ta' ? 'ta-IN' : (targetLang === 'hi' ? 'hi-IN' : 'en-US');
-          utterance.lang = langCode;
+      // 1. FOR TAMIL (ta): Always use high-fidelity neural streaming audio
+      // Windows/Chrome does not have an offline SAPI Tamil voice installed
+      if (targetLang === 'ta') {
+        playStreamingTTSAudio(cleanText, 'ta');
+        return;
+      }
 
-          // Attempt to find dedicated native voice
+      // 2. FOR HINDI & ENGLISH: Use Web Speech API if local voice exists, else stream
+      if ('speechSynthesis' in window) {
+        try {
           if (cachedVoices.length === 0) loadAvailableVoices();
           const matchedVoice = cachedVoices.find(v => {
             const vLang = (v.lang || '').toLowerCase().replace('_', '-');
             const vName = (v.name || '').toLowerCase();
-            if (targetLang === 'ta') return vLang.startsWith('ta') || vName.includes('tamil');
-            if (targetLang === 'hi') return vLang.startsWith('hi') || vName.includes('hindi');
+            if (targetLang === 'hi') return vLang.startsWith('hi') || vName.includes('hindi') || vName.includes('kalpana') || vName.includes('swara');
             return vLang.startsWith('en-in') || vLang.startsWith('en-us') || vLang.startsWith('en');
           });
 
           if (matchedVoice) {
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.05;
+            utterance.lang = targetLang === 'hi' ? 'hi-IN' : 'en-US';
             utterance.voice = matchedVoice;
+            utterance.onerror = () => {
+              playStreamingTTSAudio(cleanText, targetLang);
+            };
+            window.speechSynthesis.speak(utterance);
+            return;
           }
-
-          window.speechSynthesis.speak(utterance);
-          return;
         } catch (e) {
-          console.warn('SpeechSynthesis error, trying audio fallback:', e);
+          console.warn('SpeechSynthesis error:', e);
         }
       }
 
-      // Fallback: Use TTS audio streaming endpoint
-      try {
-        const audioUrl = `/api/tts?text=${encodeURIComponent(cleanText.slice(0, 180))}&lang=${encodeURIComponent(targetLang)}`;
-        currentAudioElement = new Audio(audioUrl);
-        currentAudioElement.play().catch(e => {
-          // secondary direct fallback
-          const directFallback = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${targetLang}&client=tw-ob&q=${encodeURIComponent(cleanText.slice(0, 180))}`;
-          currentAudioElement = new Audio(directFallback);
-          currentAudioElement.play().catch(console.warn);
-        });
-      } catch (err) {
-        console.warn('Audio fallback error:', err);
-      }
+      // 3. Fallback streaming audio
+      playStreamingTTSAudio(cleanText, targetLang);
     }
 
     // ============================================================================
-    // LANGUAGE CHANGER (Instantly updates headers, controls, active module & voice)
+    // LANGUAGE CHANGER
     // ============================================================================
     function changeLanguage(lang) {
       currentLang = lang;
@@ -956,11 +981,11 @@
       document.getElementById('allModulesBtnText').innerText = t.allModulesBtn;
       document.getElementById('drawerModalTitle').innerText = t.drawerTitle;
 
-      // Re-render Active Module & Drawer list
+      // Re-render Active Module & Drawer
       renderCurrentModule();
       renderDrawerList();
 
-      // Automatically speak greeting or active voice prompt in newly selected language!
+      // Trigger respective audio if currently on Voice (4) or Destination (18)
       if (currentModuleIndex === 4) {
         const vm = SIMULATION_DATA.voiceModule;
         const a = currentLang === 'ta' ? vm.aTa : (currentLang === 'hi' ? vm.aHi : vm.aEn);
@@ -1021,13 +1046,14 @@
       if (!soundEnabled) {
         stopSirenAlarm();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        if (currentAudioElement) { currentAudioElement.pause(); currentAudioElement = null; }
+        if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
       }
     }
 
     function nextModule() {
       clearTimeout(stepTimer);
       stopSirenAlarm();
+      if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
       if (currentModuleIndex < TOTAL_MODULES) {
         currentModuleIndex++;
       } else {
@@ -1041,6 +1067,7 @@
     function previousModule() {
       clearTimeout(stepTimer);
       stopSirenAlarm();
+      if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
       if (currentModuleIndex > 1) {
         currentModuleIndex--;
       } else {
@@ -1054,6 +1081,7 @@
     function jumpToModule(idx) {
       clearTimeout(stepTimer);
       stopSirenAlarm();
+      if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
       currentModuleIndex = idx;
       playSynthesizedChime();
       toggleModuleDrawer();
@@ -1064,6 +1092,7 @@
     function restartSimulation() {
       clearTimeout(stepTimer);
       stopSirenAlarm();
+      if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
       currentModuleIndex = 1;
       playSynthesizedChime();
       renderCurrentModule();
@@ -1337,14 +1366,14 @@
               <span class="text-[10px] font-mono text-teal-400 uppercase font-bold tracking-wider">${titles[3]}</span>
               <h2 class="font-display font-black text-xl text-white">${t.m4_sub}</h2>
             </div>
-            <button onclick="speakSimulationText('${a.replace(/'/g, "\\'")}', '${currentLang}')" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/40 flex items-center space-x-1 cursor-pointer">
+            <button onclick="speakSimulationText(SIMULATION_DATA.voiceModule[currentLang === 'ta' ? 'aTa' : (currentLang === 'hi' ? 'aHi' : 'aEn')], currentLang)" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/40 flex items-center space-x-1 cursor-pointer transition-all active:scale-95 shadow-md">
               <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
               <span>${t.replayVoice}</span>
             </button>
           </div>
 
           <div class="py-4 space-y-4 max-w-lg mx-auto">
-            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer" onclick="speakSimulationText('${a.replace(/'/g, "\\'")}', '${currentLang}')">
+            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer hover:scale-105 transition-all" onclick="speakSimulationText(SIMULATION_DATA.voiceModule[currentLang === 'ta' ? 'aTa' : (currentLang === 'hi' ? 'aHi' : 'aEn')], currentLang)" title="Click to Speak">
               <i data-lucide="mic" class="w-9 h-9"></i>
             </div>
 
@@ -1363,10 +1392,13 @@
               <span class="w-1.5 bg-emerald-400 rounded-full animate-pulse h-5"></span>
             </div>
 
-            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-left space-y-1">
-              <div class="flex items-center space-x-1.5 text-xs font-bold text-sky-400">
-                <i data-lucide="volume-2" class="w-4 h-4"></i>
-                <span>${t.spokenBulletin}</span>
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-left space-y-1.5 cursor-pointer hover:border-sky-500/60 transition-all" onclick="speakSimulationText(SIMULATION_DATA.voiceModule[currentLang === 'ta' ? 'aTa' : (currentLang === 'hi' ? 'aHi' : 'aEn')], currentLang)">
+              <div class="flex items-center justify-between text-xs font-bold text-sky-400">
+                <div class="flex items-center space-x-1.5">
+                  <i data-lucide="volume-2" class="w-4 h-4"></i>
+                  <span>${t.spokenBulletin}</span>
+                </div>
+                <span class="text-[10px] font-mono text-slate-400 uppercase bg-slate-700/60 px-2 py-0.5 rounded">🔊 Click to Hear</span>
               </div>
               <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
                 "${a}"
@@ -1375,6 +1407,7 @@
           </div>
         </div>
       `;
+      // Play audio on module load
       speakSimulationText(a, currentLang);
     }
 
@@ -1958,7 +1991,7 @@
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border-4 border-rose-500/80 shadow-2xl shadow-rose-900/40 space-y-6 text-center animate-fadeIn">
-          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce cursor-pointer" onclick="speakSimulationText('${voiceText.replace(/'/g, "\\'")}', '${currentLang}')">
+          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce cursor-pointer hover:scale-105 transition-all" onclick="speakSimulationText(SIMULATION_DATA.destinationReached[currentLang === 'ta' ? 'voiceTa' : (currentLang === 'hi' ? 'voiceHi' : 'voiceEn')], currentLang)" title="Click to Hear Arrival Alert">
             <i data-lucide="bell-ring" class="w-12 h-12 animate-spin"></i>
           </div>
 
@@ -1974,10 +2007,13 @@
             </p>
           </div>
 
-          <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 max-w-md mx-auto space-y-2">
-            <div class="flex items-center justify-center space-x-2 text-rose-300 font-bold text-sm">
-              <i data-lucide="volume-2" class="w-5 h-5"></i>
-              <span>${t.voiceAlertSpeaking}</span>
+          <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 max-w-md mx-auto space-y-2 cursor-pointer hover:border-rose-400 transition-all" onclick="speakSimulationText(SIMULATION_DATA.destinationReached[currentLang === 'ta' ? 'voiceTa' : (currentLang === 'hi' ? 'voiceHi' : 'voiceEn')], currentLang)">
+            <div class="flex items-center justify-between text-rose-300 font-bold text-sm">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="volume-2" class="w-5 h-5"></i>
+                <span>${t.voiceAlertSpeaking}</span>
+              </div>
+              <span class="text-[10px] font-mono bg-rose-900/80 text-rose-200 px-2 py-0.5 rounded">🔊 Click to Hear</span>
             </div>
             <p class="text-xs sm:text-sm text-slate-100 font-medium leading-relaxed">
               "${voiceText}"
@@ -1985,7 +2021,7 @@
           </div>
 
           <div class="flex items-center justify-center space-x-3 pt-2">
-            <button onclick="stopSirenAlarm()" class="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-xl shadow-rose-600/40 cursor-pointer active:scale-95 transition-all">
+            <button onclick="stopSirenAlarm(); if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }" class="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-xl shadow-rose-600/40 cursor-pointer active:scale-95 transition-all">
               ${t.stopAlarm}
             </button>
             <button onclick="restartSimulation()" class="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 cursor-pointer">
