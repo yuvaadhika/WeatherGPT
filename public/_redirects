@@ -1,3 +1,6 @@
-/video       /video.html   200
-/video/      /video.html   200
-/*           /index.html   200
+/video          /video.html        200
+/video/         /video.html        200
+/simulation     /simulation.html   200
+/simulation/    /simulation.html   200
+/*              /index.html        200
+

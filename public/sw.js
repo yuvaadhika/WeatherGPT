@@ -62,10 +62,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Bypass video files and video pages from Service Worker completely (Network Only)
-  if (url.pathname.endsWith('.mp4') || url.pathname.endsWith('.webm') || url.pathname.includes('/video') || url.pathname.includes('demo-video')) {
+  // Bypass video files, video pages, and standalone simulation pages from Service Worker completely (Network Only)
+  if (url.pathname.endsWith('.mp4') || url.pathname.endsWith('.webm') || url.pathname.includes('/video') || url.pathname.includes('demo-video') || url.pathname.includes('simulation')) {
     return;
   }
+
 
   // A. Navigation requests (Opening the app / browser link)
   // Strategy: Try Network First, Fallback to cached index.html immediately if Offline

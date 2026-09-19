@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WeatherGPT — 18-Module Interactive Simulation Mode</title>
+  <link rel="icon" type="image/png" href="/wyndra-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'bounce-subtle': 'bounceSubtle 2s infinite',
+            'radar-sweep': 'radarSweep 4s linear infinite',
+            'siren': 'sirenFlash 0.8s ease-in-out infinite',
+          },
+          keyframes: {
+            bounceSubtle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-4px)' },
+            },
+            radarSweep: {
+              '0%': { transform: 'rotate(0deg)' },
+              '100%': { transform: 'rotate(360deg)' },
+            },
+            sirenFlash: {
+              '0%, 100%': { backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: 'rgba(239, 68, 68, 0.8)' },
+              '50%': { backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: 'rgba(59, 130, 246, 0.8)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* Custom Scrollbars & Glassmorphism */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.5); }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.8); }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    .glass-dark {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+    }
+    .radar-grid {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(56, 189, 248, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.1) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-[#0B1528] to-slate-950 text-slate-100 min-h-screen font-sans flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- ============================================================================ -->
+  <!-- 1. TOP HEADER & NAVIGATION BAR -->
+  <!-- ============================================================================ -->
+  <header class="w-full border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-xl px-4 py-3 flex items-center justify-between z-40 sticky top-0 shadow-lg shadow-black/20">
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 via-teal-400 to-indigo-600 flex items-center justify-center font-black text-sm text-white shadow-md shadow-sky-500/20">
+        W
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-display font-extrabold text-base tracking-tight text-white">WeatherGPT</span>
+          <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse">
+            SIMULATION MODE
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-medium hidden sm:block">Chengalpattu ➔ Chennai Central (18-Module Interactive Demo)</p>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <!-- Sound Mute / Unmute Toggle -->
+      <button id="soundToggleBtn" onclick="toggleSound()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs flex items-center space-x-1.5 transition-all cursor-pointer" title="Toggle Simulation Sounds">
+        <i data-lucide="volume-2" class="w-4 h-4 text-sky-400"></i>
+        <span class="text-[11px] font-bold hidden md:inline" id="soundStatusText">Sound ON</span>
+      </button>
+
+      <!-- Language Selector in Simulation -->
+      <select id="simLanguageSelect" onchange="changeLanguage(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-sky-500 cursor-pointer">
+        <option value="en">English</option>
+        <option value="ta">தமிழ் (Tamil)</option>
+        <option value="hi">हिंदी (Hindi)</option>
+      </select>
+
+      <!-- Back to Real Chatbot Button -->
+      <a href="/" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold flex items-center space-x-1.5 transition-all shadow-md shadow-sky-600/30 cursor-pointer">
+        <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+        <span>Live Chatbot</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ============================================================================ -->
+  <!-- 2. SIMULATION CONTROLLER & PROGRESS BAR -->
+  <!-- ============================================================================ -->
+  <div class="w-full bg-slate-900/95 border-b border-slate-800 px-4 py-2.5 z-30 shadow-md">
+    <div class="max-w-5xl mx-auto space-y-2">
+      <!-- Progress Bar & Step Counter -->
+      <div class="flex items-center justify-between text-xs font-mono">
+        <div class="flex items-center space-x-2">
+          <span class="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-400 font-bold border border-sky-500/30" id="moduleBadge">
+            Module 1 / 18
+          </span>
+          <span class="text-slate-300 font-sans font-bold text-xs sm:text-sm truncate max-w-[200px] sm:max-w-md" id="moduleTitle">
+            Location Detection & Geofence Baseline
+          </span>
+        </div>
+        <span class="text-slate-400 font-bold text-[11px]" id="progressPercent">5% Completed</span>
+      </div>
+
+      <!-- Progress Fill Track -->
+      <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden p-0.5 border border-slate-700/60">
+        <div id="progressBarFill" class="bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-400 h-full rounded-full transition-all duration-300" style="width: 5.5%;"></div>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
+        <div class="flex items-center space-x-1.5">
+          <!-- Play / Pause -->
+          <button id="playPauseBtn" onclick="togglePlayPause()" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer active:scale-95">
+            <i data-lucide="pause" id="playPauseIcon" class="w-3.5 h-3.5"></i>
+            <span id="playPauseText">Pause</span>
+          </button>
+
+          <!-- Speed Multiplier 1x / 2x / 4x -->
+          <button id="speedBtn" onclick="cycleSpeed()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs border border-slate-700 flex items-center space-x-1 transition-all cursor-pointer">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            <span id="speedText">1× Speed</span>
+          </button>
+
+          <!-- Previous Module -->
+          <button onclick="previousModule()" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer" title="Previous Module">
+            <i data-lucide="skip-back" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Next / Skip Module -->
+          <button onclick="nextModule()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold text-xs flex items-center space-x-1 transition-all cursor-pointer" title="Next Module">
+            <span>Skip</span>
+            <i data-lucide="skip-forward" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <!-- Restart -->
+          <button onclick="restartSimulation()" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer" title="Restart to Module 1">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <!-- Module Quick Jumper Menu -->
+          <button onclick="toggleModuleDrawer()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer">
+            <i data-lucide="list" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>All 18 Modules</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================================ -->
+  <!-- 3. MAIN SIMULATION CANVAS AREA -->
+  <!-- ============================================================================ -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-5 space-y-4">
+
+    <!-- Active Module Render Container -->
+    <div id="moduleContentCanvas" class="w-full">
+      <!-- Dynamic Javascript injected here -->
+    </div>
+
+  </main>
+
+  <!-- ============================================================================ -->
+  <!-- 4. ALL 18 MODULES JUMPER DRAWER / MODAL -->
+  <!-- ============================================================================ -->
+  <div id="moduleDrawerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-fadeIn">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="layers" class="w-5 h-5 text-sky-400"></i>
+          <h3 class="font-display font-bold text-base text-white">Select Any of 18 Simulation Modules</h3>
+        </div>
+        <button onclick="toggleModuleDrawer()" class="p-1.5 rounded-xl text-slate-400 hover:text-white bg-slate-800 cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs" id="drawerModulesList">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================================ -->
+  <!-- 5. IN-APP NOTIFICATION TOAST OVERLAY (Simulated Alerts) -->
+  <!-- ============================================================================ -->
+  <div id="notificationToastContainer" class="fixed top-20 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- ============================================================================ -->
+  <!-- 6. JAVASCRIPT SIMULATION LOGIC & CONSISTENT DATA STORE -->
+  <!-- ============================================================================ -->
+  <script>
+    // ============================================================================
+    // CENTRAL CONSISTENT SIMULATION DATA OBJECT
+    // ============================================================================
+    const SIMULATION_DATA = {
+      location: {
+        originName: 'Chengalpattu, Tamil Nadu, India',
+        originCoords: { lat: 12.6919, lon: 79.9764 },
+        destName: 'Chennai Central, Chennai, Tamil Nadu, India',
+        destCoords: { lat: 13.0827, lon: 80.2707 },
+        gpsAccuracyMeters: 18,
+        travelDirection: 'North-North-East (NNE)',
+        initialDistanceKm: 45,
+        initialEtaMinutes: 70,
+        trafficStatus: 'Moderate',
+      },
+      currentWeather: {
+        temp: 29,
+        feelsLike: 32,
+        condition: 'Partly Cloudy',
+        humidity: 78,
+        windSpeed: 14,
+        windDir: 'SW',
+        pressure: 1008,
+        uvIndex: 7,
+        visibilityKm: 8.5,
+        cloudCoverPercent: 68,
+        rainProbabilityPercent: 65,
+      },
+      hourlyForecast: [
+        { time: '10:00 AM', temp: 29, condition: 'Partly Cloudy', rainProb: 35, icon: 'sun-medium' },
+        { time: '11:00 AM', temp: 30, condition: 'Cloudy', rainProb: 40, icon: 'cloud' },
+        { time: '12:00 PM', temp: 31, condition: 'Cloudy', rainProb: 48, icon: 'cloud' },
+        { time: '1:00 PM', temp: 31, condition: 'Light Rain', rainProb: 60, icon: 'cloud-drizzle' },
+        { time: '2:00 PM', temp: 30, condition: 'Light Rain', rainProb: 72, icon: 'cloud-rain' },
+        { time: '3:00 PM', temp: 29, condition: 'Moderate Rain', rainProb: 78, icon: 'cloud-rain' },
+        { time: '4:00 PM', temp: 28, condition: 'Rain', rainProb: 82, icon: 'cloud-heavy' },
+        { time: '5:00 PM', temp: 28, condition: 'Cloudy', rainProb: 65, icon: 'cloud' },
+      ],
+      dailyForecast: [
+        { day: 'Monday', high: 31, low: 25, condition: 'Partly Cloudy', rainProb: 35 },
+        { day: 'Tuesday', high: 30, low: 25, condition: 'Light Rain', rainProb: 60 },
+        { day: 'Wednesday', high: 29, low: 24, condition: 'Moderate Rain', rainProb: 75 },
+        { day: 'Thursday', high: 31, low: 25, condition: 'Cloudy', rainProb: 40 },
+        { day: 'Friday', high: 32, low: 26, condition: 'Partly Cloudy', rainProb: 30 },
+        { day: 'Saturday', high: 31, low: 25, condition: 'Thunderstorm', rainProb: 85 },
+        { day: 'Sunday', high: 30, low: 24, condition: 'Rain', rainProb: 65 },
+      ],
+      chatConversations: [
+        {
+          qEn: 'Will it rain today?',
+          qTa: 'இன்று மழை பெய்யுமா?',
+          qHi: 'क्या आज बारिश होगी?',
+          aEn: 'There is a high chance of rain this afternoon, with the probability reaching around 80% between 2 PM and 4 PM.',
+          aTa: 'இன்று பிற்பகலில் மழை பெய்ய அதிக வாய்ப்புள்ளது, குறிப்பாக மதியம் 2 மணி முதல் 4 மணிக்குள் மழை வாய்ப்பு 80% ஆக இருக்கும்.',
+          aHi: 'आज दोपहर में बारिश की बहुत अधिक संभावना है, विशेष रूप से दोपहर 2 से 4 बजे के बीच लगभग 80% बारिश की संभावना है।'
+        },
+        {
+          qEn: 'Should I carry an umbrella?',
+          qTa: 'நான் குடை எடுத்துச் செல்ல வேண்டுமா?',
+          qHi: 'क्या मुझे छाता ले जाना चाहिए?',
+          aEn: 'Yes. Rain probability increases during the afternoon, so carrying an umbrella is recommended.',
+          aTa: 'ஆம், பிற்பகலில் மழை வாய்ப்பு அதிகரிப்பதால் குடையை எடுத்துச் செல்வது நல்லது.',
+          aHi: 'हाँ, दोपहर के समय बारिश की संभावना बढ़ रही है, इसलिए छाता साथ रखना उचित रहेगा।'
+        },
+        {
+          qEn: 'What is the weather at my destination?',
+          qTa: 'எனது சேருமிடமான சென்னை சென்ட்ரலில் வானிலை எப்படி உள்ளது?',
+          qHi: 'मेरी मंजिल चेन्नई सेंट्रल का मौसम कैसा है?',
+          aEn: 'Your destination, Chennai Central, is around 30°C with cloudy conditions and approximately 70% rain probability.',
+          aTa: 'உங்கள் சேருமிடமான சென்னை சென்ட்ரலில் வெப்பநிலை சுமார் 30°C, மேகமூட்டம் மற்றும் 70% மழை வாய்ப்பு உள்ளது.',
+          aHi: 'आपकी मंजिल चेन्नई सेंट्रल का तापमान लगभग 30°C है, बादल छाए हुए हैं और लगभग 70% बारिश की संभावना है।'
+        },
+        {
+          qEn: 'Can I travel now?',
+          qTa: 'நான் இப்போது பயணிக்கலாமா?',
+          qHi: 'क्या मैं अभी यात्रा कर सकता हूँ?',
+          aEn: 'Travel is possible, but rain is expected later in the journey. Allow some additional travel time and keep an umbrella ready.',
+          aTa: 'பயணிக்கலாம், ஆனால் பயணத்தின் பிற்பகுதியில் மழை பெய்யக்கூடும். கூடுதல் பயண நேரத்தை திட்டமிட்டு குடையை தயாராக வைத்திருக்கவும்.',
+          aHi: 'यात्रा संभव है, लेकिन यात्रा के दौरान आगे बारिश की संभावना है। थोड़ा अतिरिक्त समय लेकर चलें और छाता तैयार रखें।'
+        },
+        {
+          qEn: 'What is the AQI?',
+          qTa: 'காற்று தரம் (AQI) எவ்வாறு உள்ளது?',
+          qHi: 'वायु गुणवत्ता सूचकांक (AQI) क्या है?',
+          aEn: 'The current AQI is 72, which is classified as Moderate.',
+          aTa: 'தற்போதைய காற்று தரம் (AQI) 72 ஆக உள்ளது, இது மிதமான (Moderate) தூய்மை பிரிவைச் சேர்ந்தது.',
+          aHi: 'वर्तमान AQI 72 है, जिसे मध्यम (Moderate) श्रेणी में वर्गीकृत किया गया है।'
+        }
+      ],
+      severeAlert: {
+        type: 'Heavy Rain Warning',
+        severity: 'Moderate',
+        timeWindow: '2:00 PM – 5:00 PM',
+        messageEn: 'Heavy rainfall is possible between 2 PM and 5 PM. Localized waterlogging may occur in low-lying areas.',
+        messageTa: 'மதியம் 2 மணி முதல் மாலை 5 மணி வரை கனமழை பெய்ய வாய்ப்புள்ளது. தாழ்வான பகுதிகளில் தண்ணீர் தேங்கலாம்.',
+        messageHi: 'दोपहर 2 बजे से शाम 5 बजे के बीच भारी बारिश संभव है। निचले इलाकों में जलभराव हो सकता है।'
+      },
+      airQuality: {
+        aqi: 72,
+        statusEn: 'Moderate',
+        statusTa: 'மிதமானது (Moderate)',
+        statusHi: 'मध्यम (Moderate)',
+        pm25: 28,
+        pm10: 54,
+        adviceEn: 'Air quality is acceptable, but sensitive individuals should consider reducing prolonged outdoor exposure.',
+        adviceTa: 'காற்று தரம் ஏற்றுக்கொள்ளத்தக்கது; சுவாச பிரச்சனை உள்ளவர்கள் நீண்ட நேரம் வெளியில் இருப்பதை தவிர்க்கலாம்.',
+        adviceHi: 'वायु गुणवत्ता स्वीकार्य है, लेकिन संवेदनशील व्यक्तियों को लंबे समय तक बाहर रहने से बचना चाहिए।'
+      },
+      agriculture: {
+        soilMoisture: 42,
+        soilTemp: 27,
+        rainProb: 72,
+        irrigationAdviceEn: 'Delay irrigation because rainfall is likely.',
+        irrigationAdviceTa: 'மழை பெய்ய வாய்ப்புள்ளதால் பாசனத்தை ஒத்திவைக்கவும்.',
+        sprayingEn: 'Not Recommended',
+        sprayingReasonEn: 'Rain may reduce pesticide effectiveness. Avoid spraying before or during rainfall.',
+        sprayingReasonTa: 'மழையினால் மருந்து அடித்துச் செல்லப்படலாம். எனவே இப்போது தெளிக்க வேண்டாம்.'
+      },
+      aviation: {
+        metar: 'SIMULATED METAR',
+        visibility: '8.5 km',
+        wind: '14 km/h SW',
+        ceiling: '2500 ft',
+        category: 'MVFR',
+        condition: 'Light Rain',
+        advisoryEn: 'Monitor visibility and rainfall conditions before flight operations.'
+      },
+      marine: {
+        waveHeight: '1.4 m',
+        windSpeed: '18 km/h',
+        visibility: '7 km',
+        seaCondition: 'Moderate',
+        advisoryEn: 'Small vessels should exercise caution during periods of increasing wind and rainfall.'
+      },
+      climateStats: {
+        avgTemp: '30°C',
+        avgHumidity: '76%',
+        maxRainProb: '82%',
+        avgWind: '15 km/h'
+      },
+      smartAlarmJourney: [
+        { stage: 1, distance: '45 km', eta: '70 min', status: 'Journey Started', speedKm: 52, progress: 5 },
+        { stage: 2, distance: '30 km', eta: '48 min', status: 'On Route (Guduvanchery)', speedKm: 48, progress: 33 },
+        { stage: 3, distance: '15 km', eta: '25 min', status: 'Approaching (Tambaram)', speedKm: 42, progress: 66 },
+        { stage: 4, distance: '5 km', eta: '10 min', status: 'Near Destination (Guindy)', speedKm: 35, progress: 88 },
+        { stage: 5, distance: '1 km', eta: '3 min', status: 'Almost There (Park Town)', speedKm: 20, progress: 97 },
+        { stage: 6, distance: '500 m', eta: '1 min', status: 'Very Close (Wall Tax Road)', speedKm: 15, progress: 99 },
+        { stage: 7, distance: '100 m', eta: '0 min', status: 'DESTINATION REACHED', speedKm: 0, progress: 100 }
+      ]
+    };
+
+    // ============================================================================
+    // STATE CONTROLLER
+    // ============================================================================
+    let currentModuleIndex = 1; // 1 to 18
+    const TOTAL_MODULES = 18;
+    let isPaused = false;
+    let playbackSpeed = 1; // 1x, 2x, 4x
+    let stepTimer = null;
+    let soundEnabled = true;
+    let currentLang = 'en';
+
+    // Module Names List
+    const MODULE_NAMES = [
+      '1. Location Detection & GPS Baseline',
+      '2. Live Current Weather Dashboard',
+      '3. AI Weather Chatbot Assistant',
+      '4. Voice Assistant & Speech Synthesis',
+      '5. 24-Hour Hourly Forecast Chart',
+      '6. 7-Day Extended Trend Forecast',
+      '7. GIS Weather Doppler Radar Stream',
+      '8. Severe Weather Hazard Warning',
+      '9. Air Quality Index (AQI) & PM Telemetry',
+      '10. Smart Climate Agriculture Advisory',
+      '11. Aviation METAR & Flight Briefing',
+      '12. Marine High-Seas & Vessel Advisory',
+      '13. Historical Climate Analytics',
+      '14. Multi-Language Intelligence (EN/TA/HI)',
+      '15. Autonomous Weather Notification Engine',
+      '16. Executive Weather Intelligence Report',
+      '17. Smart Destination Alarm (45km ➔ 100m)',
+      '18. Geofence Trigger & Destination Reached'
+    ];
+
+    // ============================================================================
+    // SYNTHESIZED WEB AUDIO SIREN & CHIME
+    // ============================================================================
+    let audioCtx = null;
+    let sirenInterval = null;
+
+    function getAudioContext() {
+      if (!audioCtx && typeof window !== 'undefined') {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSynthesizedChime() {
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } catch (e) {}
+    }
+
+    function startSirenAlarm() {
+      if (!soundEnabled) return;
+      stopSirenAlarm();
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        let highTone = true;
+        sirenInterval = setInterval(() => {
+          if (!soundEnabled) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(highTone ? 987.77 : 659.25, now); // B5 vs E5
+          highTone = !highTone;
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        }, 380);
+      } catch (e) {}
+    }
+
+    function stopSirenAlarm() {
+      if (sirenInterval) {
+        clearInterval(sirenInterval);
+        sirenInterval = null;
+      }
+    }
+
+    function speakSimulationText(text, lang = 'en') {
+      if (!soundEnabled || !('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.05;
+        if (lang === 'ta') utterance.lang = 'ta-IN';
+        else if (lang === 'hi') utterance.lang = 'hi-IN';
+        else utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {}
+    }
+
+    // ============================================================================
+    // PLAYBACK CONTROLS
+    // ============================================================================
+    function updateProgressUI() {
+      const pct = Math.round((currentModuleIndex / TOTAL_MODULES) * 100);
+      document.getElementById('moduleBadge').innerText = `Module ${currentModuleIndex} / ${TOTAL_MODULES}`;
+      document.getElementById('moduleTitle').innerText = MODULE_NAMES[currentModuleIndex - 1];
+      document.getElementById('progressPercent').innerText = `${pct}% Completed`;
+      document.getElementById('progressBarFill').style.width = `${pct}%`;
+    }
+
+    function togglePlayPause() {
+      isPaused = !isPaused;
+      document.getElementById('playPauseIcon').setAttribute('data-lucide', isPaused ? 'play' : 'pause');
+      document.getElementById('playPauseText').innerText = isPaused ? 'Resume' : 'Pause';
+      lucide.createIcons();
+      if (!isPaused) {
+        scheduleNextStep();
+      } else {
+        clearTimeout(stepTimer);
+      }
+    }
+
+    function cycleSpeed() {
+      if (playbackSpeed === 1) playbackSpeed = 2;
+      else if (playbackSpeed === 2) playbackSpeed = 4;
+      else playbackSpeed = 1;
+      document.getElementById('speedText').innerText = `${playbackSpeed}× Speed`;
+      if (!isPaused) {
+        clearTimeout(stepTimer);
+        scheduleNextStep();
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundStatusText').innerText = soundEnabled ? 'Sound ON' : 'Muted';
+      const icon = document.querySelector('#soundToggleBtn i');
+      if (icon) icon.setAttribute('data-lucide', soundEnabled ? 'volume-2' : 'volume-x');
+      lucide.createIcons();
+      if (!soundEnabled) {
+        stopSirenAlarm();
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      }
+    }
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      renderCurrentModule();
+    }
+
+    function nextModule() {
+      clearTimeout(stepTimer);
+      stopSirenAlarm();
+      if (currentModuleIndex < TOTAL_MODULES) {
+        currentModuleIndex++;
+      } else {
+        currentModuleIndex = 1;
+      }
+      playSynthesizedChime();
+      renderCurrentModule();
+      if (!isPaused) scheduleNextStep();
+    }
+
+    function previousModule() {
+      clearTimeout(stepTimer);
+      stopSirenAlarm();
+      if (currentModuleIndex > 1) {
+        currentModuleIndex--;
+      } else {
+        currentModuleIndex = TOTAL_MODULES;
+      }
+      playSynthesizedChime();
+      renderCurrentModule();
+      if (!isPaused) scheduleNextStep();
+    }
+
+    function jumpToModule(idx) {
+      clearTimeout(stepTimer);
+      stopSirenAlarm();
+      currentModuleIndex = idx;
+      playSynthesizedChime();
+      toggleModuleDrawer();
+      renderCurrentModule();
+      if (!isPaused) scheduleNextStep();
+    }
+
+    function restartSimulation() {
+      clearTimeout(stepTimer);
+      stopSirenAlarm();
+      currentModuleIndex = 1;
+      playSynthesizedChime();
+      renderCurrentModule();
+      if (!isPaused) scheduleNextStep();
+    }
+
+    function toggleModuleDrawer() {
+      const modal = document.getElementById('moduleDrawerModal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        renderDrawerList();
+      }
+    }
+
+    function renderDrawerList() {
+      const container = document.getElementById('drawerModulesList');
+      container.innerHTML = MODULE_NAMES.map((name, i) => `
+        <button onclick="jumpToModule(${i + 1})" class="p-3 rounded-2xl text-left border transition-all cursor-pointer flex items-center justify-between ${currentModuleIndex === i + 1 ? 'bg-sky-600/30 border-sky-400 text-sky-300 font-bold' : 'bg-slate-800/60 hover:bg-slate-800 border-slate-700 text-slate-300'}">
+          <span class="truncate">${name}</span>
+          <span class="text-[10px] font-mono px-1.5 py-0.5 rounded ${currentModuleIndex === i + 1 ? 'bg-sky-500 text-white' : 'bg-slate-700 text-slate-400'}">#${i + 1}</span>
+        </button>
+      `).join('');
+    }
+
+    function scheduleNextStep() {
+      clearTimeout(stepTimer);
+      if (isPaused) return;
+
+      // Base durations per module (scaled by playbackSpeed)
+      const baseDurationMs = (currentModuleIndex === 3 || currentModuleIndex === 4 || currentModuleIndex === 7 || currentModuleIndex === 17 || currentModuleIndex === 18) ? 7500 : 5000;
+      const effectiveDuration = Math.max(1200, Math.round(baseDurationMs / playbackSpeed));
+
+      stepTimer = setTimeout(() => {
+        if (!isPaused) {
+          if (currentModuleIndex < TOTAL_MODULES) {
+            nextModule();
+          } else {
+            // Loop or finish
+            currentModuleIndex = 1;
+            renderCurrentModule();
+            scheduleNextStep();
+          }
+        }
+      }, effectiveDuration);
+    }
+
+    // ============================================================================
+    // MODULE RENDERERS (All 18 Modules)
+    // ============================================================================
+    function renderCurrentModule() {
+      updateProgressUI();
+      const canvas = document.getElementById('moduleContentCanvas');
+
+      switch (currentModuleIndex) {
+        case 1: renderModule1_Location(canvas); break;
+        case 2: renderModule2_CurrentWeather(canvas); break;
+        case 3: renderModule3_Chatbot(canvas); break;
+        case 4: renderModule4_Voice(canvas); break;
+        case 5: renderModule5_Hourly(canvas); break;
+        case 6: renderModule6_Daily(canvas); break;
+        case 7: renderModule7_Radar(canvas); break;
+        case 8: renderModule8_SevereAlert(canvas); break;
+        case 9: renderModule9_AQI(canvas); break;
+        case 10: renderModule10_Agriculture(canvas); break;
+        case 11: renderModule11_Aviation(canvas); break;
+        case 12: renderModule12_Marine(canvas); break;
+        case 13: renderModule13_Climate(canvas); break;
+        case 14: renderModule14_Multilingual(canvas); break;
+        case 15: renderModule15_Notifications(canvas); break;
+        case 16: renderModule16_WeatherReport(canvas); break;
+        case 17: renderModule17_DestinationAlarm(canvas); break;
+        case 18: renderModule18_DestinationReached(canvas); break;
+      }
+      lucide.createIcons();
+    }
+
+    // --- MODULE 1: LOCATION DETECTION ---
+    function renderModule1_Location(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-5 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+              <span class="p-2.5 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="font-display font-black text-lg sm:text-xl text-white">Module 1: Real-time Location Detection & Geofence</h2>
+                <p class="text-xs text-slate-400">High-Precision GPS Lock & Telemetry Baseline</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold border border-emerald-500/30 flex items-center space-x-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>GPS LOCKED</span>
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2">
+              <span class="text-[10px] font-mono text-sky-400 uppercase font-bold tracking-wider">Current Location (Origin)</span>
+              <h3 class="text-base font-extrabold text-white">${SIMULATION_DATA.location.originName}</h3>
+              <div class="font-mono text-xs text-slate-300 space-y-1">
+                <div>Latitude: <span class="text-sky-400 font-bold">${SIMULATION_DATA.location.originCoords.lat}° N</span></div>
+                <div>Longitude: <span class="text-sky-400 font-bold">${SIMULATION_DATA.location.originCoords.lon}° E</span></div>
+                <div>GPS Accuracy: <span class="text-emerald-400 font-bold">±${SIMULATION_DATA.location.gpsAccuracyMeters} m (High Precision)</span></div>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2">
+              <span class="text-[10px] font-mono text-amber-400 uppercase font-bold tracking-wider">Destination</span>
+              <h3 class="text-base font-extrabold text-white">${SIMULATION_DATA.location.destName}</h3>
+              <div class="font-mono text-xs text-slate-300 space-y-1">
+                <div>Latitude: <span class="text-amber-400 font-bold">${SIMULATION_DATA.location.destCoords.lat}° N</span></div>
+                <div>Longitude: <span class="text-amber-400 font-bold">${SIMULATION_DATA.location.destCoords.lon}° E</span></div>
+                <div>Initial Distance: <span class="text-sky-400 font-bold">${SIMULATION_DATA.location.initialDistanceKm} km</span> • Direction: <span class="text-white font-bold">${SIMULATION_DATA.location.travelDirection}</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-sky-950/40 border border-sky-500/30 text-xs text-sky-200 flex items-center space-x-2">
+            <i data-lucide="info" class="w-4 h-4 text-sky-400 flex-shrink-0"></i>
+            <span>Simulated geofence radius established at 100 meters around Chennai Central Station.</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 2: CURRENT WEATHER ---
+    function renderModule2_CurrentWeather(canvas) {
+      const cw = SIMULATION_DATA.currentWeather;
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-5 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-sky-400 uppercase font-bold tracking-wider">Module 2: Live Weather Intelligence</span>
+              <h2 class="font-display font-black text-xl text-white">Chengalpattu Live Telemetry</h2>
+            </div>
+            <span class="px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 text-xs font-bold border border-sky-500/30">
+              ${cw.condition}
+            </span>
+          </div>
+
+          <!-- Hero Metrics -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-1 p-5 rounded-3xl bg-gradient-to-br from-sky-900/60 via-slate-800/80 to-slate-900/80 border border-sky-500/30 flex flex-col justify-between">
+              <div>
+                <span class="text-xs text-slate-400 font-medium">Temperature</span>
+                <div class="flex items-baseline space-x-1 mt-1">
+                  <span class="text-6xl font-black font-display text-white">${cw.temp}</span>
+                  <span class="text-2xl text-sky-400 font-light">°C</span>
+                </div>
+                <p class="text-xs text-slate-300 mt-2">Feels like ${cw.feelsLike}°C • ${cw.condition}</p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+                <span>Rain Probability:</span>
+                <span class="text-sky-400 font-bold text-sm">${cw.rainProbabilityPercent}%</span>
+              </div>
+            </div>
+
+            <div class="md:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div class="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/70">
+                <span class="text-[10px] text-slate-400 uppercase font-mono block">Humidity</span>
+                <span class="text-lg font-bold text-white">${cw.humidity}%</span>
+                <span class="text-[10px] text-sky-400 block mt-0.5">High Moisture</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/70">
+                <span class="text-[10px] text-slate-400 uppercase font-mono block">Wind Speed</span>
+                <span class="text-lg font-bold text-white">${cw.windSpeed} km/h</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">Direction ${cw.windDir}</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/70">
+                <span class="text-[10px] text-slate-400 uppercase font-mono block">Pressure</span>
+                <span class="text-lg font-bold text-white">${cw.pressure} hPa</span>
+                <span class="text-[10px] text-emerald-400 block mt-0.5">Nominal</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/70">
+                <span class="text-[10px] text-slate-400 uppercase font-mono block">UV Index</span>
+                <span class="text-lg font-bold text-amber-400">${cw.uvIndex} (High)</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">Protection Advised</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/70">
+                <span class="text-[10px] text-slate-400 uppercase font-mono block">Visibility</span>
+                <span class="text-lg font-bold text-white">${cw.visibilityKm} km</span>
+                <span class="text-[10px] text-emerald-400 block mt-0.5">Good</span>
+              </div>
+
+              <div class="p-3.5 rounded-2xl bg-slate-800/50 border border-slate-700/70">
+                <span class="text-[10px] text-slate-400 uppercase font-mono block">Cloud Cover</span>
+                <span class="text-lg font-bold text-white">${cw.cloudCoverPercent}%</span>
+                <span class="text-[10px] text-sky-400 block mt-0.5">Cumulus Clouds</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 3: CHATBOT SIMULATION ---
+    function renderModule3_Chatbot(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center space-x-2">
+              <span class="p-2 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                <i data-lucide="bot" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="font-display font-black text-lg sm:text-xl text-white">Module 3: AI Weather Chatbot Assistant</h2>
+                <p class="text-xs text-slate-400">Context-Aware Conversational Intelligence</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
+              AI ENGINE READY
+            </span>
+          </div>
+
+          <!-- Chat Conversation Scroll Area -->
+          <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1" id="chatThreadContainer">
+            ${SIMULATION_DATA.chatConversations.map((c, i) => `
+              <div class="flex flex-col space-y-2">
+                <!-- User Question -->
+                <div class="flex items-start justify-end space-x-2">
+                  <div class="px-4 py-2.5 rounded-2xl bg-sky-600 text-white text-xs sm:text-sm max-w-[80%] shadow-md">
+                    ${currentLang === 'ta' ? c.qTa : (currentLang === 'hi' ? c.qHi : c.qEn)}
+                  </div>
+                  <div class="w-6 h-6 rounded-full bg-sky-500/30 text-sky-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                    U
+                  </div>
+                </div>
+
+                <!-- AI Response -->
+                <div class="flex items-start justify-start space-x-2">
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                    AI
+                  </div>
+                  <div class="px-4 py-2.5 rounded-2xl bg-slate-800/90 border border-slate-700 text-slate-100 text-xs sm:text-sm max-w-[85%] leading-relaxed shadow-md">
+                    ${currentLang === 'ta' ? c.aTa : (currentLang === 'hi' ? c.aHi : c.aEn)}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 4: VOICE ASSISTANT ---
+    function renderModule4_Voice(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-6 text-center animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 text-left">
+            <div>
+              <span class="text-[10px] font-mono text-teal-400 uppercase font-bold tracking-wider">Module 4: Voice Interaction Studio</span>
+              <h2 class="font-display font-black text-xl text-white">Multilingual Speech & Sound Synthesis</h2>
+            </div>
+            <button onclick="speakSimulationText('Your destination is Chennai Central. The temperature is around 30 degrees Celsius with cloudy conditions and a high chance of rain.')" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/40 flex items-center space-x-1 cursor-pointer">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              <span>Replay Voice</span>
+            </button>
+          </div>
+
+          <div class="py-4 space-y-4 max-w-lg mx-auto">
+            <!-- Simulated Listening Animation -->
+            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse">
+              <i data-lucide="mic" class="w-9 h-9"></i>
+            </div>
+
+            <div class="space-y-1">
+              <span class="text-xs font-mono text-teal-400 uppercase tracking-wider font-bold">🎤 User Spoken Input:</span>
+              <h3 class="text-lg font-bold text-white">"What's the weather at my destination?"</h3>
+            </div>
+
+            <!-- Audio Waveform Visualizer Simulation -->
+            <div class="flex items-center justify-center space-x-1.5 h-12">
+              <span class="w-1.5 bg-sky-400 rounded-full animate-pulse h-6"></span>
+              <span class="w-1.5 bg-teal-400 rounded-full animate-pulse h-10"></span>
+              <span class="w-1.5 bg-emerald-400 rounded-full animate-pulse h-8"></span>
+              <span class="w-1.5 bg-indigo-400 rounded-full animate-pulse h-12"></span>
+              <span class="w-1.5 bg-sky-400 rounded-full animate-pulse h-7"></span>
+              <span class="w-1.5 bg-teal-400 rounded-full animate-pulse h-11"></span>
+              <span class="w-1.5 bg-emerald-400 rounded-full animate-pulse h-5"></span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-left space-y-1">
+              <div class="flex items-center space-x-1.5 text-xs font-bold text-sky-400">
+                <i data-lucide="volume-2" class="w-4 h-4"></i>
+                <span>🔊 WeatherGPT Spoken Bulletin:</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                "Your destination is <strong>Chennai Central</strong>. The temperature is around <strong>30 degrees Celsius</strong> with cloudy conditions and a <strong>70% high chance of rain</strong>."
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+      // Trigger voice output
+      speakSimulationText("Your destination is Chennai Central. The temperature is around 30 degrees Celsius with cloudy conditions and a high chance of rain.");
+    }
+
+    // --- MODULE 5: HOURLY FORECAST ---
+    function renderModule5_Hourly(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-5 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-sky-400 uppercase font-bold tracking-wider">Module 5: High-Resolution Forecast</span>
+              <h2 class="font-display font-black text-xl text-white">24-Hour Hourly Timeline (10 AM – 5 PM)</h2>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">ECMWF IFS 9km</span>
+          </div>
+
+          <!-- Hourly Cards Strip -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2">
+            ${SIMULATION_DATA.hourlyForecast.map((h, i) => `
+              <div class="p-3 rounded-2xl ${i === 6 ? 'bg-sky-500/20 border-sky-400' : 'bg-slate-800/60 border-slate-700'} border text-center space-y-1.5">
+                <span class="text-[11px] font-mono font-bold text-slate-400 block">${h.time}</span>
+                <span class="text-base font-black text-white block">${h.temp}°C</span>
+                <span class="text-[10px] text-slate-300 truncate block">${h.condition}</span>
+                <div class="w-full bg-slate-700/60 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-sky-400 h-full rounded-full" style="width: ${h.rainProb}%"></div>
+                </div>
+                <span class="text-[10px] font-bold text-sky-400 block">${h.rainProb}% Rain</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 6: 7-DAY FORECAST ---
+    function renderModule6_Daily(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-indigo-400 uppercase font-bold tracking-wider">Module 6: Synoptic Outlook</span>
+              <h2 class="font-display font-black text-xl text-white">7-Day Extended Trend (Monday – Sunday)</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30">Weekly Outlook</span>
+          </div>
+
+          <div class="space-y-2">
+            ${SIMULATION_DATA.dailyForecast.map((d, i) => `
+              <div class="p-3 rounded-2xl bg-slate-800/50 border border-slate-700/70 flex items-center justify-between text-xs sm:text-sm">
+                <span class="font-bold text-white w-24">${d.day}</span>
+                <span class="text-slate-300 flex-1 text-center font-medium">${d.condition}</span>
+                <div class="flex items-center space-x-3 w-40 justify-end">
+                  <span class="text-sky-400 font-bold text-xs">${d.rainProb}% Rain</span>
+                  <div class="font-mono font-bold">
+                    <span class="text-white">${d.high}°</span>
+                    <span class="text-slate-400 text-xs ml-1">${d.low}°</span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 7: WEATHER RADAR ---
+    function renderModule7_Radar(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-emerald-400 uppercase font-bold tracking-wider">Module 7: GIS Doppler Telemetry</span>
+              <h2 class="font-display font-black text-xl text-white">Doppler Weather Radar Stream (Simulated)</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-mono font-black border border-amber-500/40">
+              SIMULATED RADAR DATA
+            </span>
+          </div>
+
+          <!-- Radar Screen Visualizer -->
+          <div class="relative w-full h-72 rounded-2xl overflow-hidden bg-slate-950 border border-slate-700/80 radar-grid flex items-center justify-center">
+            <!-- Sweeping Line Animation -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="w-full h-full rounded-full border border-sky-500/20"></div>
+              <div class="w-3/4 h-3/4 rounded-full border border-sky-500/20"></div>
+              <div class="w-1/2 h-1/2 rounded-full border border-sky-500/20"></div>
+            </div>
+
+            <!-- Simulated Rain Cells Moving Towards Chennai -->
+            <div class="absolute top-1/4 right-1/4 w-32 h-24 rounded-full bg-sky-500/30 blur-xl animate-pulse"></div>
+            <div class="absolute top-1/3 right-1/3 w-20 h-16 rounded-full bg-teal-400/40 blur-lg animate-pulse"></div>
+            <div class="absolute bottom-1/3 left-1/3 w-28 h-20 rounded-full bg-indigo-500/30 blur-xl"></div>
+
+            <!-- Markers -->
+            <div class="absolute bottom-6 left-8 flex items-center space-x-1.5 z-10">
+              <span class="w-3 h-3 rounded-full bg-sky-400 animate-ping"></span>
+              <span class="px-2 py-0.5 rounded bg-slate-900/90 text-white font-mono text-[10px] border border-sky-400/40 font-bold">
+                📍 Chengalpattu (Origin)
+              </span>
+            </div>
+
+            <div class="absolute top-6 right-8 flex items-center space-x-1.5 z-10">
+              <span class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></span>
+              <span class="px-2 py-0.5 rounded bg-slate-900/90 text-white font-mono text-[10px] border border-amber-400/40 font-bold">
+                🎯 Chennai Central (Destination)
+              </span>
+            </div>
+
+            <!-- Frame Indicator Overlay -->
+            <div class="absolute bottom-3 right-3 px-2 py-1 rounded bg-slate-900/90 border border-slate-700 text-[10px] font-mono text-emerald-400 font-bold">
+              FRAME 4/4: Precipitation Advancing NNE (24 dBZ)
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 8: SEVERE ALERT ---
+    function renderModule8_SevereAlert(canvas) {
+      const a = SIMULATION_DATA.severeAlert;
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border-2 border-amber-500/60 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center space-x-3 text-amber-400">
+            <span class="p-3 rounded-2xl bg-amber-500/20 border border-amber-500/40 animate-bounce">
+              <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </span>
+            <div>
+              <span class="text-[10px] font-mono uppercase tracking-wider font-bold">Module 8: Early Warning Hub</span>
+              <h2 class="font-display font-black text-xl text-white">⚠️ ${a.type}</h2>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-slate-200 space-y-2">
+            <div class="flex items-center justify-between text-xs font-mono text-amber-300 font-bold">
+              <span>Severity: ${a.severity}</span>
+              <span>Window: ${a.timeWindow}</span>
+            </div>
+            <p class="text-sm font-medium leading-relaxed">
+              ${currentLang === 'ta' ? a.messageTa : (currentLang === 'hi' ? a.messageHi : a.messageEn)}
+            </p>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
+            <span>Location: Chengalpattu – Chennai Arterial Corridor</span>
+            <span class="text-emerald-400 font-mono font-bold">Autonomous Siren: Ready</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 9: AQI ---
+    function renderModule9_AQI(canvas) {
+      const aqi = SIMULATION_DATA.airQuality;
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-5 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-emerald-400 uppercase font-bold tracking-wider">Module 9: Atmospheric Purity</span>
+              <h2 class="font-display font-black text-xl text-white">Air Quality Index (AQI)</h2>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">
+              ${aqi.statusEn}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono uppercase">US AQI Level</span>
+              <div class="text-4xl font-black text-amber-400 font-display my-1">${aqi.aqi}</div>
+              <span class="text-xs text-amber-300 font-bold">${aqi.statusEn}</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono uppercase">PM2.5 Concentration</span>
+              <div class="text-3xl font-bold text-white font-display my-1">${aqi.pm25} <span class="text-xs text-slate-400">µg/m³</span></div>
+              <span class="text-xs text-emerald-400">Good</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono uppercase">PM10 Particulate</span>
+              <div class="text-3xl font-bold text-white font-display my-1">${aqi.pm10} <span class="text-xs text-slate-400">µg/m³</span></div>
+              <span class="text-xs text-sky-400">Acceptable</span>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs text-slate-200">
+            <strong>Advisory:</strong> ${currentLang === 'ta' ? aqi.adviceTa : (currentLang === 'hi' ? aqi.adviceHi : aqi.adviceEn)}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 10: AGRICULTURE ADVISORY ---
+    function renderModule10_Agriculture(canvas) {
+      const ag = SIMULATION_DATA.agriculture;
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-emerald-500/40 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+              <span class="p-2.5 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <i data-lucide="wheat" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="font-display font-black text-xl text-white">Module 10: Smart Climate Agriculture Advisory</h2>
+                <p class="text-xs text-slate-400">Soil Moisture & Chemical Spraying Windows</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+            <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono">Soil Moisture (0-1cm)</span>
+              <div class="text-2xl font-black text-emerald-400 font-display">${ag.soilMoisture}%</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono">Soil Temperature</span>
+              <div class="text-2xl font-black text-white font-display">${ag.soilTemp}°C</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono">Rain Probability</span>
+              <div class="text-2xl font-black text-sky-400 font-display">${ag.rainProb}%</div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 space-y-2 text-xs">
+            <div class="text-emerald-300 font-bold">🌾 Irrigation Advisory: ${currentLang === 'ta' ? ag.irrigationAdviceTa : ag.irrigationAdviceEn}</div>
+            <div class="text-rose-300 font-bold">🚫 Spraying: ${ag.sprayingEn} — ${currentLang === 'ta' ? ag.sprayingReasonTa : ag.sprayingReasonEn}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 11: AVIATION ADVISORY ---
+    function renderModule11_Aviation(canvas) {
+      const av = SIMULATION_DATA.aviation;
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-sky-500/40 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+              <span class="p-2.5 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                <i data-lucide="plane" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="font-display font-black text-xl text-white">Module 11: Aviation Weather Briefing</h2>
+                <p class="text-xs text-slate-400">ICAO METAR & Flight Category</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-mono text-[10px] font-bold">
+              ${av.metar}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-[10px] text-slate-400 uppercase font-mono">Visibility</span>
+              <div class="text-lg font-bold text-white">${av.visibility}</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-[10px] text-slate-400 uppercase font-mono">Wind</span>
+              <div class="text-lg font-bold text-white">${av.wind}</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-[10px] text-slate-400 uppercase font-mono">Cloud Ceiling</span>
+              <div class="text-lg font-bold text-white">${av.ceiling}</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-[10px] text-slate-400 uppercase font-mono">Flight Category</span>
+              <div class="text-lg font-bold text-amber-400">${av.category}</div>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs text-slate-200">
+            <strong>Briefing:</strong> ${av.advisoryEn}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 12: MARINE ADVISORY ---
+    function renderModule12_Marine(canvas) {
+      const mar = SIMULATION_DATA.marine;
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-teal-500/40 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+              <span class="p-2.5 rounded-2xl bg-teal-500/20 text-teal-400 border border-teal-500/30">
+                <i data-lucide="anchor" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="font-display font-black text-xl text-white">Module 12: Marine & High-Seas Advisory</h2>
+                <p class="text-xs text-slate-400">Bay of Bengal Coastal Wave & Swell State</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-[10px] text-slate-400 uppercase font-mono">Wave Height</span>
+              <div class="text-lg font-bold text-teal-300">${mar.waveHeight}</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-[10px] text-slate-400 uppercase font-mono">Wind Speed</span>
+              <div class="text-lg font-bold text-white">${mar.windSpeed}</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-[10px] text-slate-400 uppercase font-mono">Visibility</span>
+              <div class="text-lg font-bold text-white">${mar.visibility}</div>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-[10px] text-slate-400 uppercase font-mono">Sea Condition</span>
+              <div class="text-lg font-bold text-amber-400">${mar.seaCondition}</div>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs text-slate-200">
+            <strong>Advisory:</strong> ${mar.advisoryEn}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 13: CLIMATE ANALYTICS ---
+    function renderModule13_Climate(canvas) {
+      const cs = SIMULATION_DATA.climateStats;
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-purple-400 uppercase font-bold tracking-wider">Module 13: Historical Intelligence</span>
+              <h2 class="font-display font-black text-xl text-white">Climate & Weather Statistics</h2>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono">Average Temp</span>
+              <div class="text-2xl font-black text-white font-display">${cs.avgTemp}</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono">Average Humidity</span>
+              <div class="text-2xl font-black text-teal-400 font-display">${cs.avgHumidity}</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono">Peak Rain Prob</span>
+              <div class="text-2xl font-black text-sky-400 font-display">${cs.maxRainProb}</div>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
+              <span class="text-xs text-slate-400 font-mono">Mean Wind</span>
+              <div class="text-2xl font-black text-white font-display">${cs.avgWind}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 14: MULTI-LANGUAGE ---
+    function renderModule14_Multilingual(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-pink-400 uppercase font-bold tracking-wider">Module 14: Natural Language Translation</span>
+              <h2 class="font-display font-black text-xl text-white">Multilingual WeatherGPT</h2>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700 space-y-1">
+              <span class="text-[10px] font-mono font-bold text-sky-400 uppercase">English</span>
+              <p class="text-xs sm:text-sm text-slate-100">"There is a high chance of rain this afternoon. Please carry an umbrella."</p>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700 space-y-1">
+              <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase">தமிழ் (Tamil)</span>
+              <p class="text-xs sm:text-sm text-slate-100">"இன்று மதியத்திற்கு பிறகு மழை பெய்ய அதிக வாய்ப்பு உள்ளது. குடையை எடுத்துச் செல்லுங்கள்."</p>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700 space-y-1">
+              <span class="text-[10px] font-mono font-bold text-amber-400 uppercase">हिंदी (Hindi)</span>
+              <p class="text-xs sm:text-sm text-slate-100">"आज दोपहर में बारिश की बहुत अधिक संभावना है। कृपया छाता साथ रखें।"</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 15: NOTIFICATIONS ---
+    function renderModule15_Notifications(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-amber-400 uppercase font-bold tracking-wider">Module 15: Push Telemetry</span>
+              <h2 class="font-display font-black text-xl text-white">Autonomous Weather Notifications</h2>
+            </div>
+          </div>
+
+          <div class="space-y-3 max-w-md mx-auto">
+            <div class="p-4 rounded-2xl bg-slate-800 border border-sky-500/40 flex items-start space-x-3 shadow-lg animate-bounceSubtle">
+              <span class="p-2 rounded-xl bg-sky-500/20 text-sky-400 flex-shrink-0">
+                <i data-lucide="bell-ring" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <span class="text-[10px] font-mono text-slate-400">WeatherGPT Alert • 3:00 PM</span>
+                <h4 class="text-xs font-bold text-white">Heavy rain expected in your area around 3:00 PM.</h4>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-800 border border-amber-500/40 flex items-start space-x-3 shadow-lg">
+              <span class="p-2 rounded-xl bg-amber-500/20 text-amber-400 flex-shrink-0">
+                <i data-lucide="navigation" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <span class="text-[10px] font-mono text-slate-400">Destination Weather Alert</span>
+                <h4 class="text-xs font-bold text-white">Rain probability at Chennai Central is approximately 70%.</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 16: WEATHER REPORT ---
+    function renderModule16_WeatherReport(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-mono text-sky-400 uppercase font-bold tracking-wider">Module 16: Automated Dossier</span>
+              <h2 class="font-display font-black text-xl text-white">WeatherGPT Executive Report</h2>
+            </div>
+            <button onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold flex items-center space-x-1.5 cursor-pointer">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+              <span>Print / PDF</span>
+            </button>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 text-xs space-y-2 text-slate-200">
+            <div class="flex justify-between border-b border-slate-700 pb-2">
+              <span><strong>Location:</strong> Chengalpattu ➔ Chennai Central</span>
+              <span><strong>Status:</strong> Validated Meteorological Simulation</span>
+            </div>
+            <p><strong>Current:</strong> 29°C (Feels 32°C), Partly Cloudy, Humidity 78%, Wind 14 km/h SW.</p>
+            <p><strong>Severe Alert:</strong> Heavy Rain Warning (2 PM - 5 PM), peak precipitation probability 82% at 4 PM.</p>
+            <p><strong>Destination Forecast:</strong> Chennai Central around 30°C with 70% rain probability.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 17: DESTINATION ALARM (JOURNEY SIMULATION) ---
+    function renderModule17_DestinationAlarm(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border-2 border-sky-500/60 shadow-xl space-y-5 animate-fadeIn">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center space-x-2.5">
+              <span class="p-2.5 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30 animate-pulse">
+                <i data-lucide="navigation" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="font-display font-black text-xl text-white">Module 17: Smart Destination Alarm (GPS Travel)</h2>
+                <p class="text-xs text-slate-400">Chengalpattu ➔ Chennai Central (Continuous Telemetry)</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-mono font-bold border border-amber-500/30">
+              GEOFENCE: 100M
+            </span>
+          </div>
+
+          <!-- 7 Stages Progress Visualizer -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center text-xs">
+            ${SIMULATION_DATA.smartAlarmJourney.map((st, i) => `
+              <div class="p-3 rounded-2xl ${i === 6 ? 'bg-emerald-500/20 border-emerald-400' : 'bg-slate-800/60 border-slate-700'} border space-y-1">
+                <span class="text-[10px] font-mono text-slate-400 block">Stage ${st.stage}</span>
+                <span class="text-base font-black text-white block">${st.distance}</span>
+                <span class="text-[10px] text-sky-400 block">ETA: ${st.eta}</span>
+                <span class="text-[9px] text-slate-300 truncate block">${st.status}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="p-4 rounded-2xl bg-sky-950/40 border border-sky-500/40 text-xs flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="bell" class="w-4 h-4 text-sky-400"></i>
+              <span>Destination Weather: <strong>Chennai Central: 30°C, 70% Rain</strong> — Keep umbrella ready.</span>
+            </div>
+            <span class="text-emerald-400 font-mono font-bold">Progress: 100m approaching</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODULE 18: DESTINATION REACHED & ALARM TRIGGER ---
+    function renderModule18_DestinationReached(canvas) {
+      canvas.innerHTML = `
+        <div class="glass-dark rounded-3xl p-6 border-4 border-rose-500/80 shadow-2xl shadow-rose-900/40 space-y-6 text-center animate-fadeIn">
+          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce">
+            <i data-lucide="bell-ring" class="w-12 h-12 animate-spin"></i>
+          </div>
+
+          <div class="space-y-2">
+            <span class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-400 font-mono font-black text-xs uppercase tracking-widest border border-rose-500/40">
+              🎯 100m Geofence Alarm Triggered
+            </span>
+            <h2 class="font-display font-black text-2xl sm:text-3xl text-white">
+              YOU HAVE REACHED YOUR DESTINATION
+            </h2>
+            <p class="text-base font-bold text-slate-200">
+              Chennai Central, Tamil Nadu, India
+            </p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 max-w-md mx-auto space-y-2">
+            <div class="flex items-center justify-center space-x-2 text-rose-300 font-bold text-sm">
+              <i data-lucide="volume-2" class="w-5 h-5"></i>
+              <span>🔊 Voice Alert Speaking:</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-100 font-medium">
+              "You have reached your destination. Please get ready to get down."
+            </p>
+          </div>
+
+          <div class="flex items-center justify-center space-x-3 pt-2">
+            <button onclick="stopSirenAlarm()" class="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-xl shadow-rose-600/40 cursor-pointer active:scale-95 transition-all">
+              🛑 Stop Alarm
+            </button>
+            <button onclick="restartSimulation()" class="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 cursor-pointer">
+              🔄 Restart Demo
+            </button>
+          </div>
+        </div>
+      `;
+      // Trigger Siren Alarm & Spoken Voice
+      startSirenAlarm();
+      speakSimulationText("You have reached your destination. Please get ready to get down.");
+    }
+
+    // ============================================================================
+    // INITIALIZATION ON LOAD
+    // ============================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCurrentModule();
+      scheduleNextStep();
+    });
+  </script>
+</body>
+</html>

@@ -23,7 +23,7 @@
       ]
     },
     {
-      "source": "/(demo-video.mp4|video.html|video)",
+      "source": "/(demo-video.mp4|video.html|video|simulation|simulation.html)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -51,8 +51,17 @@
       "destination": "/video.html"
     },
     {
-      "source": "/((?!api/|video|video\\.html|demo-video\\.mp4).*)",
+      "source": "/simulation",
+      "destination": "/simulation.html"
+    },
+    {
+      "source": "/simulation/",
+      "destination": "/simulation.html"
+    },
+    {
+      "source": "/((?!api/|video|video\\.html|demo-video\\.mp4|simulation|simulation\\.html).*)",
       "destination": "/index.html"
     }
   ]
 }
+
