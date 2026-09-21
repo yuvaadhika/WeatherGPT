@@ -207,6 +207,42 @@
   <!-- 3. MAIN SIMULATION CANVAS AREA -->
   <!-- ============================================================================ -->
   <main class="flex-1 max-w-5xl w-full mx-auto p-3 sm:p-5 space-y-4">
+    <!-- CHATBOT SCREEN VIEW TABS (Direct Screen Navigation) -->
+    <div class="glass-dark rounded-2xl p-1.5 flex items-center space-x-1.5 overflow-x-auto text-xs no-scrollbar border border-slate-700/80 shadow-md">
+      <button onclick="jumpToModule(1)" id="tabScreenDash" class="px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800">
+        <i data-lucide="home" class="w-3.5 h-3.5 text-sky-400"></i>
+        <span>🏠 Dashboard (#1-2)</span>
+      </button>
+      <button onclick="jumpToModule(3)" id="tabScreenChat" class="px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800">
+        <i data-lucide="bot" class="w-3.5 h-3.5 text-indigo-400"></i>
+        <span>💬 AI Chatbot (#3-4)</span>
+      </button>
+      <button onclick="jumpToModule(5)" id="tabScreenForecast" class="px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800">
+        <i data-lucide="trending-up" class="w-3.5 h-3.5 text-sky-400"></i>
+        <span>📈 Forecast (#5-6)</span>
+      </button>
+      <button onclick="jumpToModule(7)" id="tabScreenRadar" class="px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800">
+        <i data-lucide="radio" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <span>🗺️ Radar Map (#7)</span>
+      </button>
+      <button onclick="jumpToModule(8)" id="tabScreenAlerts" class="px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800">
+        <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-400"></i>
+        <span>⚠️ Alerts & AQI (#8-9)</span>
+      </button>
+      <button onclick="jumpToModule(10)" id="tabScreenSectors" class="px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800">
+        <i data-lucide="wheat" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <span>🌾 Advisories (#10-12)</span>
+      </button>
+      <button onclick="jumpToModule(13)" id="tabScreenAnalytics" class="px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800">
+        <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-400"></i>
+        <span>📊 Reports (#13-16)</span>
+      </button>
+      <button onclick="jumpToModule(17)" id="tabScreenAlarm" class="px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800">
+        <i data-lucide="bell" class="w-3.5 h-3.5 text-rose-400"></i>
+        <span>🎯 Destination Alarm (#17-18)</span>
+      </button>
+    </div>
+
     <!-- Active Module Render Container -->
     <div id="moduleContentCanvas" class="w-full">
       <!-- Injected via JavaScript -->
@@ -2264,6 +2300,29 @@
       document.getElementById('moduleTitle').innerText = titles[currentModuleIndex - 1];
       document.getElementById('progressPercent').innerText = `${pct}%`;
       document.getElementById('progressBarFill').style.width = `${pct}%`;
+
+      // Highlight active screen view tab
+      const tabMap = {
+        1: 'tabScreenDash', 2: 'tabScreenDash',
+        3: 'tabScreenChat', 4: 'tabScreenChat',
+        5: 'tabScreenForecast', 6: 'tabScreenForecast',
+        7: 'tabScreenRadar',
+        8: 'tabScreenAlerts', 9: 'tabScreenAlerts',
+        10: 'tabScreenSectors', 11: 'tabScreenSectors', 12: 'tabScreenSectors',
+        13: 'tabScreenAnalytics', 14: 'tabScreenAnalytics', 15: 'tabScreenAnalytics', 16: 'tabScreenAnalytics',
+        17: 'tabScreenAlarm', 18: 'tabScreenAlarm'
+      };
+
+      ['tabScreenDash', 'tabScreenChat', 'tabScreenForecast', 'tabScreenRadar', 'tabScreenAlerts', 'tabScreenSectors', 'tabScreenAnalytics', 'tabScreenAlarm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (id === tabMap[currentModuleIndex]) {
+            el.className = 'px-3 py-1.5 rounded-xl font-black flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 bg-sky-600 text-white shadow-md shadow-sky-900/40 border border-sky-400/40 scale-105';
+          } else {
+            el.className = 'px-3 py-1.5 rounded-xl font-bold flex items-center space-x-1.5 transition-all cursor-pointer flex-shrink-0 text-slate-300 hover:bg-slate-800 border border-transparent';
+          }
+        }
+      });
     }
 
     function togglePlayPause() {

@@ -38,6 +38,7 @@ export default function Header({
   onOpenLocationModal,
   onOpenAdminDatabase,
   onOpenInstallApp,
+  onOpenSimulation,
   currentUser,
   onSignOut
 }) {
@@ -237,6 +238,18 @@ export default function Header({
           </select>
         </div>
 
+
+        {/* 🎮 18-Module Interactive Simulation Mode */}
+        <button
+          onClick={onOpenSimulation || (() => { window.location.href = '/simulation/'; })}
+          title={activeLanguage === 'ta' ? '18-தொகுதி நேரடி வானிலை சிமுலேஷன் (Simulation Mode)' : '18-Module Interactive Weather Simulation Mode'}
+          className="px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white flex items-center space-x-1.5 transition-all shadow-sm hover:shadow-md cursor-pointer hover:scale-105 active:scale-95 border border-emerald-400/40"
+        >
+          <Play className="w-3.5 h-3.5 fill-current flex-shrink-0 animate-pulse text-emerald-200" />
+          <span className="text-[11px] font-black hidden xs:inline tracking-tight">
+            {activeLanguage === 'ta' ? '🎮 18 சிமுலேஷன்' : '🎮 18-Module Demo'}
+          </span>
+        </button>
 
         {/* 📲 1-Click Install App (PWA) Button */}
         {onOpenInstallApp && (

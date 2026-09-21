@@ -68,7 +68,9 @@ import {
   Heart,
   Users,
   Cpu,
-  LogOut
+  LogOut,
+  Play,
+  Maximize2
 } from 'lucide-react';
 import { notificationService } from './services/notificationService';
 import { userRegistryService } from './services/userRegistryService';
@@ -461,6 +463,24 @@ export default function App() {
               <span>{t.sidebar?.forecastAssistant || 'Forecast & AI Chatbot'}</span>
             </button>
 
+            {/* 🎮 3. 18-Module Interactive Simulation Mode */}
+            <button
+              onClick={() => {
+                setActiveView('simulation');
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${activeView === 'simulation'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-900/30'
+                  : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80'
+                }`}
+            >
+              <Play className="w-4 h-4 fill-current text-emerald-500 animate-pulse" />
+              <span className="truncate">{activeLanguage === 'ta' ? '🎮 18 சிமுலேஷன் தொகுதிகள்' : '🎮 18-Module Simulation'}</span>
+              <span className="ml-auto px-1.5 py-0.2 rounded bg-emerald-200/80 text-emerald-900 text-[9px] font-black uppercase">
+                18 M
+              </span>
+            </button>
+
             {/* 3. Live Doppler Radar Map */}
             <button
               onClick={() => {
@@ -711,6 +731,7 @@ export default function App() {
           onOpenLocationModal={() => setIsLocationModalOpen(true)}
           onOpenAdminDatabase={() => setIsAdminModalOpen(true)}
           onOpenInstallApp={() => setIsInstallModalOpen(true)}
+          onOpenSimulation={() => setActiveView('simulation')}
           currentUser={currentUser}
           onSignOut={handleSignOut}
         />
@@ -718,7 +739,7 @@ export default function App() {
         {/* View Content Area */}
         <div className={`flex-1 flex flex-col max-w-5xl w-full mx-auto relative min-h-0 ${activeView === 'chat' ? 'overflow-hidden px-1 sm:px-4 pt-1 sm:pt-4 h-full' : 'overflow-y-auto p-2 sm:p-4 md:p-5 pb-6'}`}>
           {/* Active Hazard Early Warning Banner (on non-home screens) */}
-          {activeView !== 'home' && activeView !== 'chat' && (
+          {activeView !== 'home' && activeView !== 'chat' && activeView !== 'simulation' && (
             <WeatherAlertBanner
               activeLanguage={activeLanguage}
               alerts={alerts}
@@ -748,6 +769,7 @@ export default function App() {
               onOpenLocationModal={() => setIsLocationModalOpen(true)}
               onOpenRoutePlanner={() => setActiveView('route')}
               onOpenEventScore={() => setActiveView('event')}
+              onOpenSimulation={() => setActiveView('simulation')}
               onOpenSpotter={() => setActiveView('spotter')}
               onOpenEmergencySOS={() => setActiveView('sos')}
               onOpenExplainability={() => setIsWhyModalOpen(true)}
@@ -959,6 +981,53 @@ export default function App() {
                 alerts={alerts}
                 notificationsEnabled={notificationsEnabled}
                 onOpenAlertModal={() => setIsAlertModalOpen(true)}
+              />
+            </div>
+          )}
+
+          {/* 🎮 VIEW 11: 18-Module Interactive Weather Simulation Screen */}
+          {activeView === 'simulation' && (
+            <div className="flex-1 flex flex-col h-full min-h-0 bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative mb-12 md:mb-4 animate-fadeIn">
+              {/* Simulation Screen Top Control Bar */}
+              <div className="px-3 sm:px-4 py-2.5 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between z-20 backdrop-blur-md">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <button
+                    onClick={() => setActiveView('home')}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition-all cursor-pointer flex-shrink-0"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-sky-400" />
+                    <span>{activeLanguage === 'ta' ? 'முகப்பு' : 'Back'}</span>
+                  </button>
+                  <div className="flex items-center space-x-1.5 min-w-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping flex-shrink-0"></span>
+                    <span className="text-xs font-black text-white truncate">
+                      {activeLanguage === 'ta' ? '🎮 18-தொகுதி நேரடி சிமுலேஷன்' : '🎮 18-Module Live Simulation'}
+                    </span>
+                    <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[9px] font-extrabold border border-emerald-500/30 hidden sm:inline">
+                      CHENGALPATTU ➔ CHENNAI CENTRAL
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 flex-shrink-0">
+                  <a
+                    href="/simulation/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white text-xs font-black flex items-center space-x-1.5 transition-all shadow-md active:scale-95"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span className="hidden xs:inline">{activeLanguage === 'ta' ? 'முழுத்திரை' : 'Fullscreen Tab'}</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Seamless Full-Power Simulation Screen */}
+              <iframe
+                src="/simulation.html"
+                title="WeatherGPT 18-Module Interactive Simulation Screen"
+                className="w-full flex-1 border-0 min-h-[680px] sm:min-h-[820px] bg-slate-950"
+                allow="autoplay; microphone; speaker; fullscreen"
               />
             </div>
           )}
