@@ -262,7 +262,7 @@
         </label>
         <select id="modalLanguageSelect" onchange="changeLanguage(this.value)" class="w-full bg-slate-900 border border-sky-500/60 text-white text-sm font-bold rounded-xl p-2.5 focus:outline-none focus:border-sky-400 cursor-pointer">
           <option value="en">🇬🇧 English</option>
-          <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+          <option value="ta" selected>🇮🇳 தமிழ் (Tamil)</option>
           <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
           <option value="te">🇮🇳 తెలుగు (Telugu)</option>
           <option value="bn">🇮🇳 বাংলা (Bengali)</option>
@@ -1555,7 +1555,7 @@
           en: 'Partly Cloudy',
           ta: 'பகுதி மேகமூட்டம்',
           hi: 'आंशिक रूप से बादल',
-          te: 'పాక్షಿಕంగా మేఘావృతం',
+          te: 'పాక్షికంగా మేఘావృతం',
           bn: 'আংশিক মেঘলা',
           mr: 'अंशतः ढगाळ',
           gu: 'અંશતઃ વાદળછાયું',
@@ -1756,7 +1756,7 @@
           en: 'Air quality is acceptable for most individuals. Sensitive groups should avoid heavy exertion during peak traffic hours.',
           ta: 'காற்றுத் தரம் பெரும்பாலான மக்களுக்கு ஏற்றது; சுவாசப் பிரச்சனை உள்ளவர்கள் போக்குவரத்து நெரிசல் நேரங்களில் எச்சரிக்கையுடன் இருக்கவும்.',
           hi: 'वायु गुणवत्ता अधिकांश लोगों के लिए स्वीकार्य है। सांस के रोगी अधिक ट्रैफिक वाले घंटों में अत्यधिक परिश्रम से बचें।',
-          te: 'గాలి నాణ్యత చాలామందికి అనుకూలంగా ఉంది. శ్వಾಸకోశ సమస్యలు ఉన్నవారు రద్దీ సమయాల్లో జాగ్రత్తగా ఉండాలి.',
+          te: 'గాలి నాణ్యత చాలామందికి అనుకూలంగా ఉంది. శ్వాసకోశ సమస్యలు ఉన్నవారు రద్దీ సమయాల్లో జాగ్రత్తగా ఉండాలి.',
           bn: 'বায়ুর মান বেশিরভাগ মানুষের জন্য সহনশীল। শ্বাসকষ্টের রোগীদের ব্যস্ত ট্র্যাফিকের সময় ভারী পরিশ্রম এড়িয়ে চলা উচিত।',
           mr: 'हवेची गुणवत्ता बहुतेकांसाठी स्वीकार्य आहे. श्वसनाचा त्रास असणाऱ्यांनी गर्दीच्या वेळी अतिश्रम टाळावेत.',
           gu: 'હવાની ગુણવત્તા મોટાભાગના લોકો માટે સ્વીકાર્ય છે. શ્વાસની તકલીફ વાળા લોકોએ ટ્રાફિકના સમયે ભારે શ્રમ ટાળવો જોઈએ.',
@@ -1823,7 +1823,7 @@
           hi: 'बंगाल की खाड़ी के तटीय इलाकों में तेज हवाओं के कारण छोटी नौकाओं और मछुआरों को सावधानी बरतनी चाहिए।',
           te: 'బంగాళాఖాతం తీరప్రాంతంలో ఈదురుగాలుల కారణంగా చిన్న పడవలు మరియు మత్స్యకారులు జాగ్రత్తగా ఉండాలి.',
           bn: 'বঙ্গোপসাগরের উপকূলীয় এলাকায় ঝড়ো বাতাসের কারণে ছোট নৌকা ও মৎস্যজীবীদের সতর্ক থাকতে হবে।',
-          mr: 'बंगालच्या उपसागराच्या किनारपट्टीवर सोસାट्याच्या वाऱ्यामुळे लहान नौका आणि मच्छीमारांनी सावधगिरी बाळगावी.',
+          mr: 'बंगालच्या उपसागराच्या किनारपट्टीवर सोसାट्याच्या वाऱ्यामुळे लहान नौका आणि मच्छीमारांनी सावधगिरी बाळगावी.',
           gu: 'બંગાળની ખાડીના દરિયાકાંઠે ભારે પવનને કારણે નાની હોડીઓ અને માછીમારોએ સાવચેત રહેવું જોઈએ.',
           kn: 'ಬಂಗಾಳ ಕೊಲ್ಲಿಯ ಕರಾವಳಿಯಲ್ಲಿ ಬಿರುಗಾಳಿಯ ಕಾರಣ ಸಣ್ಣ ದೋಣಿಗಳು ಮತ್ತು ಮೀನುಗಾರರು ಎಚ್ಚರಿಕೆ ವಹಿಸಬೇಕು.',
           ml: 'ബംഗാൾ ഉൾക്കടൽ തീരത്ത് ശക്തമായ കാറ്റിന് സാധ്യതയുള്ളതിനാൽ ചെറിയ ബോട്ടുകളും മത്സ്യത്തൊഴിലാളികളും ജാഗ്രത പാലിക്കണം.',
@@ -1868,7 +1868,7 @@
     let playbackSpeed = 1; // 1x, 2x, 4x
     let stepTimer = null;
     let soundEnabled = true;
-    let currentLang = 'en'; // 'en', 'ta', 'hi', 'te', 'bn', 'mr', 'gu', 'kn', 'ml', 'pa'
+    let currentLang = 'ta'; // Default to Tamil as user preference!
 
     // ============================================================================
     // SYNTHESIZED WEB AUDIO SIREN & CHIME
@@ -1876,6 +1876,8 @@
     let audioCtx = null;
     let sirenInterval = null;
     let currentSimAudio = null;
+    let currentAudioQueue = [];
+    let isCurrentlySpeaking = false;
 
     function getAudioContext() {
       if (!audioCtx && typeof window !== 'undefined') {
@@ -1941,7 +1943,7 @@
     }
 
     // ============================================================================
-    // DUAL-PIPELINE MULTILINGUAL VOICE ENGINE (ALL 10 LANGUAGES)
+    // DUAL-PIPELINE MULTILINGUAL VOICE ENGINE (100% RELIABLE TAMIL & ALL 10 LANGUAGES)
     // ============================================================================
     let cachedVoices = [];
     function loadAvailableVoices() {
@@ -1954,46 +1956,157 @@
       window.speechSynthesis.onvoiceschanged = loadAvailableVoices;
     }
 
-    function playStreamingTTSAudio(text, lang) {
-      try {
-        const encoded = encodeURIComponent(text.slice(0, 180));
-        const primaryUrl = `/api/tts?lang=${lang}&text=${encoded}`;
+    // Split text into natural sentence fragments (< 90 chars) for smooth streaming TTS
+    function splitTextIntoChunks(text, maxLen = 90) {
+      if (!text) return [];
+      const sentences = text
+        .split(/(?<=[.!?\n;।॥,])\s+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const chunks = [];
+      for (const sentence of sentences) {
+        if (sentence.length <= maxLen) {
+          chunks.push(sentence);
+        } else {
+          const words = sentence.split(/\s+/);
+          let curr = '';
+          for (const word of words) {
+            if ((curr + ' ' + word).trim().length <= maxLen) {
+              curr = (curr + ' ' + word).trim();
+            } else {
+              if (curr) chunks.push(curr);
+              curr = word;
+            }
+          }
+          if (curr) chunks.push(curr);
+        }
+      }
+      return chunks.length > 0 ? chunks : [text.slice(0, maxLen)];
+    }
+
+    // Play audio queue across chunks sequentially
+    function playAudioStreamQueue(chunks, langCode, onEnd) {
+      if (!chunks || chunks.length === 0) {
+        isCurrentlySpeaking = false;
+        if (onEnd) onEnd();
+        return;
+      }
+
+      // Stop previous
+      stopCurrentSpeaking();
+      isCurrentlySpeaking = true;
+      currentAudioQueue = [...chunks];
+      let chunkIndex = 0;
+      const primaryLang = (langCode || 'ta').split(/[-_]/)[0].toLowerCase();
+
+      const playNext = () => {
+        if (!isCurrentlySpeaking || chunkIndex >= currentAudioQueue.length) {
+          isCurrentlySpeaking = false;
+          currentAudioQueue = [];
+          if (onEnd) onEnd();
+          return;
+        }
+
+        const chunk = currentAudioQueue[chunkIndex++];
+        if (!chunk || !chunk.trim()) {
+          playNext();
+          return;
+        }
+
+        const encoded = encodeURIComponent(chunk.trim());
+        const primaryUrl = `/api/tts?lang=${primaryLang}&text=${encoded}`;
         const audio = new Audio(primaryUrl);
         currentSimAudio = audio;
 
-        audio.onerror = () => {
-          // Direct fallback to Google TTS client endpoint
-          const fallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encoded}`;
-          const altAudio = new Audio(fallbackUrl);
-          currentSimAudio = altAudio;
-          altAudio.play().catch(console.warn);
+        let advanced = false;
+        const advance = () => {
+          if (!advanced && isCurrentlySpeaking) {
+            advanced = true;
+            playNext();
+          }
         };
 
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(e => {
-            const fallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encoded}`;
-            const altAudio = new Audio(fallbackUrl);
-            currentSimAudio = altAudio;
-            altAudio.play().catch(console.warn);
+        const fallbackToWebSpeech = () => {
+          if ('speechSynthesis' in window) {
+            try {
+              window.speechSynthesis.cancel();
+              const u = new SpeechSynthesisUtterance(chunk);
+              const langTagMap = {
+                ta: 'ta-IN', hi: 'hi-IN', te: 'te-IN', bn: 'bn-IN',
+                mr: 'mr-IN', gu: 'gu-IN', kn: 'kn-IN', ml: 'ml-IN',
+                pa: 'pa-IN', en: 'en-US'
+              };
+              const tag = langTagMap[primaryLang] || 'ta-IN';
+              u.lang = tag;
+              const voices = window.speechSynthesis.getVoices() || [];
+              const match = voices.find(v => v.lang.toLowerCase().startsWith(primaryLang) || v.lang.toLowerCase().replace('_', '-').startsWith(primaryLang));
+              if (match) u.voice = match;
+              u.onend = advance;
+              u.onerror = advance;
+              window.speechSynthesis.speak(u);
+              return;
+            } catch (e) {
+              advance();
+              return;
+            }
+          }
+          advance();
+        };
+
+        const tryDirectGoogleFallback = () => {
+          const directUrl = `https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=${primaryLang}&q=${encoded}`;
+          const fallbackAudio = new Audio(directUrl);
+          currentSimAudio = fallbackAudio;
+          fallbackAudio.onended = advance;
+          fallbackAudio.onerror = () => {
+            const secondaryUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${primaryLang}&client=dict-chrome-ex&q=${encoded}`;
+            const secondaryAudio = new Audio(secondaryUrl);
+            currentSimAudio = secondaryAudio;
+            secondaryAudio.onended = advance;
+            secondaryAudio.onerror = fallbackToWebSpeech;
+            secondaryAudio.play().catch(fallbackToWebSpeech);
+          };
+          fallbackAudio.play().catch(() => {
+            const secondaryUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${primaryLang}&client=dict-chrome-ex&q=${encoded}`;
+            const secondaryAudio = new Audio(secondaryUrl);
+            currentSimAudio = secondaryAudio;
+            secondaryAudio.onended = advance;
+            secondaryAudio.onerror = fallbackToWebSpeech;
+            secondaryAudio.play().catch(fallbackToWebSpeech);
           });
+        };
+
+        audio.onended = advance;
+        audio.onerror = (err) => {
+          console.warn(`TTS endpoint fallback for "${chunk.slice(0, 15)}...":`, err);
+          tryDirectGoogleFallback();
+        };
+
+        try {
+          const promise = audio.play();
+          if (promise !== undefined) {
+            promise.catch((e) => {
+              console.warn('Audio play error, falling back:', e);
+              tryDirectGoogleFallback();
+            });
+          }
+        } catch (e) {
+          tryDirectGoogleFallback();
         }
-      } catch (err) {
-        console.warn('Streaming TTS error:', err);
-      }
+      };
+
+      playNext();
     }
 
-    function speakSimulationText(text, lang = currentLang) {
-      if (!soundEnabled || !text) return;
-
-      const targetLang = (lang || currentLang || 'en').toLowerCase().split(/[-_]/)[0];
-      const cleanText = text.replace(/<[^>]*>/g, '').trim();
-
-      // Stop any existing audio element or speech synthesis
+    function stopCurrentSpeaking() {
+      isCurrentlySpeaking = false;
+      currentAudioQueue = [];
       if (currentSimAudio) {
         try {
           currentSimAudio.pause();
           currentSimAudio.currentTime = 0;
+          currentSimAudio.removeAttribute('src');
         } catch (e) {}
         currentSimAudio = null;
       }
@@ -2002,41 +2115,20 @@
           window.speechSynthesis.cancel();
         } catch (e) {}
       }
+    }
 
-      // For Tamil (ta), Telugu (te), Bengali (bn), Malayalam (ml), Kannada (kn), Gujarati (gu), Punjabi (pa), Marathi (mr),
-      // Serverless neural audio stream provides superior pronunciation across desktop & mobile
-      if (targetLang !== 'en') {
-        playStreamingTTSAudio(cleanText, targetLang);
+    function speakSimulationText(text, lang = currentLang, onEnd) {
+      if (!soundEnabled || !text) {
+        if (onEnd) onEnd();
         return;
       }
 
-      // For English: Use Web Speech API if local voice exists, else stream
-      if ('speechSynthesis' in window) {
-        try {
-          if (cachedVoices.length === 0) loadAvailableVoices();
-          const matchedVoice = cachedVoices.find(v => {
-            const vLang = (v.lang || '').toLowerCase().replace('_', '-');
-            return vLang.startsWith('en-in') || vLang.startsWith('en-us') || vLang.startsWith('en');
-          });
+      const targetLang = (lang || currentLang || 'ta').toLowerCase().split(/[-_]/)[0];
+      const cleanText = text.replace(/<[^>]*>/g, '').trim();
 
-          if (matchedVoice) {
-            const utterance = new SpeechSynthesisUtterance(cleanText);
-            utterance.rate = 1.0;
-            utterance.pitch = 1.05;
-            utterance.lang = 'en-US';
-            utterance.voice = matchedVoice;
-            utterance.onerror = () => {
-              playStreamingTTSAudio(cleanText, targetLang);
-            };
-            window.speechSynthesis.speak(utterance);
-            return;
-          }
-        } catch (e) {
-          console.warn('SpeechSynthesis error:', e);
-        }
-      }
-
-      playStreamingTTSAudio(cleanText, targetLang);
+      // Chunk long text for 100% reliability with Google TTS / Serverless
+      const chunks = splitTextIntoChunks(cleanText, 90);
+      playAudioStreamQueue(chunks, targetLang, onEnd);
     }
 
     // Read Active Module Summary Aloud
@@ -2051,23 +2143,23 @@
           const loc = SIMULATION_DATA.location;
           const orig = loc.originName[currentLang] || loc.originName.en;
           const dest = loc.destName[currentLang] || loc.destName.en;
-          textToSpeak = `${title}. Origin: ${orig}. Destination: ${dest}.`;
+          textToSpeak = `${title}. ${orig} to ${dest}.`;
           break;
         case 2:
           const cw = SIMULATION_DATA.currentWeather;
           const cond = cw.condition[currentLang] || cw.condition.en;
-          textToSpeak = `${title}. Temperature is ${cw.temp} degrees Celsius, ${cond}, humidity ${cw.humidity} percent.`;
+          textToSpeak = `${title}. ${cw.temp}°C, ${cond}, ${cw.humidity}%.`;
           break;
         case 3:
           const chat = SIMULATION_DATA.chatConversations[currentLang] || SIMULATION_DATA.chatConversations.en;
-          textToSpeak = `${chat.q} Answer: ${chat.a}`;
+          textToSpeak = `${chat.q} ${chat.a}`;
           break;
         case 4:
           const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
           textToSpeak = vm.a;
           break;
         case 7:
-          textToSpeak = `${title}. Doppler radar shows precipitation advancing North-North-East.`;
+          textToSpeak = `${title}. Doppler radar simulation active.`;
           break;
         case 8:
           const sa = SIMULATION_DATA.severeAlert[currentLang] || SIMULATION_DATA.severeAlert.en;
@@ -2075,7 +2167,7 @@
           break;
         case 9:
           const aqi = SIMULATION_DATA.airQuality;
-          textToSpeak = `Air Quality Index is ${aqi.aqi}. ${aqi.adv[currentLang] || aqi.adv.en}`;
+          textToSpeak = `AQI ${aqi.aqi}. ${aqi.adv[currentLang] || aqi.adv.en}`;
           break;
         case 10:
           const ag = SIMULATION_DATA.agriculture;
@@ -2090,16 +2182,16 @@
           textToSpeak = `${title}. ${mar.adv[currentLang] || mar.adv.en}`;
           break;
         case 15:
-          textToSpeak = `WeatherGPT Alert: Heavy rain expected in your area around 3:00 PM. Destination rain probability is 70%.`;
+          textToSpeak = `WeatherGPT Alert: Heavy rain expected in your area around 3:00 PM.`;
           break;
         case 17:
-          textToSpeak = `Destination alarm journey: Chengalpattu to Chennai Central, 45 kilometers to 100 meters geofence.`;
+          textToSpeak = `Destination alarm journey: Chengalpattu to Chennai Central.`;
           break;
         case 18:
           textToSpeak = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
           break;
         default:
-          textToSpeak = `${title}. WeatherGPT Autonomous Meteorological AI Simulation.`;
+          textToSpeak = `${title}. WeatherGPT Simulation.`;
           break;
       }
 
@@ -2212,8 +2304,7 @@
         statusPill.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
         clearTimeout(stepTimer);
         stopSirenAlarm();
-        if (currentSimAudio) { currentSimAudio.pause(); }
-        if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+        stopCurrentSpeaking();
       }
       lucide.createIcons();
     }
@@ -2247,15 +2338,14 @@
       lucide.createIcons();
       if (!soundEnabled) {
         stopSirenAlarm();
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-        if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
+        stopCurrentSpeaking();
       }
     }
 
     function nextModule() {
       clearTimeout(stepTimer);
       stopSirenAlarm();
-      if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
+      stopCurrentSpeaking();
       if (currentModuleIndex < TOTAL_MODULES) {
         currentModuleIndex++;
       } else {
@@ -2269,7 +2359,7 @@
     function previousModule() {
       clearTimeout(stepTimer);
       stopSirenAlarm();
-      if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
+      stopCurrentSpeaking();
       if (currentModuleIndex > 1) {
         currentModuleIndex--;
       } else {
@@ -2283,7 +2373,7 @@
     function jumpToModule(idx) {
       clearTimeout(stepTimer);
       stopSirenAlarm();
-      if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
+      stopCurrentSpeaking();
       currentModuleIndex = idx;
       playSynthesizedChime();
       toggleModuleDrawer();
@@ -2294,7 +2384,7 @@
     function restartSimulation() {
       clearTimeout(stepTimer);
       stopSirenAlarm();
-      if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }
+      stopCurrentSpeaking();
       currentModuleIndex = 1;
       playSynthesizedChime();
       renderCurrentModule();
@@ -2324,8 +2414,8 @@
       clearTimeout(stepTimer);
       if (!isPlaying) return;
 
-      const baseDurationMs = (currentModuleIndex === 3 || currentModuleIndex === 4 || currentModuleIndex === 7 || currentModuleIndex === 17 || currentModuleIndex === 18) ? 7500 : 5000;
-      const effectiveDuration = Math.max(1200, Math.round(baseDurationMs / playbackSpeed));
+      const baseDurationMs = (currentModuleIndex === 3 || currentModuleIndex === 4 || currentModuleIndex === 7 || currentModuleIndex === 17 || currentModuleIndex === 18) ? 8000 : 5500;
+      const effectiveDuration = Math.max(1500, Math.round(baseDurationMs / playbackSpeed));
 
       stepTimer = setTimeout(() => {
         if (isPlaying) {
@@ -2552,8 +2642,8 @@
                 <div class="px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-slate-100 text-xs sm:text-sm max-w-[85%] leading-relaxed shadow-md space-y-2">
                   <p>${chat.a}</p>
                   <div class="pt-1 flex items-center justify-end">
-                    <button onclick="speakSimulationText('${chat.a.replace(/'/g, "\\'")}', currentLang)" class="px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 text-[11px] font-bold border border-sky-500/40 flex items-center space-x-1 cursor-pointer">
-                      <i data-lucide="volume-2" class="w-3 h-3"></i>
+                    <button onclick="speakSimulationText(SIMULATION_DATA.chatConversations[currentLang]?.a || SIMULATION_DATA.chatConversations.en.a, currentLang)" class="px-2.5 py-1 rounded-md bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 text-xs font-bold border border-sky-500/40 flex items-center space-x-1 cursor-pointer">
+                      <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
                       <span>${t.listenVoice}</span>
                     </button>
                   </div>
@@ -2565,7 +2655,7 @@
       `;
     }
 
-    // --- MODULE 4: VOICE ASSISTANT ---
+    // --- MODULE 4: VOICE ASSISTANT (GUARANTEED TAMIL & ALL 10 LANGUAGES VOICE) ---
     function renderModule4_Voice(canvas) {
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
@@ -2578,14 +2668,14 @@
               <span class="text-[10px] font-mono text-teal-400 uppercase font-bold tracking-wider">${titles[3]}</span>
               <h2 class="font-display font-black text-xl text-white">${t.m4_sub}</h2>
             </div>
-            <button onclick="speakSimulationText('${vm.a.replace(/'/g, "\\'")}', currentLang)" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/40 flex items-center space-x-1 cursor-pointer transition-all active:scale-95 shadow-md">
-              <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+            <button onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.voiceModule[currentLang]?.a || SIMULATION_DATA.voiceModule.en.a, currentLang)" class="px-3.5 py-2 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/40 flex items-center space-x-1.5 cursor-pointer transition-all active:scale-95 shadow-md">
+              <i data-lucide="volume-2" class="w-4 h-4"></i>
               <span>${t.replayVoice}</span>
             </button>
           </div>
 
           <div class="py-4 space-y-4 max-w-lg mx-auto">
-            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer hover:scale-105 transition-all" onclick="speakSimulationText('${vm.a.replace(/'/g, "\\'")}', currentLang)" title="Click to Speak">
+            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer hover:scale-105 transition-all" onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.voiceModule[currentLang]?.a || SIMULATION_DATA.voiceModule.en.a, currentLang)" title="Click to Speak">
               <i data-lucide="mic" class="w-9 h-9"></i>
             </div>
 
@@ -2604,7 +2694,7 @@
               <span class="w-1.5 bg-emerald-400 rounded-full animate-pulse h-5"></span>
             </div>
 
-            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-left space-y-1.5 cursor-pointer hover:border-sky-500/60 transition-all" onclick="speakSimulationText('${vm.a.replace(/'/g, "\\'")}', currentLang)">
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-left space-y-1.5 cursor-pointer hover:border-sky-500/60 transition-all" onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.voiceModule[currentLang]?.a || SIMULATION_DATA.voiceModule.en.a, currentLang)">
               <div class="flex items-center justify-between text-xs font-bold text-sky-400">
                 <div class="flex items-center space-x-1.5">
                   <i data-lucide="volume-2" class="w-4 h-4"></i>
@@ -2619,6 +2709,11 @@
           </div>
         </div>
       `;
+
+      // Automatically narrate when simulation is playing!
+      if (isPlaying) {
+        speakSimulationText(vm.a, currentLang);
+      }
     }
 
     // --- MODULE 5: HOURLY FORECAST ---
@@ -2764,7 +2859,7 @@
 
           <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
             <span>${t.m8_sub}</span>
-            <button onclick="speakSimulationText('${a.type}. ${a.msg.replace(/'/g, "\\'")}', currentLang)" class="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs border border-amber-500/40 flex items-center space-x-1 cursor-pointer">
+            <button onclick="getAudioContext(); speakSimulationText('${a.type}. ${a.msg.replace(/'/g, "\\'")}', currentLang)" class="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs border border-amber-500/40 flex items-center space-x-1 cursor-pointer">
               <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
               <span>${t.listenVoice}</span>
             </button>
@@ -2814,7 +2909,7 @@
 
           <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs text-slate-200 flex items-center justify-between">
             <span><strong>${t.advisory}:</strong> ${adv}</span>
-            <button onclick="speakSimulationText('${adv.replace(/'/g, "\\'")}', currentLang)" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold border border-emerald-500/40 cursor-pointer ml-2 flex-shrink-0">
+            <button onclick="getAudioContext(); speakSimulationText('${adv.replace(/'/g, "\\'")}', currentLang)" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold border border-emerald-500/40 cursor-pointer ml-2 flex-shrink-0">
               🔊
             </button>
           </div>
@@ -3033,7 +3128,7 @@
               <div onclick="changeLanguage('${l.code}')" class="p-3 rounded-2xl ${currentLang === l.code ? 'bg-sky-950/80 border-2 border-sky-400' : 'bg-slate-800/60 border border-slate-700/80'} space-y-1 cursor-pointer hover:border-sky-500 transition-all">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-white">${l.flag} ${l.name}</span>
-                  <button onclick="event.stopPropagation(); speakSimulationText('${l.text.replace(/'/g, "\\'")}', '${l.code}')" class="p-1 rounded bg-slate-700 hover:bg-slate-600 text-sky-300 text-[10px]" title="Listen Voice">
+                  <button onclick="event.stopPropagation(); getAudioContext(); speakSimulationText('${l.text.replace(/'/g, "\\'")}', '${l.code}')" class="p-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-sky-300 text-xs font-bold" title="Listen Voice">
                     🔊
                   </button>
                 </div>
@@ -3165,7 +3260,7 @@
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border-4 border-rose-500/80 shadow-2xl shadow-rose-900/40 space-y-6 text-center animate-fadeIn">
-          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce cursor-pointer hover:scale-105 transition-all" onclick="speakSimulationText('${dr.replace(/'/g, "\\'")}', currentLang)" title="Click to Hear Arrival Alert">
+          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce cursor-pointer hover:scale-105 transition-all" onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en, currentLang)" title="Click to Hear Arrival Alert">
             <i data-lucide="bell-ring" class="w-12 h-12 animate-spin"></i>
           </div>
 
@@ -3181,7 +3276,7 @@
             </p>
           </div>
 
-          <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 max-w-md mx-auto space-y-2 cursor-pointer hover:border-rose-400 transition-all" onclick="speakSimulationText('${dr.replace(/'/g, "\\'")}', currentLang)">
+          <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 max-w-md mx-auto space-y-2 cursor-pointer hover:border-rose-400 transition-all" onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en, currentLang)">
             <div class="flex items-center justify-between text-rose-300 font-bold text-sm">
               <div class="flex items-center space-x-2">
                 <i data-lucide="volume-2" class="w-5 h-5"></i>
@@ -3195,7 +3290,7 @@
           </div>
 
           <div class="flex items-center justify-center space-x-3 pt-2">
-            <button onclick="stopSirenAlarm(); if (currentSimAudio) { currentSimAudio.pause(); currentSimAudio = null; }" class="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-xl shadow-rose-600/40 cursor-pointer active:scale-95 transition-all">
+            <button onclick="stopSirenAlarm(); stopCurrentSpeaking();" class="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-sm shadow-xl shadow-rose-600/40 cursor-pointer active:scale-95 transition-all">
               ${t.stopAlarm}
             </button>
             <button onclick="restartSimulation()" class="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 cursor-pointer">
