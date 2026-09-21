@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="/wyndra-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&family=Noto+Sans+Telugu:wght@400;600;700;800;900&family=Noto+Sans+Bengali:wght@400;600;700;800;900&family=Noto+Sans+Gujarati:wght@400;600;700;800;900&family=Noto+Sans+Kannada:wght@400;600;700;800;900&family=Noto+Sans+Malayalam:wght@400;600;700;800;900&family=Noto+Sans+Gurmukhi:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -15,7 +15,7 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'Noto Sans Tamil', 'Noto Sans Devanagari', 'sans-serif'],
+            sans: ['Inter', 'Noto Sans Tamil', 'Noto Sans Devanagari', 'Noto Sans Telugu', 'Noto Sans Bengali', 'Noto Sans Gujarati', 'Noto Sans Kannada', 'Noto Sans Malayalam', 'Noto Sans Gurmukhi', 'sans-serif'],
             display: ['Outfit', 'Noto Sans Tamil', 'Noto Sans Devanagari', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
           },
@@ -25,6 +25,7 @@
             'radar-sweep': 'radarSweep 4s linear infinite',
             'siren': 'sirenFlash 0.8s ease-in-out infinite',
             'fadeIn': 'fadeIn 0.3s ease-out forwards',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
           },
           keyframes: {
             fadeIn: {
@@ -38,6 +39,10 @@
             radarSweep: {
               '0%': { transform: 'rotate(0deg)' },
               '100%': { transform: 'rotate(360deg)' },
+            },
+            glowPulse: {
+              '0%, 100%': { boxShadow: '0 0 15px rgba(14, 165, 233, 0.4)' },
+              '50%': { boxShadow: '0 0 30px rgba(14, 165, 233, 0.8)' },
             },
             sirenFlash: {
               '0%, 100%': { backgroundColor: 'rgba(239, 68, 68, 0.25)', borderColor: 'rgba(239, 68, 68, 0.9)' },
@@ -56,7 +61,7 @@
     ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.7); }
     .glass-dark {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.92);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(51, 65, 85, 0.6);
@@ -76,13 +81,13 @@
   <!-- ============================================================================ -->
   <header class="w-full border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-xl px-4 py-3 flex items-center justify-between z-40 sticky top-0 shadow-lg shadow-black/20">
     <div class="flex items-center space-x-3">
-      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sky-500 via-teal-400 to-indigo-600 flex items-center justify-center font-black text-sm text-white shadow-md shadow-sky-500/20">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 via-teal-400 to-indigo-600 flex items-center justify-center font-black text-base text-white shadow-md shadow-sky-500/20">
         W
       </div>
       <div>
         <div class="flex items-center space-x-2">
           <span class="font-display font-extrabold text-base tracking-tight text-white">WeatherGPT</span>
-          <span id="headerSimBadge" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse">
+          <span id="headerSimBadge" class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/40">
             SIMULATION MODE
           </span>
         </div>
@@ -97,19 +102,26 @@
         <span class="text-[11px] font-bold hidden md:inline" id="soundStatusText">Sound ON</span>
       </button>
 
-      <!-- 3-Language Selector in Simulation -->
+      <!-- 10-Language Selector in Simulation -->
       <div class="relative flex items-center">
-        <select id="simLanguageSelect" onchange="changeLanguage(this.value)" class="bg-slate-800 border-2 border-sky-500/70 text-white text-xs font-black rounded-xl px-3 py-1.5 focus:outline-none focus:border-sky-400 cursor-pointer shadow-md shadow-sky-900/40">
+        <select id="simLanguageSelect" onchange="changeLanguage(this.value)" class="bg-slate-800 border-2 border-sky-500/70 text-white text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:border-sky-400 cursor-pointer shadow-md shadow-sky-900/40 max-w-[150px] sm:max-w-none">
           <option value="en">🇬🇧 English</option>
           <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
-          <option value="hi">🇮🇳 हिंदी (Hindi)</option>
+          <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+          <option value="te">🇮🇳 తెలుగు (Telugu)</option>
+          <option value="bn">🇮🇳 বাংলা (Bengali)</option>
+          <option value="mr">🇮🇳 मराठी (Marathi)</option>
+          <option value="gu">🇮🇳 ગુજરાતી (Gujarati)</option>
+          <option value="kn">🇮🇳 ಕನ್ನಡ (Kannada)</option>
+          <option value="ml">🇮🇳 മലയാളം (Malayalam)</option>
+          <option value="pa">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
         </select>
       </div>
 
       <!-- Back to Real Chatbot Button -->
-      <a href="/" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold flex items-center space-x-1.5 transition-all shadow-md shadow-sky-600/30 cursor-pointer">
-        <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
-        <span id="liveChatbotBtnText">Live Chatbot</span>
+      <a href="/" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer">
+        <i data-lucide="message-square" class="w-3.5 h-3.5 text-sky-400"></i>
+        <span id="liveChatbotBtnText" class="hidden sm:inline">Live Chatbot</span>
       </a>
     </div>
   </header>
@@ -125,11 +137,16 @@
           <span class="px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-400 font-bold border border-sky-500/30" id="moduleBadge">
             Module 1 / 18
           </span>
-          <span class="text-slate-200 font-sans font-bold text-xs sm:text-sm truncate max-w-[200px] sm:max-w-md" id="moduleTitle">
-            Location Detection & Geofence Baseline
+          <span class="text-slate-200 font-sans font-bold text-xs sm:text-sm truncate max-w-[180px] sm:max-w-md" id="moduleTitle">
+            1. Location Detection & GPS Baseline
           </span>
         </div>
-        <span class="text-slate-400 font-bold text-[11px]" id="progressPercent">5% Completed</span>
+        <div class="flex items-center space-x-2">
+          <span id="simStatusPill" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+            PAUSED
+          </span>
+          <span class="text-slate-400 font-bold text-[11px]" id="progressPercent">5%</span>
+        </div>
       </div>
 
       <!-- Progress Fill Track -->
@@ -139,39 +156,45 @@
 
       <!-- Playback Controls -->
       <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
-        <div class="flex items-center space-x-1.5">
-          <!-- Play / Pause -->
-          <button id="playPauseBtn" onclick="togglePlayPause()" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer active:scale-95">
-            <i data-lucide="pause" id="playPauseIcon" class="w-3.5 h-3.5"></i>
-            <span id="playPauseText">Pause</span>
+        <div class="flex items-center space-x-2">
+          <!-- Main Start / Pause Primary Button -->
+          <button id="playPauseBtn" onclick="togglePlayPause()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-extrabold text-xs flex items-center space-x-2 transition-all shadow-lg shadow-emerald-900/40 cursor-pointer active:scale-95">
+            <i data-lucide="play" id="playPauseIcon" class="w-4 h-4 fill-white"></i>
+            <span id="playPauseText">Start Simulation</span>
           </button>
 
           <!-- Speed Multiplier 1x / 2x / 4x -->
-          <button id="speedBtn" onclick="cycleSpeed()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs border border-slate-700 flex items-center space-x-1 transition-all cursor-pointer">
+          <button id="speedBtn" onclick="cycleSpeed()" class="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold text-xs border border-slate-700 flex items-center space-x-1 transition-all cursor-pointer">
             <i data-lucide="zap" class="w-3.5 h-3.5"></i>
             <span id="speedText">1× Speed</span>
           </button>
 
           <!-- Previous Module -->
-          <button onclick="previousModule()" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer" title="Previous Module" id="prevBtnTooltip">
+          <button onclick="previousModule()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer" title="Previous Module">
             <i data-lucide="skip-back" class="w-4 h-4"></i>
           </button>
 
           <!-- Next / Skip Module -->
-          <button onclick="nextModule()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold text-xs flex items-center space-x-1 transition-all cursor-pointer" title="Next Module">
-            <span id="skipBtnText">Skip</span>
+          <button onclick="nextModule()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 font-bold text-xs flex items-center space-x-1 transition-all cursor-pointer" title="Next Module">
+            <span id="skipBtnText">Next</span>
             <i data-lucide="skip-forward" class="w-3.5 h-3.5"></i>
           </button>
 
           <!-- Restart -->
-          <button onclick="restartSimulation()" class="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer" title="Restart to Module 1" id="restartBtnTooltip">
+          <button onclick="restartSimulation()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer" title="Restart to Module 1">
             <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
           </button>
         </div>
 
         <div class="flex items-center space-x-2">
+          <!-- Voice Narration Button for Active Module -->
+          <button id="readCurrentModuleBtn" onclick="readActiveModuleVoice()" class="px-3 py-2 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer shadow-sm">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span id="readActiveModuleText">Listen Voice</span>
+          </button>
+
           <!-- Module Quick Jumper Menu -->
-          <button onclick="toggleModuleDrawer()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer">
+          <button onclick="toggleModuleDrawer()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center space-x-1.5 transition-all cursor-pointer">
             <i data-lucide="list" class="w-3.5 h-3.5 text-sky-400"></i>
             <span id="allModulesBtnText">All 18 Modules</span>
           </button>
@@ -212,16 +235,61 @@
   </div>
 
   <!-- ============================================================================ -->
-  <!-- 5. IN-APP NOTIFICATION TOAST OVERLAY -->
+  <!-- 5. INITIAL READY / START HERO OVERLAY (When first loaded) -->
   <!-- ============================================================================ -->
-  <div id="notificationToastContainer" class="fixed top-20 right-4 z-50 space-y-2 pointer-events-none"></div>
+  <div id="initialStartOverlay" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-sky-500/40 rounded-3xl max-w-xl w-full p-6 sm:p-8 text-center space-y-6 shadow-2xl shadow-sky-950/60 animate-fadeIn">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-sky-500 via-teal-400 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/30">
+        <i data-lucide="play" class="w-8 h-8 text-white fill-white ml-1"></i>
+      </div>
+
+      <div class="space-y-2">
+        <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/40 uppercase tracking-wider">
+          WeatherGPT 18-Module Interactive Demo
+        </span>
+        <h2 id="startModalHeading" class="font-display font-black text-2xl sm:text-3xl text-white tracking-tight">
+          Ready to Start Simulation
+        </h2>
+        <p id="startModalSubheading" class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-md mx-auto">
+          Experience full real-time meteorological simulation with live weather telemetry, radar, AI chat, voice synthesis & 100m destination alarm in 10 languages!
+        </p>
+      </div>
+
+      <!-- Language Picker Inside Modal -->
+      <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 space-y-2 text-left">
+        <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
+          <span id="startModalLangLabel">🌐 Select Simulation Language (10 Languages):</span>
+        </label>
+        <select id="modalLanguageSelect" onchange="changeLanguage(this.value)" class="w-full bg-slate-900 border border-sky-500/60 text-white text-sm font-bold rounded-xl p-2.5 focus:outline-none focus:border-sky-400 cursor-pointer">
+          <option value="en">🇬🇧 English</option>
+          <option value="ta">🇮🇳 தமிழ் (Tamil)</option>
+          <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+          <option value="te">🇮🇳 తెలుగు (Telugu)</option>
+          <option value="bn">🇮🇳 বাংলা (Bengali)</option>
+          <option value="mr">🇮🇳 मराठी (Marathi)</option>
+          <option value="gu">🇮🇳 ગુજરાતી (Gujarati)</option>
+          <option value="kn">🇮🇳 ಕನ್ನಡ (Kannada)</option>
+          <option value="ml">🇮🇳 മലയാളം (Malayalam)</option>
+          <option value="pa">🇮🇳 ਪੰਜਾਬੀ (Punjabi)</option>
+        </select>
+      </div>
+
+      <!-- Start Button in Modal -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+        <button onclick="startSimulationFromModal()" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-sky-500 hover:from-emerald-400 hover:to-sky-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-xl shadow-emerald-500/30 cursor-pointer active:scale-95 transition-all flex items-center justify-center space-x-2">
+          <i data-lucide="play" class="w-4 h-4 fill-slate-950"></i>
+          <span id="startModalBtnText">Start Simulation Now</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ============================================================================ -->
-  <!-- 6. JAVASCRIPT MULTILINGUAL & HIGH-FIDELITY VOICE ENGINE -->
+  <!-- 6. JAVASCRIPT MULTILINGUAL & HIGH-FIDELITY VOICE ENGINE (10 LANGUAGES) -->
   <!-- ============================================================================ -->
   <script>
     // ============================================================================
-    // 18-MODULE TITLES IN EN / TA / HI
+    // 18-MODULE TITLES IN ALL 10 LANGUAGES
     // ============================================================================
     const MODULE_TITLES = {
       en: [
@@ -238,7 +306,7 @@
         '11. Aviation METAR & Flight Briefing',
         '12. Marine High-Seas & Vessel Advisory',
         '13. Historical Climate Analytics',
-        '14. Multi-Language Intelligence (EN/TA/HI)',
+        '14. Multi-Language Intelligence (10 Languages)',
         '15. Autonomous Weather Notification Engine',
         '16. Executive Weather Intelligence Report',
         '17. Smart Destination Alarm (45km ➔ 100m)',
@@ -258,7 +326,7 @@
         '11. விமானப் போக்குவரத்து வானிலை சுருக்கம் (METAR)',
         '12. கடல்சார் அலைகள் & மீனவர்களுக்கான எச்சரிக்கை',
         '13. வரலாற்று காலநிலை & புள்ளிவிவர பகுப்பாய்வு',
-        '14. பன்மொழி நுண்ணறிவு (தமிழ்/ஆங்கிலம்/இந்தி)',
+        '14. பன்மொழி நுண்ணறிவு (10 மொழிகள்)',
         '15. தானியங்கி வானிலை அறிவிப்பு அமைப்பு',
         '16. விரிவான வானிலை நுண்ணறிவு அறிக்கை',
         '17. ஸ்மார்ட் சேருமிட அலாரம் (45கிமீ ➔ 100மீ பயணம்)',
@@ -278,15 +346,157 @@
         '11. विमानन मौसम ब्रीफिंग (METAR)',
         '12. समुद्री तरंग और तटीय मछुआरा सलाह',
         '13. ऐतिहासिक जलवायु और सांख्यिकी विश्लेषण',
-        '14. बहुभाषी बुद्धिमत्ता (अंग्रेजी/तमिल/हिंदी)',
+        '14. बहुभाषी बुद्धिमत्ता (10 भाषाएँ)',
         '15. स्वचालित मौसम अधिसूचना प्रणाली',
         '16. कार्यकारी मौसम खुफिया रिपोर्ट',
         '17. स्मार्ट गंतव्य अलार्म (45 किमी ➔ 100 मीटर यात्रा)',
         '18. जियोफेंस ट्रिगर और गंतव्य पर आगमन'
+      ],
+      te: [
+        '1. లైవ్ లొకేషన్ గుర్తింపు & జీపీఎస్ బేస్‌లైన్',
+        '2. ప్రస్తుత వాతావరణ సమాచార డ్యాష్‌బోర్డ్',
+        '3. AI వాతావరణ చాట్‌బాట్ అసిస్టెంట్',
+        '4. వాయిస్ అసిస్టెంట్ & వాయిస్ రీడింగ్ (TTS)',
+        '5. 24 గంటల ప్రతి గంట వాతావరణ సూచన',
+        '6. 7 రోజుల వాతావరణ ధోరణి సూచన',
+        '7. జీఐఎస్ డాప్లర్ రాడార్ లైవ్ స్ట్రీమ్',
+        '8. తీవ్రమైన వాతావరణ ప్రమాద హెచ్చరిక',
+        '9. గాలి నాణ్యత సూచిక (AQI) & పీఎం స్థాయిలు',
+        '10. స్మార్ట్ వ్యవసాయం & రైతు సలహాలు',
+        '11. ఏవియేషన్ మెటార్ & విమాన నివేదిక',
+        '12. సముద్ర అలలు & మత్స్యకారుల భద్రత',
+        '13. చారిత్రక వాతావరణ విశ్లేషణ',
+        '14. బహుభాషా మేధస్సు (10 భాషలు)',
+        '15. ఆటోమేటిక్ వాతావరణ నోటిఫికేషన్లు',
+        '16. సమగ్ర వాతావరణ నివేదిక',
+        '17. స్మార్ట్ గమ్యస్థాన అలారం (45కిమీ ➔ 100మీ)',
+        '18. జియోఫెన్స్ ట్రిగ్గర్ & గమ్యాన్ని చేరుకున్నారు'
+      ],
+      bn: [
+        '1. রিয়েল-টাইম অবস্থান শনাক্তকরণ ও জিপিএস',
+        '2. লাইভ বর্তমান আবহাওয়া ড্যাশবোর্ড',
+        '3. এআই আবহাওয়া চ্যাটবট সহকারী',
+        '4. ভয়েস সহকারী ও স্পিচ সিন্থেসিস (TTS)',
+        '5. ২৪-ঘণ্টার প্রতি ঘণ্টার পূর্বাভাস',
+        '6. ৭-দিনের সাপ্তাহিক আবহাওয়া পূর্বাভাস',
+        '7. জিআইএস ডপলার আবহাওয়া রাডার স্ট্রিম',
+        '8. চরম আবহাওয়া ও ভারী বৃষ্টির সতর্কতা',
+        '9. বায়ু মান সূচক (AQI) ও দূষণ মাত্রা',
+        '10. স্মার্ট কৃষি ও কৃষক আবহাওয়া পরামর্শ',
+        '11. বিমান চলাচল মেটার ও আবহাওয়া ব্রিফিং',
+        '12. সামুদ্রিক ঢেউ ও মৎস্যজীবী সতর্কতা',
+        '13. ঐতিহাসিক জলবায়ু ও পরিসংখ্যান বিশ্লেষণ',
+        '14. বহুভাষিক বুদ্ধিমত্তা (১০টি ভাষা)',
+        '15. স্বয়ংক্রিয় আবহাওয়া বিজ্ঞপ্তি ব্যবস্থা',
+        '16. নির্বাহী আবহাওয়া গোয়েন্দা প্রতিবেদন',
+        '17. স্মার্ট গন্তব্য অ্যালার্ম (৪৫ কিমি ➔ ১০০ মি)',
+        '18. জিওফেন্স ট্রিগার ও গন্তব্যে পৌঁছানো'
+      ],
+      mr: [
+        '1. थेट स्थान ओळख आणि जीपीएस बेसलाइन',
+        '2. थेट सध्याचे हवामान डॅशबोर्ड',
+        '3. एआय हवामान चॅटबॉट सहाय्यक',
+        '4. व्हॉइस असिस्टंट आणि स्पीच सिंथेसिस (TTS)',
+        '5. २४-तासांचे तासावार हवामान अंदाज',
+        '6. ७-दिवसीय साप्ताहिक हवामान अंदाज',
+        '7. जीआयएस डॉपलर हवामान रडार प्रवाह',
+        '8. तीव्र हवामान व मुसळधार पाऊस इशारा',
+        '9. हवा गुणवत्ता निर्देशांक (AQI) व प्रदूषण',
+        '10. स्मार्ट कृषी आणि शेतकरी सल्ला',
+        '11. विमान वाहतूक मेटार (METAR) माहिती',
+        '12. सागरी लाटा व मच्छीमार सुरक्षा सल्ला',
+        '13. ऐतिहासिक हवामान व आकडेवारी विश्लेषण',
+        '14. बहुभाषिक बुद्धिमत्ता (१० भाषा)',
+        '15. स्वयंचलित हवामान सूचना प्रणाली',
+        '16. कार्यकारी हवामान बुद्धिमत्ता अहवाल',
+        '17. स्मार्ट गंतव्य अलार्म (४५ किमी ➔ १०० मीटर)',
+        '18. जिओफेन्स ट्रिगर आणि गंतव्यस्थान पोहोचले'
+      ],
+      gu: [
+        '1. લાઈવ સ્થાન ટ્રેકિંગ અને જીપીએસ બેઝલાઇન',
+        '2. લાઈવ વર્તમાન હવામાન ડેશબોર્ડ',
+        '3. એઆઈ હવામાન ચેટબોટ સહાયક',
+        '4. વોઇસ સહાયક અને સ્પીચ સિન્થેસિસ (TTS)',
+        '5. 24-કલાકનું કલાકદીઠ હવામાન પૂર્વાનુમાન',
+        '6. 7-દિવસનું સાપ્તાહિક હવામાન પૂર્વાનુમાન',
+        '7. જીઆઈએસ ડોપ્લર હવામાન રડાર સ્ટ્રીમ',
+        '8. ગંભીર હવામાન અને ભારે વરસાદની ચેતવણી',
+        '9. વાયુ ગુણવત્તા સૂચકાંક (AQI) અને પ્રદૂષણ',
+        '10. સ્માર્ટ કૃષિ અને ખેડૂત હવામાન સલાહ',
+        '11. ઉડ્ડયન હવામાન સંક્ષિપ્ત વિગત (METAR)',
+        '12. દરિયાઈ મોજા અને માછીમાર સુરક્ષા સલાહ',
+        '13. ઐતિહાસિક આબોહવા અને આંકડાકીય વિશ્લેષણ',
+        '14. બહુભાષી બુદ્ધિમત્તા (10 ભાષાઓ)',
+        '15. સ્વચાલિત હવામાન સૂચના સિસ્ટમ',
+        '16. સત્તાવાર હવામાન ગુપ્તચર અહેવાલ',
+        '17. સ્માર્ટ ગંતવ્ય એલાર્મ (45 કિમી ➔ 100 મી)',
+        '18. જિયોફેન્સ ટ્રિગર અને ગંતવ્ય સ્થાન પહોંચ્યા'
+      ],
+      kn: [
+        '1. ನೇರ ಸ್ಥಳ ಪತ್ತೆ ಮತ್ತು ಜಿಪಿಎಸ್ ಬೇಸ್‌ಲೈನ್',
+        '2. ಲೈವ್ ಪ್ರಸ್ತುತ ಹವಾಮಾನ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',
+        '3. AI ಹವಾಮಾನ ಚಾಟ್‌ಬಾಟ್ ಸಹಾಯಕ',
+        '4. ಧ್ವನಿ ಸಹಾಯಕ ಮತ್ತು ಸ್ಪೀಚ್ ಸಿಂಥೆಸಿಸ್ (TTS)',
+        '5. 24-ಗಂಟೆಗಳ ಗಂಟಾವಾರು ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ',
+        '6. 7-ದಿನಗಳ ವಿಸ್ತೃತ ವಾರದ ಮುನ್ಸೂಚನೆ',
+        '7. ಜಿಐಎಸ್ ಡಾಪ್ಲರ್ ಹವಾಮಾನ ರಡಾರ್ ಲೈವ್',
+        '8. ತೀವ್ರ ಹವಾಮಾನ ಮತ್ತು ಭಾರಿ ಮಳೆ ಎಚ್ಚರಿಕೆ',
+        '9. ವಾಯು ಗುಣಮಟ್ಟ ಸೂಚ್ಯಂಕ (AQI) ಮತ್ತು ಮಾಲಿನ್ಯ',
+        '10. ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಮತ್ತು ರೈತ ಹವಾಮಾನ ಸಲಹೆ',
+        '11. ವಾಯುಯಾನ ಮೆಟಾರ್ ಮತ್ತು ವಿಮಾನ ಮಾಹಿತಿ',
+        '12. ಸಮುದ್ರ ಅಲೆಗಳು ಮತ್ತು ಮೀನುಗಾರರ ಎಚ್ಚರಿಕೆ',
+        '13. ಐತಿಹಾಸಿಕ ಹವಾಮಾನ ವಿಶ್ಲೇಷಣೆ',
+        '14. ಬಹುಭಾಷಾ ಬುದ್ಧಿವಂತಿಕೆ (10 ಭಾಷೆಗಳು)',
+        '15. ಸ್ವಯಂಚಾಲಿತ ಹವಾಮಾನ ಅಧಿಸೂಚನೆ ವ್ಯವಸ್ಥೆ',
+        '16. ಹವಾಮಾನ ಗುಪ್ತಚರ ಸಮಗ್ರ ವರದಿ',
+        '17. ಸ್ಮಾರ್ಟ್ ಗಮ್ಯಸ್ಥಾನ ಅಲಾರಾಂ (45ಕಿಮೀ ➔ 100ಮೀ)',
+        '18. ಜಿಯೋಫೆನ್ಸ್ ಪ್ರಚೋದನೆ ಮತ್ತು ಗಮ್ಯಸ್ಥಾನ ತಲುಪಿದೆ'
+      ],
+      ml: [
+        '1. തത്സമയ ലൊക്കേഷൻ കണ്ടെത്തലും ജിപിഎസും',
+        '2. ലൈവ് നിലവിലെ കാലാവസ്ഥാ ഡാഷ്‌ബോർഡ്',
+        '3. AI കാലാവസ്ഥാ ചാറ്റ്ബോട്ട് അസിസ്റ്റന്റ്',
+        '4. വോയ്‌സ് അസിസ്റ്റന്റും ശബ്ദ വായനയും (TTS)',
+        '5. 24-മണിക്കൂർ മണിക്കൂർ തോറുമുള്ള പ്രവചനം',
+        '6. 7-ദിവസത്തെ വിപുലീകൃത കാലാവസ്ഥാ പ്രവചനം',
+        '7. ജിഐഎസ് ഡോപ്ലർ റഡാർ ലൈവ് സ്ട്രീം',
+        '8. കടുത്ത കാലാവസ്ഥയും കനത്ത മഴ മുന്നറിയിപ്പും',
+        '9. വായു ഗുണനിലവാര സൂചിക (AQI) ടെലിമെട്രി',
+        '10. സ്മാർട്ട് കൃഷിയും കർഷക കാലാവസ്ഥാ ഉപദേശവും',
+        '11. ഏവിയേഷൻ മെറ്റാർ & വിമാന കാലാവസ്ഥ',
+        '12. സമുദ്ര തിരമാലകളും മത്സ്യത്തൊഴിലാളി ജാഗ്രതയും',
+        '13. ചരിത്രപരമായ കാലാവസ്ഥാ വിശകലനം',
+        '14. ബഹുഭാഷാ ബുദ്ധി (10 ഭാഷകൾ)',
+        '15. ഓട്ടോമാറ്റിക് കാലാവസ്ഥാ അറിയിപ്പ് സംവിധാനം',
+        '16. വിശദമായ കാലാവസ്ഥാ റിപ്പോർട്ട്',
+        '17. സ്മാർട്ട് ലക്ഷ്യസ്ഥാന അലാറം (45കി.മീ ➔ 100മീ)',
+        '18. ജിയോഫെൻസ് ട്രിഗറും ലക്ഷ്യസ്ഥാനത്ത് എത്തിച്ചേരലും'
+      ],
+      pa: [
+        '1. ਰੀਅਲ-ਟਾਈਮ ਟਿਕਾਣਾ ਖੋਜ ਅਤੇ ਜੀਪੀਐਸ ਬੇਸਲਾਈਨ',
+        '2. ਲਾਈਵ ਮੌਜੂਦਾ ਮੌਸਮ ਡੈਸ਼ਬੋਰਡ',
+        '3. ਏਆਈ ਮੌਸਮ ਚੈਟਬੋਟ ਸਹਾਇਕ',
+        '4. ਵੌਇਸ ਅਸਿਸਟੈਂਟ ਅਤੇ ਆਵਾਜ਼ ਸੰਸਲੇਸ਼ਣ (TTS)',
+        '5. 24-ਘੰਟੇ ਦਾ ਪ੍ਰਤੀ ਘੰਟਾ ਮੌਸਮ ਪੂਰਵ ਅਨੁਮਾਨ',
+        '6. 7-ਦਿਨਾਂ ਦਾ ਹਫ਼ਤਾਵਾਰੀ ਮੌਸਮ ਪੂਰਵ ਅਨੁਮਾਨ',
+        '7. ਜੀਆਈਐਸ ਡੌਪਲਰ ਮੌਸਮ ਰਾਡਾਰ ਸਟ੍ਰੀਮ',
+        '8. ਗੰਭੀਰ ਮੌਸਮ ਅਤੇ ਭਾਰੀ ਮੀਂਹ ਦੀ ਚੇਤਾਵਨੀ',
+        '9. ਹਵਾ ਗੁਣਵੱਤਾ ਸੂਚਕਾਂਕ (AQI) ਅਤੇ ਪ੍ਰਦੂਸ਼ਣ ਪੱਧਰ',
+        '10. ਸਮਾਰਟ ਖੇਤੀਬਾੜੀ ਅਤੇ ਕਿਸਾਨ ਮੌਸਮ ਸਲਾਹ',
+        '11. ਹਵਾਬਾਜ਼ੀ ਮੌਸਮ ਸੰਖੇਪ ਜਾਣਕਾਰੀ (METAR)',
+        '12. ਸਮੁੰਦਰੀ ਲਹਿਰਾਂ ਅਤੇ ਮਛੇਰਿਆਂ ਲਈ ਸਲਾਹ',
+        '13. ਇਤਿਹਾਸਕ ਜਲਵਾਯੂ ਅਤੇ ਅੰਕੜਾ ਵਿਸ਼ਲੇਸ਼ਣ',
+        '14. ਬਹੁਭਾਸ਼ਾਈ ਬੁੱਧੀ (10 ਭਾਸ਼ਾਵਾਂ)',
+        '15. ਸਵੈਚਾਲਿਤ ਮੌਸਮ ਨੋਟੀਫਿਕੇਸ਼ਨ ਪ੍ਰਣਾਲੀ',
+        '16. ਕਾਰਜਕਾਰੀ ਮੌਸਮ ਖੁਫੀਆ ਰਿਪੋਰਟ',
+        '17. ਸਮਾਰਟ ਮੰਜ਼ਿਲ ਅਲਾਰਮ (45 ਕਿਲੋਮੀਟਰ ➔ 100 ਮੀਟਰ)',
+        '18. ਜੀਓਫੈਂਸ ਟ੍ਰਿਗਰ ਅਤੇ ਮੰਜ਼ਿਲ ਤੇ ਪਹੁੰਚ'
       ]
     };
 
-    // UI Translation Strings
+    // ============================================================================
+    // UI TRANSLATION STRINGS (10 LANGUAGES)
+    // ============================================================================
     const UI_I18N = {
       en: {
         simBadge: 'SIMULATION MODE',
@@ -296,11 +506,15 @@
         liveChatbot: 'Live Chatbot',
         moduleBadge: (i, t) => `Module ${i} / ${t}`,
         progress: (pct) => `${pct}% Completed`,
+        start: 'Start Simulation',
         pause: 'Pause',
         resume: 'Resume',
+        playingStatus: 'RUNNING',
+        pausedStatus: 'PAUSED',
         speed: (s) => `${s}× Speed`,
-        skip: 'Skip',
+        skip: 'Next',
         allModulesBtn: 'All 18 Modules',
+        listenVoice: 'Listen Voice',
         drawerTitle: 'Select Any of 18 Simulation Modules',
         gpsLocked: 'GPS LOCKED',
         currentLoc: 'Current Location (Origin)',
@@ -325,7 +539,6 @@
         protectionAdvised: 'Protection Advised',
         good: 'Good',
         replayVoice: 'Replay Voice',
-        listenVoiceBtn: '🔊 Listen Voice',
         userInput: '🎤 User Spoken Input:',
         spokenBulletin: '🔊 WeatherGPT Spoken Bulletin:',
         weeklyOutlook: 'Weekly Outlook',
@@ -378,7 +591,7 @@
         m11_sub: 'ICAO METAR & Flight Category',
         m12_sub: 'Bay of Bengal Coastal Wave & Swell State',
         m13_sub: 'Climate & Weather Statistics',
-        m14_sub: 'Multilingual WeatherGPT Intelligence',
+        m14_sub: '10 Languages Supported in WeatherGPT',
         m15_sub: 'Autonomous Weather Notifications',
         m16_sub: 'WeatherGPT Executive Meteorological Dossier',
         m17_sub: 'Chengalpattu ➔ Chennai Central (Continuous Telemetry)',
@@ -393,11 +606,15 @@
         liveChatbot: 'நேரடி சாட்பாட்',
         moduleBadge: (i, t) => `தொகுதி ${i} / ${t}`,
         progress: (pct) => `${pct}% முடிந்தது`,
+        start: 'சிமுலேஷனைத் தொடங்கு',
         pause: 'இடைநிறுத்து',
         resume: 'தொடங்கு',
+        playingStatus: 'இயங்குகிறது',
+        pausedStatus: 'நிறுத்தப்பட்டது',
         speed: (s) => `${s}× வேகம்`,
         skip: 'அடுத்தது',
         allModulesBtn: 'அனைத்து 18 தொகுதிகள்',
+        listenVoice: 'குரலில் கேட்க',
         drawerTitle: '18 சிமுலேஷன் தொகுதிகளில் ஒன்றைத் தேர்வுசெய்க',
         gpsLocked: 'GPS இணைக்கப்பட்டது',
         currentLoc: 'தற்போதைய இருப்பிடம் (தொடக்க இடம்)',
@@ -422,7 +639,6 @@
         protectionAdvised: 'பாதுகாப்பு தேவை',
         good: 'தெளிவானது',
         replayVoice: 'குரலை மீண்டும் இயக்கு',
-        listenVoiceBtn: '🔊 தமிழில் கேட்க',
         userInput: '🎤 பயனர் குரல் கேள்வி:',
         spokenBulletin: '🔊 WeatherGPT குரல் பதில்:',
         weeklyOutlook: 'வாராந்திர முன்னறிவிப்பு',
@@ -453,49 +669,53 @@
         dossierStatus: 'சரிபார்க்கப்பட்ட வானிலை உருவகப்படுத்துதல்',
         stage: 'நிலை',
         eta: 'நேரம்',
-        destWeatherNote: 'சேருமிட வானிலை: <strong>சென்னை சென்ட்ரல்: 30°C, 70% மழை</strong> — குடையை தயாராக வைத்திருக்கவும்.',
-        progressApproaching: 'முன்னேற்றம்: 100 மீட்டரை நெருங்குகிறது',
-        geoAlarmTriggered: '🎯 100மீ ஜியோஃபென்ஸ் அலாரம் ஒலித்தது',
-        reachedTitle: 'நீங்கள் உங்கள் இலக்கை அடைந்துவிட்டீர்கள்',
+        destWeatherNote: 'சேருமிட வானிலை: <strong>சென்னை சென்ட்ரல்: 30°C, 70% மழை</strong> — குடை தயாராக வைத்திருக்கவும்.',
+        progressApproaching: 'முன்னேற்றம்: 100மீ நெருங்குகிறது',
+        geoAlarmTriggered: '🎯 100மீ ஜியோஃபென்ஸ் அலாரம் செயல்பட்டது',
+        reachedTitle: 'நீங்கள் உங்கள் சேருமிடத்தை அடைந்துவிட்டீர்கள்',
         reachedLoc: 'சென்னை சென்ட்ரல், தமிழ்நாடு, இந்தியா',
         voiceAlertSpeaking: '🔊 குரல் எச்சரிக்கை அறிவிப்பு:',
         stopAlarm: '🛑 அலாரத்தை நிறுத்து',
-        restartDemo: '🔄 மீண்டும் தொடங்கு',
-        m1_sub: 'துல்லியமான ஜிபிஎஸ் (GPS) இணைப்பு & அடிப்படைத் தரவுகள்',
-        m2_sub: 'செங்கல்பட்டு நேரலை வானிலை அளவீடுகள்',
-        m3_sub: 'சூழல் சார்ந்த புத்திசாலித்தன வானிலை உரையாடல்',
-        m3_aiReady: 'AI என்ஜின் தயார்',
-        m4_sub: 'பன்மொழி குரல் பேச்சு மற்றும் ஒலி தொகுப்பு',
-        m5_sub: '24-மணி நேர காலவரிசை முன்னறிவிப்பு (மு.ப 10:00 – பி.ப 5:00)',
-        m6_sub: '7-நாள் நீட்டிக்கப்பட்ட முன்னறிவிப்பு (திங்கள் – ஞாயிறு)',
-        m7_sub: 'டாப்ளர் வானிலை ரேடார் நேரலை ஸ்ட்ரீம்',
-        m8_sub: 'இருப்பிடம்: செங்கல்பட்டு – சென்னை பிரதான வழித்தடம்',
-        m9_sub: 'காற்றுத் தரக் குறியீடு (AQI) & மாசுக் கட்டுப்பாடு',
-        m10_sub: 'மண் ஈரப்பதம் & பூச்சிக்கொல்லி மருந்து தெளிக்கும் நேரம்',
-        m11_sub: 'ICAO METAR மற்றும் விமானப் பறப்புப் பிரிவு',
-        m12_sub: 'வங்காள விரிகுடா கடலோர அலைகள் மற்றும் காற்றின் வேகம்',
-        m13_sub: 'காலநிலை & வரலாற்று வானிலை புள்ளிவிவரங்கள்',
-        m14_sub: 'பன்மொழி WeatherGPT நுண்ணறிவு',
+        restartDemo: '🔄 தொடக்கத்திலிருந்து இயக்கு',
+        m1_sub: 'உயர் துல்லிய GPS மற்றும் தொலைத்தொடர்பு நிலை',
+        m2_sub: 'செங்கல்பட்டு நேரலை வானிலை நிலவரம்',
+        m3_sub: 'சூழல் அறிந்த உரையாடல் AI நுண்ணறிவு',
+        m3_aiReady: 'AI தயார்',
+        m4_sub: 'பன்மொழி பேச்சு & ஒலி தொகுப்பு (TTS)',
+        m5_sub: '24-மணி நேர காலவரிசை (காலை 10 – மாலை 5)',
+        m6_sub: '7-நாள் விரிவான முன்னறிவிப்பு (திங்கள் – ஞாயிறு)',
+        m7_sub: 'டாப்ளர் ரேடார் நேரலை உருவகப்படுத்துதல்',
+        m8_sub: 'செங்கல்பட்டு – சென்னை பிரதான வழித்தடம்',
+        m9_sub: 'காற்றுத் தரக் குறியீடு (AQI) மற்றும் PM அளவு',
+        m10_sub: 'மண் ஈரப்பதம் & உரம் தெளிக்கும் நேரம்',
+        m11_sub: 'ICAO METAR மற்றும் விமானப் பிரிவு',
+        m12_sub: 'வங்கக்கடல் கடலோர அலைகள் மற்றும் நிலை',
+        m13_sub: 'காலநிலை மற்றும் வானிலை புள்ளிவிவரங்கள்',
+        m14_sub: 'WeatherGPT-ல் உள்ள 10 மொழிகள்',
         m15_sub: 'தானியங்கி வானிலை எச்சரிக்கை அறிவிப்புகள்',
         m16_sub: 'WeatherGPT அதிகாரப்பூர்வ வானிலை அறிக்கை',
-        m17_sub: 'செங்கல்பட்டு ➔ சென்னை சென்ட்ரல் (தொடர் பயணத் தரவுகள்)',
-        m18_sub: '100மீ ஜியோஃபென்ஸ் இலக்கு அடைதல் & குரல் எச்சரிக்கை',
+        m17_sub: 'செங்கல்பட்டு ➔ சென்னை சென்ட்ரல் (நேரலை பயணம்)',
+        m18_sub: '100மீ ஜியோஃபென்ஸ் வருகை & தானியங்கி அலாரம்',
         rainLabel: 'மழை'
       },
       hi: {
         simBadge: 'सिमुलेशन मोड',
-        subtitle: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल (18-मॉड्यूल इंटरएक्टिव सिमुलेशन)',
+        subtitle: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल (18-मॉड्यूल इंटरैक्टिव डेमो)',
         soundOn: 'ध्वनि चालू',
-        soundMuted: 'ध्वनि बंद',
+        soundMuted: 'मौन',
         liveChatbot: 'लाइव चैटबॉट',
         moduleBadge: (i, t) => `मॉड्यूल ${i} / ${t}`,
-        progress: (pct) => `${pct}% पूरा हुआ`,
+        progress: (pct) => `${pct}% पूर्ण`,
+        start: 'सिमुलेशन शुरू करें',
         pause: 'रोकें',
-        resume: 'शुरू करें',
+        resume: 'पुनः शुरू करें',
+        playingStatus: 'चालू',
+        pausedStatus: 'रुका हुआ',
         speed: (s) => `${s}× गति`,
         skip: 'अगला',
         allModulesBtn: 'सभी 18 मॉड्यूल',
-        drawerTitle: '18 सिमुलेशन मॉड्यूल में से किसी एक का चयन करें',
+        listenVoice: 'आवाज़ में सुनें',
+        drawerTitle: '18 सिमुलेशन मॉड्यूल में से चुनें',
         gpsLocked: 'जीपीएस लॉक',
         currentLoc: 'वर्तमान स्थान (प्रारंभिक बिंदु)',
         destLoc: 'गंतव्य स्थान',
@@ -504,11 +724,11 @@
         gpsAcc: 'जीपीएस सटीकता',
         initDist: 'शुरुआती दूरी',
         direction: 'यात्रा की दिशा',
-        geoNote: 'चेन्नई सेंट्रल स्टेशन के चारों ओर 100 मीटर के दायरे में जियोफेंस सीमा स्थापित की गई है।',
+        geoNote: 'चेन्नई सेंट्रल स्टेशन के चारों ओर 100 मीटर के दायरे में जियोफेंस स्थापित है।',
         temp: 'तापमान',
         feelsLike: 'महसूस होता है',
         rainProb: 'बारिश की संभावना',
-        humidity: 'नमी (आर्द्रता)',
+        humidity: 'आर्द्रता',
         windSpeed: 'हवा की गति',
         pressure: 'वायुमंडलीय दबाव',
         uvIndex: 'यूवी सूचकांक',
@@ -516,21 +736,20 @@
         cloudCover: 'बादल आवरण',
         highMoisture: 'अधिक नमी',
         nominal: 'सामान्य',
-        protectionAdvised: 'सुरक्षा की सलाह',
-        good: 'अच्छी',
+        protectionAdvised: 'सुरक्षा सलाह',
+        good: 'अच्छा',
         replayVoice: 'आवाज़ दोबारा सुनें',
-        listenVoiceBtn: '🔊 हिंदी में सुनें',
-        userInput: '🎤 उपयोगकर्ता द्वारा पूछा गया प्रश्न:',
+        userInput: '🎤 उपयोगकर्ता का प्रश्न:',
         spokenBulletin: '🔊 WeatherGPT वाक् उत्तर:',
         weeklyOutlook: 'साप्ताहिक दृष्टिकोण',
-        radarSim: 'सिमुलेटेड डॉपलर रडआर डेटा',
-        radarFrame: 'फ़्रेम 4/4: वर्षा उत्तर-उत्तर-पूर्व की ओर बढ़ रही है (24 dBZ)',
+        radarSim: 'सिमुलेटेड डॉपलर रडार',
+        radarFrame: 'फ़्रेम 4/4: उत्तर-उत्तर-पूर्व की ओर वर्षा (24 dBZ)',
         severity: 'गंभीरता',
         window: 'समय सीमा',
         sirenReady: 'स्वचालित सायरन: तैयार',
         aqiLevel: 'वायु गुणवत्ता (AQI)',
-        pm25: 'PM2.5 कण सांद्रता',
-        pm10: 'PM10 कण सांद्रता',
+        pm25: 'PM2.5 सांद्रता',
+        pm10: 'PM10 सांद्रता',
         advisory: 'मौसम सलाह',
         soilMoisture: 'मिट्टी की नमी (0-1cm)',
         soilTemp: 'मिट्टी का तापमान',
@@ -544,65 +763,786 @@
         avgTemp: 'औसत तापमान',
         avgHum: 'औसत नमी',
         peakRain: 'अधिकतम बारिश संभावना',
-        meanWind: 'औसत हवा की गति',
+        meanWind: 'औसत हवा गति',
         printPdf: 'प्रिंट / PDF',
         dossierLoc: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल',
         dossierStatus: 'सत्यापित मौसम सिमुलेशन',
         stage: 'चरण',
         eta: 'समय',
-        destWeatherNote: 'गंतव्य का मौसम: <strong>चेन्नई सेंट्रल: 30°C, 70% बारिश</strong> — छाता साथ में रखें।',
+        destWeatherNote: 'गंतव्य का मौसम: <strong>चेन्नई सेंट्रल: 30°C, 70% बारिश</strong> — छाता साथ रखें।',
         progressApproaching: 'प्रगति: 100 मीटर के करीब',
-        geoAlarmTriggered: '🎯 100 मीटर जियोफेंस अलार्म सक्रिय हुआ',
+        geoAlarmTriggered: '🎯 100 मीटर जियोफेंस अलार्म सक्रिय',
         reachedTitle: 'आप अपने गंतव्य पर पहुँच गए हैं',
         reachedLoc: 'चेन्नई सेंट्रल, तमिलनाडु, भारत',
         voiceAlertSpeaking: '🔊 वॉयस अलर्ट प्रसारण:',
         stopAlarm: '🛑 अलार्म बंद करें',
-        restartDemo: '🔄 डेमो दोबारा शुरू करें',
+        restartDemo: '🔄 डेमो पुनः शुरू करें',
         m1_sub: 'उच्च-सटीक जीपीएस लॉक और टेलीमेट्री बेसलाइन',
         m2_sub: 'चेंगलपट्टू लाइव मौसम टेलीमेट्री',
-        m3_sub: 'संदर्भ-जागरूक संवादात्मक मौसम बुद्धिमत्ता',
-        m3_aiReady: 'एआई इंजन तैयार',
-        m4_sub: 'बहुभाषी वाक् और ध्वनि संश्लेषण',
-        m5_sub: '24-घंटे का प्रति घंटा टाइमलाइन (10:00 पूर्वाह्न – 5:00 अपराह्न)',
+        m3_sub: 'संदर्भ-जागरूक संवादात्मक एआई बुद्धिमत्ता',
+        m3_aiReady: 'एआई तैयार',
+        m4_sub: 'बहुभाषी वाक् और ध्वनि संश्लेषण (TTS)',
+        m5_sub: '24-घंटे का प्रति घंटा टाइमलाइन (10 पूर्वाह्न – 5 अपराह्न)',
         m6_sub: '7-दिवसीय विस्तृत रुझान (सोमवार – रविवार)',
         m7_sub: 'डॉपलर मौसम रडार लाइव स्ट्रीम',
         m8_sub: 'स्थान: चेंगलपट्टू – चेन्नई मुख्य कॉरिडोर',
         m9_sub: 'वायु गुणवत्ता सूचकांक (AQI) और पीएम टेलीमेट्री',
-        m10_sub: 'मिट्टी की नमी और कीटनाशक छिड़काव का समय',
+        m10_sub: 'मिट्टी की नमी और कीटनाशक छिड़काव समय',
         m11_sub: 'ICAO METAR और उड़ान श्रेणी',
-        m12_sub: 'बंगाल की खाड़ी की तटीय लहरें और स्थिति',
+        m12_sub: 'बंगाल की खाड़ी तटीय लहरें और स्थिति',
         m13_sub: 'जलवायु और मौसम सांख्यिकी',
-        m14_sub: 'बहुभाषी WeatherGPT इंटेलिजेंस',
+        m14_sub: 'WeatherGPT में उपलब्ध 10 भाषाएँ',
         m15_sub: 'स्वचालित मौसम सूचनाएं',
         m16_sub: 'WeatherGPT आधिकारिक मौसम रिपोर्ट',
-        m17_sub: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल (निरंतर टेलीमेट्री)',
+        m17_sub: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल (यात्रा सिमुलेशन)',
         m18_sub: '100 मीटर जियोफेंस आगमन और स्वचालित चेतावनी',
         rainLabel: 'बारिश'
+      },
+      te: {
+        simBadge: 'సిమ్యులేషన్ మోడ్',
+        subtitle: 'చెంగల్పట్టు ➔ చెన్నై సెంట్రల్ (18-మాడ్యూల్ ఇంటరాక్టివ్ డెమో)',
+        soundOn: 'ధ్వని ఆన్',
+        soundMuted: 'మ్యూట్',
+        liveChatbot: 'లైవ్ చాట్‌బాట్',
+        moduleBadge: (i, t) => `మాడ్యూల్ ${i} / ${t}`,
+        progress: (pct) => `${pct}% పూర్తయింది`,
+        start: 'సిమ్యులేషన్ ప్రారంభించండి',
+        pause: 'పాజ్ చేయండి',
+        resume: 'పునఃప్రారంభించండి',
+        playingStatus: 'నడుస్తోంది',
+        pausedStatus: 'ఆగిపోయింది',
+        speed: (s) => `${s}× వేగం`,
+        skip: 'తదుపరి',
+        allModulesBtn: 'అన్ని 18 మాడ్యూల్స్',
+        listenVoice: 'వాయిస్ వినండి',
+        drawerTitle: '18 సిమ్యులేషన్ మాడ్యూళ్ళలో ఒకదాన్ని ఎంచుకోండి',
+        gpsLocked: 'GPS లాక్ చేయబడింది',
+        currentLoc: 'ప్రస్తుత స్థానం (ప్రారంభం)',
+        destLoc: 'గమ్యస్థానం (లక్ష్యం)',
+        lat: 'అక్షాంశం (Latitude)',
+        lon: 'రేఖాంశం (Longitude)',
+        gpsAcc: 'GPS ఖచ్చితత్వం',
+        initDist: 'ప్రారంభ దూరం',
+        direction: 'దిశ',
+        geoNote: 'చెన్నై సెంట్రల్ చుట్టూ 100 మీటర్ల పరిధిలో జియోఫెన్స్ ఏర్పాటు చేయబడింది.',
+        temp: 'ఉష్ణోగ్రత',
+        feelsLike: 'అనిపించే ఉష్ణోగ్రత',
+        rainProb: 'వర్షం సంభావ్యత',
+        humidity: 'తేమ',
+        windSpeed: 'గాలి వేగం',
+        pressure: 'పీడనం',
+        uvIndex: 'UV సూచిక',
+        visibility: 'దృశ్యమానత',
+        cloudCover: 'మేఘావృతం',
+        highMoisture: 'అధిక తేమ',
+        nominal: 'సాధారణం',
+        protectionAdvised: 'రక్షణ అవసరం',
+        good: 'మంచిది',
+        replayVoice: 'వాయిస్ మళ్ళీ వినండి',
+        userInput: '🎤 వినియోగదారు ప్రశ్న:',
+        spokenBulletin: '🔊 WeatherGPT వాయిస్ సమాధానం:',
+        weeklyOutlook: 'వారపు సూచన',
+        radarSim: 'డాప్లర్ రాడార్ డేటా',
+        radarFrame: 'ఫ్రేమ్ 4/4: వర్ష మేఘాలు కదులుతున్నాయి (24 dBZ)',
+        severity: 'తీవ్రత',
+        window: 'సమయం',
+        sirenReady: 'సైరన్: సిద్ధంగా ఉంది',
+        aqiLevel: 'గాలి నాణ్యత (AQI)',
+        pm25: 'PM2.5 గాఢత',
+        pm10: 'PM10 గాఢత',
+        advisory: 'వాతావరణ సలహా',
+        soilMoisture: 'నేల తేమ (0-1cm)',
+        soilTemp: 'నేల ఉష్ణోగ్రత',
+        irrigationAdv: '🌾 సాగునీటి సలహా:',
+        sprayingAdv: '🚫 మందుల పిచికారీ:',
+        flightCat: 'విమాన కేటగిరీ',
+        ceiling: 'మేఘం ఎత్తు',
+        briefing: 'ఏవియేషన్ బ్రీఫింగ్:',
+        waveHeight: 'అలల ఎత్తు',
+        seaCond: 'సముద్ర పరిస్థితి',
+        avgTemp: 'సగటు ఉష్ణోగ్రత',
+        avgHum: 'సగటు తేమ',
+        peakRain: 'గరిష్ట వర్ష సంభావ్యత',
+        meanWind: 'సగటు గాలి వేగం',
+        printPdf: 'ప్రింట్ / PDF',
+        dossierLoc: 'చెంగల్పట్టు ➔ చెన్నై సెంట్రల్',
+        dossierStatus: 'ధృవీకరించబడిన వాతావరణ సిమ్యులేషన్',
+        stage: 'దశ',
+        eta: 'సమయం',
+        destWeatherNote: 'గమ్యస్థాన వాతావరణం: <strong>చెన్నై సెంట్రల్: 30°C, 70% వర్షం</strong> — గొడుగు సిద్ధంగా ఉంచుకోండి.',
+        progressApproaching: 'పురోగతి: 100మీ చేరుకుంటోంది',
+        geoAlarmTriggered: '🎯 100మీ జియోఫెన్స్ అలారం ట్రిగ్గర్ చేయబడింది',
+        reachedTitle: 'మీరు మీ గమ్యస్థానాన్ని చేరుకున్నారు',
+        reachedLoc: 'చెన్నై సెంట్రల్, తమిళనాడు, భారతదేశం',
+        voiceAlertSpeaking: '🔊 వాయిస్ అలర్ట్ ప్రకటన:',
+        stopAlarm: '🛑 అలారం ఆపండి',
+        restartDemo: '🔄 డెమో మళ్ళీ ప్రారంభించండి',
+        m1_sub: 'ఖచ్చితమైన GPS లాక్ & టెలిమెట్రీ బేస్‌లైన్',
+        m2_sub: 'చెంగల్పట్టు ప్రత్యక్ష వాతావరణ సమాచారం',
+        m3_sub: 'AI వాతావరణ చాట్‌బాట్ మేధస్సు',
+        m3_aiReady: 'AI సిద్ధంగా ఉంది',
+        m4_sub: 'బహుభాషా వాయిస్ & సౌండ్ సింథసిస్ (TTS)',
+        m5_sub: '24-గంటల కాలక్రమం (ఉదయం 10 – సాయంత్రం 5)',
+        m6_sub: '7-రోజుల సమగ్ర సూచన (సోమవారం – ఆదివారం)',
+        m7_sub: 'డాప్లర్ వాతావరణ రాడార్ లైవ్ స్ట్రీమ్',
+        m8_sub: 'చెంగల్పట్టు – చెన్నై ప్రధాన రహదారి',
+        m9_sub: 'గాలి నాణ్యత సూచిక (AQI) & PM టెలిమెట్రీ',
+        m10_sub: 'నేల తేమ & పురుగుమందుల పిచికారీ సమయం',
+        m11_sub: 'ICAO METAR & విమాన నివేదిక',
+        m12_sub: 'బంగాళాఖాతం తీర అలలు & భద్రత',
+        m13_sub: 'వాతావరణ మరియు శీతోష్ణస్థితి గణాంకాలు',
+        m14_sub: 'WeatherGPT లో 10 భాషల మద్దతు',
+        m15_sub: 'ఆటోమేటిక్ వాతావరణ నోటిఫికేషన్లు',
+        m16_sub: 'WeatherGPT అధికారిక వాతావరణ నివేదిక',
+        m17_sub: 'చెంగల్పట్టు ➔ చెన్నై సెంట్రల్ (నిరంతర ప్రయాణం)',
+        m18_sub: '100మీ జియోఫెన్స్ రాక & ఆటో హెచ్చరిక',
+        rainLabel: 'వర్షం'
+      },
+      bn: {
+        simBadge: 'সিমুলেশন মোড',
+        subtitle: 'চেঙ্গলপট্টু ➔ চেন্নাই সেন্ট্রাল (১৮-মডিউল ইন্টারেক্টিভ ডেমো)',
+        soundOn: 'শব্দ চালু',
+        soundMuted: 'নিঃশব্দ',
+        liveChatbot: 'লাইভ চ্যাটবট',
+        moduleBadge: (i, t) => `মডিউল ${i} / ${t}`,
+        progress: (pct) => `${pct}% সম্পন্ন`,
+        start: 'সিমুলেশন শুরু করুন',
+        pause: 'বিরতি দিন',
+        resume: 'চালিয়ে যান',
+        playingStatus: 'চলমান',
+        pausedStatus: 'স্থগিত',
+        speed: (s) => `${s}× গতি`,
+        skip: 'পরবর্তী',
+        allModulesBtn: 'সকল ১৮টি মডিউল',
+        listenVoice: 'ভয়েসে শুনুন',
+        drawerTitle: '১৮টি সিমুলেশন মডিউলের যেকোনো একটি বেছে নিন',
+        gpsLocked: 'জিপিএস লকড',
+        currentLoc: 'বর্তমান অবস্থান (উৎস)',
+        destLoc: 'গন্তব্য (লক্ষ্য)',
+        lat: 'অক্ষাংশ (Latitude)',
+        lon: 'দ্রাঘিমাংশ (Longitude)',
+        gpsAcc: 'জিপিএস নির্ভুলতা',
+        initDist: 'প্রাথমিক দূরত্ব',
+        direction: 'দিক',
+        geoNote: 'চেন্নাই সেন্ট্রাল স্টেশনের চারপাশে ১০০ মিটার ব্যাসার্ধে জিওফেন্স স্থাপন করা হয়েছে।',
+        temp: 'তাপমাত্রা',
+        feelsLike: 'অনুভূত তাপমাত্রা',
+        rainProb: 'বৃষ্টির সম্ভাবনা',
+        humidity: 'আর্দ্রতা',
+        windSpeed: 'বাতাসের গতি',
+        pressure: 'বায়ুচাপ',
+        uvIndex: 'ইউভি সূচক',
+        visibility: 'দৃশ্যমানতা',
+        cloudCover: 'মেঘের আবরণ',
+        highMoisture: 'উচ্চ আর্দ্রতা',
+        nominal: 'স্বাভাবিক',
+        protectionAdvised: 'সুরক্ষা প্রয়োজন',
+        good: 'ভালো',
+        replayVoice: 'ভয়েস আবার শুনুন',
+        userInput: '🎤 ব্যবহারকারীর প্রশ্ন:',
+        spokenBulletin: '🔊 WeatherGPT ভয়েস উত্তর:',
+        weeklyOutlook: 'সাপ্তাহিক পূর্বাভাস',
+        radarSim: 'সিমুলেটেড রাডার ডেটা',
+        radarFrame: 'ফ্রেম ৪/৪: মেঘ উত্তর-উত্তর-পূর্বে এগোচ্ছে (24 dBZ)',
+        severity: 'তীব্রতা',
+        window: 'সময়সীমা',
+        sirenReady: 'স্বয়ংক্রিয় সাইরেন: প্রস্তুত',
+        aqiLevel: 'বায়ু মান সূচক (AQI)',
+        pm25: 'PM2.5 ঘনত্ব',
+        pm10: 'PM10 ঘনত্ব',
+        advisory: 'আবহাওয়া পরামর্শ',
+        soilMoisture: 'মাটির আর্দ্রতা (0-1cm)',
+        soilTemp: 'মাটির তাপমাত্রা',
+        irrigationAdv: '🌾 সেচ পরামর্শ:',
+        sprayingAdv: '🚫 কীটনাশক স্প্রে:',
+        flightCat: 'উড়ান বিভাগ',
+        ceiling: 'মেঘের উচ্চতা',
+        briefing: 'বিমান ব্রিফিং:',
+        waveHeight: 'ঢেউয়ের উচ্চতা',
+        seaCond: 'সমুদ্রের অবস্থা',
+        avgTemp: 'গড় তাপমাত্রা',
+        avgHum: 'গড় আর্দ্রতা',
+        peakRain: 'সর্বোচ্চ বৃষ্টির সম্ভাবনা',
+        meanWind: 'গড় বাতাসের গতি',
+        printPdf: 'প্রিন্ট / PDF',
+        dossierLoc: 'চেঙ্গলপট্টু ➔ চেন্নাই সেন্ট্রাল',
+        dossierStatus: 'যাচাইকৃত আবহাওয়া সিমুলেশন',
+        stage: 'ধাপ',
+        eta: 'সময়',
+        destWeatherNote: 'গন্তব্যের আবহাওয়া: <strong>চেন্নাই সেন্ট্রাল: 30°C, 70% বৃষ্টি</strong> — ছাতা সাথে রাখুন।',
+        progressApproaching: 'অগ্রগতি: ১০০ মিটার কাছাকাছি',
+        geoAlarmTriggered: '🎯 ১০০ মিটার জিওফেন্স অ্যালার্ম ট্রিগার হয়েছে',
+        reachedTitle: 'আপনি আপনার গন্তব্যে পৌঁছেছেন',
+        reachedLoc: 'চেন্নাই সেন্ট্রাল, তামিলনাড়ু, ভারত',
+        voiceAlertSpeaking: '🔊 ভয়েস সতর্কতা ঘোষণা:',
+        stopAlarm: '🛑 অ্যালার্ম বন্ধ করুন',
+        restartDemo: '🔄 ডেমো পুনরায় শুরু করুন',
+        m1_sub: 'উচ্চ-নির্ভুল জিপিএস লক ও অবস্থান বেসলাইন',
+        m2_sub: 'চেঙ্গলপট্টু সরাসরি আবহাওয়া তথ্য',
+        m3_sub: 'প্রসঙ্গ-সচেতন এআই আবহাওয়া বুদ্ধিমত্তা',
+        m3_aiReady: 'এআই প্রস্তুত',
+        m4_sub: 'বহুভাষিক ভয়েস ও স্পিচ সিন্থেসিস (TTS)',
+        m5_sub: '২৪-ঘণ্টার সময়রেখা (সকাল ১০টা – বিকেল ৫টা)',
+        m6_sub: '৭-দিনের বিস্তারিত পূর্বাভাস (সোমবার – রবিবার)',
+        m7_sub: 'ডপলার রাডার লাইভ স্ট্রিম সিমুলেশন',
+        m8_sub: 'চেঙ্গলপট্টু – চেন্নাই প্রধান করিডোর',
+        m9_sub: 'বায়ু মান সূচক (AQI) ও দূষণ টেলিমেট্রি',
+        m10_sub: 'মাটির আর্দ্রতা ও কীটনাশক স্প্রে সময়',
+        m11_sub: 'ICAO METAR ও বিমান পূর্বাভাস',
+        m12_sub: 'বঙ্গোপসাগর উপকূলীয় ঢেউ ও সতর্কতা',
+        m13_sub: 'জলবায়ু ও আবহাওয়া পরিসংখ্যান',
+        m14_sub: 'WeatherGPT-এ ১০টি ভাষার সমর্থন',
+        m15_sub: 'স্বয়ংক্রিয় আবহাওয়া বিজ্ঞপ্তি ব্যবস্থা',
+        m16_sub: 'WeatherGPT অফিসিয়াল আবহাওয়া প্রতিবেদন',
+        m17_sub: 'চেঙ্গলপট্টু ➔ চেন্নাই সেন্ট্রাল (সরাসরি ভ্রমণ)',
+        m18_sub: '১০০ মিটার জিওফেন্স আগমন ও অ্যালার্ম',
+        rainLabel: 'বৃষ্টি'
+      },
+      mr: {
+        simBadge: 'सिम्युलेशन मोड',
+        subtitle: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल (१८-मॉड्यूल परस्परसंवादी डेमो)',
+        soundOn: 'ध्वनी चालू',
+        soundMuted: 'मौन',
+        liveChatbot: 'थेट चॅटबॉट',
+        moduleBadge: (i, t) => `मॉड्यूल ${i} / ${t}`,
+        progress: (pct) => `${pct}% पूर्ण`,
+        start: 'सिम्युलेशन सुरू करा',
+        pause: 'थांबवा',
+        resume: 'पुन्हा सुरू करा',
+        playingStatus: 'चालू आहे',
+        pausedStatus: 'थांबवले',
+        speed: (s) => `${s}× गती`,
+        skip: 'पुढील',
+        allModulesBtn: 'सर्व १८ मॉड्यूल',
+        listenVoice: 'आवाजात ऐका',
+        drawerTitle: '१८ सिम्युलेशन मॉड्यूलपैकी एक निवडा',
+        gpsLocked: 'जीपीएस लॉक',
+        currentLoc: 'सध्याचे स्थान (प्रारंभ)',
+        destLoc: 'गंतव्यस्थान (लक्ष्य)',
+        lat: 'अक्षांश (Latitude)',
+        lon: 'रेखांश (Longitude)',
+        gpsAcc: 'जीपीएस अचूकता',
+        initDist: 'प्रारंभिक अंतर',
+        direction: 'दिशा',
+        geoNote: 'चेन्नई सेंट्रल स्टेशनभोवती १०० मीटरच्या परिघात जिओफेन्स स्थापित केली आहे.',
+        temp: 'तापमान',
+        feelsLike: 'जाणवणारे तापमान',
+        rainProb: 'पावसाची शक्यता',
+        humidity: 'आर्द्रता',
+        windSpeed: 'वाऱ्याचा वेग',
+        pressure: 'हवेचा दाब',
+        uvIndex: 'यूव्ही निर्देशांक',
+        visibility: 'दृश्यमानता',
+        cloudCover: 'ढगाळ वातावरण',
+        highMoisture: 'जास्त आर्द्रता',
+        nominal: 'सामान्य',
+        protectionAdvised: 'सुरक्षा आवश्यक',
+        good: 'उत्तम',
+        replayVoice: 'आवाज पुन्हा ऐका',
+        userInput: '🎤 वापरकर्त्याचा प्रश्न:',
+        spokenBulletin: '🔊 WeatherGPT व्हॉइस उत्तर:',
+        weeklyOutlook: 'साप्ताहिक दृष्टिकोन',
+        radarSim: 'सिम्युलेटेड रडार डेटा',
+        radarFrame: 'फ्रेम ४/४: पाऊस उत्तर-उत्तर-पूर्वेकडे सरकत आहे (24 dBZ)',
+        severity: 'तीव्रता',
+        window: 'वेळ',
+        sirenReady: 'स्वयंचलित सायरन: सज्ज',
+        aqiLevel: 'हवा गुणवत्ता (AQI)',
+        pm25: 'PM2.5 प्रमाण',
+        pm10: 'PM10 प्रमाण',
+        advisory: 'हवामान सल्ला',
+        soilMoisture: 'मातीतील ओलावा (0-1cm)',
+        soilTemp: 'मातीचे तापमान',
+        irrigationAdv: '🌾 सिंचन सल्ला:',
+        sprayingAdv: '🚫 फवारणी सल्ला:',
+        flightCat: 'उड्डाण श्रेणी',
+        ceiling: 'ढगांची उंची',
+        briefing: 'विमान ब्रीफिंग:',
+        waveHeight: 'लाटांची उंची',
+        seaCond: 'समुद्राची स्थिती',
+        avgTemp: 'सरासरी तापमान',
+        avgHum: 'सरासरी आर्द्रता',
+        peakRain: 'कमाल पाऊस शक्यता',
+        meanWind: 'सरासरी वारा',
+        printPdf: 'प्रिंट / PDF',
+        dossierLoc: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल',
+        dossierStatus: 'सत्यापित हवामान सिम्युलेशन',
+        stage: 'टप्पा',
+        eta: 'वेळ',
+        destWeatherNote: 'गंतव्यस्थानाचे हवामान: <strong>चेन्नई सेंट्रल: 30°C, 70% पाऊस</strong> — छत्री सोबत ठेवा.',
+        progressApproaching: 'प्रगती: १०० मीटर जवळ येत आहे',
+        geoAlarmTriggered: '🎯 १०० मीटर जिओफेन्स अलार्म वाजला',
+        reachedTitle: 'तुम्ही तुमच्या गंतव्यस्थानी पोहोचला आहात',
+        reachedLoc: 'चेन्नई सेंट्रल, तामिळनाडू, भारत',
+        voiceAlertSpeaking: '🔊 व्हॉइस अलर्ट घोषणा:',
+        stopAlarm: '🛑 अलार्म थांबवा',
+        restartDemo: '🔄 डेमो पुन्हा सुरू करा',
+        m1_sub: 'अचूक जीपीएस लॉक आणि टेलीमेट्री बेसलाइन',
+        m2_sub: 'चेंगलपट्टू थेट हवामान माहिती',
+        m3_sub: 'एआय हवामान चॅटबॉट बुद्धिमत्ता',
+        m3_aiReady: 'एआय सज्ज',
+        m4_sub: 'बहुभाषिक व्हॉइस आणि स्पीच सिंथेसिस (TTS)',
+        m5_sub: '२४-तासांचे वेळापत्रक (सकाळी १० – संध्याकाळी ५)',
+        m6_sub: '७-दिवसीय तपशीलवार अंदाज (सोमवार – रविवार)',
+        m7_sub: 'डॉपलर हवामान रडार थेट प्रवाह',
+        m8_sub: 'चेंगलपट्टू – चेन्नई मुख्य महामार्ग',
+        m9_sub: 'हवा गुणवत्ता निर्देशांक (AQI) व प्रदूषण',
+        m10_sub: 'मातीतील ओलावा व फवारणीची योग्य वेळ',
+        m11_sub: 'ICAO METAR आणि उड्डाण श्रेणी',
+        m12_sub: 'बंगालचा उपसागर किनारपट्टी लाटा व सुरक्षा',
+        m13_sub: 'हवामान आणि आकडेवारी विश्लेषण',
+        m14_sub: 'WeatherGPT मध्ये १० भाषांचा पाठिंबा',
+        m15_sub: 'स्वयंचलित हवामान सूचना प्रणाली',
+        m16_sub: 'WeatherGPT अधिकृत हवामान अहवाल',
+        m17_sub: 'चेंगलपट्टू ➔ चेन्नई सेंट्रल (थेट प्रवास)',
+        m18_sub: '१०० मीटर जिओफेन्स आगमन आणि इशारा',
+        rainLabel: 'पाऊस'
+      },
+      gu: {
+        simBadge: 'સિમ્યુલેશન મોડ',
+        subtitle: 'ચેંગલપટ્ટુ ➔ ચેન્નાઈ સેન્ટ્રલ (18-મોડ્યુલ ઇન્ટરેક્ટિવ ડેમો)',
+        soundOn: 'અવાજ ચાલુ',
+        soundMuted: 'મૌન',
+        liveChatbot: 'લાઈવ ચેટબોટ',
+        moduleBadge: (i, t) => `મોડ્યુલ ${i} / ${t}`,
+        progress: (pct) => `${pct}% પૂર્ણ`,
+        start: 'સિમ્યુલેશન શરૂ કરો',
+        pause: 'વિરામ આપો',
+        resume: 'ફરી શરૂ કરો',
+        playingStatus: 'ચાલુ છે',
+        pausedStatus: 'અટકેલું',
+        speed: (s) => `${s}× ગતિ`,
+        skip: 'આગળ',
+        allModulesBtn: 'બધા 18 મોડ્યુલ્સ',
+        listenVoice: 'અવાજમાં સાંભળો',
+        drawerTitle: '18 સિમ્યુલેશન મોડ્યુલ્સમાંથી પસંદ કરો',
+        gpsLocked: 'જીપીએસ લૉક',
+        currentLoc: 'વર્તમાન સ્થળ (પ્રારંભ)',
+        destLoc: 'ગંતવ્ય સ્થળ (લક્ષ્ય)',
+        lat: 'અક્ષાંશ (Latitude)',
+        lon: 'રેખાંશ (Longitude)',
+        gpsAcc: 'જીપીએસ ચોકસાઈ',
+        initDist: 'શરૂઆતનું અંતર',
+        direction: 'દિશા',
+        geoNote: 'ચેન્નાઈ સેન્ટ્રલ સ્ટેશનની આસપાસ 100 મીટરના ત્રિજ્યામાં જીઓફેન્સ સ્થાપિત છે.',
+        temp: 'તાપમાન',
+        feelsLike: 'અનુભવાતું તાપમાન',
+        rainProb: 'વરસાદની સંભાવના',
+        humidity: 'ભેજ',
+        windSpeed: 'પવનની ગતિ',
+        pressure: 'દબાણ',
+        uvIndex: 'યુવી ઇન્ડેક્સ',
+        visibility: 'દૃશ્યતા',
+        cloudCover: 'વાદળોનું પ્રમાણ',
+        highMoisture: 'વધારે ભેજ',
+        nominal: 'સામાન્ય',
+        protectionAdvised: 'સુરક્ષા સલાહ',
+        good: 'સારું',
+        replayVoice: 'અવાજ ફરીથી સાંભળો',
+        userInput: '🎤 વપરાશકર્તાનો પ્રશ્ન:',
+        spokenBulletin: '🔊 WeatherGPT વોઇસ ઉત્તર:',
+        weeklyOutlook: 'સાપ્તાહિક દૃષ્ટિકોણ',
+        radarSim: 'ડોપ્લર રડાર ડેટા',
+        radarFrame: 'ફ્રેમ 4/4: વરસાદ ઉત્તર-ઉત્તર-પૂર્વ તરફ આગળ વધી રહ્યો છે (24 dBZ)',
+        severity: 'તીવ્રતા',
+        window: 'સમયગાળો',
+        sirenReady: 'સાયરન: તૈયાર',
+        aqiLevel: 'હવા ગુણવત્તા (AQI)',
+        pm25: 'PM2.5 સાંદ્રતા',
+        pm10: 'PM10 સાંદ્રતા',
+        advisory: 'હવામાન સલાહ',
+        soilMoisture: 'જમીનનો ભેજ (0-1cm)',
+        soilTemp: 'જમીનનું તાપમાન',
+        irrigationAdv: '🌾 સિંચાઈ સલાહ:',
+        sprayingAdv: '🚫 દવા છંટકાવ:',
+        flightCat: 'ફ્લાઇટ કેટેગરી',
+        ceiling: 'વાદળની ઊંચાઈ',
+        briefing: 'ઉડ્ડયન બ્રીફિંગ:',
+        waveHeight: 'મોજાની ઊંચાઈ',
+        seaCond: 'દરિયાની સ્થિતિ',
+        avgTemp: 'સરેરાશ તાપમાન',
+        avgHum: 'સરેરાશ ભેજ',
+        peakRain: 'મહત્તમ વરસાદ સંભાવના',
+        meanWind: 'સરેરાશ પવન',
+        printPdf: 'પ્રિન્ટ / PDF',
+        dossierLoc: 'ચેંગલપટ્ટુ ➔ ચેન્નાઈ સેન્ટ્રલ',
+        dossierStatus: 'ચકાસાયેલ હવામાન સિમ્યુલેશન',
+        stage: 'તબક્કો',
+        eta: 'સમય',
+        destWeatherNote: 'ગંતવ્યનું હવામાન: <strong>ચેન્નાઈ સેન્ટ્રલ: 30°C, 70% વરસાદ</strong> — છત્રી સાથે રાખો.',
+        progressApproaching: 'પ્રગતિ: 100 મીટર નજીક',
+        geoAlarmTriggered: '🎯 100 મીટર જીઓફેન્સ એલાર્મ સક્રિય થયું',
+        reachedTitle: 'તમે તમારા ગંતવ્ય સ્થાને પહોંચી ગયા છો',
+        reachedLoc: 'ચેન્નાઈ સેન્ટ્રલ, તમિલનાડુ, ભારત',
+        voiceAlertSpeaking: '🔊 વોઇસ એલર્ટ ઘોષણા:',
+        stopAlarm: '🛑 એલાર્મ બંધ કરો',
+        restartDemo: '🔄 ડેમો ફરીથી શરૂ કરો',
+        m1_sub: 'ઉચ્ચ ચોકસાઈ જીપીએસ લૉક અને બેઝલાઇન',
+        m2_sub: 'ચેંગલપટ્ટુ લાઇવ હવામાન માહિતી',
+        m3_sub: 'એઆઈ હવામાન ચેટબોટ બુદ્ધિમત્તા',
+        m3_aiReady: 'એઆઈ તૈયાર',
+        m4_sub: 'બહુભાષી વોઇસ અને સ્પીચ સિન્થેસિસ (TTS)',
+        m5_sub: '24-કલાકની સમયરેખા (સવારે 10 – સાંજે 5)',
+        m6_sub: '7-દિવસનું વિગતવાર પૂર્વાનુમાન (સોમવાર – રવિવાર)',
+        m7_sub: 'ડોપ્લર હવામાન રડાર લાઇવ સ્ટ્રીમ',
+        m8_sub: 'ચેંગલપટ્ટુ – ચેન્નાઈ મુખ્ય કોરિડોર',
+        m9_sub: 'હવા ગુણવત્તા સૂચકાંક (AQI) અને પ્રદૂષણ',
+        m10_sub: 'જમીનનો ભેજ અને છંટકાવનો શ્રેષ્ઠ સમય',
+        m11_sub: 'ICAO METAR અને ઉડ્ડયન વિગત',
+        m12_sub: 'બંગાળની ખાડીના મોજા અને માછીમાર ચેતવણી',
+        m13_sub: 'આબોહવા અને હવામાન આંકડા',
+        m14_sub: 'WeatherGPT માં 10 ભાષાઓનો સપોર્ટ',
+        m15_sub: 'સ્વચાલિત હવામાન સૂચના સિસ્ટમ',
+        m16_sub: 'WeatherGPT સત્તાવાર હવામાન અહેવાલ',
+        m17_sub: 'ચેંગલપટ્ટુ ➔ ચેન્નાઈ સેન્ટ્રલ (લાઇવ મુસાફરી)',
+        m18_sub: '100 મીટર જીઓફેન્સ આગમન અને ચેતવણી',
+        rainLabel: 'વરસાદ'
+      },
+      kn: {
+        simBadge: 'ಸಿಮ್ಯುಲೇಶನ್ ಮೋಡ್',
+        subtitle: 'ಚೆಂಗಳ್ಪಟ್ಟು ➔ ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್ (18-ಮಾಡ್ಯೂಲ್ ಡೆಮೊ)',
+        soundOn: 'ಧ್ವನಿ ಆನ್',
+        soundMuted: 'ಮ್ಯೂಟ್',
+        liveChatbot: 'ಲೈವ್ ಚಾಟ್‌ಬಾಟ್',
+        moduleBadge: (i, t) => `ಮಾಡ್ಯೂಲ್ ${i} / ${t}`,
+        progress: (pct) => `${pct}% ಪೂರ್ಣಗೊಂಡಿದೆ`,
+        start: 'ಸಿಮ್ಯುಲೇಶನ್ ಪ್ರಾರಂಭಿಸಿ',
+        pause: 'ವಿರಾಮಗೊಳಿಸಿ',
+        resume: 'ಮುಂದುವರಿಸಿ',
+        playingStatus: 'ಚಾಲನೆಯಲ್ಲಿದೆ',
+        pausedStatus: 'ನಿಲ್ಲಿಸಲಾಗಿದೆ',
+        speed: (s) => `${s}× ವೇಗ`,
+        skip: 'ಮುಂದೆ',
+        allModulesBtn: 'ಎಲ್ಲಾ 18 ಮಾಡ್ಯೂಲ್‌ಗಳು',
+        listenVoice: 'ಧ್ವನಿಯಲ್ಲಿ ಕೇಳಿ',
+        drawerTitle: '18 ಸಿಮ್ಯುಲೇಶನ್ ಮಾಡ್ಯೂಲ್‌ಗಳಲ್ಲಿ ಒಂದನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        gpsLocked: 'ಜಿಪಿಎಸ್ ಲಾಕ್ ಆಗಿದೆ',
+        currentLoc: 'ಪ್ರಸ್ತುತ ಸ್ಥಳ (ಆರಂಭ)',
+        destLoc: 'ಗಮ್ಯಸ್ಥಾನ (ಗುರಿ)',
+        lat: 'ಅಕ್ಷಾಂಶ (Latitude)',
+        lon: 'ರೇಖಾಂಶ (Longitude)',
+        gpsAcc: 'ಜಿಪಿಎಸ್ ನಿಖರತೆ',
+        initDist: 'ಆರಂಭಿಕ ದೂರ',
+        direction: 'ದಿಕ್ಕು',
+        geoNote: 'ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್ ಸುತ್ತ 100 ಮೀಟರ್ ವ್ಯಾಪ್ತಿಯಲ್ಲಿ ಜಿಯೋಫೆನ್ಸ್ ಸ್ಥಾಪಿಸಲಾಗಿದೆ.',
+        temp: 'ತಾಪಮಾನ',
+        feelsLike: 'ಅನುಭವವಾಗುವ ತಾಪಮಾನ',
+        rainProb: 'ಮಳೆಯ ಸಂಭವನೀಯತೆ',
+        humidity: 'ಆರ್ದ್ರತೆ',
+        windSpeed: 'ಗಾಳಿಯ ವೇಗ',
+        pressure: 'ಒತ್ತಡ',
+        uvIndex: 'ಯುವಿ ಸೂಚ್ಯಂಕ',
+        visibility: 'ಗೋಚರತೆ',
+        cloudCover: 'ಮೋಡದ ಹೊದಿಕೆ',
+        highMoisture: 'ಹೆಚ್ಚಿನ ತೇವಾಂಶ',
+        nominal: 'ಸಾಮಾನ್ಯ',
+        protectionAdvised: 'ರಕ್ಷಣೆ ಅಗತ್ಯವಿದೆ',
+        good: 'ಉತ್ತಮ',
+        replayVoice: 'ಧ್ವನಿಯನ್ನು ಮತ್ತೆ ಕೇಳಿ',
+        userInput: '🎤 ಬಳಕೆದಾರರ ಪ್ರಶ್ನೆ:',
+        spokenBulletin: '🔊 WeatherGPT ಧ್ವನಿ ಉತ್ತರ:',
+        weeklyOutlook: 'ವಾರದ ಮುನ್ನೋಟ',
+        radarSim: 'ಡಾಪ್ಲರ್ ರಡಾರ್ ಡೇಟಾ',
+        radarFrame: 'ಫ್ರೇಮ್ 4/4: ಮಳೆ ಮೋಡಗಳು ಉತ್ತರ-ಈಶಾನ್ಯಕ್ಕೆ ಚಲಿಸುತ್ತಿವೆ (24 dBZ)',
+        severity: 'ತೀವ್ರತೆ',
+        window: 'ಸಮಯಾವಧಿ',
+        sirenReady: 'ಸೈರನ್: ಸಿದ್ಧವಾಗಿದೆ',
+        aqiLevel: 'ವಾಯು ಗುಣಮಟ್ಟ (AQI)',
+        pm25: 'PM2.5 ಸಾಂದ್ರತೆ',
+        pm10: 'PM10 ಸಾಂದ್ರತೆ',
+        advisory: 'ಹವಾಮಾನ ಸಲಹೆ',
+        soilMoisture: 'ಮಣ್ಣಿನ ತೇವಾಂಶ (0-1cm)',
+        soilTemp: 'ಮಣ್ಣಿನ ತಾಪಮಾನ',
+        irrigationAdv: '🌾 ನೀರಾವರಿ ಸಲಹೆ:',
+        sprayingAdv: '🚫 ಕೀಟನಾಶಕ ಸಿಂಪಡಣೆ:',
+        flightCat: 'ವಿಮಾನ ವರ್ಗ',
+        ceiling: 'ಮೋಡದ ಎತ್ತರ',
+        briefing: 'ಏವಿಯೇಷನ್ ಬ್ರೀಫಿಂಗ್:',
+        waveHeight: 'ಅಲೆಯ ಎತ್ತರ',
+        seaCond: 'ಸಮುದ್ರದ ಸ್ಥಿತಿ',
+        avgTemp: 'ಸರಾಸರಿ ತಾಪಮಾನ',
+        avgHum: 'ಸರಾಸರಿ ಆರ್ದ್ರತೆ',
+        peakRain: 'ಗರಿಷ್ಠ ಮಳೆ ಸಂಭವನೀಯತೆ',
+        meanWind: 'ಸರಾಸರಿ ಗಾಳಿ',
+        printPdf: 'ಪ್ರಿಂಟ್ / PDF',
+        dossierLoc: 'ಚೆಂಗಳ್ಪಟ್ಟು ➔ ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್',
+        dossierStatus: 'ಪರಿಶೀಲಿಸಿದ ಹವಾಮಾನ ಸಿಮ್ಯುಲೇಶನ್',
+        stage: 'ಹಂತ',
+        eta: 'ಸಮಯ',
+        destWeatherNote: 'ಗಮ್ಯಸ್ಥಾನದ ಹವಾಮಾನ: <strong>ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್: 30°C, 70% ಮಳೆ</strong> — ಛತ್ರಿ ಜೊತೆಯಲ್ಲಿರಲಿ.',
+        progressApproaching: 'ಪ್ರಗತಿ: 100 ಮೀಟರ್ ಸಮೀಪಿಸುತ್ತಿದೆ',
+        geoAlarmTriggered: '🎯 100 ಮೀಟರ್ ಜಿಯೋಫೆನ್ಸ್ ಅಲಾರಾಂ ಸಕ್ರಿಯಗೊಂಡಿದೆ',
+        reachedTitle: 'ನೀವು ನಿಮ್ಮ ಗಮ್ಯಸ್ಥಾನವನ್ನು ತಲುಪಿದ್ದೀರಿ',
+        reachedLoc: 'ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್, ತಮಿಳುನಾಡು, ಭಾರತ',
+        voiceAlertSpeaking: '🔊 ಧ್ವನಿ ಎಚ್ಚರಿಕೆ ಪ್ರಕಟಣೆ:',
+        stopAlarm: '🛑 ಅಲಾರಾಂ ನಿಲ್ಲಿಸಿ',
+        restartDemo: '🔄 ಡೆಮೊ ಮರುಪ್ರಾರಂಭಿಸಿ',
+        m1_sub: 'ನಿಖರವಾದ ಜಿಪಿಎಸ್ ಲಾಕ್ ಮತ್ತು ಮಾಹಿತಿ',
+        m2_sub: 'ಚೆಂಗಳ್ಪಟ್ಟು ನೇರ ಹವಾಮಾನ ಮಾಹಿತಿ',
+        m3_sub: 'ಎಐ ಹವಾಮಾನ ಚಾಟ್‌ಬಾಟ್ ಬುದ್ಧಿವಂತಿಕೆ',
+        m3_aiReady: 'ಎಐ ಸಿದ್ಧವಾಗಿದೆ',
+        m4_sub: 'ಬಹುಭಾಷಾ ಧ್ವನಿ ಸಂಶ್ಲೇಷಣೆ (TTS)',
+        m5_sub: '24-ಗಂಟೆಗಳ ಕಾಲಾವಧಿ (ಬೆಳಿಗ್ಗೆ 10 – ಸಂಜೆ 5)',
+        m6_sub: '7-ದಿನಗಳ ವಿಸ್ತೃತ ಮುನ್ಸೂಚನೆ (ಸೋಮವಾರ – ಭಾನುವಾರ)',
+        m7_sub: 'ಡಾಪ್ಲರ್ ಹವಾಮಾನ ರಡಾರ್ ನೇರ ಪ್ರಸಾರ',
+        m8_sub: 'ಚೆಂಗಳ್ಪಟ್ಟು – ಚೆನ್ನೈ ಮುಖ್ಯ ಕಾರಿಡಾರ್',
+        m9_sub: 'ವಾಯು ಗುಣಮಟ್ಟ ಸೂಚ್ಯಂಕ (AQI) ಮತ್ತು ಮಾಲಿನ್ಯ',
+        m10_sub: 'ಮಣ್ಣಿನ ತೇವಾಂಶ ಮತ್ತು ಸಿಂಪಡಣೆ ಸಮಯ',
+        m11_sub: 'ICAO METAR ಮತ್ತು ವಿಮಾನ ಮಾಹಿತಿ',
+        m12_sub: 'ಬಂಗಾಳ ಕೊಲ್ಲಿ ಅಲೆಗಳು ಮತ್ತು ಮೀನುಗಾರರ ಸುರಕ್ಷತೆ',
+        m13_sub: 'ಹವಾಮಾನ ಮತ್ತು ಅಂಕಿಅಂಶಗಳ ವಿಶ್ಲೇಷಣೆ',
+        m14_sub: 'WeatherGPT ನಲ್ಲಿ 10 ಭಾಷೆಗಳ ಬೆಂಬಲ',
+        m15_sub: 'ಸ್ವಯಂಚಾಲಿತ ಹವಾಮಾನ ಎಚ್ಚರಿಕೆಗಳು',
+        m16_sub: 'WeatherGPT ಅಧಿಕೃತ ಹವಾಮಾನ ವರದಿ',
+        m17_sub: 'ಚೆಂಗಳ್ಪಟ್ಟು ➔ ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್ (ನೇರ ಪ್ರಯಾಣ)',
+        m18_sub: '100 ಮೀಟರ್ ಜಿಯೋಫೆನ್ಸ್ ಆಗಮನ ಮತ್ತು ಅಲಾರಾಂ',
+        rainLabel: 'ಮಳೆ'
+      },
+      ml: {
+        simBadge: 'സിമുലേഷൻ മോഡ്',
+        subtitle: 'ചെങ്കൽപട്ട് ➔ ചെന്നൈ സെൻട്രൽ (18-മോഡ്യൂൾ ഡെമോ)',
+        soundOn: 'ശബ്ദം ഓൺ',
+        soundMuted: 'മ്യൂട്ട്',
+        liveChatbot: 'ലൈവ് ചാറ്റ്ബോട്ട്',
+        moduleBadge: (i, t) => `മോഡ്യൂൾ ${i} / ${t}`,
+        progress: (pct) => `${pct}% പൂർത്തിയായി`,
+        start: 'സിമുലേഷൻ ആരംഭിക്കുക',
+        pause: 'താൽക്കാലികമായി നിർത്തുക',
+        resume: 'തുടരുക',
+        playingStatus: 'പ്രവർത്തിക്കുന്നു',
+        pausedStatus: 'നിർത്തിവച്ചു',
+        speed: (s) => `${s}× വേഗത`,
+        skip: 'അടുത്തത്',
+        allModulesBtn: 'എല്ലാ 18 മോഡ്യൂളുകളും',
+        listenVoice: 'ശബ്ദത്തിൽ കേൾക്കുക',
+        drawerTitle: '18 സിമുലേഷൻ മോഡ്യൂളുകളിൽ ഒന്ന് തിരഞ്ഞെടുക്കുക',
+        gpsLocked: 'GPS ലോക്ക് ചെയ്തു',
+        currentLoc: 'നിലവിലെ സ്ഥലം (ആരംഭം)',
+        destLoc: 'ലക്ഷ്യസ്ഥാനം (ലക്ഷ്യം)',
+        lat: 'അക്ഷാംശം (Latitude)',
+        lon: 'രേഖാംശം (Longitude)',
+        gpsAcc: 'ജിപിഎസ് കൃത്യത',
+        initDist: 'പ്രാരംഭ ദൂരം',
+        direction: 'ദിശ',
+        geoNote: 'ചെന്നൈ സെൻട്രലിന് ചുറ്റും 100 മീറ്റർ പരിധിയിൽ ജിയോഫെൻസ് സ്ഥാപിച്ചിട്ടുണ്ട്.',
+        temp: 'താപനില',
+        feelsLike: 'അനുഭവപ്പെടുന്ന താപനില',
+        rainProb: 'മഴ സാധ്യത',
+        humidity: 'ഈർപ്പം',
+        windSpeed: 'കാറ്റിന്റെ വേഗത',
+        pressure: 'മർദ്ദം',
+        uvIndex: 'യുവൈ സൂചിക',
+        visibility: 'ദൃശ്യപരത',
+        cloudCover: 'മേഘാവൃതത',
+        highMoisture: 'കൂടിയ ഈർപ്പം',
+        nominal: 'സാധാരണം',
+        protectionAdvised: 'സംരക്ഷണം ആവശ്യമാണ്',
+        good: 'നല്ലത്',
+        replayVoice: 'ശബ്ദം വീണ്ടും കേൾക്കുക',
+        userInput: '🎤 ഉപയോക്താവിന്റെ ചോദ്യം:',
+        spokenBulletin: '🔊 WeatherGPT വോയ്‌സ് മറുപടി:',
+        weeklyOutlook: 'പ്രതിവാര കാഴ്ചപ്പാട്',
+        radarSim: 'ഡെപ്ലർ റഡാർ ഡാറ്റ',
+        radarFrame: 'ഫ്രെയിം 4/4: മഴ മേഘങ്ങൾ നീങ്ങുന്നു (24 dBZ)',
+        severity: 'തീവ്രത',
+        window: 'സമയപരിധി',
+        sirenReady: 'സൈറൺ: സജ്ജമാണ്',
+        aqiLevel: 'വായു ഗുണനിലവാരം (AQI)',
+        pm25: 'PM2.5 സാന്ദ്രത',
+        pm10: 'PM10 സാന്ദ്രത',
+        advisory: 'കാലാവസ്ഥാ മുന്നറിയിപ്പ്',
+        soilMoisture: 'മണ്ണിലെ ഈർപ്പം (0-1cm)',
+        soilTemp: 'മണ്ണിന്റെ താപനില',
+        irrigationAdv: '🌾 നനയ്ക്കൽ ഉപദേശം:',
+        sprayingAdv: '🚫 മരുന്ന് തളിക്കൽ:',
+        flightCat: 'ഫ്ലൈറ്റ് വിഭാഗം',
+        ceiling: 'മേഘ ഉയരം',
+        briefing: 'ഏവിയേഷൻ ബ്രീഫിംഗ്:',
+        waveHeight: 'തിരമാല ഉയരം',
+        seaCond: 'കടൽ അവസ്ഥ',
+        avgTemp: 'ശരാശരി താപനില',
+        avgHum: 'ശരാശരി ഈർപ്പം',
+        peakRain: 'കൂടിയ മഴ സാധ്യത',
+        meanWind: 'ശരാശരി കാറ്റ്',
+        printPdf: 'പ്രിന്റ് / PDF',
+        dossierLoc: 'ചെങ്കൽപട്ട് ➔ ചെന്നൈ സെൻട്രൽ',
+        dossierStatus: 'സ്ഥിരീകരിച്ച കാലാവസ്ഥാ സിമുലേഷൻ',
+        stage: 'ഘട്ടം',
+        eta: 'സമയം',
+        destWeatherNote: 'ലക്ഷ്യസ്ഥാന കാലാവസ്ഥ: <strong>ചെന്നൈ സെൻട്രൽ: 30°C, 70% മഴ</strong> — കുട കയ്യിൽ കരുതുക.',
+        progressApproaching: 'പുരോഗതി: 100 മീറ്റർ അടുക്കുന്നു',
+        geoAlarmTriggered: '🎯 100 മീറ്റർ ജിയോഫെൻസ് അലാറം മുഴങ്ങി',
+        reachedTitle: 'നിങ്ങൾ ലക്ഷ്യസ്ഥാനത്ത് എത്തിച്ചേർന്നു',
+        reachedLoc: 'ചെന്നൈ സെൻട്രൽ, തമിഴ്നാട്, ഇന്ത്യ',
+        voiceAlertSpeaking: '🔊 വോയ്‌സ് അലർട്ട് പ്രഖ്യാപനം:',
+        stopAlarm: '🛑 അലാറം നിർത്തുക',
+        restartDemo: '🔄 ഡെമോ വീണ്ടും തുടങ്ങുക',
+        m1_sub: 'കൃത്യമായ ജിപിഎസ് ലോക്കും ടെലിമെട്രിയും',
+        m2_sub: 'ചെങ്കൽപട്ട് തത്സമയ കാലാവസ്ഥാ വിവരം',
+        m3_sub: 'എഐ കാലാവസ്ഥാ ചാറ്റ്ബോട്ട് ബുദ്ധി',
+        m3_aiReady: 'എഐ സജ്ജമാണ്',
+        m4_sub: 'ബഹുഭാഷാ വോയ്‌സ് & സ്പീച്ച് സിന്തസിസ് (TTS)',
+        m5_sub: '24-മണിക്കൂർ സമയക്രമം (രാവിലെ 10 – വൈകുന്നേരം 5)',
+        m6_sub: '7-ദിവസത്തെ സമഗ്ര പ്രവചനം (തിങ്കൾ – ഞായർ)',
+        m7_sub: 'ഡോപ്ലർ റഡാർ ലൈവ് സ്ട്രീം',
+        m8_sub: 'ചെങ്കൽപട്ട് – ചെന്നൈ പ്രധാന പാത',
+        m9_sub: 'വായു ഗുണനിലവാര സൂചികയും (AQI) മലിനീകരണവും',
+        m10_sub: 'മണ്ണിലെ ഈർപ്പവും മരുന്ന് തളിക്കൽ സമയവും',
+        m11_sub: 'ICAO METAR & വിമാന വിവരങ്ങൾ',
+        m12_sub: 'ബംഗാൾ ഉൾക്കടൽ തിരമാലകളും സുരക്ഷയും',
+        m13_sub: 'കാലാവസ്ഥാ സ്ഥിതിവിവരക്കണക്കുകൾ',
+        m14_sub: 'WeatherGPT-ൽ 10 ഭാഷകളുടെ പിന്തുണ',
+        m15_sub: 'ഓട്ടോമാറ്റിക് കാലാവസ്ഥാ അറിയിപ്പുകൾ',
+        m16_sub: 'WeatherGPT ഔദ്യോഗിക കാലാവസ്ഥാ റിപ്പോർട്ട്',
+        m17_sub: 'ചെങ്കൽപട്ട് ➔ ചെന്നൈ സെൻട്രൽ (ലൈവ് യാത്ര)',
+        m18_sub: '100 മീറ്റർ ജിയോഫെൻസ് വരവും അലാറവും',
+        rainLabel: 'മഴ'
+      },
+      pa: {
+        simBadge: 'ਸਿਮੂਲੇਸ਼ਨ ਮੋਡ',
+        subtitle: 'ਚੇਂਗਲਪੱਟੂ ➔ ਚੇਨਈ ਸੈਂਟਰਲ (18-ਮੋਡੀਊਲ ਇੰਟਰਐਕਟਿਵ ਡੈਮੋ)',
+        soundOn: 'ਆਵਾਜ਼ ਚਾਲੂ',
+        soundMuted: 'ਮਿਊਟ',
+        liveChatbot: 'ਲਾਈਵ ਚੈਟਬੋਟ',
+        moduleBadge: (i, t) => `ਮੋਡੀਊਲ ${i} / ${t}`,
+        progress: (pct) => `${pct}% ਪੂਰਾ ਹੋਇਆ`,
+        start: 'ਸਿਮੂਲੇਸ਼ਨ ਸ਼ੁਰੂ ਕਰੋ',
+        pause: 'ਰੋਕੋ',
+        resume: 'ਮੁੜ ਸ਼ੁਰੂ ਕਰੋ',
+        playingStatus: 'ਚੱਲ ਰਿਹਾ ਹੈ',
+        pausedStatus: 'ਰੁਕਿਆ ਹੋਇਆ',
+        speed: (s) => `${s}× ਰਫ਼ਤਾਰ`,
+        skip: 'ਅੱਗੇ',
+        allModulesBtn: 'ਸਾਰੇ 18 ਮੋਡੀਊਲ',
+        listenVoice: 'ਆਵਾਜ਼ ਵਿੱਚ ਸੁਣੋ',
+        drawerTitle: '18 ਸਿਮੂਲੇਸ਼ਨ ਮੋਡੀਊਲਾਂ ਵਿੱਚੋਂ ਚੁਣੋ',
+        gpsLocked: 'ਜੀਪੀਐਸ ਲਾਕ',
+        currentLoc: 'ਮੌਜੂਦਾ ਸਥਾਨ (ਸ਼ੁਰੂਆਤ)',
+        destLoc: 'ਮੰਜ਼ਿਲ (ਟੀਚਾ)',
+        lat: 'ਅਕਸ਼ਾਂਸ਼ (Latitude)',
+        lon: 'ਰੇਖਾਂਸ਼ (Longitude)',
+        gpsAcc: 'ਜੀਪੀਐਸ ਸ਼ੁੱਧਤਾ',
+        initDist: 'ਸ਼ੁਰੂਆਤੀ ਦੂਰੀ',
+        direction: 'ਦਿਸ਼ਾ',
+        geoNote: 'ਚੇਨਈ ਸੈਂਟਰਲ ਸਟੇਸ਼ਨ ਦੇ ਆਲੇ-ਦੁਆਲੇ 100 ਮੀਟਰ ਦੇ ਦਾਇਰੇ ਵਿੱਚ ਜੀਓਫੈਂਸ ਸਥਾਪਿਤ ਹੈ।',
+        temp: 'ਤਾਪਮਾਨ',
+        feelsLike: 'ਮਹਿਸੂਸ ਹੁੰਦਾ ਤਾਪਮਾਨ',
+        rainProb: 'ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ',
+        humidity: 'ਨਮੀ',
+        windSpeed: 'ਹਵਾ ਦੀ ਰਫ਼ਤਾਰ',
+        pressure: 'ਦਬਾਅ',
+        uvIndex: 'ਯੂਵੀ ਸੂਚਕਾਂਕ',
+        visibility: 'ਦਿੱਖ',
+        cloudCover: 'ਬੱਦਲਵਾਈ',
+        highMoisture: 'ਵੱਧ ਨਮੀ',
+        nominal: 'ਆਮ',
+        protectionAdvised: 'ਸੁਰੱਖਿਆ ਦੀ ਲੋੜ',
+        good: 'ਵਧੀਆ',
+        replayVoice: 'ਆਵਾਜ਼ ਦੁਬਾਰਾ ਸੁਣੋ',
+        userInput: '🎤 ਉਪਭੋਗਤਾ ਦਾ ਸਵਾਲ:',
+        spokenBulletin: '🔊 WeatherGPT ਵੌਇਸ ਜਵਾਬ:',
+        weeklyOutlook: 'ਹਫ਼ਤਾਵਾਰੀ ਦ੍ਰਿਸ਼ਟੀਕੋਣ',
+        radarSim: 'ਡੌਪਲਰ ਰਾਡਾਰ ਡੇਟਾ',
+        radarFrame: 'ਫਰੇਮ 4/4: ਮੀਂਹ ਦੇ ਬੱਦਲ ਅੱਗੇ ਵੱਧ ਰਹੇ ਹਨ (24 dBZ)',
+        severity: 'ਗੰਭੀਰਤਾ',
+        window: 'ਸਮਾਂ ਸੀਮਾ',
+        sirenReady: 'ਸਾਇਰਨ: ਤਿਆਰ',
+        aqiLevel: 'ਹਵਾ ਗੁਣਵੱਤਾ (AQI)',
+        pm25: 'PM2.5 ਇਕਾਗਰਤਾ',
+        pm10: 'PM10 ਇਕਾਗਰਤਾ',
+        advisory: 'ਮੌਸਮ ਸਲਾਹ',
+        soilMoisture: 'ਮਿੱਟੀ ਦੀ ਨਮੀ (0-1cm)',
+        soilTemp: 'ਮਿੱਟੀ ਦਾ ਤਾਪਮਾਨ',
+        irrigationAdv: '🌾 ਸਿੰਚਾਈ ਸਲਾਹ:',
+        sprayingAdv: '🚫 ਸਪਰੇਅ ਸਲਾਹ:',
+        flightCat: 'ਉਡਾਣ ਸ਼੍ਰੇਣੀ',
+        ceiling: 'ਬੱਦਲਾਂ ਦੀ ਉਚਾਈ',
+        briefing: 'ਹਵਾਬਾਜ਼ੀ ਬ੍ਰੀਫਿੰਗ:',
+        waveHeight: 'ਲਹਿਰਾਂ ਦੀ ਉਚਾਈ',
+        seaCond: 'ਸਮੁੰਦਰ ਦੀ ਸਥਿਤੀ',
+        avgTemp: 'ਔਸਤ ਤਾਪਮਾਨ',
+        avgHum: 'ਔਸਤ ਨਮੀ',
+        peakRain: 'ਵੱਧ ਤੋਂ ਵੱਧ ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ',
+        meanWind: 'ਔਸਤ ਹਵਾ ਦੀ ਗਤੀ',
+        printPdf: 'ਪ੍ਰਿੰਟ / PDF',
+        dossierLoc: 'ਚੇਂਗਲਪੱਟੂ ➔ ਚੇਨਈ ਸੈਂਟਰਲ',
+        dossierStatus: 'ਪ੍ਰਮਾਣਿਤ ਮੌਸਮ ਸਿਮੂਲੇਸ਼ਨ',
+        stage: 'ਪੜਾਅ',
+        eta: 'ਸਮਾਂ',
+        destWeatherNote: 'ਮੰਜ਼ਿਲ ਦਾ ਮੌਸਮ: <strong>ਚੇਨਈ ਸੈਂਟਰਲ: 30°C, 70% ਮੀਂਹ</strong> — ਛਤਰੀ ਕੋਲ ਰੱਖੋ।',
+        progressApproaching: 'ਪ੍ਰਗਤੀ: 100 ਮੀਟਰ ਦੇ ਨੇੜੇ',
+        geoAlarmTriggered: '🎯 100 ਮੀਟਰ ਜੀਓਫੈਂਸ ਅਲਾਰਮ ਚਾਲੂ ਹੋਇਆ',
+        reachedTitle: 'ਤੁਸੀਂ ਆਪਣੀ ਮੰਜ਼ਿਲ ਤੇ ਪਹੁੰਚ ਗਏ ਹੋ',
+        reachedLoc: 'ਚੇਨਈ ਸੈਂਟਰਲ, ਤਾਮਿਲਨਾਡੂ, ਭਾਰਤ',
+        voiceAlertSpeaking: '🔊 ਵੌਇਸ ਅਲਰਟ ਘੋਸ਼ਣਾ:',
+        stopAlarm: '🛑 ਅਲਾਰਮ ਬੰਦ ਕਰੋ',
+        restartDemo: '🔄 ਡੈਮੋ ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰੋ',
+        m1_sub: 'ਉੱਚ-ਸ਼ੁੱਧਤਾ ਜੀਪੀਐਸ ਲਾਕ ਅਤੇ ਜਾਣਕਾਰੀ',
+        m2_sub: 'ਚੇਂਗਲਪੱਟੂ ਲਾਈਵ ਮੌਸਮ ਜਾਣਕਾਰੀ',
+        m3_sub: 'ਏਆਈ ਮੌਸਮ ਚੈਟਬੋਟ ਬੁੱਧੀ',
+        m3_aiReady: 'ਏਆਈ ਤਿਆਰ ਹੈ',
+        m4_sub: 'ਬਹੁਭਾਸ਼ਾਈ ਵੌਇਸ ਅਤੇ ਸਪੀਚ ਸੰਸਲੇਸ਼ਣ (TTS)',
+        m5_sub: '24-ਘੰਟੇ ਦੀ ਸਮਾਂ-ਰੇਖਾ (ਸਵੇਰੇ 10 – ਸ਼ਾਮ 5)',
+        m6_sub: '7-ਦਿਨਾਂ ਦਾ ਵਿਸਤ੍ਰਿਤ ਪੂਰਵ ਅਨੁਮਾਨ (ਸੋਮਵਾਰ – ਐਤਵਾਰ)',
+        m7_sub: 'ਡੌਪਲਰ ਮੌਸਮ ਰਾਡਾਰ ਲਾਈਵ ਸਟ੍ਰੀਮ',
+        m8_sub: 'ਚੇਂਗਲਪੱਟੂ – ਚੇਨਈ ਮੁੱਖ ਕੋਰੀਡੋਰ',
+        m9_sub: 'ਹਵਾ ਗੁਣਵੱਤਾ ਸੂਚਕਾਂਕ (AQI) ਅਤੇ ਪ੍ਰਦੂਸ਼ਣ ਪੱਧਰ',
+        m10_sub: 'ਮਿੱਟੀ ਦੀ ਨਮੀ ਅਤੇ ਸਪਰੇਅ ਦਾ ਸਹੀ ਸਮਾਂ',
+        m11_sub: 'ICAO METAR ਅਤੇ ਉਡਾਣ ਜਾਣਕਾਰੀ',
+        m12_sub: 'ਬੰਗਾਲ ਦੀ ਖਾੜੀ ਲਹਿਰਾਂ ਅਤੇ ਸੁਰੱਖਿਆ',
+        m13_sub: 'ਜਲਵਾਯੂ ਅਤੇ ਮੌਸਮ ਦੇ ਅੰਕੜੇ',
+        m14_sub: 'WeatherGPT ਵਿੱਚ 10 ਭਾਸ਼ਾਵਾਂ ਦਾ ਸਮਰਥਨ',
+        m15_sub: 'ਸਵੈਚਾਲਿਤ ਮੌਸਮ ਚੇਤਾਵਨੀਆਂ',
+        m16_sub: 'WeatherGPT ਅਧਿਕਾਰਤ ਮੌਸਮ ਰਿਪੋਰਟ',
+        m17_sub: 'ਚੇਂਗਲਪੱਟੂ ➔ ਚੇਨਈ ਸੈਂਟਰਲ (ਲਾਈਵ ਯਾਤਰਾ)',
+        m18_sub: '100 ਮੀਟਰ ਜੀਓਫੈਂਸ ਪਹੁੰਚ ਅਤੇ ਅਲਾਰਮ',
+        rainLabel: 'ਮੀਂਹ'
       }
     };
 
     // ============================================================================
-    // CENTRAL CONSISTENT SIMULATION DATA OBJECT
+    // CENTRAL CONSISTENT SIMULATION DATA OBJECT (10 LANGUAGES)
     // ============================================================================
     const SIMULATION_DATA = {
       location: {
         originName: {
           en: 'Chengalpattu, Tamil Nadu, India',
           ta: 'செங்கல்பட்டு, தமிழ்நாடு, இந்தியா',
-          hi: 'चेंगलपट्टू, तमिलनाडु, भारत'
+          hi: 'चेंगलपट्टू, तमिलनाडु, भारत',
+          te: 'చెంగల్పట్టు, తమిళనాడు, భారతదేశం',
+          bn: 'চেঙ্গলপট্টু, তামিলনাড়ু, ভারত',
+          mr: 'चेंगलपट्टू, तामिळनाडू, भारत',
+          gu: 'ચેંગલપટ્ટુ, તમિલનાડુ, ભારત',
+          kn: 'ಚೆಂಗಳ್ಪಟ್ಟು, ತಮಿಳುನಾಡು, ಭಾರತ',
+          ml: 'ചെങ്കൽപട്ട്, തമിഴ്നാട്, ഇന്ത്യ',
+          pa: 'ਚੇਂਗਲਪੱਟੂ, ਤਾਮਿਲਨਾਡੂ, ਭਾਰਤ'
         },
         originCoords: { lat: 12.6919, lon: 79.9764 },
         destName: {
           en: 'Chennai Central, Chennai, Tamil Nadu, India',
           ta: 'சென்னை சென்ட்ரல், சென்னை, தமிழ்நாடு, இந்தியா',
-          hi: 'चेन्नई सेंट्रल, चेन्नई, तमिलनाडु, भारत'
+          hi: 'चेन्नई सेंट्रल, चेन्नई, तमिलनाडु, भारत',
+          te: 'చెన్నై సెంట్రల్, చెన్నై, తమిళనాడు, భారతదేశం',
+          bn: 'চেন্নাই সেন্ট্রাল, চেন্নাই, তামিলনাড়ু, ভারত',
+          mr: 'चेन्नई सेंट्रल, चेन्नई, तामिळनाडू, भारत',
+          gu: 'ચેન્નાઈ સેન્ટ્રલ, ચેન્નાઈ, તમિલનાડુ, ભારત',
+          kn: 'ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್, ಚೆನ್ನೈ, ತಮಿಳುನಾಡು, ಭಾರತ',
+          ml: 'ചെന്നൈ സെൻട്രൽ, ചെന്നൈ, തമിഴ്നാട്, ഇന്ത്യ',
+          pa: 'ਚੇਨਈ ਸੈਂਟਰਲ, ਚੇਨਈ, ਤਾਮਿਲਨਾਡੂ, ਭਾਰਤ'
         },
         destCoords: { lat: 13.0827, lon: 80.2707 },
         gpsAccuracyMeters: 18,
         travelDirection: {
           en: 'North-North-East (NNE)',
           ta: 'வடக்கு-வடகிழக்கு (NNE)',
-          hi: 'उत्तर-उत्तर-पूर्व (NNE)'
+          hi: 'उत्तर-उत्तर-पूर्व (NNE)',
+          te: 'ఉత్తర-ఈశాన్యం (NNE)',
+          bn: 'উত্তর-উত্তর-পূর্ব (NNE)',
+          mr: 'उत्तर-उत्तर-पूर्व (NNE)',
+          gu: 'ઉત્તર-ઉત્તર-પૂર્વ (NNE)',
+          kn: 'ಉತ್ತರ-ಈಶಾನ್ಯ (NNE)',
+          ml: 'വടക്ക്-വടക്കുകിഴക്ക് (NNE)',
+          pa: 'ਉੱਤਰ-ਉੱਤਰ-ਪੂਰਬ (NNE)'
         },
         initialDistanceKm: 45,
         initialEtaMinutes: 70,
@@ -614,14 +1554,28 @@
         condition: {
           en: 'Partly Cloudy',
           ta: 'பகுதி மேகமூட்டம்',
-          hi: 'आंशिक रूप से बादल'
+          hi: 'आंशिक रूप से बादल',
+          te: 'పాక్షಿಕంగా మేఘావృతం',
+          bn: 'আংশিক মেঘলা',
+          mr: 'अंशतः ढगाळ',
+          gu: 'અંશતઃ વાદળછાયું',
+          kn: 'ಭಾಗಶಃ ಮೋಡ ಕವಿದಿದೆ',
+          ml: 'ഭാഗികമായി മേഘാവൃതം',
+          pa: 'ਅੰਸ਼ਕ ਤੌਰ ਤੇ ਬੱਦਲਵਾਈ'
         },
         humidity: 78,
         windSpeed: 14,
         windDir: {
           en: 'SW (South-West)',
           ta: 'தென்மேற்கு (SW)',
-          hi: 'दक्षिण-पश्चिम (SW)'
+          hi: 'दक्षिण-पश्चिम (SW)',
+          te: 'నైరుతి (SW)',
+          bn: 'দক্ষিণ-পশ্চিম (SW)',
+          mr: 'नैऋत्य (SW)',
+          gu: 'નૈઋત્ય (SW)',
+          kn: 'ನೈಋತ್ಯ (SW)',
+          ml: 'തെക്ക്-പടിഞ്ഞാറ് (SW)',
+          pa: 'ਦੱਖਣ-ਪੱਛਮ (SW)'
         },
         pressure: 1008,
         uvIndex: 7,
@@ -630,133 +1584,251 @@
         rainProbabilityPercent: 65,
       },
       hourlyForecast: [
-        { timeEn: '10:00 AM', timeTa: 'மு.ப 10:00', timeHi: '10:00 पूर्वाह्न', temp: 29, condEn: 'Partly Cloudy', condTa: 'பகுதி மேகமூட்டம்', condHi: 'आंशिक बादल', rainProb: 35 },
-        { timeEn: '11:00 AM', timeTa: 'மு.ப 11:00', timeHi: '11:00 पूर्वाह्न', temp: 30, condEn: 'Cloudy', condTa: 'மேகமூட்டம்', condHi: 'बादल छाए', rainProb: 40 },
-        { timeEn: '12:00 PM', timeTa: 'ந.ப 12:00', timeHi: '12:00 अपराह्न', temp: 31, condEn: 'Cloudy', condTa: 'மேகமூட்டம்', condHi: 'बादल छाए', rainProb: 48 },
-        { timeEn: '1:00 PM',  timeTa: 'பி.ப 1:00',  timeHi: '1:00 अपराह्न', temp: 31, condEn: 'Light Rain', condTa: 'லேசான மழை', condHi: 'हल्की बारिश', rainProb: 60 },
-        { timeEn: '2:00 PM',  timeTa: 'பி.ப 2:00',  timeHi: '2:00 अपराह्न', temp: 30, condEn: 'Light Rain', condTa: 'லேசான மழை', condHi: 'हल्की बारिश', rainProb: 72 },
-        { timeEn: '3:00 PM',  timeTa: 'பி.ப 3:00',  timeHi: '3:00 अपराह्न', temp: 29, condEn: 'Moderate Rain', condTa: 'மிதமான மழை', condHi: 'मध्यम बारिश', rainProb: 78 },
-        { timeEn: '4:00 PM',  timeTa: 'பி.ப 4:00',  timeHi: '4:00 अपराह्न', temp: 28, condEn: 'Heavy Rain', condTa: 'கனமழை', condHi: 'भारी बारिश', rainProb: 82 },
-        { timeEn: '5:00 PM',  timeTa: 'பி.ப 5:00',  timeHi: '5:00 अपराह्न', temp: 28, condEn: 'Cloudy', condTa: 'மேகமூட்டம்', condHi: 'बादल छाए', rainProb: 65 },
+        { time: '10:00 AM', temp: 29, cond: 'Partly Cloudy', rainProb: 35 },
+        { time: '11:00 AM', temp: 30, cond: 'Cloudy', rainProb: 40 },
+        { time: '12:00 PM', temp: 31, cond: 'Cloudy', rainProb: 48 },
+        { time: '1:00 PM',  temp: 31, cond: 'Light Rain', rainProb: 60 },
+        { time: '2:00 PM',  temp: 30, cond: 'Light Rain', rainProb: 72 },
+        { time: '3:00 PM',  temp: 29, cond: 'Moderate Rain', rainProb: 78 },
+        { time: '4:00 PM',  temp: 28, cond: 'Heavy Rain', rainProb: 82 },
+        { time: '5:00 PM',  temp: 28, cond: 'Cloudy', rainProb: 65 },
       ],
       dailyForecast: [
-        { dayEn: 'Monday', dayTa: 'திங்கள்', dayHi: 'सोमवार', high: 31, low: 25, condEn: 'Partly Cloudy', condTa: 'பகுதி மேகமூட்டம்', condHi: 'आंशिक बादल', rainProb: 35 },
-        { dayEn: 'Tuesday', dayTa: 'செவ்வாய்', dayHi: 'मंगलवार', high: 30, low: 25, condEn: 'Light Rain', condTa: 'லேசான மழை', condHi: 'हल्की बारिश', rainProb: 60 },
-        { dayEn: 'Wednesday', dayTa: 'புதன்', dayHi: 'बुधवार', high: 29, low: 24, condEn: 'Moderate Rain', condTa: 'மிதமான மழை', condHi: 'मध्यम बारिश', rainProb: 75 },
-        { dayEn: 'Thursday', dayTa: 'வியாழன்', dayHi: 'गुरुवार', high: 31, low: 25, condEn: 'Cloudy', condTa: 'மேகமூட்டம்', condHi: 'बादल छाए', rainProb: 40 },
-        { dayEn: 'Friday', dayTa: 'வெள்ளி', dayHi: 'शुक्रवार', high: 32, low: 26, condEn: 'Partly Cloudy', condTa: 'பகுதி மேகமூட்டம்', condHi: 'आंशिक बादल', rainProb: 30 },
-        { dayEn: 'Saturday', dayTa: 'சனி', dayHi: 'शनिवार', high: 31, low: 25, condEn: 'Thunderstorm', condTa: 'இடியுடன் கூடிய மழை', condHi: 'गरज के साथ बारिश', rainProb: 85 },
-        { dayEn: 'Sunday', dayTa: 'ஞாயிறு', dayHi: 'रविवार', high: 30, low: 24, condEn: 'Rain', condTa: 'மழை', condHi: 'बारिश', rainProb: 65 },
+        { day: 'Monday', high: 31, low: 25, cond: 'Partly Cloudy', rainProb: 35 },
+        { day: 'Tuesday', high: 30, low: 25, cond: 'Light Rain', rainProb: 60 },
+        { day: 'Wednesday', high: 29, low: 24, cond: 'Moderate Rain', rainProb: 75 },
+        { day: 'Thursday', high: 31, low: 25, cond: 'Cloudy', rainProb: 40 },
+        { day: 'Friday', high: 32, low: 26, cond: 'Partly Cloudy', rainProb: 30 },
+        { day: 'Saturday', high: 31, low: 25, cond: 'Thunderstorm', rainProb: 85 },
+        { day: 'Sunday', high: 30, low: 24, cond: 'Rain', rainProb: 65 },
       ],
-      chatConversations: [
-        {
-          qEn: 'Will it rain today in Chengalpattu?',
-          qTa: 'செங்கல்பட்டில் இன்று மழை பெய்யுமா?',
-          qHi: 'क्या आज चेंगलपट्टू में बारिश होगी?',
-          aEn: 'Yes, heavy rain is expected between 2:00 PM and 5:00 PM with 82% peak probability. Please carry an umbrella!',
-          aTa: 'ஆம், பிற்பகல் 2:00 மணி முதல் மாலை 5:00 மணி வரை 82% அதிக வாய்ப்புடன் கனமழை பெய்யும். குடையை எடுத்துச் செல்லுங்கள்!',
-          aHi: 'हाँ, दोपहर 2:00 से शाम 5:00 बजे के बीच 82% अधिकतम संभावना के साथ भारी बारिश की संभावना है। कृपया छाता साथ रखें!'
+      chatConversations: {
+        en: {
+          q: 'Will it rain today in Chengalpattu?',
+          a: 'Yes, heavy rain is expected between 2:00 PM and 5:00 PM with 82% peak probability. Please carry an umbrella!'
         },
-        {
-          qEn: 'What is the current temperature and humidity?',
-          qTa: 'தற்போதைய வெப்பநிலை மற்றும் ஈரப்பதம் என்ன?',
-          qHi: 'अभी तापमान और नमी कितनी है?',
-          aEn: 'Current temperature is 29°C (feels like 32°C) with 78% relative humidity and 14 km/h SW wind.',
-          aTa: 'தற்போதைய வெப்பநிலை 29°C (உணரும் வெப்பநிலை 32°C), ஈரப்பதம் 78% மற்றும் தென்மேற்கு காற்று 14 km/h வேகத்தில் வீசுகிறது.',
-          aHi: 'वर्तमान तापमान 29°C (महसूस 32°C), 78% आर्द्रता और 14 km/h की रफ्तार से हवा चल रही है।'
+        ta: {
+          q: 'செங்கல்பட்டில் இன்று மழை பெய்யுமா?',
+          a: 'ஆம், பிற்பகல் 2:00 மணி முதல் மாலை 5:00 மணி வரை 82% அதிக வாய்ப்புடன் கனமழை பெய்யும். குடையை எடுத்துச் செல்லுங்கள்!'
         },
-        {
-          qEn: 'What is the weather at my destination (Chennai Central)?',
-          qTa: 'எனது சேருமிடமான சென்னை சென்ட்ரலில் வானிலை எப்படி உள்ளது?',
-          qHi: 'मेरी मंजिल चेन्नई सेंट्रल का मौसम कैसा है?',
-          aEn: 'Your destination, Chennai Central, is around 30°C with cloudy conditions and approximately 70% rain probability.',
-          aTa: 'உங்கள் சேருமிடமான சென்னை சென்ட்ரலில் வெப்பநிலை சுமார் 30°C, மேகமூட்டம் மற்றும் 70% மழை வாய்ப்பு உள்ளது.',
-          aHi: 'आपकी मंजिल चेन्नई सेंट्रल का तापमान लगभग 30°C है, बादल छाए हुए हैं और लगभग 70% बारिश की संभावना है।'
+        hi: {
+          q: 'क्या आज चेंगलपट्टू में बारिश होगी?',
+          a: 'हाँ, दोपहर 2:00 से शाम 5:00 बजे के बीच 82% अधिकतम संभावना के साथ भारी बारिश होगी। कृपया छाता साथ रखें!'
         },
-        {
-          qEn: 'Can I travel along the highway now?',
-          qTa: 'நான் இப்போது தேசிய நெடுஞ்சாலையில் பயணிக்கலாமா?',
-          qHi: 'क्या मैं अभी राजमार्ग पर यात्रा कर सकता हूँ?',
-          aEn: 'Travel is safe now, but rain intensity will increase near Tambaram and Guindy around 3:30 PM. Drive safely.',
-          aTa: 'தற்போது பயணிக்கலாம், ஆனால் பிற்பகல் 3:30 மணியளவில் தாம்பரம் மற்றும் கிண்டி பகுதிகளில் கனமழை பெய்யக்கூடும். கவனமாக ஓட்டவும்.',
-          aHi: 'अभी यात्रा सुरक्षित है, लेकिन दोपहर 3:30 बजे के आसपास तांबरम और गिंडी के पास बारिश बढ़ेगी। सावधानी से गाड़ी चलाएं।'
+        te: {
+          q: 'చెంగల్పట్టులో ఈరోజు వర్షం పడుతుందా?',
+          a: 'అవును, మధ్యాహ్నం 2:00 నుండి సాయంత్రం 5:00 గంటల మధ్య 82% అవకాశంతో భారీ వర్షం కురిసే అవకాశం ఉంది. గొడుగు తీసుకెళ్లండి!'
         },
-        {
-          qEn: 'What is the Air Quality Index (AQI)?',
-          qTa: 'காற்றுத் தரக் குறியீடு (AQI) எவ்வாறு உள்ளது?',
-          qHi: 'वायु गुणवत्ता सूचकांक (AQI) क्या है?',
-          aEn: 'The current AQI is 72, which is classified as Moderate and acceptable for normal activities.',
-          aTa: 'தற்போதைய காற்று தரம் (AQI) 72 ஆக உள்ளது, இது மிதமான (Moderate) தூய்மை பிரிவைச் சேர்ந்தது.',
-          aHi: 'वर्तमान AQI 72 है, जिसे मध्यम (Moderate) श्रेणी में वर्गीकृत किया गया है।'
+        bn: {
+          q: 'আজ কি চেঙ্গলপট্টুতে বৃষ্টি হবে?',
+          a: 'হ্যাঁ, দুপুর ২:০০ থেকে বিকেল ৫:০০টার মধ্যে ৮২% সর্বোচ্চ সম্ভাবনায় ভারী বৃষ্টির পূর্বাভাস রয়েছে। দয়া করে ছাতা সাথে রাখুন!'
+        },
+        mr: {
+          q: 'आज चेंगलपट्टूमध्ये पाऊस पडेल का?',
+          a: 'होय, दुपारी २:०० ते संध्याकाळी ५:०० दरम्यान ८२% कमाल शक्यतेसह मुसळधार पाऊस पडेल. कृपया छत्री सोबत ठेवा!'
+        },
+        gu: {
+          q: 'શું આજે ચેંગલપટ્ટુમાં વરસાદ પડશે?',
+          a: 'હા, બપોરે 2:00 થી સાંજે 5:00 વચ્ચે 82% મહત્તમ સંભાવના સાથે ભારે વરસાદની આગાહી છે. કૃપા કરીને છત્રી સાથે રાખો!'
+        },
+        kn: {
+          q: 'ಇಂದು ಚೆಂಗಳ್ಪಟ್ಟುನಲ್ಲಿ ಮಳೆ ಬರುತ್ತದೆಯೇ?',
+          a: 'ಹೌದು, ಮಧ್ಯಾಹ್ನ 2:00 ರಿಂದ ಸಂಜೆ 5:00 ರ ನಡುವೆ 82% ಗರಿಷ್ಠ ಸಂಭವನೀಯತೆಯೊಂದಿಗೆ ಭಾರಿ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ. ದಯವಿಟ್ಟು ಛತ್ರಿ ಕೊಂಡೊಯ್ಯಿರಿ!'
+        },
+        ml: {
+          q: 'ഇന്ന് ചെങ്കൽപട്ടിൽ മഴ പെയ്യുമോ?',
+          a: 'അതെ, ഉച്ചയ്ക്ക് 2:00 നും വൈകുന്നേരം 5:00 നും ഇടയിൽ 82% ഉയർന്ന സാധ്യതയോടെ കനത്ത മഴയ്ക്ക് സാധ്യതയുണ്ട്. കുട കരുതുക!'
+        },
+        pa: {
+          q: 'ਕੀ ਅੱਜ ਚੇਂਗਲਪੱਟੂ ਵਿੱਚ ਮੀਂਹ ਪਵੇਗਾ?',
+          a: 'ਹਾਂ, ਦੁਪਹਿਰ 2:00 ਤੋਂ ਸ਼ਾਮ 5:00 ਵਜੇ ਦੇ ਵਿਚਕਾਰ 82% ਸੰਭਾਵਨਾ ਨਾਲ ਭਾਰੀ ਮੀਂਹ ਪੈਣ ਦੀ ਉਮੀਦ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਛਤਰੀ ਕੋਲ ਰੱਖੋ!'
         }
-      ],
+      },
       voiceModule: {
-        qEn: "What's the weather at my destination?",
-        qTa: 'எனது சேருமிடத்தில் வானிலை எப்படி உள்ளது?',
-        qHi: 'मेरी मंजिल का मौसम कैसा है?',
-        aEn: 'Your destination is Chennai Central. The temperature is around 30 degrees Celsius with cloudy conditions and a 70% high chance of rain.',
-        aTa: 'உங்கள் சேருமிடமான சென்னை சென்ட்ரலில் வெப்பநிலை சுமார் 30 டிகிரி செல்சியஸ், மேகமூட்டத்துடன் 70 சதவீதம் மழை பெய்ய அதிக வாய்ப்புள்ளது.',
-        aHi: 'आपकी मंजिल चेन्नई सेंट्रल का तापमान लगभग 30 डिग्री सेल्सियस है, बादल छाए रहेंगे और 70 प्रतिशत बारिश की संभावना है।'
+        en: {
+          q: "What's the weather at my destination?",
+          a: "Your destination is Chennai Central. The temperature is around 30 degrees Celsius with cloudy conditions and a 70% high chance of rain."
+        },
+        ta: {
+          q: 'எனது சேருமிடத்தில் வானிலை எப்படி உள்ளது?',
+          a: 'உங்கள் சேருமிடமான சென்னை சென்ட்ரலில் வெப்பநிலை சுமார் 30 டிகிரி செல்சியஸ், மேகமூட்டத்துடன் 70 சதவீதம் மழை பெய்ய அதிக வாய்ப்புள்ளது.'
+        },
+        hi: {
+          q: 'मेरी मंजिल का मौसम कैसा है?',
+          a: 'आपकी मंजिल चेन्नई सेंट्रल का तापमान लगभग 30 डिग्री सेल्सियस है, बादल छाए रहेंगे और 70 प्रतिशत बारिश की संभावना है।'
+        },
+        te: {
+          q: 'నా గమ్యస్థానంలో వాతావరణం ఎలా ఉంది?',
+          a: 'మీ గమ్యస్థానమైన చెన్నై సెంట్రల్‌లో ఉష్ణోగ్రత సుమారు 30 డిగ్రీల సెల్సియస్, మేఘావృతమై 70 శాతం వర్షం కురిసే అవకాశం ఉంది.'
+        },
+        bn: {
+          q: 'আমার গন্তব্যে আবহাওয়া কেমন?',
+          a: 'আপনার গন্তব্য চেন্নাই সেন্ট্রাল। তাপমাত্রা প্রায় ৩০ ডিগ্রি সেলসিয়াস, মেঘলা আকাশ এবং ৭০ শতাংশ বৃষ্টির সম্ভাবনা রয়েছে।'
+        },
+        mr: {
+          q: 'माझ्या गंतव्यस्थानाचे हवामान कसे आहे?',
+          a: 'तुमचे गंतव्यस्थान चेन्नई सेंट्रल आहे. तापमान सुमारे ३० अंश सेल्सिअस असून ढगाळ वातावरण आणि ७० टक्के पावसाची शक्यता आहे.'
+        },
+        gu: {
+          q: 'મારા ગંતવ્ય સ્થાને હવામાન કેવું છે?',
+          a: 'તમારું ગંતવ્ય ચેન્નાઈ સેન્ટ્રલ છે. તાપમાન આશરે 30 ડિગ્રી સેલ્સિયસ છે, વાદળછાયું વાતાવરણ અને 70 ટકા વરસાદની સંભાવના છે.'
+        },
+        kn: {
+          q: 'ನನ್ನ ಗಮ್ಯಸ್ಥಾನದಲ್ಲಿ ಹವಾಮಾನ ಹೇಗಿದೆ?',
+          a: 'ನಿಮ್ಮ ಗಮ್ಯಸ್ಥಾನ ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್. ತಾಪಮಾನವು ಸುಮಾರು 30 ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್ ಇದ್ದು, ಮೋಡ ಕವಿದ ವಾತಾವರಣ ಮತ್ತು 70 ಪ್ರತಿಶತ ಮಳೆಯ ಸಾಧ್ಯತೆಯಿದೆ.'
+        },
+        ml: {
+          q: 'എന്റെ ലക്ഷ്യസ്ഥാനത്തെ കാലാവസ്ഥ എങ്ങനെയുണ്ട്?',
+          a: 'നിങ്ങളുടെ ലക്ഷ്യസ്ഥാനം ചെന്നൈ സെൻട്രൽ ആണ്. താപനില ഏകദേശം 30 ഡിഗ്രി സെൽഷ്യസ് ആണ്, മേഘാവൃതമായ അന്തരീക്ഷവും 70 ശതമാനം മഴ സാധ്യതയുമുണ്ട്.'
+        },
+        pa: {
+          q: 'ਮੇਰੀ ਮੰਜ਼ਿਲ ਦਾ ਮੌਸਮ ਕਿਹੋ ਜਿਹਾ ਹੈ?',
+          a: 'ਤੁਹਾਡੀ ਮੰਜ਼ਿਲ ਚੇਨਈ ਸੈਂਟਰਲ ਹੈ। ਤਾਪਮਾਨ ਲਗਭਗ 30 ਡਿਗਰੀ ਸੈਲਸੀਅਸ ਹੈ, ਬੱਦਲਵਾਈ ਰਹੇਗੀ ਅਤੇ 70 ਪ੍ਰਤੀਸ਼ਤ ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ ਹੈ।'
+        }
       },
       severeAlert: {
-        typeEn: 'Heavy Rain Warning (Orange Alert)',
-        typeTa: 'கனமழை எச்சரிக்கை (ஆரஞ்சு அலர்ட்)',
-        typeHi: 'भारी बारिश की चेतावनी (ऑरेंज अलर्ट)',
-        severityEn: 'High Priority',
-        severityTa: 'உயர் முன்னுரிமை',
-        severityHi: 'उच्च प्राथमिकता',
-        timeWindowEn: '2:00 PM – 5:00 PM',
-        timeWindowTa: 'பிற்பகல் 2:00 – மாலை 5:00',
-        timeWindowHi: 'दोपहर 2:00 – शाम 5:00',
-        messageEn: 'Intense rainfall cells advancing from South-West. Localized waterlogging possible in low-lying corridors between Chengalpattu and Tambaram.',
-        messageTa: 'தென்மேற்கு திசையிலிருந்து தீவிர மழை மேகங்கள் நகர்கின்றன. செங்கல்பட்டு மற்றும் தாம்பரம் இடையேயான தாழ்வான பகுதிகளில் தண்ணீர் தேங்க வாய்ப்புள்ளது.',
-        messageHi: 'दक्षिण-पश्चिम से भारी बारिश के बादल आगे बढ़ रहे हैं। चेंगलपट्टू और तांबरम के बीच निचले इलाकों में जलभराव की संभावना है।'
+        en: {
+          type: 'Heavy Rain Warning (Orange Alert)',
+          severity: 'High Priority',
+          window: '2:00 PM – 5:00 PM',
+          msg: 'Intense rainfall cells advancing from South-West. Localized waterlogging possible in low-lying corridors between Chengalpattu and Tambaram.'
+        },
+        ta: {
+          type: 'கனமழை எச்சரிக்கை (ஆரஞ்சு அலர்ட்)',
+          severity: 'உயர் முன்னுரிமை',
+          window: 'பிற்பகல் 2:00 – மாலை 5:00',
+          msg: 'தென்மேற்கு திசையிலிருந்து தீவிர மழை மேகங்கள் நகர்கின்றன. செங்கல்பட்டு மற்றும் தாம்பரம் இடையேயான தாழ்வான பகுதிகளில் தண்ணீர் தேங்க வாய்ப்புள்ளது.'
+        },
+        hi: {
+          type: 'भारी बारिश की चेतावनी (ऑरेंज अलर्ट)',
+          severity: 'उच्च प्राथमिकता',
+          window: 'दोपहर 2:00 – शाम 5:00',
+          msg: 'दक्षिण-पश्चिम से भारी बारिश के बादल आगे बढ़ रहे हैं। चेंगलपट्टू और तांबरम के बीच निचले इलाकों में जलभराव की संभावना है।'
+        },
+        te: {
+          type: 'భారీ వర్ష హెచ్చరిక (ఆరెంజ్ అలర్ట్)',
+          severity: 'అధిక ప్రాధాన్యత',
+          window: 'మధ్యాహ్నం 2:00 – సాయంత్రం 5:00',
+          msg: 'నైరుతి దిశ నుండి తీవ్రమైన వర్ష మేఘాలు కదులుతున్నాయి. చెంగల్పట్టు మరియు తాంబరం మధ్య లోతట్టు ప్రాంతాలలో నీరు నిలిచే అవకాశం ఉంది.'
+        },
+        bn: {
+          type: 'ভারী বৃষ্টির সতর্কতা (অরেঞ্জ অ্যালার্ট)',
+          severity: 'উচ্চ অগ্রাধিকার',
+          window: 'দুপুর ২:০০ – বিকেল ৫:০০',
+          msg: 'দক্ষিণ-পশ্চিম দিক থেকে ভারী বৃষ্টির মেঘ অগ্রসর হচ্ছে। চেঙ্গলপট্টু ও তাম্বারামের মধ্যবর্তী নিচু এলাকায় জলাবদ্ধতা হতে পারে।'
+        },
+        mr: {
+          type: 'मुसळधार पावसाचा इशारा (ऑरेंज अलर्ट)',
+          severity: 'उच्च प्राथमिकता',
+          window: 'दुपारी २:०० – संध्याकाळी ५:००',
+          msg: 'नैऋत्य दिशेकडून पावसाचे दाट ढग पुढे सरकत आहेत. चेंगलपट्टू आणि तांबरम दरम्यान सखल भागात पाणी साचण्याची शक्यता आहे.'
+        },
+        gu: {
+          type: 'ભારે વરસાદની ચેતવણી (ઓરેન્જ એલર્ટ)',
+          severity: 'ઉચ્ચ અગ્રતા',
+          window: 'બપોરે 2:00 – સાંજે 5:00',
+          msg: 'દક્ષિણ-પશ્ચિમથી ભારે વરસાદના વાદળો આગળ વધી રહ્યા છે. ચેંગલપટ્ટુ અને તાંબરમ વચ્ચેના નીચાણવાળા વિસ્તારોમાં પાણી ભરાવાની શક્યતા છે.'
+        },
+        kn: {
+          type: 'ಭಾರಿ ಮಳೆ ಎಚ್ಚರಿಕೆ (ಆರೆಂಜ್ ಅಲರ್ಟ್)',
+          severity: 'ಹೆಚ್ಚಿನ ಆದ್ಯತೆ',
+          window: 'ಮಧ್ಯಾಹ್ನ 2:00 – ಸಂಜೆ 5:00',
+          msg: 'ನೈಋತ್ಯದಿಂದ ಭಾರಿ ಮಳೆಯ ಮೋಡಗಳು ಚಲಿಸುತ್ತಿವೆ. ಚೆಂಗಳ್ಪಟ್ಟು ಮತ್ತು ತಾಂಬರಂ ನಡುವಿನ ತಗ್ಗು ಪ್ರದೇಶಗಳಲ್ಲಿ ನೀರು ನಿಲ್ಲುವ ಸಾಧ್ಯತೆಯಿದೆ.'
+        },
+        ml: {
+          type: 'കനത്ത മഴ മുന്നറിയിപ്പ് (ഓറഞ്ച് അലർട്ട്)',
+          severity: 'ഉയർന്ന മുൻഗണന',
+          window: 'ഉച്ചയ്ക്ക് 2:00 – വൈകുന്നേരം 5:00',
+          msg: 'തെക്ക്-പടിഞ്ഞാറ് നിന്ന് കനത്ത മഴ മേഘങ്ങൾ നീങ്ങുന്നു. ചെങ്കൽപട്ടിനും താമ്പരത്തിനുമിടയിലുള്ള താഴ്ന്ന പ്രദേശങ്ങളിൽ വെള്ളക്കെട്ടിന് സാധ്യതയുണ്ട്.'
+        },
+        pa: {
+          type: 'ਭਾਰੀ ਮੀਂਹ ਦੀ ਚੇਤਾਵਨੀ (ਔਰੇਂਜ ਅਲਰਟ)',
+          severity: 'ਉੱਚ ਤਰਜੀਹ',
+          window: 'ਦੁਪਹਿਰ 2:00 – ਸ਼ਾਮ 5:00',
+          msg: 'ਦੱਖਣ-ਪੱਛਮ ਤੋਂ ਭਾਰੀ ਮੀਂਹ ਦੇ ਬੱਦਲ ਅੱਗੇ ਵੱਧ ਰਹੇ ਹਨ। ਚੇਂਗਲਪੱਟੂ ਅਤੇ ਤਾਂਬਰਮ ਵਿਚਕਾਰ ਨੀਵੇਂ ਇਲਾਕਿਆਂ ਵਿੱਚ ਪਾਣੀ ਭਰਨ ਦੀ ਸੰਭਾਵਨਾ ਹੈ।'
+        }
       },
       airQuality: {
         aqi: 72,
-        statusEn: 'Moderate',
-        statusTa: 'மிதமானது (Moderate)',
-        statusHi: 'मध्यम (Moderate)',
         pm25: 28,
         pm10: 54,
-        adviceEn: 'Air quality is acceptable for most individuals. Sensitive groups should avoid heavy exertion during peak traffic hours.',
-        adviceTa: 'காற்றுத் தரம் பெரும்பாலான மக்களுக்கு ஏற்றது; சுவாசப் பிரச்சனை உள்ளவர்கள் போக்குவரத்து நெரிசல் நேரங்களில் எச்சரிக்கையுடன் இருக்கவும்.',
-        adviceHi: 'वायु गुणवत्ता अधिकांश लोगों के लिए स्वीकार्य है। सांस के रोगी अधिक ट्रैफिक वाले घंटों में अत्यधिक परिश्रम से बचें।'
+        adv: {
+          en: 'Air quality is acceptable for most individuals. Sensitive groups should avoid heavy exertion during peak traffic hours.',
+          ta: 'காற்றுத் தரம் பெரும்பாலான மக்களுக்கு ஏற்றது; சுவாசப் பிரச்சனை உள்ளவர்கள் போக்குவரத்து நெரிசல் நேரங்களில் எச்சரிக்கையுடன் இருக்கவும்.',
+          hi: 'वायु गुणवत्ता अधिकांश लोगों के लिए स्वीकार्य है। सांस के रोगी अधिक ट्रैफिक वाले घंटों में अत्यधिक परिश्रम से बचें।',
+          te: 'గాలి నాణ్యత చాలామందికి అనుకూలంగా ఉంది. శ్వಾಸకోశ సమస్యలు ఉన్నవారు రద్దీ సమయాల్లో జాగ్రత్తగా ఉండాలి.',
+          bn: 'বায়ুর মান বেশিরভাগ মানুষের জন্য সহনশীল। শ্বাসকষ্টের রোগীদের ব্যস্ত ট্র্যাফিকের সময় ভারী পরিশ্রম এড়িয়ে চলা উচিত।',
+          mr: 'हवेची गुणवत्ता बहुतेकांसाठी स्वीकार्य आहे. श्वसनाचा त्रास असणाऱ्यांनी गर्दीच्या वेळी अतिश्रम टाळावेत.',
+          gu: 'હવાની ગુણવત્તા મોટાભાગના લોકો માટે સ્વીકાર્ય છે. શ્વાસની તકલીફ વાળા લોકોએ ટ્રાફિકના સમયે ભારે શ્રમ ટાળવો જોઈએ.',
+          kn: 'ಹೆಚ್ಚಿನ ಜನರಿಗೆ ವಾಯು ಗುಣಮಟ್ಟ ಸ್ವೀಕಾರಾರ್ಹವಾಗಿದೆ. ಉಸಿರಾಟದ ಸಮಸ್ಯೆಯುಳ್ಳವರು ದಟ್ಟಣೆಯ ಸಮಯದಲ್ಲಿ ಹೆಚ್ಚಿನ ಶ್ರಮ ತಪ್ಪಿಸಬೇಕು.',
+          ml: 'വായുവിന്റെ ഗുണനിലവാരം ഭൂരിഭാഗം ആളുകൾക്കും സ്വീകാര്യമാണ്. ശ്വാസകോശ സംബന്ധമായ പ്രശ്നങ്ങളുള്ളവർ തിരക്കുള്ള സമയങ്ങളിൽ കഠിനാധ്വാനം ഒഴിവാക്കണം.',
+          pa: 'ਜ਼ਿਆਦਾਤਰ ਲੋਕਾਂ ਲਈ ਹਵਾ ਦੀ ਗੁਣਵੱਤਾ ਸਵੀਕਾਰਯੋਗ ਹੈ। ਸਾਹ ਦੀ ਤਕਲੀਫ ਵਾਲੇ ਲੋਕ ਭਾਰੀ ਟ੍ਰੈਫਿਕ ਦੌਰਾਨ ਜ਼ਿਆਦਾ ਮਿਹਨਤ ਤੋਂ ਬਚਣ।'
+        }
       },
       agriculture: {
         soilMoisture: 42,
         soilTemp: 27,
         rainProb: 72,
-        irrigationAdviceEn: 'Delay irrigation because rainfall is likely over the next 6 hours.',
-        irrigationAdviceTa: 'அடுத்த 6 மணி நேரத்தில் மழை பெய்ய வாய்ப்புள்ளதால் பயிர்களுக்கு பாசனம் செய்வதை ஒத்திவைக்கவும்.',
-        irrigationAdviceHi: 'अगले 6 घंटों में बारिश की संभावना के कारण फसलों की सिंचाई टाल दें।',
-        sprayingEn: 'Not Recommended',
-        sprayingTa: 'பரிந்துரைக்கப்படவில்லை',
-        sprayingHi: 'अनुशंसित नहीं',
-        sprayingReasonEn: 'Rainfall will wash off pesticides and fertilizers. Postpone chemical spray operations.',
-        sprayingReasonTa: 'மழையினால் பூச்சிக்கொல்லி மற்றும் உரங்கள் அடித்துச் செல்லப்படலாம். மருந்து தெளிப்பதை ஒத்திவைக்கவும்.',
-        sprayingReasonHi: 'बारिश से कीटनाशक और उर्वरक धुल जाएंगे। छिड़काव कार्य स्थगित करें।'
+        irrigationAdv: {
+          en: 'Delay irrigation because rainfall is likely over the next 6 hours.',
+          ta: 'அடுத்த 6 மணி நேரத்தில் மழை பெய்ய வாய்ப்புள்ளதால் பயிர்களுக்கு பாசனம் செய்வதை ஒத்திவைக்கவும்.',
+          hi: 'अगले 6 घंटों में बारिश की संभावना के कारण फसलों की सिंचाई टाल दें।',
+          te: 'రాబోయే 6 గంటల్లో వర్షం కురిసే అవకాశం ఉన్నందున సాగునీటి సరఫరాను వాయిదా వేయండి.',
+          bn: 'আগামী ৬ ঘণ্টায় বৃষ্টির সম্ভাবনা থাকায় জমিতে সেচ দেওয়া স্থগিত রাখুন।',
+          mr: 'पुढील ६ तासांत पावसाची शक्यता असल्याने पिकांना पाणी देणे पुढे ढकला.',
+          gu: 'આગામી 6 કલાકમાં વરસાદની સંભાવના હોવાથી પાકને પિયત આપવાનું મોકૂફ રાખો.',
+          kn: 'ಮುಂದಿನ 6 ಗಂಟೆಗಳಲ್ಲಿ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿರುವುದರಿಂದ ನೀರಾವರಿ ಮುಂದೂಡಿ.',
+          ml: 'അടുത്ത 6 മണിക്കൂറിനുള്ളിൽ മഴയ്ക്ക് സാധ്യതയുള്ളതിനാൽ വിളകൾ നനയ്ക്കുന്നത് നീട്ടിവെക്കുക.',
+          pa: 'ਅਗਲੇ 6 ਘੰਟਿਆਂ ਵਿੱਚ ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ ਕਾਰਨ ਫ਼ਸਲਾਂ ਦੀ ਸਿੰਚਾਈ ਮੁਲਤਵੀ ਕਰੋ।'
+        },
+        sprayingAdv: {
+          en: 'Rainfall will wash off pesticides and fertilizers. Postpone chemical spray operations.',
+          ta: 'மழையினால் பூச்சிக்கொல்லி மற்றும் உரங்கள் அடித்துச் செல்லப்படலாம். மருந்து தெளிப்பதை ஒத்திவைக்கவும்.',
+          hi: 'बारिश से कीटनाशक और उर्वरक धुल जाएंगे। रासायनिक छिड़काव कार्य स्थगित करें।',
+          te: 'వర్షం వల్ల పురుగుమందులు కొట్టుకుపోతాయి. రసాయన పిచికారీ పనులను వాయిదా వేయండి.',
+          bn: 'বৃষ্টিতে কীটনাশক ও সার ধুয়ে যাবে। রাসায়নিক স্প্রে করার কাজ স্থগিত রাখুন।',
+          mr: 'पावसामुळे कीटकनाशके वाहून जातील. रासायनिक फवारणी पुढे ढकला.',
+          gu: 'વરસાદથી જંતુનાશકો ધોવાઈ જશે. રાસાયણિક છંટકાવની કામગીરી મોકૂફ રાખો.',
+          kn: 'ಮಳೆಯಿಂದ ಕೀಟನಾಶಕಗಳು ತೊಳೆದುಹೋಗುತ್ತವೆ. ರಾಸಾಯನಿಕ ಸಿಂಪರಣೆ ಮುಂದೂಡಿ.',
+          ml: 'മഴ കാരണം കീടനാശിനികൾ ഒലിച്ചുപോകും. രാസവസ്തുക്കൾ തളിക്കുന്നത് മാറ്റിവെക്കുക.',
+          pa: 'ਮੀਂਹ ਨਾਲ ਕੀਟਨਾਸ਼ਕ ਧੁਲ ਜਾਣਗੇ। ਰਸਾਇਣਕ ਸਪਰੇਅ ਦੇ ਕੰਮ ਨੂੰ ਮੁਲਤਵੀ ਕਰੋ।'
+        }
       },
       aviation: {
-        metar: 'ICAO: VOMM 191200Z 23008KT 8000 -RA FEW025 BKN080 29/25 Q1008 NOSIG',
+        metar: 'ICAO: VOMM 191200Z 23008KT 8000 -RA FEW025 BKN080 29/25 Q1008',
         visibility: '8.5 km',
         wind: '14 km/h SW',
         ceiling: '2500 ft (BKN)',
         category: 'MVFR',
-        advisoryEn: 'Marginal VFR conditions expected due to lowering cloud base and approaching convective precipitation.',
-        advisoryTa: 'மேக மூட்டம் குறைவதாலும் மழை வருவதாலும் விமான இயக்கங்களுக்கு எச்சரிக்கை விடுக்கப்பட்டுள்ளது.',
-        advisoryHi: 'बादलों के नीचे आने और आने वाली बारिश के कारण सतर्कता बरतने की सलाह दी जाती है।'
+        adv: {
+          en: 'Marginal VFR conditions expected due to lowering cloud base and approaching convective precipitation.',
+          ta: 'மேக மூட்டம் குறைவதாலும் மழை வருவதாலும் விமான இயக்கங்களுக்கு எச்சரிக்கை விடுக்கப்பட்டுள்ளது.',
+          hi: 'बादलों के नीचे आने और आने वाली बारिश के कारण सतर्कता बरतने की सलाह दी जाती है।',
+          te: 'మేఘాలు కిందికి రావడం మరియు వర్షం కారణంగా విమాన కార్యకలాపాలకు జాగ్రత్త అవసరం.',
+          bn: 'মেঘের উচ্চতা হ্রাস এবং বৃষ্টির আগমনের কারণে বিমান চলাচলে সতর্কতা অবলম্বন করতে হবে।',
+          mr: 'ढगांची उंची कमी झाल्याने आणि पावसामुळे विमान उड्डाणांसाठी सावधगिरीचा इशारा देण्यात आला आहे.',
+          gu: 'વાદળો નીચે આવવા અને વરસાદને કારણે વિમાન સંચાલનમાં સાવચેતી રાખવાની સલાહ છે.',
+          kn: 'ಮೋಡಗಳು ಕೆಳಗಿಳಿಯುತ್ತಿರುವುದರಿಂದ ಮತ್ತು ಮಳೆಯಿಂದಾಗಿ ವಿಮಾನ ಹಾರಾಟಕ್ಕೆ ಎಚ್ಚರಿಕೆ ನೀಡಲಾಗಿದೆ.',
+          ml: 'മേഘങ്ങൾ താഴുന്നതിനാലും മഴ വരുന്നതിനാലും വിമാന സർവീസുകൾക്ക് ജാഗ്രതാ നിർദ്ദേശം നൽകിയിട്ടുണ്ട്.',
+          pa: 'ਬੱਦਲਾਂ ਦੇ ਨੀਵੇਂ ਹੋਣ ਅਤੇ ਮੀਂਹ ਕਾਰਨ ਹਵਾਈ ਉਡਾਣਾਂ ਲਈ ਸਾਵਧਾਨੀ ਵਰਤਣ ਦੀ ਸਲਾਹ ਦਿੱਤੀ ਜਾਂਦੀ ਹੈ।'
+        }
       },
       marine: {
         waveHeight: '1.4 m',
         windSpeed: '18 km/h',
         visibility: '7 km',
-        seaConditionEn: 'Moderate Swell',
-        seaConditionTa: 'மிதமான அலைகள்',
-        seaConditionHi: 'मध्यम समुद्री लहरें',
-        advisoryEn: 'Small fishing vessels along the Bay of Bengal coastline should exercise caution due to squally winds.',
-        advisoryTa: 'வங்காள விரிகுடா கடலோரப் பகுதிகளில் பலத்த காற்று வீசுவதால் சிறிய படகுகள் மற்றும் மீனவர்கள் எச்சரிக்கையுடன் இருக்கவும்.',
-        advisoryHi: 'बंगाल की खाड़ी के तटीय इलाकों में तेज हवाओं के कारण छोटी नौकाओं और मछुआरों को सावधानी बरतनी चाहिए।'
+        adv: {
+          en: 'Small fishing vessels along the Bay of Bengal coastline should exercise caution due to squally winds.',
+          ta: 'வங்காள விரிகுடா கடலோரப் பகுதிகளில் பலத்த காற்று வீசுவதால் சிறிய படகுகள் மற்றும் மீனவர்கள் எச்சரிக்கையுடன் இருக்கவும்.',
+          hi: 'बंगाल की खाड़ी के तटीय इलाकों में तेज हवाओं के कारण छोटी नौकाओं और मछुआरों को सावधानी बरतनी चाहिए।',
+          te: 'బంగాళాఖాతం తీరప్రాంతంలో ఈదురుగాలుల కారణంగా చిన్న పడవలు మరియు మత్స్యకారులు జాగ్రత్తగా ఉండాలి.',
+          bn: 'বঙ্গোপসাগরের উপকূলীয় এলাকায় ঝড়ো বাতাসের কারণে ছোট নৌকা ও মৎস্যজীবীদের সতর্ক থাকতে হবে।',
+          mr: 'बंगालच्या उपसागराच्या किनारपट्टीवर सोસାट्याच्या वाऱ्यामुळे लहान नौका आणि मच्छीमारांनी सावधगिरी बाळगावी.',
+          gu: 'બંગાળની ખાડીના દરિયાકાંઠે ભારે પવનને કારણે નાની હોડીઓ અને માછીમારોએ સાવચેત રહેવું જોઈએ.',
+          kn: 'ಬಂಗಾಳ ಕೊಲ್ಲಿಯ ಕರಾವಳಿಯಲ್ಲಿ ಬಿರುಗಾಳಿಯ ಕಾರಣ ಸಣ್ಣ ದೋಣಿಗಳು ಮತ್ತು ಮೀನುಗಾರರು ಎಚ್ಚರಿಕೆ ವಹಿಸಬೇಕು.',
+          ml: 'ബംഗാൾ ഉൾക്കടൽ തീരത്ത് ശക്തമായ കാറ്റിന് സാധ്യതയുള്ളതിനാൽ ചെറിയ ബോട്ടുകളും മത്സ്യത്തൊഴിലാളികളും ജാഗ്രത പാലിക്കണം.',
+          pa: 'ਬੰਗਾਲ ਦੀ ਖਾੜੀ ਦੇ ਤੱਟਵਰਤੀ ਇਲਾਕਿਆਂ ਵਿੱਚ ਤੇਜ਼ ਹਵਾਵਾਂ ਕਾਰਨ ਛੋਟੀਆਂ ਕਿਸ਼ਤੀਆਂ ਅਤੇ ਮਛੇਰਿਆਂ ਨੂੰ ਸਾਵਧਾਨ ਰਹਿਣਾ ਚਾਹੀਦਾ ਹੈ।'
+        }
       },
       climateStats: {
         avgTemp: '30°C',
@@ -765,18 +1837,25 @@
         avgWind: '15 km/h'
       },
       smartAlarmJourney: [
-        { stage: 1, distance: '45 km', etaEn: '70 min', etaTa: '70 நிமி', etaHi: '70 मिनट', statusEn: 'Journey Started (Chengalpattu)', statusTa: 'பயணம் தொடங்கியது (செங்கல்பட்டு)', statusHi: 'यात्रा शुरू हुई (चेंगलपट्टू)', speedKm: 52, progress: 5 },
-        { stage: 2, distance: '30 km', etaEn: '48 min', etaTa: '48 நிமி', etaHi: '48 मिनट', statusEn: 'On Route (Guduvanchery)', statusTa: 'வழியில் (கூடுவாஞ்சேரி)', statusHi: 'रास्ते में (गुडुवांचेरी)', speedKm: 48, progress: 33 },
-        { stage: 3, distance: '15 km', etaEn: '25 min', etaTa: '25 நிமி', etaHi: '25 मिनट', statusEn: 'Approaching (Tambaram)', statusTa: 'நெருங்குகிறது (தாம்பரம்)', statusHi: 'नजदीक (तांबरम)', speedKm: 42, progress: 66 },
-        { stage: 4, distance: '5 km',  etaEn: '10 min', etaTa: '10 நிமி', etaHi: '10 मिनट', statusEn: 'Near Destination (Guindy)', statusTa: 'இலக்கின் அருகில் (கிண்டி)', statusHi: 'मंजिल के पास (गिंडी)', speedKm: 35, progress: 88 },
-        { stage: 5, distance: '1 km',  etaEn: '3 min',  etaTa: '3 நிமி',  etaHi: '3 मिनट',  statusEn: 'Almost There (Park Town)', statusTa: 'கிட்டத்தட்ட அடைந்துவிட்டது (பார்க் டவுன்)', statusHi: 'बस पहुँचने वाले हैं (पार्क टाउन)', speedKm: 20, progress: 97 },
-        { stage: 6, distance: '500 m', etaEn: '1 min',  etaTa: '1 நிமி',  etaHi: '1 मिनट',  statusEn: 'Very Close (Wall Tax Road)', statusTa: 'மிக அருகில் (வால் டாக்ஸ் ரோடு)', statusHi: 'अति निकट (वॉल टैक्स रोड)', speedKm: 15, progress: 99 },
-        { stage: 7, distance: '100 m', etaEn: '0 min',  etaTa: '0 நிமி',  etaHi: '0 मिनट',  statusEn: 'DESTINATION REACHED', statusTa: 'சேருமிடம் அடைந்தது!', statusHi: 'गंतव्य पर पहुंचे!', speedKm: 0, progress: 100 }
+        { stage: 1, distance: '45 km', eta: '70 min', progress: 5 },
+        { stage: 2, distance: '30 km', eta: '48 min', progress: 33 },
+        { stage: 3, distance: '15 km', eta: '25 min', progress: 66 },
+        { stage: 4, distance: '5 km',  eta: '10 min', progress: 88 },
+        { stage: 5, distance: '1 km',  eta: '3 min',  progress: 97 },
+        { stage: 6, distance: '500 m', eta: '1 min',  progress: 99 },
+        { stage: 7, distance: '100 m', eta: '0 min',  progress: 100 }
       ],
       destinationReached: {
-        voiceEn: 'You have reached your destination, Chennai Central. Please get ready to get down.',
-        voiceTa: 'நீங்கள் உங்கள் இலக்கான சென்னை சென்ட்ரலை அடைந்துவிட்டீர்கள். தயவுசெய்து இறங்கத் தயாராகுங்கள்.',
-        voiceHi: 'आप अपने गंतव्य चेन्नई सेंट्रल पर पहुँच गए हैं। कृपया उतरने के लिए तैयार हो जाएं।'
+        en: 'You have reached your destination, Chennai Central. Please get ready to get down.',
+        ta: 'நீங்கள் உங்கள் இலக்கான சென்னை சென்ட்ரலை அடைந்துவிட்டீர்கள். தயவுசெய்து இறங்கத் தயாராகுங்கள்.',
+        hi: 'आप अपने गंतव्य चेन्नई सेंट्रल पर पहुँच गए हैं। कृपया उतरने के लिए तैयार हो जाएं।',
+        te: 'మీరు మీ గమ్యస్థానమైన చెన్నై సెంట్రల్ చేరుకున్నారు. దయచేసి దిగడానికి సిద్ధంగా ఉండండి.',
+        bn: 'আপনি আপনার গন্তব্য চেন্নাই সেন্ট্রালে পৌঁছে গেছেন। অনুগ্রহ করে নামার জন্য প্রস্তুত হন।',
+        mr: 'तुम्ही तुमच्या गंतव्यस्थानी चेन्नई सेंट्रल येथे पोहोचला आहात. कृपया उतरण्यासाठी तयार व्हा.',
+        gu: 'તમે તમારા ગંતવ્ય ચેન્નાઈ સેન્ટ્રલ પર પહોંચી ગયા છો. કૃપા કરીને ઉતરવા માટે તૈયાર રહો.',
+        kn: 'ನೀವು ನಿಮ್ಮ ಗಮ್ಯಸ್ಥಾನವಾದ ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್ ತಲುಪಿದ್ದೀರಿ. ದಯವಿಟ್ಟು ಇಳಿಯಲು ಸಿದ್ಧರಾಗಿ.',
+        ml: 'നിങ്ങൾ ലക്ഷ്യസ്ഥാനമായ ചെന്നൈ സെൻട്രലിൽ എത്തിയിരിക്കുന്നു. ദയവായി ഇറങ്ങാൻ തയ്യാറാകുക.',
+        pa: 'ਤੁਸੀਂ ਆਪਣੀ ਮੰਜ਼ਿਲ ਚੇਨਈ ਸੈਂਟਰਲ ਤੇ ਪਹੁੰਚ ਗਏ ਹੋ। ਕਿਰਪਾ ਕਰਕੇ ਉਤਰਨ ਲਈ ਤਿਆਰ ਹੋ ਜਾਓ।'
       }
     };
 
@@ -785,11 +1864,11 @@
     // ============================================================================
     let currentModuleIndex = 1; // 1 to 18
     const TOTAL_MODULES = 18;
-    let isPaused = false;
+    let isPlaying = false; // Start paused as requested!
     let playbackSpeed = 1; // 1x, 2x, 4x
     let stepTimer = null;
     let soundEnabled = true;
-    let currentLang = 'en'; // 'en', 'ta', 'hi'
+    let currentLang = 'en'; // 'en', 'ta', 'hi', 'te', 'bn', 'mr', 'gu', 'kn', 'ml', 'pa'
 
     // ============================================================================
     // SYNTHESIZED WEB AUDIO SIREN & CHIME
@@ -862,7 +1941,7 @@
     }
 
     // ============================================================================
-    // DUAL-PIPELINE MULTILINGUAL VOICE ENGINE (Guarantees Tamil, Hindi, English audio)
+    // DUAL-PIPELINE MULTILINGUAL VOICE ENGINE (ALL 10 LANGUAGES)
     // ============================================================================
     let cachedVoices = [];
     function loadAvailableVoices() {
@@ -883,7 +1962,7 @@
         currentSimAudio = audio;
 
         audio.onerror = () => {
-          // Direct fallback
+          // Direct fallback to Google TTS client endpoint
           const fallbackUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encoded}`;
           const altAudio = new Audio(fallbackUrl);
           currentSimAudio = altAudio;
@@ -924,21 +2003,19 @@
         } catch (e) {}
       }
 
-      // 1. FOR TAMIL (ta): Always use high-fidelity neural streaming audio
-      // Windows/Chrome does not have an offline SAPI Tamil voice installed
-      if (targetLang === 'ta') {
-        playStreamingTTSAudio(cleanText, 'ta');
+      // For Tamil (ta), Telugu (te), Bengali (bn), Malayalam (ml), Kannada (kn), Gujarati (gu), Punjabi (pa), Marathi (mr),
+      // Serverless neural audio stream provides superior pronunciation across desktop & mobile
+      if (targetLang !== 'en') {
+        playStreamingTTSAudio(cleanText, targetLang);
         return;
       }
 
-      // 2. FOR HINDI & ENGLISH: Use Web Speech API if local voice exists, else stream
+      // For English: Use Web Speech API if local voice exists, else stream
       if ('speechSynthesis' in window) {
         try {
           if (cachedVoices.length === 0) loadAvailableVoices();
           const matchedVoice = cachedVoices.find(v => {
             const vLang = (v.lang || '').toLowerCase().replace('_', '-');
-            const vName = (v.name || '').toLowerCase();
-            if (targetLang === 'hi') return vLang.startsWith('hi') || vName.includes('hindi') || vName.includes('kalpana') || vName.includes('swara');
             return vLang.startsWith('en-in') || vLang.startsWith('en-us') || vLang.startsWith('en');
           });
 
@@ -946,7 +2023,7 @@
             const utterance = new SpeechSynthesisUtterance(cleanText);
             utterance.rate = 1.0;
             utterance.pitch = 1.05;
-            utterance.lang = targetLang === 'hi' ? 'hi-IN' : 'en-US';
+            utterance.lang = 'en-US';
             utterance.voice = matchedVoice;
             utterance.onerror = () => {
               playStreamingTTSAudio(cleanText, targetLang);
@@ -959,15 +2036,88 @@
         }
       }
 
-      // 3. Fallback streaming audio
       playStreamingTTSAudio(cleanText, targetLang);
     }
 
+    // Read Active Module Summary Aloud
+    function readActiveModuleVoice() {
+      getAudioContext();
+      let textToSpeak = '';
+      const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
+      const title = titles[currentModuleIndex - 1];
+
+      switch (currentModuleIndex) {
+        case 1:
+          const loc = SIMULATION_DATA.location;
+          const orig = loc.originName[currentLang] || loc.originName.en;
+          const dest = loc.destName[currentLang] || loc.destName.en;
+          textToSpeak = `${title}. Origin: ${orig}. Destination: ${dest}.`;
+          break;
+        case 2:
+          const cw = SIMULATION_DATA.currentWeather;
+          const cond = cw.condition[currentLang] || cw.condition.en;
+          textToSpeak = `${title}. Temperature is ${cw.temp} degrees Celsius, ${cond}, humidity ${cw.humidity} percent.`;
+          break;
+        case 3:
+          const chat = SIMULATION_DATA.chatConversations[currentLang] || SIMULATION_DATA.chatConversations.en;
+          textToSpeak = `${chat.q} Answer: ${chat.a}`;
+          break;
+        case 4:
+          const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
+          textToSpeak = vm.a;
+          break;
+        case 7:
+          textToSpeak = `${title}. Doppler radar shows precipitation advancing North-North-East.`;
+          break;
+        case 8:
+          const sa = SIMULATION_DATA.severeAlert[currentLang] || SIMULATION_DATA.severeAlert.en;
+          textToSpeak = `${sa.type}. ${sa.msg}`;
+          break;
+        case 9:
+          const aqi = SIMULATION_DATA.airQuality;
+          textToSpeak = `Air Quality Index is ${aqi.aqi}. ${aqi.adv[currentLang] || aqi.adv.en}`;
+          break;
+        case 10:
+          const ag = SIMULATION_DATA.agriculture;
+          textToSpeak = `${ag.irrigationAdv[currentLang] || ag.irrigationAdv.en} ${ag.sprayingAdv[currentLang] || ag.sprayingAdv.en}`;
+          break;
+        case 11:
+          const av = SIMULATION_DATA.aviation;
+          textToSpeak = `${title}. ${av.adv[currentLang] || av.adv.en}`;
+          break;
+        case 12:
+          const mar = SIMULATION_DATA.marine;
+          textToSpeak = `${title}. ${mar.adv[currentLang] || mar.adv.en}`;
+          break;
+        case 15:
+          textToSpeak = `WeatherGPT Alert: Heavy rain expected in your area around 3:00 PM. Destination rain probability is 70%.`;
+          break;
+        case 17:
+          textToSpeak = `Destination alarm journey: Chengalpattu to Chennai Central, 45 kilometers to 100 meters geofence.`;
+          break;
+        case 18:
+          textToSpeak = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
+          break;
+        default:
+          textToSpeak = `${title}. WeatherGPT Autonomous Meteorological AI Simulation.`;
+          break;
+      }
+
+      speakSimulationText(textToSpeak, currentLang);
+    }
+
     // ============================================================================
-    // LANGUAGE CHANGER
+    // LANGUAGE CHANGER (ALL 10 LANGUAGES)
     // ============================================================================
     function changeLanguage(lang) {
       currentLang = lang;
+      
+      // Keep both language selects in sync
+      const headerSelect = document.getElementById('simLanguageSelect');
+      if (headerSelect) headerSelect.value = lang;
+      const modalSelect = document.getElementById('modalLanguageSelect');
+      if (modalSelect) modalSelect.value = lang;
+
       const t = UI_I18N[currentLang] || UI_I18N.en;
 
       // Update Header & Controls
@@ -975,30 +2125,43 @@
       document.getElementById('headerSubtitle').innerText = t.subtitle;
       document.getElementById('soundStatusText').innerText = soundEnabled ? t.soundOn : t.soundMuted;
       document.getElementById('liveChatbotBtnText').innerText = t.liveChatbot;
-      document.getElementById('playPauseText').innerText = isPaused ? t.resume : t.pause;
+      
+      // Update Play/Pause Text & Status Pill
+      const btnText = document.getElementById('playPauseText');
+      if (btnText) btnText.innerText = isPlaying ? t.pause : t.start;
+      
+      const statusPill = document.getElementById('simStatusPill');
+      if (statusPill) {
+        statusPill.innerText = isPlaying ? t.playingStatus : t.pausedStatus;
+        statusPill.className = isPlaying 
+          ? 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+          : 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      }
+
       document.getElementById('speedText').innerText = t.speed(playbackSpeed);
       document.getElementById('skipBtnText').innerText = t.skip;
       document.getElementById('allModulesBtnText').innerText = t.allModulesBtn;
+      document.getElementById('readActiveModuleText').innerText = t.listenVoice;
       document.getElementById('drawerModalTitle').innerText = t.drawerTitle;
 
       // Re-render Active Module & Drawer
       renderCurrentModule();
       renderDrawerList();
 
-      // Trigger respective audio if currently on Voice (4) or Destination (18)
-      if (currentModuleIndex === 4) {
-        const vm = SIMULATION_DATA.voiceModule;
-        const a = currentLang === 'ta' ? vm.aTa : (currentLang === 'hi' ? vm.aHi : vm.aEn);
-        speakSimulationText(a, currentLang);
-      } else if (currentModuleIndex === 18) {
-        const dr = SIMULATION_DATA.destinationReached;
-        const voiceText = currentLang === 'ta' ? dr.voiceTa : (currentLang === 'hi' ? dr.voiceHi : dr.voiceEn);
-        speakSimulationText(voiceText, currentLang);
+      // If active module is Voice or Destination reached and simulation is running, speak in new language
+      if (isPlaying) {
+        if (currentModuleIndex === 4) {
+          const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
+          speakSimulationText(vm.a, currentLang);
+        } else if (currentModuleIndex === 18) {
+          const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
+          speakSimulationText(dr, currentLang);
+        }
       }
     }
 
     // ============================================================================
-    // PLAYBACK CONTROLS
+    // PLAYBACK CONTROLS (START / PAUSE LOGIC)
     // ============================================================================
     function updateProgressUI() {
       const t = UI_I18N[currentLang] || UI_I18N.en;
@@ -1007,21 +2170,60 @@
 
       document.getElementById('moduleBadge').innerText = t.moduleBadge(currentModuleIndex, TOTAL_MODULES);
       document.getElementById('moduleTitle').innerText = titles[currentModuleIndex - 1];
-      document.getElementById('progressPercent').innerText = t.progress(pct);
+      document.getElementById('progressPercent').innerText = `${pct}%`;
       document.getElementById('progressBarFill').style.width = `${pct}%`;
     }
 
     function togglePlayPause() {
-      isPaused = !isPaused;
+      getAudioContext(); // Unlock audio on user interaction
+      isPlaying = !isPlaying;
       const t = UI_I18N[currentLang] || UI_I18N.en;
-      document.getElementById('playPauseIcon').setAttribute('data-lucide', isPaused ? 'play' : 'pause');
-      document.getElementById('playPauseText').innerText = isPaused ? t.resume : t.pause;
-      lucide.createIcons();
-      if (!isPaused) {
+
+      const btn = document.getElementById('playPauseBtn');
+      const icon = document.getElementById('playPauseIcon');
+      const text = document.getElementById('playPauseText');
+      const statusPill = document.getElementById('simStatusPill');
+
+      if (isPlaying) {
+        // Now Running
+        btn.className = 'px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs flex items-center space-x-2 transition-all shadow-lg shadow-amber-900/40 cursor-pointer active:scale-95';
+        icon.setAttribute('data-lucide', 'pause');
+        text.innerText = t.pause;
+        statusPill.innerText = t.playingStatus;
+        statusPill.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        playSynthesizedChime();
         scheduleNextStep();
+
+        // Speak on start if on voice module or severe alert
+        if (currentModuleIndex === 4) {
+          const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
+          speakSimulationText(vm.a, currentLang);
+        } else if (currentModuleIndex === 18) {
+          const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
+          speakSimulationText(dr, currentLang);
+          startSirenAlarm();
+        }
       } else {
+        // Now Paused
+        btn.className = 'px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-extrabold text-xs flex items-center space-x-2 transition-all shadow-lg shadow-emerald-900/40 cursor-pointer active:scale-95';
+        icon.setAttribute('data-lucide', 'play');
+        text.innerText = t.start;
+        statusPill.innerText = t.pausedStatus;
+        statusPill.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
         clearTimeout(stepTimer);
+        stopSirenAlarm();
+        if (currentSimAudio) { currentSimAudio.pause(); }
+        if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
       }
+      lucide.createIcons();
+    }
+
+    function startSimulationFromModal() {
+      const overlay = document.getElementById('initialStartOverlay');
+      if (overlay) overlay.classList.add('hidden');
+      getAudioContext();
+      isPlaying = false;
+      togglePlayPause(); // Sets isPlaying to true and starts simulation!
     }
 
     function cycleSpeed() {
@@ -1030,7 +2232,7 @@
       else if (playbackSpeed === 2) playbackSpeed = 4;
       else playbackSpeed = 1;
       document.getElementById('speedText').innerText = t.speed(playbackSpeed);
-      if (!isPaused) {
+      if (isPlaying) {
         clearTimeout(stepTimer);
         scheduleNextStep();
       }
@@ -1061,7 +2263,7 @@
       }
       playSynthesizedChime();
       renderCurrentModule();
-      if (!isPaused) scheduleNextStep();
+      if (isPlaying) scheduleNextStep();
     }
 
     function previousModule() {
@@ -1075,7 +2277,7 @@
       }
       playSynthesizedChime();
       renderCurrentModule();
-      if (!isPaused) scheduleNextStep();
+      if (isPlaying) scheduleNextStep();
     }
 
     function jumpToModule(idx) {
@@ -1086,7 +2288,7 @@
       playSynthesizedChime();
       toggleModuleDrawer();
       renderCurrentModule();
-      if (!isPaused) scheduleNextStep();
+      if (isPlaying) scheduleNextStep();
     }
 
     function restartSimulation() {
@@ -1096,7 +2298,7 @@
       currentModuleIndex = 1;
       playSynthesizedChime();
       renderCurrentModule();
-      if (!isPaused) scheduleNextStep();
+      if (isPlaying) scheduleNextStep();
     }
 
     function toggleModuleDrawer() {
@@ -1120,13 +2322,13 @@
 
     function scheduleNextStep() {
       clearTimeout(stepTimer);
-      if (isPaused) return;
+      if (!isPlaying) return;
 
       const baseDurationMs = (currentModuleIndex === 3 || currentModuleIndex === 4 || currentModuleIndex === 7 || currentModuleIndex === 17 || currentModuleIndex === 18) ? 7500 : 5000;
       const effectiveDuration = Math.max(1200, Math.round(baseDurationMs / playbackSpeed));
 
       stepTimer = setTimeout(() => {
-        if (!isPaused) {
+        if (isPlaying) {
           if (currentModuleIndex < TOTAL_MODULES) {
             nextModule();
           } else {
@@ -1217,9 +2419,15 @@
             </div>
           </div>
 
-          <div class="p-3.5 rounded-2xl bg-sky-950/40 border border-sky-500/30 text-xs text-sky-200 flex items-center space-x-2">
-            <i data-lucide="info" class="w-4 h-4 text-sky-400 flex-shrink-0"></i>
-            <span>${t.geoNote}</span>
+          <div class="p-3.5 rounded-2xl bg-sky-950/40 border border-sky-500/30 text-xs text-sky-200 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="info" class="w-4 h-4 text-sky-400 flex-shrink-0"></i>
+              <span>${t.geoNote}</span>
+            </div>
+            <button onclick="readActiveModuleVoice()" class="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-[11px] font-bold border border-sky-500/40 cursor-pointer flex items-center space-x-1">
+              <i data-lucide="volume-2" class="w-3 h-3"></i>
+              <span>🔊</span>
+            </button>
           </div>
         </div>
       `;
@@ -1307,6 +2515,8 @@
     function renderModule3_Chatbot(canvas) {
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
+      const chat = SIMULATION_DATA.chatConversations[currentLang] || SIMULATION_DATA.chatConversations.en;
+
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -1324,28 +2534,32 @@
             </span>
           </div>
 
-          <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1" id="chatThreadContainer">
-            ${SIMULATION_DATA.chatConversations.map(c => `
-              <div class="flex flex-col space-y-2">
-                <div class="flex items-start justify-end space-x-2">
-                  <div class="px-4 py-2.5 rounded-2xl bg-sky-600 text-white text-xs sm:text-sm max-w-[80%] shadow-md">
-                    ${currentLang === 'ta' ? c.qTa : (currentLang === 'hi' ? c.qHi : c.qEn)}
-                  </div>
-                  <div class="w-6 h-6 rounded-full bg-sky-500/30 text-sky-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
-                    U
-                  </div>
+          <div class="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+            <div class="flex flex-col space-y-2">
+              <div class="flex items-start justify-end space-x-2">
+                <div class="px-4 py-2.5 rounded-2xl bg-sky-600 text-white text-xs sm:text-sm max-w-[80%] shadow-md">
+                  ${chat.q}
                 </div>
+                <div class="w-6 h-6 rounded-full bg-sky-500/30 text-sky-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                  U
+                </div>
+              </div>
 
-                <div class="flex items-start justify-start space-x-2">
-                  <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
-                    AI
-                  </div>
-                  <div class="px-4 py-2.5 rounded-2xl bg-slate-800/90 border border-slate-700 text-slate-100 text-xs sm:text-sm max-w-[85%] leading-relaxed shadow-md">
-                    ${currentLang === 'ta' ? c.aTa : (currentLang === 'hi' ? c.aHi : c.aEn)}
+              <div class="flex items-start justify-start space-x-2">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                  AI
+                </div>
+                <div class="px-4 py-3 rounded-2xl bg-slate-800/90 border border-slate-700 text-slate-100 text-xs sm:text-sm max-w-[85%] leading-relaxed shadow-md space-y-2">
+                  <p>${chat.a}</p>
+                  <div class="pt-1 flex items-center justify-end">
+                    <button onclick="speakSimulationText('${chat.a.replace(/'/g, "\\'")}', currentLang)" class="px-2 py-0.5 rounded-md bg-sky-500/20 hover:bg-sky-500/40 text-sky-300 text-[11px] font-bold border border-sky-500/40 flex items-center space-x-1 cursor-pointer">
+                      <i data-lucide="volume-2" class="w-3 h-3"></i>
+                      <span>${t.listenVoice}</span>
+                    </button>
                   </div>
                 </div>
               </div>
-            `).join('')}
+            </div>
           </div>
         </div>
       `;
@@ -1355,9 +2569,7 @@
     function renderModule4_Voice(canvas) {
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
-      const vm = SIMULATION_DATA.voiceModule;
-      const q = currentLang === 'ta' ? vm.qTa : (currentLang === 'hi' ? vm.qHi : vm.qEn);
-      const a = currentLang === 'ta' ? vm.aTa : (currentLang === 'hi' ? vm.aHi : vm.aEn);
+      const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-6 text-center animate-fadeIn">
@@ -1366,20 +2578,20 @@
               <span class="text-[10px] font-mono text-teal-400 uppercase font-bold tracking-wider">${titles[3]}</span>
               <h2 class="font-display font-black text-xl text-white">${t.m4_sub}</h2>
             </div>
-            <button onclick="speakSimulationText(SIMULATION_DATA.voiceModule[currentLang === 'ta' ? 'aTa' : (currentLang === 'hi' ? 'aHi' : 'aEn')], currentLang)" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/40 flex items-center space-x-1 cursor-pointer transition-all active:scale-95 shadow-md">
+            <button onclick="speakSimulationText('${vm.a.replace(/'/g, "\\'")}', currentLang)" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-500/40 flex items-center space-x-1 cursor-pointer transition-all active:scale-95 shadow-md">
               <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
               <span>${t.replayVoice}</span>
             </button>
           </div>
 
           <div class="py-4 space-y-4 max-w-lg mx-auto">
-            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer hover:scale-105 transition-all" onclick="speakSimulationText(SIMULATION_DATA.voiceModule[currentLang === 'ta' ? 'aTa' : (currentLang === 'hi' ? 'aHi' : 'aEn')], currentLang)" title="Click to Speak">
+            <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer hover:scale-105 transition-all" onclick="speakSimulationText('${vm.a.replace(/'/g, "\\'")}', currentLang)" title="Click to Speak">
               <i data-lucide="mic" class="w-9 h-9"></i>
             </div>
 
             <div class="space-y-1">
               <span class="text-xs font-mono text-teal-400 uppercase tracking-wider font-bold">${t.userInput}</span>
-              <h3 class="text-lg font-bold text-white">"${q}"</h3>
+              <h3 class="text-lg font-bold text-white">"${vm.q}"</h3>
             </div>
 
             <div class="flex items-center justify-center space-x-1.5 h-12">
@@ -1392,7 +2604,7 @@
               <span class="w-1.5 bg-emerald-400 rounded-full animate-pulse h-5"></span>
             </div>
 
-            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-left space-y-1.5 cursor-pointer hover:border-sky-500/60 transition-all" onclick="speakSimulationText(SIMULATION_DATA.voiceModule[currentLang === 'ta' ? 'aTa' : (currentLang === 'hi' ? 'aHi' : 'aEn')], currentLang)">
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-left space-y-1.5 cursor-pointer hover:border-sky-500/60 transition-all" onclick="speakSimulationText('${vm.a.replace(/'/g, "\\'")}', currentLang)">
               <div class="flex items-center justify-between text-xs font-bold text-sky-400">
                 <div class="flex items-center space-x-1.5">
                   <i data-lucide="volume-2" class="w-4 h-4"></i>
@@ -1401,14 +2613,12 @@
                 <span class="text-[10px] font-mono text-slate-400 uppercase bg-slate-700/60 px-2 py-0.5 rounded">🔊 Click to Hear</span>
               </div>
               <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
-                "${a}"
+                "${vm.a}"
               </p>
             </div>
           </div>
         </div>
       `;
-      // Play audio on module load
-      speakSimulationText(a, currentLang);
     }
 
     // --- MODULE 5: HOURLY FORECAST ---
@@ -1426,21 +2636,17 @@
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2">
-            ${SIMULATION_DATA.hourlyForecast.map((h, i) => {
-              const time = currentLang === 'ta' ? h.timeTa : (currentLang === 'hi' ? h.timeHi : h.timeEn);
-              const cond = currentLang === 'ta' ? h.condTa : (currentLang === 'hi' ? h.condHi : h.condEn);
-              return `
-                <div class="p-3 rounded-2xl ${i === 6 ? 'bg-sky-500/20 border-sky-400' : 'bg-slate-800/60 border-slate-700'} border text-center space-y-1.5">
-                  <span class="text-[11px] font-mono font-bold text-slate-400 block">${time}</span>
-                  <span class="text-base font-black text-white block">${h.temp}°C</span>
-                  <span class="text-[10px] text-slate-300 truncate block">${cond}</span>
-                  <div class="w-full bg-slate-700/60 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-sky-400 h-full rounded-full" style="width: ${h.rainProb}%"></div>
-                  </div>
-                  <span class="text-[10px] font-bold text-sky-400 block">${h.rainProb}% ${t.rainLabel}</span>
+            ${SIMULATION_DATA.hourlyForecast.map((h, i) => `
+              <div class="p-3 rounded-2xl ${i === 6 ? 'bg-sky-500/20 border-sky-400' : 'bg-slate-800/60 border-slate-700'} border text-center space-y-1.5">
+                <span class="text-[11px] font-mono font-bold text-slate-400 block">${h.time}</span>
+                <span class="text-base font-black text-white block">${h.temp}°C</span>
+                <span class="text-[10px] text-slate-300 truncate block">${h.cond}</span>
+                <div class="w-full bg-slate-700/60 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-sky-400 h-full rounded-full" style="width: ${h.rainProb}%"></div>
                 </div>
-              `;
-            }).join('')}
+                <span class="text-[10px] font-bold text-sky-400 block">${h.rainProb}% ${t.rainLabel}</span>
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
@@ -1461,23 +2667,19 @@
           </div>
 
           <div class="space-y-2">
-            ${SIMULATION_DATA.dailyForecast.map(d => {
-              const day = currentLang === 'ta' ? d.dayTa : (currentLang === 'hi' ? d.dayHi : d.dayEn);
-              const cond = currentLang === 'ta' ? d.condTa : (currentLang === 'hi' ? d.condHi : d.condEn);
-              return `
-                <div class="p-3 rounded-2xl bg-slate-800/50 border border-slate-700/70 flex items-center justify-between text-xs sm:text-sm">
-                  <span class="font-bold text-white w-24">${day}</span>
-                  <span class="text-slate-300 flex-1 text-center font-medium">${cond}</span>
-                  <div class="flex items-center space-x-3 w-40 justify-end">
-                    <span class="text-sky-400 font-bold text-xs">${d.rainProb}% ${t.rainLabel}</span>
-                    <div class="font-mono font-bold">
-                      <span class="text-white">${d.high}°</span>
-                      <span class="text-slate-400 text-xs ml-1">${d.low}°</span>
-                    </div>
+            ${SIMULATION_DATA.dailyForecast.map(d => `
+              <div class="p-3 rounded-2xl bg-slate-800/50 border border-slate-700/70 flex items-center justify-between text-xs sm:text-sm">
+                <span class="font-bold text-white w-24">${d.day}</span>
+                <span class="text-slate-300 flex-1 text-center font-medium">${d.cond}</span>
+                <div class="flex items-center space-x-3 w-40 justify-end">
+                  <span class="text-sky-400 font-bold text-xs">${d.rainProb}% ${t.rainLabel}</span>
+                  <div class="font-mono font-bold">
+                    <span class="text-white">${d.high}°</span>
+                    <span class="text-slate-400 text-xs ml-1">${d.low}°</span>
                   </div>
                 </div>
-              `;
-            }).join('')}
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
@@ -1536,11 +2738,7 @@
     function renderModule8_SevereAlert(canvas) {
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
-      const a = SIMULATION_DATA.severeAlert;
-      const type = currentLang === 'ta' ? a.typeTa : (currentLang === 'hi' ? a.typeHi : a.typeEn);
-      const sev = currentLang === 'ta' ? a.severityTa : (currentLang === 'hi' ? a.severityHi : a.severityEn);
-      const win = currentLang === 'ta' ? a.timeWindowTa : (currentLang === 'hi' ? a.timeWindowHi : a.timeWindowEn);
-      const msg = currentLang === 'ta' ? a.messageTa : (currentLang === 'hi' ? a.messageHi : a.messageEn);
+      const a = SIMULATION_DATA.severeAlert[currentLang] || SIMULATION_DATA.severeAlert.en;
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border-2 border-amber-500/60 shadow-xl space-y-4 animate-fadeIn">
@@ -1550,23 +2748,26 @@
             </span>
             <div>
               <span class="text-[10px] font-mono uppercase tracking-wider font-bold">${titles[7]}</span>
-              <h2 class="font-display font-black text-xl text-white">⚠️ ${type}</h2>
+              <h2 class="font-display font-black text-xl text-white">⚠️ ${a.type}</h2>
             </div>
           </div>
 
           <div class="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-slate-200 space-y-2">
             <div class="flex items-center justify-between text-xs font-mono text-amber-300 font-bold">
-              <span>${t.severity}: ${sev}</span>
-              <span>${t.window}: ${win}</span>
+              <span>${t.severity}: ${a.severity}</span>
+              <span>${t.window}: ${a.window}</span>
             </div>
             <p class="text-sm font-medium leading-relaxed">
-              ${msg}
+              ${a.msg}
             </p>
           </div>
 
           <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
             <span>${t.m8_sub}</span>
-            <span class="text-emerald-400 font-mono font-bold">${t.sirenReady}</span>
+            <button onclick="speakSimulationText('${a.type}. ${a.msg.replace(/'/g, "\\'")}', currentLang)" class="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-xs border border-amber-500/40 flex items-center space-x-1 cursor-pointer">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+              <span>${t.listenVoice}</span>
+            </button>
           </div>
         </div>
       `;
@@ -1577,8 +2778,7 @@
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
       const aqi = SIMULATION_DATA.airQuality;
-      const stat = currentLang === 'ta' ? aqi.statusTa : (currentLang === 'hi' ? aqi.statusHi : aqi.statusEn);
-      const adv = currentLang === 'ta' ? aqi.adviceTa : (currentLang === 'hi' ? aqi.adviceHi : aqi.adviceEn);
+      const adv = aqi.adv[currentLang] || aqi.adv.en;
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-5 animate-fadeIn">
@@ -1588,7 +2788,7 @@
               <h2 class="font-display font-black text-xl text-white">${t.m9_sub}</h2>
             </div>
             <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold border border-amber-500/30">
-              ${stat}
+              AQI: ${aqi.aqi}
             </span>
           </div>
 
@@ -1596,7 +2796,7 @@
             <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
               <span class="text-xs text-slate-400 font-mono uppercase">${t.aqiLevel}</span>
               <div class="text-4xl font-black text-amber-400 font-display my-1">${aqi.aqi}</div>
-              <span class="text-xs text-amber-300 font-bold">${stat}</span>
+              <span class="text-xs text-amber-300 font-bold">Moderate</span>
             </div>
 
             <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700">
@@ -1612,8 +2812,11 @@
             </div>
           </div>
 
-          <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs text-slate-200">
-            <strong>${t.advisory}:</strong> ${adv}
+          <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs text-slate-200 flex items-center justify-between">
+            <span><strong>${t.advisory}:</strong> ${adv}</span>
+            <button onclick="speakSimulationText('${adv.replace(/'/g, "\\'")}', currentLang)" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold border border-emerald-500/40 cursor-pointer ml-2 flex-shrink-0">
+              🔊
+            </button>
           </div>
         </div>
       `;
@@ -1624,9 +2827,8 @@
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
       const ag = SIMULATION_DATA.agriculture;
-      const irAdv = currentLang === 'ta' ? ag.irrigationAdviceTa : (currentLang === 'hi' ? ag.irrigationAdviceHi : ag.irrigationAdviceEn);
-      const spray = currentLang === 'ta' ? ag.sprayingTa : (currentLang === 'hi' ? ag.sprayingHi : ag.sprayingEn);
-      const sprayReason = currentLang === 'ta' ? ag.sprayingReasonTa : (currentLang === 'hi' ? ag.sprayingReasonHi : ag.sprayingReasonEn);
+      const irAdv = ag.irrigationAdv[currentLang] || ag.irrigationAdv.en;
+      const sprayAdv = ag.sprayingAdv[currentLang] || ag.sprayingAdv.en;
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-emerald-500/40 shadow-xl space-y-4 animate-fadeIn">
@@ -1659,7 +2861,7 @@
 
           <div class="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 space-y-2 text-xs">
             <div class="text-emerald-300 font-bold">${t.irrigationAdv} ${irAdv}</div>
-            <div class="text-rose-300 font-bold">${t.sprayingAdv} ${spray} — ${sprayReason}</div>
+            <div class="text-rose-300 font-bold">${t.sprayingAdv} ${sprayAdv}</div>
           </div>
         </div>
       `;
@@ -1670,7 +2872,7 @@
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
       const av = SIMULATION_DATA.aviation;
-      const adv = currentLang === 'ta' ? av.advisoryTa : (currentLang === 'hi' ? av.advisoryHi : av.advisoryEn);
+      const adv = av.adv[currentLang] || av.adv.en;
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-sky-500/40 shadow-xl space-y-4 animate-fadeIn">
@@ -1685,7 +2887,7 @@
               </div>
             </div>
             <span class="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-mono text-[10px] font-bold">
-              ${av.metar}
+              ${av.category}
             </span>
           </div>
 
@@ -1720,8 +2922,7 @@
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
       const mar = SIMULATION_DATA.marine;
-      const cond = currentLang === 'ta' ? mar.seaConditionTa : (currentLang === 'hi' ? mar.seaConditionHi : mar.seaConditionEn);
-      const adv = currentLang === 'ta' ? mar.advisoryTa : (currentLang === 'hi' ? mar.advisoryHi : mar.advisoryEn);
+      const adv = mar.adv[currentLang] || mar.adv.en;
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-teal-500/40 shadow-xl space-y-4 animate-fadeIn">
@@ -1752,7 +2953,7 @@
             </div>
             <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700">
               <span class="text-[10px] text-slate-400 uppercase font-mono">${t.seaCond}</span>
-              <div class="text-lg font-bold text-amber-400">${cond}</div>
+              <div class="text-lg font-bold text-amber-400">Moderate Swell</div>
             </div>
           </div>
 
@@ -1799,10 +3000,24 @@
       `;
     }
 
-    // --- MODULE 14: MULTI-LANGUAGE ---
+    // --- MODULE 14: MULTI-LANGUAGE SHOWCASE (10 LANGUAGES) ---
     function renderModule14_Multilingual(canvas) {
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
+      
+      const langCards = [
+        { code: 'en', flag: '🇬🇧', name: 'English', text: 'Heavy rain expected this afternoon. Carry an umbrella.' },
+        { code: 'ta', flag: '🇮🇳', name: 'தமிழ் (Tamil)', text: 'இன்று மதியம் கனமழை பெய்ய வாய்ப்புள்ளது. குடையை எடுத்துச் செல்லுங்கள்.' },
+        { code: 'hi', flag: '🇮🇳', name: 'हिन्दी (Hindi)', text: 'आज दोपहर में भारी बारिश की संभावना है। कृपया छाता साथ रखें।' },
+        { code: 'te', flag: '🇮🇳', name: 'తెలుగు (Telugu)', text: 'ఈరోజు మధ్యాహ్నం భారీ వర్షం పడే అవకాశం ఉంది. గొడుగు తీసుకెళ్లండి.' },
+        { code: 'bn', flag: '🇮🇳', name: 'বাংলা (Bengali)', text: 'আজ দুপুরে ভারী বৃষ্টির সম্ভাবনা রয়েছে। ছাতা সাথে রাখুন।' },
+        { code: 'mr', flag: '🇮🇳', name: 'मराठी (Marathi)', text: 'आज दुपारी मुसळधार पावसाची शक्यता आहे. छत्री सोबत ठेवा.' },
+        { code: 'gu', flag: '🇮🇳', name: 'ગુજરાતી (Gujarati)', text: 'આજે બપોરે ભારે વરસાદની સંભાવના છે. છત્રી સાથે રાખો.' },
+        { code: 'kn', flag: '🇮🇳', name: 'ಕನ್ನಡ (Kannada)', text: 'ಇಂದು ಮಧ್ಯಾಹ್ನ ಭಾರಿ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ. ಛತ್ರಿ ಕೊಂಡೊಯ್ಯಿರಿ.' },
+        { code: 'ml', flag: '🇮🇳', name: 'മലയാളം (Malayalam)', text: 'ഇന്ന് ഉച്ചയ്ക്ക് കനത്ത മഴയ്ക്ക് സാധ്യതയുണ്ട്. കുട കരുതുക.' },
+        { code: 'pa', flag: '🇮🇳', name: 'ਪੰਜਾਬੀ (Punjabi)', text: 'ਅੱਜ ਦੁਪਹਿਰ ਨੂੰ ਭਾਰੀ ਮੀਂਹ ਪੈਣ ਦੀ ਸੰਭਾਵਨਾ ਹੈ। ਛਤਰੀ ਕੋਲ ਰੱਖੋ।' },
+      ];
+
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -1810,21 +3025,21 @@
               <span class="text-[10px] font-mono text-pink-400 uppercase font-bold tracking-wider">${titles[13]}</span>
               <h2 class="font-display font-black text-xl text-white">${t.m14_sub}</h2>
             </div>
+            <span class="text-xs font-bold text-pink-300">10 / 10 Languages Active</span>
           </div>
 
-          <div class="space-y-3">
-            <div class="p-3.5 rounded-2xl ${currentLang === 'en' ? 'bg-sky-950/60 border-2 border-sky-400' : 'bg-slate-800/60 border border-slate-700'} space-y-1 transition-all">
-              <span class="text-[10px] font-mono font-bold text-sky-400 uppercase">🇬🇧 English</span>
-              <p class="text-xs sm:text-sm text-slate-100 font-medium">"There is a high chance of rain this afternoon. Please carry an umbrella."</p>
-            </div>
-            <div class="p-3.5 rounded-2xl ${currentLang === 'ta' ? 'bg-emerald-950/60 border-2 border-emerald-400' : 'bg-slate-800/60 border border-slate-700'} space-y-1 transition-all">
-              <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase">🇮🇳 தமிழ் (Tamil)</span>
-              <p class="text-xs sm:text-sm text-slate-100 font-medium">"இன்று மதியத்திற்கு பிறகு மழை பெய்ய அதிக வாய்ப்பு உள்ளது. குடையை எடுத்துச் செல்லுங்கள்."</p>
-            </div>
-            <div class="p-3.5 rounded-2xl ${currentLang === 'hi' ? 'bg-amber-950/60 border-2 border-amber-400' : 'bg-slate-800/60 border border-slate-700'} space-y-1 transition-all">
-              <span class="text-[10px] font-mono font-bold text-amber-400 uppercase">🇮🇳 हिंदी (Hindi)</span>
-              <p class="text-xs sm:text-sm text-slate-100 font-medium">"आज दोपहर में बारिश की बहुत अधिक संभावना है। कृपया छाता साथ रखें।"</p>
-            </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[360px] overflow-y-auto pr-1">
+            ${langCards.map(l => `
+              <div onclick="changeLanguage('${l.code}')" class="p-3 rounded-2xl ${currentLang === l.code ? 'bg-sky-950/80 border-2 border-sky-400' : 'bg-slate-800/60 border border-slate-700/80'} space-y-1 cursor-pointer hover:border-sky-500 transition-all">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white">${l.flag} ${l.name}</span>
+                  <button onclick="event.stopPropagation(); speakSimulationText('${l.text.replace(/'/g, "\\'")}', '${l.code}')" class="p-1 rounded bg-slate-700 hover:bg-slate-600 text-sky-300 text-[10px]" title="Listen Voice">
+                    🔊
+                  </button>
+                </div>
+                <p class="text-[11px] text-slate-300 font-medium">"${l.text}"</p>
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
@@ -1834,26 +3049,6 @@
     function renderModule15_Notifications(canvas) {
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
-      const notif1 = {
-        en: 'Heavy rain expected in your area around 3:00 PM.',
-        ta: 'உங்கள் பகுதியில் மதியம் 3:00 மணியளவில் கனமழை பெய்யும் என எதிர்பார்க்கப்படுகிறது.',
-        hi: 'आपके क्षेत्र में दोपहर 3:00 बजे भारी बारिश की संभावना है।'
-      };
-      const notif2 = {
-        en: 'Rain probability at Chennai Central is approximately 70%.',
-        ta: 'சேருமிட எச்சரிக்கை: சென்னை சென்ட்ரலில் மழை பெய்வதற்கான வாய்ப்பு சுமார் 70% ஆக உள்ளது.',
-        hi: 'गंतव्य चेतावनी: चेन्नई सेंट्रल में बारिश की संभावना लगभग 70% है।'
-      };
-      const notifTime1 = {
-        en: 'WeatherGPT Alert • 3:00 PM',
-        ta: 'WeatherGPT எச்சரிக்கை • பிற்பகல் 3:00',
-        hi: 'WeatherGPT अलर्ट • दोपहर 3:00'
-      };
-      const notifTime2 = {
-        en: 'Destination Weather Alert',
-        ta: 'சேருமிட வானிலை எச்சரிக்கை',
-        hi: 'गंतव्य मौसम चेतावनी'
-      };
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
@@ -1870,8 +3065,8 @@
                 <i data-lucide="bell-ring" class="w-5 h-5"></i>
               </span>
               <div>
-                <span class="text-[10px] font-mono text-slate-400 font-bold">${notifTime1[currentLang] || notifTime1.en}</span>
-                <h4 class="text-xs font-bold text-white mt-0.5">${notif1[currentLang] || notif1.en}</h4>
+                <span class="text-[10px] font-mono text-slate-400 font-bold">WeatherGPT Live Alert • 3:00 PM</span>
+                <h4 class="text-xs font-bold text-white mt-0.5">Heavy rain expected in your area around 3:00 PM.</h4>
               </div>
             </div>
 
@@ -1880,8 +3075,8 @@
                 <i data-lucide="navigation" class="w-5 h-5"></i>
               </span>
               <div>
-                <span class="text-[10px] font-mono text-slate-400 font-bold">${notifTime2[currentLang] || notifTime2.en}</span>
-                <h4 class="text-xs font-bold text-white mt-0.5">${notif2[currentLang] || notif2.en}</h4>
+                <span class="text-[10px] font-mono text-slate-400 font-bold">Destination Alert</span>
+                <h4 class="text-xs font-bold text-white mt-0.5">Rain probability at Chennai Central is approximately 70%.</h4>
               </div>
             </div>
           </div>
@@ -1893,21 +3088,6 @@
     function renderModule16_WeatherReport(canvas) {
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
-      const reportP1 = {
-        en: '<strong>Current State:</strong> 29°C (Feels 32°C), Partly Cloudy, Humidity 78%, Wind 14 km/h SW.',
-        ta: '<strong>தற்போதைய நிலை:</strong> 29°C (உணரப்படுவது 32°C), பகுதி மேகமூட்டம், ஈரப்பதம் 78%, காற்று 14 km/h தென்மேற்கு.',
-        hi: '<strong>वर्तमान स्थिति:</strong> 29°C (महसूस 32°C), आंशिक बादल, नमी 78%, हवा 14 km/h दक्षिण-पश्चिम।'
-      };
-      const reportP2 = {
-        en: '<strong>Severe Alert:</strong> Heavy Rain Warning (2 PM - 5 PM), peak precipitation probability 82% at 4 PM.',
-        ta: '<strong>தீவிர எச்சரிக்கை:</strong> கனமழை எச்சரிக்கை (பிற்பகல் 2 - மாலை 5), மாலை 4 மணிக்கு அதிகபட்சமாக 82% மழை வாய்ப்பு.',
-        hi: '<strong>गंभीर चेतावनी:</strong> भारी बारिश की चेतावनी (दोपहर 2 - शाम 5), शाम 4 बजे अधिकतम 82% बारिश की संभावना।'
-      };
-      const reportP3 = {
-        en: '<strong>Destination Forecast:</strong> Chennai Central around 30°C with 70% rain probability.',
-        ta: '<strong>சேருமிட முன்னறிவிப்பு:</strong> சென்னை சென்ட்ரலில் சுமார் 30°C மற்றும் 70% மழை வாய்ப்பு.',
-        hi: '<strong>गंतव्य पूर्वानुमान:</strong> चेन्नई सेंट्रल में लगभग 30°C और 70% बारिश की संभावना।'
-      };
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border border-slate-800 shadow-xl space-y-4 animate-fadeIn">
@@ -1927,9 +3107,9 @@
               <span><strong>Location:</strong> ${t.dossierLoc}</span>
               <span><strong>Status:</strong> ${t.dossierStatus}</span>
             </div>
-            <p>${reportP1[currentLang] || reportP1.en}</p>
-            <p>${reportP2[currentLang] || reportP2.en}</p>
-            <p>${reportP3[currentLang] || reportP3.en}</p>
+            <p><strong>Current State:</strong> 29°C (Feels 32°C), Partly Cloudy, Humidity 78%, Wind 14 km/h SW.</p>
+            <p><strong>Severe Alert:</strong> Heavy Rain Warning (2 PM - 5 PM), peak precipitation probability 82% at 4 PM.</p>
+            <p><strong>Destination Forecast:</strong> Chennai Central around 30°C with 70% rain probability.</p>
           </div>
         </div>
       `;
@@ -1957,18 +3137,13 @@
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center text-xs">
-            ${SIMULATION_DATA.smartAlarmJourney.map((st, i) => {
-              const eta = currentLang === 'ta' ? st.etaTa : (currentLang === 'hi' ? st.etaHi : st.etaEn);
-              const status = currentLang === 'ta' ? st.statusTa : (currentLang === 'hi' ? st.statusHi : st.statusEn);
-              return `
-                <div class="p-3 rounded-2xl ${i === 6 ? 'bg-emerald-500/20 border-emerald-400' : 'bg-slate-800/60 border-slate-700'} border space-y-1">
-                  <span class="text-[10px] font-mono text-slate-400 block">${t.stage} ${st.stage}</span>
-                  <span class="text-base font-black text-white block">${st.distance}</span>
-                  <span class="text-[10px] text-sky-400 block">${t.eta}: ${eta}</span>
-                  <span class="text-[9px] text-slate-300 truncate block">${status}</span>
-                </div>
-              `;
-            }).join('')}
+            ${SIMULATION_DATA.smartAlarmJourney.map((st, i) => `
+              <div class="p-3 rounded-2xl ${i === 6 ? 'bg-emerald-500/20 border-emerald-400' : 'bg-slate-800/60 border-slate-700'} border space-y-1">
+                <span class="text-[10px] font-mono text-slate-400 block">${t.stage} ${st.stage}</span>
+                <span class="text-base font-black text-white block">${st.distance}</span>
+                <span class="text-[10px] text-sky-400 block">${t.eta}: ${st.eta}</span>
+              </div>
+            `).join('')}
           </div>
 
           <div class="p-4 rounded-2xl bg-sky-950/40 border border-sky-500/40 text-xs flex items-center justify-between">
@@ -1986,12 +3161,11 @@
     function renderModule18_DestinationReached(canvas) {
       const t = UI_I18N[currentLang] || UI_I18N.en;
       const titles = MODULE_TITLES[currentLang] || MODULE_TITLES.en;
-      const dr = SIMULATION_DATA.destinationReached;
-      const voiceText = currentLang === 'ta' ? dr.voiceTa : (currentLang === 'hi' ? dr.voiceHi : dr.voiceEn);
+      const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
 
       canvas.innerHTML = `
         <div class="glass-dark rounded-3xl p-6 border-4 border-rose-500/80 shadow-2xl shadow-rose-900/40 space-y-6 text-center animate-fadeIn">
-          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce cursor-pointer hover:scale-105 transition-all" onclick="speakSimulationText(SIMULATION_DATA.destinationReached[currentLang === 'ta' ? 'voiceTa' : (currentLang === 'hi' ? 'voiceHi' : 'voiceEn')], currentLang)" title="Click to Hear Arrival Alert">
+          <div class="w-24 h-24 mx-auto rounded-full bg-rose-600/30 border-4 border-rose-500 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-600/50 animate-bounce cursor-pointer hover:scale-105 transition-all" onclick="speakSimulationText('${dr.replace(/'/g, "\\'")}', currentLang)" title="Click to Hear Arrival Alert">
             <i data-lucide="bell-ring" class="w-12 h-12 animate-spin"></i>
           </div>
 
@@ -2007,7 +3181,7 @@
             </p>
           </div>
 
-          <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 max-w-md mx-auto space-y-2 cursor-pointer hover:border-rose-400 transition-all" onclick="speakSimulationText(SIMULATION_DATA.destinationReached[currentLang === 'ta' ? 'voiceTa' : (currentLang === 'hi' ? 'voiceHi' : 'voiceEn')], currentLang)">
+          <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 max-w-md mx-auto space-y-2 cursor-pointer hover:border-rose-400 transition-all" onclick="speakSimulationText('${dr.replace(/'/g, "\\'")}', currentLang)">
             <div class="flex items-center justify-between text-rose-300 font-bold text-sm">
               <div class="flex items-center space-x-2">
                 <i data-lucide="volume-2" class="w-5 h-5"></i>
@@ -2016,7 +3190,7 @@
               <span class="text-[10px] font-mono bg-rose-900/80 text-rose-200 px-2 py-0.5 rounded">🔊 Click to Hear</span>
             </div>
             <p class="text-xs sm:text-sm text-slate-100 font-medium leading-relaxed">
-              "${voiceText}"
+              "${dr}"
             </p>
           </div>
 
@@ -2030,16 +3204,18 @@
           </div>
         </div>
       `;
-      startSirenAlarm();
-      speakSimulationText(voiceText, currentLang);
+      if (isPlaying) {
+        startSirenAlarm();
+        speakSimulationText(dr, currentLang);
+      }
     }
 
     // ============================================================================
-    // INITIALIZATION ON LOAD
+    // INITIALIZATION ON LOAD (Start in Paused / Ready State)
     // ============================================================================
     window.addEventListener('DOMContentLoaded', () => {
       renderCurrentModule();
-      scheduleNextStep();
+      // Simulation is ready and paused until Start button is clicked!
     });
   </script>
 </body>
