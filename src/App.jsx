@@ -540,19 +540,22 @@ export default function App() {
             </div>
 
 
-            {/* Tool 1: Route Planner */}
+            {/* Tool 1: Route Planner & 100m Destination Alarm */}
             <button
               onClick={() => {
                 setActiveView('route');
                 setSidebarOpen(false);
               }}
               className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${activeView === 'route'
-                  ? 'bg-sky-50 text-sky-700 border border-sky-200'
+                  ? 'bg-rose-50 text-rose-800 border border-rose-200 font-bold shadow-2xs'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                 }`}
             >
-              <Navigation className="w-4 h-4 text-sky-600" />
-              <span>{activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை' : 'Route Weather Planner'}</span>
+              <Navigation className="w-4 h-4 text-rose-600" />
+              <span className="truncate">{activeLanguage === 'ta' ? '🚨 பயணப் பாதை & 100மீ அலாரம்' : '🚨 Route & 100m Arrival Alarm'}</span>
+              <span className="ml-auto px-1.5 py-0.2 rounded bg-rose-500 text-white text-[9px] font-black uppercase flex-shrink-0">
+                100m SOS
+              </span>
             </button>
 
             {/* Tool 2: Event & Wedding Score */}

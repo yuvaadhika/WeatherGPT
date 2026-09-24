@@ -546,25 +546,26 @@ export default function MobileDashboard({
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
-            {/* Tool 1: Route Planner */}
+            {/* Tool 1: Route Planner & 100m Destination Alarm */}
             <button
               onClick={onOpenRoutePlanner}
-              className="p-3.5 rounded-3xl bg-white/90 hover:bg-white border border-sky-200/80 hover:border-sky-400 text-left transition-all shadow-2xs space-y-2 cursor-pointer group"
+              className="p-3.5 rounded-3xl bg-white/95 hover:bg-rose-50/50 border-2 border-rose-200/90 hover:border-rose-400 text-left transition-all shadow-xs space-y-2 cursor-pointer group"
             >
               <div className="flex items-center justify-between">
-                <span className="p-2 rounded-xl bg-sky-100 text-sky-700 border border-sky-200 inline-flex items-center justify-center">
-                  <Navigation className="w-4 h-4 text-sky-600" />
+                <span className="p-2 rounded-xl bg-rose-100 text-rose-700 border border-rose-200 inline-flex items-center justify-center">
+                  <Navigation className="w-4 h-4 text-rose-600" />
                 </span>
-                <span className="text-[9px] font-bold text-sky-700 bg-sky-100/90 px-1.5 py-0.5 rounded">
-                  GIS
+                <span className="text-[9px] font-black text-rose-700 bg-rose-100/90 border border-rose-200 px-1.5 py-0.5 rounded-md flex items-center space-x-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                  <span>100m Alarm</span>
                 </span>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-900 group-hover:text-sky-600 transition-colors">
-                  {activeLanguage === 'ta' ? 'பயணப் பாதை வானிலை' : 'Route Planner'}
+                <h4 className="text-xs font-bold text-slate-900 group-hover:text-rose-600 transition-colors">
+                  {activeLanguage === 'ta' ? 'பயணப் பாதை & 100மீ அலாரம்' : 'Route & 100m Arrival Alarm'}
                 </h4>
                 <p className="text-[10px] text-slate-500 mt-0.5">
-                  {activeLanguage === 'ta' ? 'நெடுஞ்சாலை மழை & புறப்படும் நேரம்' : 'Highway rain forecast & safe hours.'}
+                  {activeLanguage === 'ta' ? 'சேருமிடம் 100மீ வருகை அலாரம் & மழை' : '100m destination arrival siren & highway rain.'}
                 </p>
               </div>
             </button>
