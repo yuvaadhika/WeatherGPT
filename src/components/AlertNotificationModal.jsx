@@ -869,7 +869,7 @@ export default function AlertNotificationModal({
                         </span>
                       </div>
                       <span className="text-[11px] text-slate-300 font-sans truncate flex-1">
-                        https://weather-gpt-yuvi.vercel.app/
+                        https://weather-gpt-chatbot.vercel.app/
                       </span>
                       <span className="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded font-bold uppercase animate-bounce">
                         👈 Click Here

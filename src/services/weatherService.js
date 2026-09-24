@@ -1188,7 +1188,7 @@ export async function searchLocation(query, lang = 'en') {
   try {
     const nomRes = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmed)}&addressdetails=1&limit=8&accept-language=${targetLang},ta,en;q=0.8`,
-      { headers: { 'User-Agent': 'WeatherGPT-Yuvi/2.0' } }
+      { headers: { 'User-Agent': 'WeatherGPT-Chatbot/2.0' } }
     );
     if (nomRes.ok) {
       const nomData = await nomRes.json();
@@ -1308,7 +1308,7 @@ export async function reverseGeocode(lat, lon, lang = 'en') {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=${targetLang},en;q=0.8`,
-      { headers: { 'User-Agent': 'WeatherGPT-Yuvi/2.0' } }
+      { headers: { 'User-Agent': 'WeatherGPT-Chatbot/2.0' } }
     );
     if (res.ok) {
       const data = await res.json();

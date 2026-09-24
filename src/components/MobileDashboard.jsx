@@ -98,9 +98,9 @@ export default function MobileDashboard({
 
   const handleShareWeather = () => {
     const locName = currentLocation?.name || 'Chennai';
-    const text = `WeatherGPT Live (${locName}): ${tempC}°C, ${wmo.label}, Rain: ${rainProbNow}%, Wind: ${windKmh}km/h. Live: https://weather-gpt-yuvi.vercel.app/`;
+    const text = `WeatherGPT Live (${locName}): ${tempC}°C, ${wmo.label}, Rain: ${rainProbNow}%, Wind: ${windKmh}km/h. Live: https://weather-gpt-chatbot.vercel.app/`;
     if (navigator.share) {
-      navigator.share({ title: 'WeatherGPT Live', text, url: 'https://weather-gpt-yuvi.vercel.app/' }).catch(console.warn);
+      navigator.share({ title: 'WeatherGPT Live', text, url: 'https://weather-gpt-chatbot.vercel.app/' }).catch(console.warn);
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
       setSharedToast(true);
