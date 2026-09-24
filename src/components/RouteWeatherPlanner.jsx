@@ -27,13 +27,31 @@ import {
   Maximize2,
   Minimize2,
   Fuel,
-  Info
+  Info,
+  BellRing,
+  Volume2,
+  VolumeX,
+  Play
 } from 'lucide-react';
 import L from 'leaflet';
 import { TRANSLATIONS } from '../services/languages';
 import { getWeatherDescription, searchLocation, fetchRainViewerMetadata } from '../services/weatherService';
 
 const POPULAR_ROUTES = [
+  {
+    id: 'chengalpattu-chennai',
+    from: 'Chengalpattu',
+    fromCoords: { lat: 12.6922, lon: 79.9774 },
+    to: 'Chennai Central',
+    toCoords: { lat: 13.0827, lon: 80.2707 },
+    distanceKm: 45,
+    driveHours: 1.2,
+    waypoints: [
+      { name: 'Guduvancheri', offsetHour: 0.3, lat: 12.8439, lon: 80.0617 },
+      { name: 'Tambaram', offsetHour: 0.6, lat: 12.9249, lon: 80.1472 },
+      { name: 'Guindy', offsetHour: 0.9, lat: 13.0067, lon: 80.2025 },
+    ],
+  },
   {
     id: 'chennai-bangalore',
     from: 'Chennai',
@@ -191,6 +209,148 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   const [isCustomMode, setIsCustomMode] = useState(false);
   const [isSearchingRoute, setIsSearchingRoute] = useState(false);
   const [searchError, setSearchError] = useState('');
+
+  // 100m Geofence Alarm & Audio Synthesis State
+  const [isArrivalAlarmOpen, setIsArrivalAlarmOpen] = useState(false);
+  const [isSirenActive, setIsSirenActive] = useState(false);
+  const [arrivalSpokenText, setArrivalSpokenText] = useState('');
+
+  const audioCtxRef = useRef(null);
+  const sirenIntervalRef = useRef(null);
+  const currentAudioRef = useRef(null);
+
+  const getAudioContext = () => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtxRef.current.state === 'suspended') {
+      audioCtxRef.current.resume();
+    }
+    return audioCtxRef.current;
+  };
+
+  const startSirenAlarm = () => {
+    stopSirenAlarm();
+    setIsSirenActive(true);
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      let highTone = true;
+      sirenIntervalRef.current = setInterval(() => {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(highTone ? 987.77 : 659.25, now);
+        highTone = !highTone;
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      }, 380);
+    } catch (e) {
+      console.warn('Siren audio error:', e);
+    }
+  };
+
+  const stopSirenAlarm = () => {
+    setIsSirenActive(false);
+    if (sirenIntervalRef.current) {
+      clearInterval(sirenIntervalRef.current);
+      sirenIntervalRef.current = null;
+    }
+  };
+
+  const stopSpeaking = () => {
+    if (currentAudioRef.current) {
+      try {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.currentTime = 0;
+      } catch (e) {}
+      currentAudioRef.current = null;
+    }
+    if ('speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (e) {}
+    }
+  };
+
+  const speakArrivalAnnouncement = (text, lang = activeLanguage) => {
+    stopSpeaking();
+    const primaryLang = (lang || 'en').split(/[-_]/)[0].toLowerCase();
+    const cleanText = text.replace(/<[^>]*>/g, '').trim();
+    const encoded = encodeURIComponent(cleanText);
+
+    const primaryUrl = `/api/tts?lang=${primaryLang}&text=${encoded}`;
+    const audio = new Audio(primaryUrl);
+    currentAudioRef.current = audio;
+
+    const fallbackWebSpeech = () => {
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(cleanText);
+          const tagMap = {
+            ta: 'ta-IN',
+            hi: 'hi-IN',
+            te: 'te-IN',
+            bn: 'bn-IN',
+            mr: 'mr-IN',
+            gu: 'gu-IN',
+            kn: 'kn-IN',
+            ml: 'ml-IN',
+            pa: 'pa-IN',
+            en: 'en-US'
+          };
+          u.lang = tagMap[primaryLang] || 'en-US';
+          window.speechSynthesis.speak(u);
+        } catch (err) {}
+      }
+    };
+
+    audio.onerror = () => {
+      const directUrl = `https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=${primaryLang}&q=${encoded}`;
+      const fallbackAudio = new Audio(directUrl);
+      currentAudioRef.current = fallbackAudio;
+      fallbackAudio.onerror = fallbackWebSpeech;
+      fallbackAudio.play().catch(fallbackWebSpeech);
+    };
+
+    audio.play().catch(fallbackWebSpeech);
+  };
+
+  const handleTriggerArrivalAlarm = () => {
+    getAudioContext();
+    const destName = selectedRoute.to || customDest?.name || 'Chennai Central';
+    const destWeather = routeSimulation[routeSimulation.length - 1];
+    const destTemp = destWeather?.temp ?? 30;
+    const destRain = destWeather?.rainProb ?? 70;
+
+    const arrivalVoice = activeLanguage === 'ta'
+      ? `நீங்கள் உங்கள் சேருமிடமான ${destName} அடைந்துவிட்டீர்கள். வெப்பநிலை ${destTemp} டிகிரி செல்சியஸ், ${destRain} சதவீதம் மழை வாய்ப்புள்ளது.`
+      : `You have reached your destination: ${destName}. Temperature is ${destTemp}°C with ${destRain}% rain probability.`;
+
+    setArrivalSpokenText(arrivalVoice);
+    setIsArrivalAlarmOpen(true);
+    startSirenAlarm();
+    speakArrivalAnnouncement(arrivalVoice, activeLanguage);
+  };
+
+  const handleCloseArrivalAlarm = () => {
+    stopSirenAlarm();
+    stopSpeaking();
+    setIsArrivalAlarmOpen(false);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopSirenAlarm();
+      stopSpeaking();
+    };
+  }, []);
 
   // Leaflet Map Refs
   const mapContainerRef = useRef(null);
@@ -1173,6 +1333,45 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
             <span>+12h</span>
           </div>
         </div>
+
+        {/* 🚨 100M GEOFENCE ARRIVAL ALARM SIMULATOR BANNER */}
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50 via-red-50 to-amber-50 border-2 border-rose-300 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center space-x-3 text-left">
+            <div className="w-11 h-11 rounded-2xl bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-rose-600/30 animate-bounce">
+              <BellRing className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                  🎯 100M GEOFENCE ALARM
+                </span>
+                <span className="text-[10px] font-bold text-rose-600 flex items-center space-x-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                  <span>Live Ready</span>
+                </span>
+              </div>
+              <h4 className="text-xs sm:text-sm font-black text-slate-900 mt-1">
+                {activeLanguage === 'ta'
+                  ? `${selectedRoute.to || 'சேருமிடம்'} 100மீ வருகை அலாரம் & குரல் அறிவிப்பு`
+                  : `${selectedRoute.to || 'Destination'} 100m Arrival Siren Alarm & Voice Announcement`}
+              </h4>
+              <p className="text-[10px] text-slate-500">
+                {activeLanguage === 'ta'
+                  ? 'சேருமிடத்தை அடைந்ததும் தானியங்கி அலாரம் மற்றும் தமிழ் குரல் வழிகாட்டுதல்'
+                  : 'Automatic emergency siren + spoken voice briefing triggered upon 100m destination proximity.'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleTriggerArrivalAlarm}
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 hover:from-rose-500 hover:to-red-500 text-white font-black text-xs flex items-center justify-center space-x-2 shadow-lg shadow-rose-600/30 hover:scale-105 active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          >
+            <BellRing className="w-4 h-4 animate-spin" />
+            <span>{activeLanguage === 'ta' ? '🚨 100மீ அலாரத்தை இயக்கு' : '🚨 Trigger 100m Arrival Alarm'}</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. ✨ LIVE INTERACTIVE GOOGLE-MAPS STYLE ROUTE MAP */}
@@ -1536,6 +1735,88 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
           })}
         </div>
       </div>
+
+      {/* ========================================================================= */}
+      {/* 🎯 100M GEOFENCE ARRIVAL ALARM MODAL (MATCHING SCREENSHOT 100%) */}
+      {/* ========================================================================= */}
+      {isArrivalAlarmOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+          <div className="relative w-full max-w-2xl bg-white border-4 border-rose-500 rounded-3xl p-6 sm:p-8 text-center space-y-6 shadow-2xl bg-gradient-to-b from-white via-rose-50/40 to-red-50/50">
+            {/* Top Siren Bell Icon */}
+            <div
+              onClick={() => {
+                getAudioContext();
+                speakArrivalAnnouncement(arrivalSpokenText, activeLanguage);
+              }}
+              className="w-20 h-20 mx-auto rounded-full bg-rose-600 flex items-center justify-center text-white shadow-xl shadow-rose-600/40 animate-bounce cursor-pointer hover:scale-105 transition-all"
+              title="Click to Hear Arrival Alert"
+            >
+              <BellRing className="w-10 h-10 animate-pulse" />
+            </div>
+
+            {/* Header Titles */}
+            <div className="space-y-1.5">
+              <span className="px-3 py-1 rounded-full bg-rose-100 text-rose-800 font-mono font-black text-xs uppercase tracking-widest border border-rose-300">
+                🎯 100M GEOFENCE ALARM TRIGGERED
+              </span>
+              <h2 className="font-black text-2xl sm:text-3xl text-slate-900 tracking-tight">
+                YOU HAVE REACHED YOUR DESTINATION
+              </h2>
+              <p className="text-sm font-bold text-slate-700">
+                {selectedRoute.to || customDest?.name || 'Chennai Central'}, Tamil Nadu, India
+              </p>
+            </div>
+
+            {/* Voice Alert Box */}
+            <div
+              onClick={() => {
+                getAudioContext();
+                speakArrivalAnnouncement(arrivalSpokenText, activeLanguage);
+              }}
+              className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-rose-300 max-w-lg mx-auto space-y-2 cursor-pointer shadow-sm hover:border-rose-400 transition-all text-left"
+            >
+              <div className="flex items-center justify-between text-rose-700 font-bold text-xs">
+                <div className="flex items-center space-x-1.5">
+                  <Volume2 className="w-4 h-4 text-rose-600" />
+                  <span>Voice Alert Speaking:</span>
+                </div>
+                <span className="text-[10px] bg-rose-100 px-2 py-0.5 rounded font-bold">🔊 Click to Hear</span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-900 font-semibold leading-relaxed">
+                "{arrivalSpokenText}"
+              </p>
+            </div>
+
+            {/* Control Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={stopSirenAlarm}
+                className="px-6 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-lg shadow-rose-600/30 cursor-pointer active:scale-95 transition-all flex items-center space-x-1.5"
+              >
+                <span>🛑 Stop Siren Alarm</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleTriggerArrivalAlarm}
+                className="px-5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer flex items-center space-x-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Restart Demo</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCloseArrivalAlarm}
+                className="px-4 py-2.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold text-xs cursor-pointer"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
