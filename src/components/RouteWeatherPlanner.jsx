@@ -151,6 +151,18 @@ function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
   return Math.round(R * c);
 }
 
+// Helper to calculate exact distance in meters for 100m geofencing
+function calculateHaversineDistanceMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Earth radius in meters
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
+
 // Pre-defined High-Accuracy Coordinates for Tamil Nadu & Indian Cities
 const TN_CITY_COORDS = {
   'chengalpattu': { name: 'Chengalpattu', latitude: 12.6922, longitude: 79.9774, admin1: 'Tamil Nadu' },
@@ -214,10 +226,17 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   const [isArrivalAlarmOpen, setIsArrivalAlarmOpen] = useState(false);
   const [isSirenActive, setIsSirenActive] = useState(false);
   const [arrivalSpokenText, setArrivalSpokenText] = useState('');
+  const [isGeofenceEnabled, setIsGeofenceEnabled] = useState(true);
+  const [isSimulatingDrive, setIsSimulatingDrive] = useState(false);
+  const [simStageIndex, setSimStageIndex] = useState(0);
+  const [simRemainingKm, setSimRemainingKm] = useState(null);
+  const [simRemainingMeters, setSimRemainingMeters] = useState(null);
 
   const audioCtxRef = useRef(null);
   const sirenIntervalRef = useRef(null);
   const currentAudioRef = useRef(null);
+  const driveSimIntervalRef = useRef(null);
+  const geoWatchIdRef = useRef(null);
 
   const getAudioContext = () => {
     if (!audioCtxRef.current) {
@@ -342,13 +361,120 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
   const handleCloseArrivalAlarm = () => {
     stopSirenAlarm();
     stopSpeaking();
+    stopDriveSimulation();
     setIsArrivalAlarmOpen(false);
   };
+
+  // Automated Drive / Journey Simulation (45km -> 30km -> 15km -> 5km -> 1km -> 500m -> 85m -> AUTOMATIC ALARM!)
+  const startDriveSimulation = () => {
+    stopDriveSimulation();
+    getAudioContext();
+    setIsSimulatingDrive(true);
+    const totalDist = selectedRoute.distanceKm || 45;
+
+    const stages = [
+      { km: totalDist, meters: totalDist * 1000, label: activeLanguage === 'ta' ? 'புறப்படுகிறது' : 'Departing Origin', eta: '~70 min' },
+      { km: Math.round(totalDist * 0.7), meters: Math.round(totalDist * 700), label: activeLanguage === 'ta' ? 'நெடுஞ்சாலை பயணம்' : 'Highway Corridor', eta: '~45 min' },
+      { km: Math.round(totalDist * 0.35), meters: Math.round(totalDist * 350), label: activeLanguage === 'ta' ? 'நகர எல்லை நெருங்குகிறது' : 'Approaching City', eta: '~22 min' },
+      { km: 5, meters: 5000, label: activeLanguage === 'ta' ? '5 கி.மீ தொலைவில்' : '5 km Remaining', eta: '~8 min' },
+      { km: 1, meters: 1000, label: activeLanguage === 'ta' ? '1 கி.மீ தொலைவில்' : '1 km Remaining', eta: '~2 min' },
+      { km: 0.5, meters: 500, label: activeLanguage === 'ta' ? '500மீ நெருங்குகிறது' : '500m Approaching', eta: '~1 min' },
+      { km: 0.08, meters: 85, label: activeLanguage === 'ta' ? '🎯 100மீ எல்லைக்குள் நுழைந்தது!' : '🎯 Inside 100m Geofence!', eta: 'Arrived' },
+    ];
+
+    let step = 0;
+    setSimStageIndex(0);
+    setSimRemainingKm(stages[0].km);
+    setSimRemainingMeters(stages[0].meters);
+
+    driveSimIntervalRef.current = setInterval(() => {
+      step++;
+      if (step < stages.length) {
+        setSimStageIndex(step);
+        setSimRemainingKm(stages[step].km);
+        setSimRemainingMeters(stages[step].meters);
+
+        // Pan map along path if coordinates exist
+        if (routePolyline && routePolyline.length > 0 && leafletMapRef.current) {
+          const frac = step / (stages.length - 1);
+          const pIdx = Math.min(Math.floor(frac * (routePolyline.length - 1)), routePolyline.length - 1);
+          const currentPoint = routePolyline[pIdx];
+          if (currentPoint) {
+            leafletMapRef.current.panTo([currentPoint[0], currentPoint[1]]);
+          }
+        }
+
+        // When reaching the last stage (<100m), automatically trigger the alarm!
+        if (stages[step].meters <= 100) {
+          clearInterval(driveSimIntervalRef.current);
+          setIsSimulatingDrive(false);
+          handleTriggerArrivalAlarm();
+        }
+      } else {
+        clearInterval(driveSimIntervalRef.current);
+        setIsSimulatingDrive(false);
+      }
+    }, 1200);
+  };
+
+  const stopDriveSimulation = () => {
+    setIsSimulatingDrive(false);
+    if (driveSimIntervalRef.current) {
+      clearInterval(driveSimIntervalRef.current);
+      driveSimIntervalRef.current = null;
+    }
+  };
+
+  // Real GPS Geofence Proximity Listener
+  useEffect(() => {
+    if (!isGeofenceEnabled || !selectedRoute?.toCoords || isArrivalAlarmOpen) {
+      if (geoWatchIdRef.current) {
+        navigator.geolocation.clearWatch(geoWatchIdRef.current);
+        geoWatchIdRef.current = null;
+      }
+      return;
+    }
+
+    if (navigator.geolocation && navigator.geolocation.watchPosition) {
+      geoWatchIdRef.current = navigator.geolocation.watchPosition(
+        (pos) => {
+          const uLat = pos.coords.latitude;
+          const uLon = pos.coords.longitude;
+          const tLat = selectedRoute.toCoords.lat;
+          const tLon = selectedRoute.toCoords.lon;
+          const distM = calculateHaversineDistanceMeters(uLat, uLon, tLat, tLon);
+
+          if (!isSimulatingDrive) {
+            setSimRemainingMeters(distM);
+            setSimRemainingKm((distM / 1000).toFixed(1));
+          }
+
+          // Automatic alarm trigger when within 100m
+          if (distM <= 100 && !isArrivalAlarmOpen) {
+            handleTriggerArrivalAlarm();
+          }
+        },
+        (err) => console.warn('Geofence GPS watcher:', err),
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+      );
+    }
+
+    return () => {
+      if (geoWatchIdRef.current) {
+        navigator.geolocation.clearWatch(geoWatchIdRef.current);
+        geoWatchIdRef.current = null;
+      }
+    };
+  }, [isGeofenceEnabled, selectedRoute?.toCoords, isArrivalAlarmOpen, isSimulatingDrive]);
 
   useEffect(() => {
     return () => {
       stopSirenAlarm();
       stopSpeaking();
+      stopDriveSimulation();
+      if (geoWatchIdRef.current) {
+        navigator.geolocation.clearWatch(geoWatchIdRef.current);
+      }
     };
   }, []);
 
@@ -1334,43 +1460,126 @@ export default function RouteWeatherPlanner({ activeLanguage = 'en', currentLoca
           </div>
         </div>
 
-        {/* 🚨 100M GEOFENCE ARRIVAL ALARM SIMULATOR BANNER */}
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-50 via-red-50 to-amber-50 border-2 border-rose-300 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-3 text-left">
-            <div className="w-11 h-11 rounded-2xl bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-rose-600/30 animate-bounce">
-              <BellRing className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-[10px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
-                  🎯 100M GEOFENCE ALARM
-                </span>
-                <span className="text-[10px] font-bold text-rose-600 flex items-center space-x-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                  <span>Live Ready</span>
-                </span>
+        {/* 🚨 100M GEOFENCE ARRIVAL ALARM & JOURNEY SIMULATOR CONTROL STATION */}
+        <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-rose-50/90 via-red-50/70 to-amber-50/80 border-2 border-rose-300/80 shadow-md space-y-3.5">
+          {/* Top Bar: Title, Target Destination & Geofence Badge */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-rose-200/60">
+            <div className="flex items-center space-x-3">
+              <div className={`w-11 h-11 rounded-2xl bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-rose-600/30 ${isSimulatingDrive ? 'animate-pulse' : 'animate-bounce'}`}>
+                <BellRing className="w-5 h-5" />
               </div>
-              <h4 className="text-xs sm:text-sm font-black text-slate-900 mt-1">
-                {activeLanguage === 'ta'
-                  ? `${selectedRoute.to || 'சேருமிடம்'} 100மீ வருகை அலாரம் & குரல் அறிவிப்பு`
-                  : `${selectedRoute.to || 'Destination'} 100m Arrival Siren Alarm & Voice Announcement`}
-              </h4>
-              <p className="text-[10px] text-slate-500">
-                {activeLanguage === 'ta'
-                  ? 'சேருமிடத்தை அடைந்ததும் தானியங்கி அலாரம் மற்றும் தமிழ் குரல் வழிகாட்டுதல்'
-                  : 'Automatic emergency siren + spoken voice briefing triggered upon 100m destination proximity.'}
-              </p>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[10px] font-mono font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                    🎯 100M GEOFENCE SYSTEM
+                  </span>
+                  <span className="text-[10px] font-bold text-rose-600 flex items-center space-x-1 bg-white/80 px-2 py-0.5 rounded-full border border-rose-200">
+                    <span className={`w-1.5 h-1.5 rounded-full bg-rose-500 ${isSimulatingDrive ? 'animate-ping' : ''}`}></span>
+                    <span>{isSimulatingDrive ? 'Simulation In Progress' : 'Live Geofence Armed'}</span>
+                  </span>
+                </div>
+                <h4 className="text-xs sm:text-sm font-black text-slate-900 mt-1">
+                  {activeLanguage === 'ta'
+                    ? `சேருமிடம்: ${selectedRoute.to || customDest?.name || 'Chennai Central'} (100மீ எல்லை அலாரம்)`
+                    : `Destination: ${selectedRoute.to || customDest?.name || 'Chennai Central'} (100m Geofence Alarm)`}
+                </h4>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 self-start sm:self-auto">
+              <span className="text-[11px] font-mono font-black px-2.5 py-1 rounded-xl bg-rose-600 text-white shadow-sm">
+                Radius: ≤ 100 meters
+              </span>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleTriggerArrivalAlarm}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 hover:from-rose-500 hover:to-red-500 text-white font-black text-xs flex items-center justify-center space-x-2 shadow-lg shadow-rose-600/30 hover:scale-105 active:scale-95 transition-all cursor-pointer flex-shrink-0"
-          >
-            <BellRing className="w-4 h-4 animate-spin" />
-            <span>{activeLanguage === 'ta' ? '🚨 100மீ அலாரத்தை இயக்கு' : '🚨 Trigger 100m Arrival Alarm'}</span>
-          </button>
+          {/* Journey Simulation Stage Indicator / Telemetry Meter */}
+          <div className="p-3 bg-white/90 backdrop-blur-sm rounded-2xl border border-rose-200/70 shadow-2xs space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+              <span className="flex items-center space-x-1.5 text-slate-600">
+                <Navigation className="w-3.5 h-3.5 text-sky-600" />
+                <span>
+                  {activeLanguage === 'ta' ? 'சேருமிடத்திற்கு மீதமுள்ள தூரம்:' : 'Distance Remaining to Destination:'}
+                </span>
+              </span>
+              <span className="font-mono text-xs sm:text-sm font-black text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-lg border border-rose-200">
+                {simRemainingMeters !== null
+                  ? (simRemainingMeters <= 100 ? `🎯 ${simRemainingMeters} meters (<100m Reach!)` : `${simRemainingKm} km (${simRemainingMeters}m)`)
+                  : `${selectedRoute.distanceKm || 45} km (~${selectedRoute.driveHours || 1.2}h)`}
+              </span>
+            </div>
+
+            {/* Visual Stage Progress Bar */}
+            {isSimulatingDrive && (
+              <div className="space-y-1.5 animate-fadeIn">
+                <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-rose-200 relative">
+                  <div
+                    className="h-full bg-gradient-to-r from-sky-500 via-indigo-500 to-rose-600 transition-all duration-700 rounded-full"
+                    style={{ width: `${Math.min(100, Math.round(((simStageIndex + 1) / 7) * 100))}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                  <span>🚗 Stage {simStageIndex + 1} of 7</span>
+                  <span className="text-rose-600 font-bold">
+                    {simRemainingMeters <= 100 ? '🚨 100m REACHED! Triggering Alarm...' : 'Approaching 100m threshold...'}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <p className="text-[11px] text-slate-500 leading-snug">
+              {activeLanguage === 'ta'
+                ? '💡 நீங்கள் தேர்ந்தெடுத்த ஊரை (Destination) நெருங்கி 100 மீட்டருக்குள் வந்ததும், அவசர சைரன் அலாரமும் தமிழ் குரல் அறிவிப்பும் தானாகவே (Automatically) ஒலிக்கும்.'
+                : '💡 When you reach within 100 meters of your destination, the emergency siren alarm and voice announcement will trigger automatically.'}
+            </p>
+          </div>
+
+          {/* Action Control Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-1">
+            <div className="text-[10px] text-slate-500 font-medium">
+              <span>Target: </span>
+              <strong className="text-slate-800">{selectedRoute.to || customDest?.name || 'Chennai Central'}</strong>
+              <span className="text-slate-400"> ({selectedRoute.toCoords?.lat?.toFixed(4)}, {selectedRoute.toCoords?.lon?.toFixed(4)})</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              {/* Automated Journey Simulation Button */}
+              {isSimulatingDrive ? (
+                <button
+                  type="button"
+                  onClick={stopDriveSimulation}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center space-x-2 cursor-pointer shadow-md transition-all active:scale-95"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                  <span>{activeLanguage === 'ta' ? '🛑 பயணத்தை நிறுத்து' : '🛑 Stop Simulation'}</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={startDriveSimulation}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 hover:from-rose-500 hover:to-red-500 text-white font-black text-xs flex items-center justify-center space-x-2 shadow-lg shadow-rose-600/30 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Play className="w-4 h-4 fill-white" />
+                  <span>
+                    {activeLanguage === 'ta'
+                      ? '🚗 பயணத்தை தொடங்கு (100மீ வந்ததும் தானாக ஒலிக்கும்)'
+                      : '🚗 Start Journey Simulation (Auto-Alarm at 100m)'}
+                  </span>
+                </button>
+              )}
+
+              {/* Instant Test Button */}
+              <button
+                type="button"
+                onClick={handleTriggerArrivalAlarm}
+                className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-white hover:bg-rose-50 text-rose-700 border border-rose-300 font-bold text-xs flex items-center justify-center space-x-1.5 shadow-2xs hover:border-rose-400 transition-all cursor-pointer"
+                title="Direct Instant Test"
+              >
+                <BellRing className="w-3.5 h-3.5 text-rose-600" />
+                <span>{activeLanguage === 'ta' ? '⚡ நேரடி சோதனை' : '⚡ Instant Test'}</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
