@@ -1494,7 +1494,7 @@ export async function fetchNWPForecast(lat, lon, model = 'best_match') {
     else if (model === 'icon') modelParam = '&models=icon_seamless';
     else if (model === 'wrf') modelParam = '&models=icon_seamless'; // High-res mesoscale equivalent
 
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,surface_pressure,cloud_cover,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m,soil_temperature_0cm,soil_moisture_0_to_1cm,uv_index,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant&timezone=auto${modelParam}`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,surface_pressure,cloud_cover,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m,soil_temperature_0cm,soil_moisture_0_to_1cm,uv_index,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant&forecast_days=16&past_days=7&timezone=auto${modelParam}`;
 
     const res = await fetch(url, { signal: controller.signal });
     clearTimeout(timeoutId);
@@ -1727,6 +1727,36 @@ export async function fetchClimateHistoricalData(lat, lon, yearsBack = 5) {
     console.warn('Historical climate fetch failed, utilizing synthetic decadal climate baseline:', err);
     return null;
   }
+}
+
+// Fetch single custom date weather telemetry (Past Archive or Future Forecast)
+export async function fetchCustomDateWeather(lat, lon, dateStr) {
+  if (!lat || !lon || !dateStr) return null;
+  const todayStr = new Date().toISOString().split('T')[0];
+  const isPast = dateStr < todayStr;
+  
+  try {
+    if (isPast) {
+      // Historical Archive API
+      const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${dateStr}&end_date=${dateStr}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation,weather_code,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant&timezone=auto`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        return { data, isArchive: true, dateStr };
+      }
+    } else {
+      // Future or current forecast
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&start_date=${dateStr}&end_date=${dateStr}&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,surface_pressure,cloud_cover,visibility,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant&timezone=auto`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        return { data, isArchive: false, dateStr };
+      }
+    }
+  } catch (e) {
+    console.warn('Error fetching custom date weather:', e);
+  }
+  return null;
 }
 
 // Impact-Based AI Risk Engine (0-100 Score, Scientific Provenance & Explainable AI Decomposition)

@@ -120,20 +120,21 @@ export default function MobileDashboard({
     return { hourLabel, hTemp, hRainProb, hWind, hWmo };
   });
 
-  // Next 7 days
-  const next7Days = (daily.time || []).slice(0, 7).map((dateStr, idx) => {
+  // Next 14 days (Extended Forecast Horizon)
+  const next14Days = (daily.time || []).slice(0, 14).map((dateStr, idx) => {
     const d = new Date(dateStr);
     const dayLabel = idx === 0
       ? (activeLanguage === 'ta' ? 'இன்று' : 'Today')
       : idx === 1
       ? (activeLanguage === 'ta' ? 'நாளை' : 'Tomorrow')
-      : d.toLocaleDateString(activeLanguage === 'ta' ? 'ta-IN' : 'en-US', { weekday: 'short' });
+      : d.toLocaleDateString(activeLanguage === 'ta' ? 'ta-IN' : 'en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
     const maxT = Math.round(daily.temperature_2m_max?.[idx] ?? 32);
     const minT = Math.round(daily.temperature_2m_min?.[idx] ?? 24);
     const rainSum = (daily.precipitation_sum?.[idx] ?? 0).toFixed(1);
+    const rainProb = daily.precipitation_probability_max?.[idx] ?? 20;
     const dCode = daily.weather_code?.[idx] ?? 0;
     const dWmo = getWeatherDescription(dCode, activeLanguage);
-    return { dayLabel, maxT, minT, rainSum, dWmo };
+    return { dayLabel, maxT, minT, rainSum, rainProb, dWmo, dateStr };
   });
 
   const displayLocation = currentLocation
@@ -497,34 +498,43 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* TAB CONTENT 2: 7-DAY EXTENDED FORECAST */}
+      {/* TAB CONTENT 2: 7-DAY & 14-DAY EXTENDED CALENDAR FORECAST */}
       {activeTab === '7day' && (
-        <div className="bg-white/90 backdrop-blur-xl border border-sky-200/70 rounded-3xl p-4 shadow-2xs space-y-2.5 animate-fadeIn">
+        <div className="bg-white/90 backdrop-blur-xl border border-sky-200/70 rounded-3xl p-4 shadow-2xs space-y-3 animate-fadeIn">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-1.5">
               <TrendingUp className="w-4 h-4 text-indigo-600" />
               <h3 className="text-xs font-bold text-slate-900">
-                {activeLanguage === 'ta' ? '7 நாள் நீட்டிக்கப்பட்ட வானிலை' : '7-Day Extended Forecast'}
+                {activeLanguage === 'ta' ? '📅 நாள்காட்டி & 14-நாள் முன்னறிவிப்பு' : '📅 Extended 14-Day Calendar Forecast'}
               </h3>
             </div>
-            <span className="text-[10px] text-slate-400 font-medium">ECMWF / GFS</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-bold border border-sky-200">
+              ECMWF / GFS
+            </span>
           </div>
 
-          <div className="space-y-1.5 divide-y divide-sky-100/70">
-            {next7Days.map((d, idx) => (
-              <div key={idx} className="pt-2 flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-800 w-16">{d.dayLabel}</span>
+          <div className="space-y-1.5 divide-y divide-sky-100/70 max-h-80 overflow-y-auto pr-1">
+            {next14Days.map((d, idx) => (
+              <div key={idx} className="pt-2 pb-1 flex items-center justify-between text-xs">
+                <span className={`font-bold w-20 truncate ${idx === 0 ? 'text-sky-700 font-black' : 'text-slate-800'}`}>
+                  {d.dayLabel}
+                </span>
                 <div className="flex items-center space-x-1.5 text-slate-600 flex-1 px-2">
-                  <span className="text-[11px] font-medium truncate max-w-[130px]">{d.dWmo.label}</span>
-                  {parseFloat(d.rainSum) > 0 && (
-                    <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-sky-100 text-sky-800 font-bold">
-                      {d.rainSum} mm
+                  <span className="text-[11px] font-medium truncate max-w-[120px]">{d.dWmo.label}</span>
+                  {parseFloat(d.rainSum) > 0 ? (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-sky-100 text-sky-800 font-bold flex-shrink-0">
+                      🌧️ {d.rainSum} mm
                     </span>
-                  )}
+                  ) : d.rainProb > 20 ? (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-slate-100 text-slate-600 font-medium flex-shrink-0">
+                      {d.rainProb}%
+                    </span>
+                  ) : null}
                 </div>
                 <div className="flex items-center space-x-2 font-mono text-[11px] font-bold">
-                  <span className="text-slate-900">{d.maxT}°</span>
-                  <span className="text-slate-400">{d.minT}°</span>
+                  <span className="text-orange-600">{d.maxT}°</span>
+                  <span className="text-slate-400">/</span>
+                  <span className="text-sky-600">{d.minT}°C</span>
                 </div>
               </div>
             ))}
