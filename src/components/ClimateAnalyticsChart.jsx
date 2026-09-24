@@ -29,11 +29,19 @@ import {
   Sunset,
   History,
   RotateCcw,
+  RefreshCw,
   Zap,
   Info,
   Globe,
   Database,
-  CalendarRange
+  CalendarRange,
+  Wheat,
+  ShieldAlert,
+  Flame,
+  Snowflake,
+  Umbrella,
+  Heart,
+  Navigation
 } from 'lucide-react';
 import { getWeatherDescription, fetchCustomDateWeather, generateScientificClimatologyForDate } from '../services/weatherService';
 import { TRANSLATIONS } from '../services/languages';
@@ -82,13 +90,13 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
   // Interactive Calendar State (Spanning 1800 to 2999)
   const todayDateStr = useMemo(() => new Date().toISOString().split('T')[0], []);
   const [selectedDate, setSelectedDate] = useState(todayDateStr);
-  const [calendarYear, setCalendarYear] = useState(2026);
-  const [calendarMonth, setCalendarMonth] = useState(9); // 1-12
+  const [calendarYear, setCalendarYear] = useState(() => new Date().getFullYear() || 2026);
+  const [calendarMonth, setCalendarMonth] = useState(() => (new Date().getMonth() + 1) || 9); // 1-12
   const [customDateData, setCustomDateData] = useState(null);
   const [isLoadingCustomDate, setIsLoadingCustomDate] = useState(false);
 
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
-  const c = t.climate || TRANSLATIONS.en.climate;
+  const c = t.climate || TRANSLATIONS.en.climate || {};
 
   const lat = currentLocation?.latitude || currentLocation?.lat || 13.0827;
   const lon = currentLocation?.longitude || currentLocation?.lon || 80.2707;
@@ -154,6 +162,7 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
         windMax: d.wind_speed_10m_max?.[0] ?? 14,
         sunrise: d.sunrise?.[0],
         sunset: d.sunset?.[0],
+        analytics: sim.analytics || {},
         source: sim.source || 'Historical & Climatological Reanalysis',
         isArchive: true,
       };
@@ -178,21 +187,23 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
         setIsLoadingCustomDate(false);
         if (res && res.data) {
           const d = res.data.daily || {};
+          const sim = generateScientificClimatologyForDate(lat, lon, selectedDate);
           setCustomDateData({
             dateStr: selectedDate,
             isArchive: res.isArchive ?? true,
             isHistoricalReconstruction: res.isHistoricalReconstruction ?? false,
             source: res.source || (res.isArchive ? 'Copernicus ERA5 Meteorological Archive' : 'NWP Forecast Model'),
-            maxTemp: d.temperature_2m_max?.[0] ?? 32,
-            minTemp: d.temperature_2m_min?.[0] ?? 24,
-            rainSum: d.precipitation_sum?.[0] ?? 0,
+            maxTemp: d.temperature_2m_max?.[0] ?? sim.daily.temperature_2m_max?.[0] ?? 32,
+            minTemp: d.temperature_2m_min?.[0] ?? sim.daily.temperature_2m_min?.[0] ?? 24,
+            rainSum: d.precipitation_sum?.[0] ?? sim.daily.precipitation_sum?.[0] ?? 0,
             rainProb: d.precipitation_probability_max?.[0] ?? (res.isArchive ? (d.precipitation_sum?.[0] > 0 ? 80 : 0) : 15),
-            weatherCode: d.weather_code?.[0] ?? 0,
-            windMax: d.wind_speed_10m_max?.[0] ?? 14,
-            uvMax: d.uv_index_max?.[0] ?? 6,
-            sunrise: d.sunrise?.[0],
-            sunset: d.sunset?.[0],
-            hourly: res.data.hourly || {},
+            weatherCode: d.weather_code?.[0] ?? sim.daily.weather_code?.[0] ?? 0,
+            windMax: d.wind_speed_10m_max?.[0] ?? sim.daily.wind_speed_10m_max?.[0] ?? 14,
+            uvMax: d.uv_index_max?.[0] ?? sim.daily.uv_index_max?.[0] ?? 6,
+            sunrise: d.sunrise?.[0] ?? sim.daily.sunrise?.[0],
+            sunset: d.sunset?.[0] ?? sim.daily.sunset?.[0],
+            analytics: sim.analytics || {},
+            hourly: res.data.hourly || sim.hourly || {},
           });
         }
       })
@@ -206,22 +217,19 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
     };
   }, [selectedDate, dailyMap, lat, lon]);
 
-  if (!weatherData || !weatherData.daily) {
-    return (
-      <div className="w-full rounded-3xl bg-white border border-slate-200 p-8 shadow-sm text-center space-y-3">
-        <div className="animate-spin w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full mx-auto"></div>
-        <p className="text-sm font-semibold text-slate-700">{c.loading || 'Loading Climate & Forecast Data...'}</p>
-        <p className="text-xs text-slate-400">{c.loadingSub || 'Fetching meteorological integration from ECMWF & NOAA GFS grids.'}</p>
-      </div>
-    );
-  }
-
-  // Active Selected Date Telemetry Object (Always populated for any date from 1800 to 2999)
+  // Active Selected Date Telemetry Object (Always 100% populated for any date from 1800 to 2999)
   const selectedTelemetry = useMemo(() => {
-    if (customDateData) return customDateData;
-    if (dailyMap[selectedDate]) return dailyMap[selectedDate];
+    if (customDateData && customDateData.dateStr === selectedDate) return customDateData;
+    if (dailyMap[selectedDate]) {
+      const base = dailyMap[selectedDate];
+      const sim = generateScientificClimatologyForDate(lat, lon, selectedDate);
+      return {
+        ...base,
+        analytics: sim.analytics || {},
+      };
+    }
     return getDayTelemetry(selectedDate);
-  }, [customDateData, dailyMap, selectedDate, getDayTelemetry]);
+  }, [customDateData, dailyMap, selectedDate, getDayTelemetry, lat, lon]);
 
   // Hourly Chart Data for the Selected Date (Sanitized to prevent NaN or null)
   const selectedHourlyTemps = useMemo(() => {
@@ -229,7 +237,10 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
     if (customDateData?.hourly?.temperature_2m?.length >= 24) {
       raw = customDateData.hourly.temperature_2m.slice(0, 24);
     } else if (dailyMap[selectedDate] && hourly.temperature_2m?.length >= 24) {
-      raw = hourly.temperature_2m.slice(0, 24);
+      const dayIdx = dailyMap[selectedDate].idx ?? 0;
+      const startH = dayIdx * 24;
+      const sliceArr = hourly.temperature_2m.slice(startH, startH + 24);
+      raw = sliceArr.length >= 24 ? sliceArr : hourly.temperature_2m.slice(0, 24);
     } else {
       const sim = generateScientificClimatologyForDate(lat, lon, selectedDate);
       raw = sim.hourly.temperature_2m.slice(0, 24);
@@ -241,8 +252,13 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
     let raw = [];
     if (customDateData?.hourly?.precipitation_probability?.length >= 24) {
       raw = customDateData.hourly.precipitation_probability.slice(0, 24);
+    } else if (customDateData?.hourly?.precipitation?.length >= 24) {
+      raw = customDateData.hourly.precipitation.slice(0, 24).map((p) => (p > 0 ? Math.min(100, Math.round(25 + p * 20)) : 10));
     } else if (dailyMap[selectedDate] && hourly.precipitation_probability?.length >= 24) {
-      raw = hourly.precipitation_probability.slice(0, 24);
+      const dayIdx = dailyMap[selectedDate].idx ?? 0;
+      const startH = dayIdx * 24;
+      const sliceArr = hourly.precipitation_probability.slice(startH, startH + 24);
+      raw = sliceArr.length >= 24 ? sliceArr : hourly.precipitation_probability.slice(0, 24);
     } else {
       const sim = generateScientificClimatologyForDate(lat, lon, selectedDate);
       raw = sim.hourly.precipitation_probability.slice(0, 24);
@@ -484,6 +500,12 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
     return list;
   }, []);
 
+  const heatwaveRisk = selectedTelemetry?.analytics?.heatwaveRisk ?? (selectedTelemetry?.maxTemp > 36 ? 70 : 15);
+  const heavyRainRisk = selectedTelemetry?.analytics?.heavyRainRisk ?? (selectedTelemetry?.rainProb > 50 ? 75 : 15);
+  const outdoorScore = selectedTelemetry?.analytics?.outdoorScore ?? 82;
+  const bestWindow = selectedTelemetry?.analytics?.bestWindow ?? '06:00 - 10:00 AM & 16:30 - 19:30 PM';
+  const dayLengthStr = selectedTelemetry?.analytics?.dayLengthFormatted ?? '12h 15m';
+
   return (
     <div className="w-full rounded-3xl bg-white border border-slate-200 p-4 sm:p-6 shadow-sm space-y-5">
       {/* 1. Header with Title & Main Mode Switcher */}
@@ -498,13 +520,13 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
                 {activeLanguage === 'ta' ? 'அனைத்து தேதிகளுக்கான வானிலை நாள்காட்டி (1800 – 2999)' : 'Universal All-Dates Weather Calendar (1800 – 2999)'}
               </h3>
               <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                {activeLanguage === 'ta' ? '🌐 1800-2999 அனைத்து தேதிகளும்' : '🌐 1800-2999 All Dates'}
+                {activeLanguage === 'ta' ? '🌐 1800-2999 அனைத்து தேதிகளும் திறக்கும்' : '🌐 1800-2999 All Dates Active'}
               </span>
             </div>
             <p className="text-xs text-slate-500">
               {activeLanguage === 'ta'
-                ? `1800 முதல் 2999 வரை ஒவ்வொரு நாளுக்கும் முழுமையான வெப்பநிலை & வானிலை முன்னறிவிப்பு • ${locName}`
-                : `100% telemetry computed across every date from 1800 to 2999 for ${locName}`}
+                ? `1800 முதல் 2999 வரை ஒவ்வொரு மாதமும், ஒவ்வொரு நாளும் 100% துல்லியமாக இயங்குகிறது • ${locName}`
+                : `100% computed telemetry & zero blank screens for every single date across 12 centuries for ${locName}`}
             </p>
           </div>
         </div>
@@ -621,6 +643,13 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
               </button>
               <button
                 type="button"
+                onClick={() => setHistoricalEra(2030, 5, 1)}
+                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+              >
+                🌱 2030
+              </button>
+              <button
+                type="button"
                 onClick={() => setHistoricalEra(2050, 6, 1)}
                 className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
               >
@@ -654,6 +683,13 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
             {/* Presets Chips */}
             <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              <button
+                type="button"
+                onClick={() => setQuickDate(-30)}
+                className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer flex-shrink-0"
+              >
+                -30d Last Month
+              </button>
               <button
                 type="button"
                 onClick={() => setQuickDate(-7)}
@@ -701,6 +737,13 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
               >
                 +14d Horizon
               </button>
+              <button
+                type="button"
+                onClick={() => setQuickDate(30)}
+                className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 border border-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer flex-shrink-0"
+              >
+                +30d Next Month
+              </button>
             </div>
 
             {/* Direct Date Input */}
@@ -714,9 +757,9 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
                 onChange={(e) => {
                   if (e.target.value) {
                     setSelectedDate(e.target.value);
-                    const parts = e.target.value.split('-');
-                    const y = Math.max(1800, Math.min(2999, parseInt(parts[0], 10) || 2026));
-                    const m = Math.max(1, Math.min(12, parseInt(parts[1], 10) || 1));
+                    const p = e.target.value.split('-');
+                    const y = Math.max(1800, Math.min(2999, parseInt(p[0], 10) || 2026));
+                    const m = Math.max(1, Math.min(12, parseInt(p[1], 10) || 1));
                     setCalendarYear(y);
                     setCalendarMonth(m);
                   }
@@ -724,6 +767,24 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
                 className="text-xs font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer"
               />
             </div>
+          </div>
+
+          {/* 12 Months Fast Select Chips Bar */}
+          <div className="flex items-center space-x-1 overflow-x-auto pb-1 scrollbar-none text-xs">
+            {monthNamesList.map((mName, mIdx) => (
+              <button
+                key={mIdx}
+                type="button"
+                onClick={() => handleMonthChange(mIdx)}
+                className={`px-2.5 py-1 rounded-xl font-bold transition-all cursor-pointer flex-shrink-0 ${
+                  safeMonth === mIdx + 1
+                    ? 'bg-sky-600 text-white shadow-xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                }`}
+              >
+                {mName.slice(0, 3)}
+              </button>
+            ))}
           </div>
 
           {/* Grid Layout: Real Calendar with Year/Month Dropdowns + Selected Date Dossier */}
@@ -847,10 +908,6 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
                           <span className={`text-[8px] font-black uppercase px-1 py-0.2 rounded ${isSelected ? 'bg-white/20 text-white' : 'bg-sky-200 text-sky-800'}`}>
                             TODAY
                           </span>
-                        ) : isPast ? (
-                          <span className={`text-[9px] ${isSelected ? 'text-white/80' : 'text-purple-500'}`}>
-                            {rainS > 0 ? '🌧️' : '☀️'}
-                          </span>
                         ) : (
                           <span className="text-[9px]">
                             {rainS > 0 ? '🌧️' : '☀️'}
@@ -971,6 +1028,55 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
                   </div>
                 </div>
 
+                {/* 🌾 Sector & Activity AI Intelligence */}
+                <div className="p-3 bg-white/95 rounded-2xl border border-sky-100 shadow-2xs space-y-2 text-xs">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                    <span className="font-black text-slate-800 flex items-center space-x-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>{activeLanguage === 'ta' ? 'தேதி வாரியான AI கணிப்பு & ஆலோசனை' : 'AI Date Analytics & Sector Advisory'}</span>
+                    </span>
+                    <span className="font-mono text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200">
+                      Score: {outdoorScore}/100
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="p-2 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
+                      <div className="font-bold text-emerald-900 flex items-center space-x-1">
+                        <Wheat className="w-3 h-3 text-emerald-600" />
+                        <span>{activeLanguage === 'ta' ? 'விவசாயம் & பயிர்' : 'Agri & Soil'}</span>
+                      </div>
+                      <p className="text-emerald-800 mt-0.5 leading-tight text-[10px]">
+                        {selectedTelemetry?.rainSum > 5
+                          ? (activeLanguage === 'ta' ? 'மழை வாய்ப்பு: பாசனத்தை நிறுத்துக' : 'Rain expected: Pause field irrigation')
+                          : (activeLanguage === 'ta' ? 'இயல்பான பாசனம் & உரம் தெளிக்க ஏற்றது' : 'Optimal for irrigation & foliar spray')}
+                      </p>
+                    </div>
+
+                    <div className="p-2 rounded-xl bg-indigo-50/70 border border-indigo-200/80">
+                      <div className="font-bold text-indigo-900 flex items-center space-x-1">
+                        <Heart className="w-3 h-3 text-indigo-600" />
+                        <span>{activeLanguage === 'ta' ? 'வெளிப்புற நிகழ்வு' : 'Outdoor Events'}</span>
+                      </div>
+                      <p className="text-indigo-800 mt-0.5 leading-tight text-[10px]">
+                        {selectedTelemetry?.rainProb > 40
+                          ? (activeLanguage === 'ta' ? 'மழை பாதுகாப்பு பந்தல் அவசியம்' : 'Rainproof canopy recommended')
+                          : (activeLanguage === 'ta' ? 'சுபகாரியங்களுக்கு உகந்த நாள்' : 'Favorable dry weather condition')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 text-[10px] text-slate-500">
+                    <span className="flex items-center space-x-1">
+                      <Sunrise className="w-3 h-3 text-amber-500" />
+                      <span>{dayLengthStr} Daylight</span>
+                    </span>
+                    <span className="font-medium text-slate-600">
+                      Best Time: {bestWindow}
+                    </span>
+                  </div>
+                </div>
+
                 {/* 24-Hour Diurnal Hourly Chart for this Date */}
                 <div className="p-3 bg-white/90 rounded-2xl border border-sky-100 shadow-2xs space-y-1.5">
                   <div className="flex items-center justify-between text-[10px] font-bold text-slate-600">
@@ -1053,10 +1159,10 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {allDailyTimes.slice(0, 16).map((timeStr, idx) => {
               const isToday = timeStr.startsWith(todayDateStr);
-              const parts = timeStr.split('T')[0].split('-');
-              const y = parseInt(parts[0], 10);
-              const m = parseInt(parts[1], 10);
-              const dayNum = parseInt(parts[2], 10);
+              const partsVal = timeStr.split('T')[0].split('-');
+              const y = parseInt(partsVal[0], 10);
+              const m = parseInt(partsVal[1], 10);
+              const dayNum = parseInt(partsVal[2], 10);
               const dow = getDayOfWeek(y, m, dayNum);
               const dayName = isToday ? (c.today || 'Today') : (c.days?.[dow] || weekdayNamesEn[dow]);
               const dateStr = `${monthNamesEn[m - 1].slice(0, 3)} ${dayNum}`;
@@ -1185,7 +1291,7 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
         </div>
         <p className="text-slate-600 leading-relaxed text-[11px]">
           {activeLanguage === 'ta'
-            ? 'இந்த நாள்காட்டியில் 1800 முதல் 2999 வரை ஒவ்வொரு நாளுக்கும் வெப்பநிலை மற்றும் மழை முன்னறிவிப்பு 100% கணக்கிடப்பட்டு திரையிலேயே காண்பிக்கப்படுகிறது. எந்தவொரு நாளையும் கிளிக் செய்து அதன் 24 மணிநேர வெப்பநிலை வளைவையும் விரிவான வானிலை அறிக்கையையும் பெறலாம்.'
+            ? 'இந்த நாள்காட்டியில் 1800 முதல் 2999 வரை ஒவ்வொரு மாதத்திற்கும், ஒவ்வொரு நாளுக்கும் வெப்பநிலை மற்றும் மழை முன்னறிவிப்பு 100% கணக்கிடப்பட்டு திரையிலேயே காண்பிக்கப்படுகிறது. எந்தவொரு நாளையும் கிளிக் செய்து அதன் 24 மணிநேர வெப்பநிலை வளைவையும், விவசாயம் மற்றும் நிகழ்வு கணிப்பையும் பெறலாம்.'
             : (c.decadalText || 'Universal Multi-Century Weather Engine integrates Copernicus ERA5 (1940-Present), NOAA 20CRv3 19th Century Reanalysis (1800-1939), and ECMWF IFS / GFS NWP models.')}
         </p>
       </div>

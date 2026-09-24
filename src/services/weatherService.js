@@ -1853,12 +1853,32 @@ export function generateScientificClimatologyForDate(lat, lon, dateStr) {
     hourlyHumidity.push(hHum);
   }
 
+  // Deep Impact & Sector Intelligence
+  const heatwaveRisk = maxTemp >= 40 ? 92 : maxTemp >= 37 ? 68 : maxTemp >= 34 ? 35 : 10;
+  const coldwaveRisk = minTemp <= 10 ? 88 : minTemp <= 16 ? 55 : minTemp <= 20 ? 25 : 5;
+  const heavyRainRisk = rainProb >= 70 ? 85 : rainProb >= 45 ? 50 : 15;
+  const galeRisk = windMax >= 35 ? 80 : windMax >= 25 ? 45 : 15;
+
+  const dayLengthHoursInt = Math.floor(dayLengthHours);
+  const dayLengthMinsInt = Math.round((dayLengthHours - dayLengthHoursInt) * 60);
+
+  // Outdoor score calculation (0-100)
+  let outdoorScore = 85;
+  if (rainProb > 50) outdoorScore -= 30;
+  if (maxTemp > 36) outdoorScore -= 25;
+  if (windMax > 30) outdoorScore -= 15;
+  outdoorScore = Math.max(20, Math.min(98, outdoorScore));
+
+  const bestWindow = maxTemp > 33
+    ? 'Morning (06:00 - 09:30 AM) & Evening (16:30 - 19:30 PM)'
+    : 'Daytime (08:00 AM - 17:00 PM)';
+
   return {
     daily: {
       time: [dateStr],
       temperature_2m_max: [maxTemp],
       temperature_2m_min: [minTemp],
-      apparent_temperature_max: [maxTemp + (month >= 4 && month <= 7 ? 3 : 1)],
+      apparent_temperature_max: [maxTemp + (month >= 4 && month <= 7 ? 3.5 : 1)],
       apparent_temperature_min: [minTemp - 1],
       precipitation_sum: [rainSum],
       precipitation_probability_max: [rainProb],
@@ -1873,8 +1893,19 @@ export function generateScientificClimatologyForDate(lat, lon, dateStr) {
       time: hourlyTime,
       temperature_2m: hourlyTemp,
       precipitation_probability: hourlyRainProb,
+      precipitation: hourlyRainProb.map((p) => (p > 50 ? Math.round((p / 25) * 10) / 10 : 0)),
       wind_speed_10m: hourlyWind,
       relative_humidity_2m: hourlyHumidity,
+    },
+    analytics: {
+      heatwaveRisk,
+      coldwaveRisk,
+      heavyRainRisk,
+      galeRisk,
+      outdoorScore,
+      bestWindow,
+      dayLengthFormatted: `${dayLengthHoursInt}h ${dayLengthMinsInt}m`,
+      decadalAnomaly: Math.round(decadalAnomaly * 100) / 100,
     },
     source: year < 1940
       ? 'NOAA 20CRv3 & Berkeley Earth 19th-20th Century Historical Reanalysis'

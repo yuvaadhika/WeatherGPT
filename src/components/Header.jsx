@@ -39,6 +39,7 @@ export default function Header({
   onOpenAdminDatabase,
   onOpenInstallApp,
   onOpenSimulation,
+  onOpenVideoDemo,
   currentUser,
   onSignOut
 }) {
@@ -237,6 +238,20 @@ export default function Header({
             ))}
           </select>
         </div>
+
+        {/* 🎥 Video Demo Play Button */}
+        {onOpenVideoDemo && (
+          <button
+            onClick={onOpenVideoDemo}
+            title={activeLanguage === 'ta' ? 'வீடியோ செயல்விளக்கம் (Video Demo)' : 'Watch Live Video Demo'}
+            className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 text-white flex items-center space-x-1.5 transition-all shadow-sm hover:shadow-md cursor-pointer hover:scale-105 active:scale-95 flex-shrink-0 animate-pulse hover:animate-none"
+          >
+            <Play className="w-3.5 h-3.5 fill-white flex-shrink-0" />
+            <span className="text-[11px] font-black tracking-wide">
+              {activeLanguage === 'ta' ? 'வீடியோ டெமோ' : 'Video Demo'}
+            </span>
+          </button>
+        )}
 
         {/* 📲 1-Click Install App (PWA) Button */}
         {onOpenInstallApp && (

@@ -23,6 +23,7 @@ import EmergencyNetworkBanner from './components/EmergencyNetworkBanner';
 import ExplainabilityWhyModal from './components/ExplainabilityWhyModal';
 import WhatIfSimulatorModal from './components/WhatIfSimulatorModal';
 import InstallAppModal from './components/InstallAppModal';
+import VideoDemoModal from './components/VideoDemoModal';
 
 import {
   fetchNWPForecast,
@@ -129,6 +130,7 @@ export default function App() {
   const [isWhyModalOpen, setIsWhyModalOpen] = useState(false);
   const [isSimulatorModalOpen, setIsSimulatorModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isVideoDemoOpen, setIsVideoDemoOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
     return localStorage.getItem('weather_onboarding_shown') !== 'true';
   });
@@ -418,10 +420,22 @@ export default function App() {
           {/* New Query / Clear Chat Button */}
           <button
             onClick={handleNewChat}
-            className="w-full mt-4 py-2.5 px-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs flex items-center justify-center space-x-2 transition-all shadow-sm cursor-pointer"
+            className="w-full mt-3 py-2.5 px-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs flex items-center justify-center space-x-2 transition-all shadow-sm cursor-pointer"
           >
             <PlusCircle className="w-4 h-4" />
             <span>{t.sidebar?.newWeatherSearch || 'New Weather Search'}</span>
+          </button>
+
+          {/* 🎥 Video Demo Button in Sidebar */}
+          <button
+            onClick={() => {
+              setIsVideoDemoOpen(true);
+              setSidebarOpen(false);
+            }}
+            className="w-full mt-2 py-2 px-3 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
+          >
+            <Play className="w-3.5 h-3.5 fill-white" />
+            <span>{activeLanguage === 'ta' ? '🎥 வீடியோ டெமோ (Demo Video)' : '🎥 Live Video Demo'}</span>
           </button>
         </div>
 
@@ -735,6 +749,7 @@ export default function App() {
           onOpenAdminDatabase={() => setIsAdminModalOpen(true)}
           onOpenInstallApp={() => setIsInstallModalOpen(true)}
           onOpenSimulation={() => setActiveView('simulation')}
+          onOpenVideoDemo={() => setIsVideoDemoOpen(true)}
           currentUser={currentUser}
           onSignOut={handleSignOut}
         />
@@ -777,6 +792,8 @@ export default function App() {
               onOpenEmergencySOS={() => setActiveView('sos')}
               onOpenExplainability={() => setIsWhyModalOpen(true)}
               onOpenSimulator={() => setIsSimulatorModalOpen(true)}
+              onOpenVideoDemo={() => setIsVideoDemoOpen(true)}
+              onOpenClimate={() => setActiveView('climate')}
               notificationsEnabled={notificationsEnabled}
             />
           )}
@@ -1144,6 +1161,13 @@ export default function App() {
       <InstallAppModal
         isOpen={isInstallModalOpen}
         onClose={() => setIsInstallModalOpen(false)}
+        activeLanguage={activeLanguage}
+      />
+
+      {/* 🎥 Video Demo Interactive Showcase Modal */}
+      <VideoDemoModal
+        isOpen={isVideoDemoOpen}
+        onClose={() => setIsVideoDemoOpen(false)}
         activeLanguage={activeLanguage}
       />
     </div>

@@ -64,6 +64,8 @@ export default function MobileDashboard({
   onOpenExplainability,
   onOpenSimulator,
   onOpenSimulation,
+  onOpenVideoDemo,
+  onOpenClimate,
   notificationsEnabled = false
 }) {
   const t = TRANSLATIONS[activeLanguage] || TRANSLATIONS.en;
@@ -375,21 +377,39 @@ export default function MobileDashboard({
         </div>
 
         {/* Quick 1-Tap Action Pills */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-sky-200/60 relative z-10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-sky-200/60 relative z-10">
           <button
             onClick={() => onOpenChat && onOpenChat()}
-            className="py-2.5 px-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-sm cursor-pointer group"
+            className="py-2 px-2.5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center space-x-1.5 transition-all shadow-sm cursor-pointer group"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300 group-hover:rotate-12 transition-transform" />
-            <span>{activeLanguage === 'ta' ? 'AI அரட்டை வழிகாட்டி' : 'Ask AI Weather Assistant'}</span>
+            <span className="truncate">{activeLanguage === 'ta' ? 'AI அரட்டை' : 'AI Assistant'}</span>
           </button>
 
           <button
             onClick={onOpenRadar}
-            className="py-2.5 px-3 rounded-2xl bg-white/95 hover:bg-white border border-sky-200/80 text-sky-800 text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-2xs cursor-pointer"
+            className="py-2 px-2.5 rounded-2xl bg-white/95 hover:bg-white border border-sky-200/80 text-sky-800 text-xs font-bold flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer"
           >
             <Radio className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{activeLanguage === 'ta' ? 'டாப்ளர் ரேடார் வரைபடம்' : 'Live Doppler Radar'}</span>
+            <span className="truncate">{activeLanguage === 'ta' ? 'டாப்ளர் ரேடார்' : 'Doppler Radar'}</span>
+          </button>
+
+          {/* 🎥 Video Demo Button */}
+          <button
+            onClick={onOpenVideoDemo}
+            className="py-2 px-2.5 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-black flex items-center justify-center space-x-1.5 transition-all shadow-sm cursor-pointer hover:scale-105 active:scale-95"
+          >
+            <Play className="w-3.5 h-3.5 fill-white flex-shrink-0" />
+            <span className="truncate">{activeLanguage === 'ta' ? 'வீடியோ டெமோ' : 'Video Demo'}</span>
+          </button>
+
+          {/* 📅 1800-2999 Calendar Button */}
+          <button
+            onClick={onOpenClimate}
+            className="py-2 px-2.5 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-400 hover:to-cyan-500 text-white text-xs font-bold flex items-center justify-center space-x-1.5 transition-all shadow-2xs cursor-pointer hover:scale-105 active:scale-95"
+          >
+            <TrendingUp className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="truncate">{activeLanguage === 'ta' ? 'நாள்காட்டி' : '1800-2999'}</span>
           </button>
         </div>
       </div>
