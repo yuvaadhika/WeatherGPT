@@ -106,27 +106,27 @@ export default function Header({
       : '');
 
   return (
-    <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/95 backdrop-blur-xl px-3 sm:px-4 py-2 flex items-center justify-between gap-2 sm:gap-3 flex-shrink-0 z-30 shadow-2xs">
+    <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/95 backdrop-blur-xl px-2 sm:px-4 py-2 flex items-center justify-between gap-1.5 sm:gap-3 flex-shrink-0 z-30 shadow-2xs">
       {/* Left: Mobile Menu & Location */}
-      <div className="flex items-center space-x-1.5 sm:space-x-2 min-w-0">
+      <div className="flex items-center space-x-1 sm:space-x-2 min-w-0 flex-shrink">
         <button
           onClick={onOpenSidebar}
-          className="p-1.5 sm:p-2 rounded-xl bg-white/90 border border-sky-200/70 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer hover:border-sky-300"
+          className="p-1.5 sm:p-2 rounded-xl bg-white/95 border border-sky-200/80 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer hover:border-sky-300 flex-shrink-0"
           title="Open Navigation"
         >
           <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
-        {/* Current Location Pill & Directory Opener (Dual-level: Place + Specific Place Underneath) */}
+        {/* Current Location Pill & Directory Opener */}
         <button
           onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
           title={activeLanguage === 'ta' ? 'அனைத்து இடங்களையும் (A-Z) காண்க' : 'Browse All Places Directory (A-Z)'}
-          className="flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-2.5 py-1 rounded-xl bg-white/95 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group min-w-0"
+          className="flex items-center space-x-1 sm:space-x-1.5 px-2 py-1 rounded-xl bg-white/95 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group min-w-0 flex-shrink"
         >
           <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
           <div className="flex flex-col text-left min-w-0">
             <div className="flex items-center space-x-1 min-w-0">
-              <span className="truncate max-w-[85px] xs:max-w-[120px] sm:max-w-[160px] font-extrabold text-slate-900 group-hover:text-sky-700 leading-tight">
+              <span className="truncate max-w-[75px] xs:max-w-[110px] sm:max-w-[150px] font-extrabold text-slate-900 group-hover:text-sky-700 leading-tight">
                 {displayLocationName}
               </span>
               <span className="text-[9px] text-sky-600 font-bold px-1 py-0.2 rounded bg-sky-100/90 border border-sky-200 flex-shrink-0">
@@ -134,7 +134,7 @@ export default function Header({
               </span>
             </div>
             {displaySpecificName ? (
-              <span className="text-[10px] text-sky-700 font-semibold truncate max-w-[105px] xs:max-w-[135px] sm:max-w-[180px] leading-tight">
+              <span className="text-[10px] text-sky-700 font-semibold truncate max-w-[85px] xs:max-w-[120px] sm:max-w-[160px] leading-tight hidden xs:block">
                 📍 {displaySpecificName}
               </span>
             ) : null}
@@ -148,7 +148,7 @@ export default function Header({
           title={activeLanguage === 'ta' ? 'நேரலை ஜிபிஎஸ் இடம் கண்டறி (Live GPS)' : 'Lock Current Live GPS Location'}
           className={`p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer flex items-center justify-center flex-shrink-0 ${isLocating
               ? 'bg-sky-100 text-sky-700 border-sky-400 shadow-xs'
-              : 'bg-white/90 hover:bg-sky-50 text-sky-600 border-sky-200/80 hover:border-sky-400'
+              : 'bg-white/95 hover:bg-sky-50 text-sky-600 border-sky-200/80 hover:border-sky-400'
             }`}
         >
           <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin text-sky-600' : 'text-sky-600'}`} />
@@ -220,14 +220,14 @@ export default function Header({
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+      <div className="flex items-center space-x-1 sm:space-x-1.5 flex-shrink-0">
         {/* Language Selector in Header */}
-        <div className="flex items-center space-x-1 bg-white/95 border border-sky-200/80 hover:border-sky-400 rounded-xl px-2 py-1 shadow-2xs transition-all">
+        <div className="flex items-center space-x-1 bg-white/95 border border-sky-200/80 hover:border-sky-400 rounded-xl px-1.5 sm:px-2 py-1 shadow-2xs transition-all flex-shrink-0">
           <Globe className="w-3.5 h-3.5 text-sky-600 flex-shrink-0" />
           <select
             value={activeLanguage}
             onChange={(e) => setActiveLanguage(e.target.value)}
-            className="bg-transparent text-[11px] font-bold text-slate-700 focus:outline-none cursor-pointer max-w-[70px] sm:max-w-none"
+            className="bg-transparent text-[11px] font-bold text-slate-700 focus:outline-none cursor-pointer max-w-[62px] xs:max-w-[70px] sm:max-w-none"
             title="Choose Language (10 Languages Supported)"
           >
             {SUPPORTED_LANGUAGES.map((l) => (
@@ -238,15 +238,15 @@ export default function Header({
           </select>
         </div>
 
-        {/* 📲 1-Click Install App (PWA) Button (Tablet/Desktop) */}
+        {/* 📲 1-Click Install App (PWA) Button */}
         {onOpenInstallApp && (
           <button
             onClick={onOpenInstallApp}
             title={activeLanguage === 'ta' ? 'மொபைல் / கம்ப்யூட்டரில் ஆப் ஆக நிறுவுக (PWA Install)' : 'Install WeatherGPT as Native App (PWA)'}
-            className="hidden md:flex px-2.5 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-700 hover:from-sky-700 hover:to-indigo-800 text-white items-center space-x-1.5 transition-all shadow-sm hover:shadow-md cursor-pointer hover:scale-105 active:scale-95"
+            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white flex items-center space-x-1 transition-all shadow-2xs hover:shadow-sm cursor-pointer hover:scale-105 active:scale-95 flex-shrink-0"
           >
             <Download className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="text-[11px] font-bold">
+            <span className="text-[11px] font-bold hidden lg:inline">
               {activeLanguage === 'ta' ? 'ஆப் நிறுவு' : 'Install App'}
             </span>
           </button>
@@ -256,7 +256,7 @@ export default function Header({
         <button
           onClick={onOpenAlertModal || onToggleNotifications}
           title="Configure Weather Alerts & Notifications"
-          className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1.5 transition-all shadow-2xs cursor-pointer ${notificationsEnabled
+          className={`p-1.5 sm:px-2 sm:py-1.5 rounded-xl text-xs font-medium border flex items-center space-x-1 transition-all shadow-2xs cursor-pointer flex-shrink-0 ${notificationsEnabled
               ? 'bg-sky-50 border-sky-300 text-sky-700 hover:bg-sky-100'
               : 'bg-white/95 border-sky-200/80 text-slate-500 hover:text-slate-800 hover:border-sky-300'
             }`}
@@ -266,7 +266,7 @@ export default function Header({
           ) : (
             <Bell className="w-3.5 h-3.5 text-slate-400" />
           )}
-          <span className="text-[11px] font-semibold hidden md:inline">
+          <span className="text-[11px] font-semibold hidden lg:inline">
             {notificationsEnabled ? (t.header?.alertsOn || 'Alerts ON') : (t.header?.alertsOff || 'Alerts Setup')}
           </span>
         </button>
@@ -275,7 +275,7 @@ export default function Header({
         {topAlert && topAlert.level !== 'green' && (
           <div
             onClick={onOpenAlertModal}
-            className={`hidden sm:flex px-2 py-1 rounded-xl text-[10px] font-bold border items-center space-x-1 cursor-pointer ${topAlert.level === 'red'
+            className={`hidden sm:flex px-2 py-1 rounded-xl text-[10px] font-bold border items-center space-x-1 cursor-pointer flex-shrink-0 ${topAlert.level === 'red'
                 ? 'bg-rose-50 border-rose-200 text-rose-700'
                 : topAlert.level === 'orange'
                   ? 'bg-amber-50 border-amber-200 text-amber-700'
@@ -289,10 +289,10 @@ export default function Header({
 
         {/* Logged In User Profile Pill & Dropdown */}
         {currentUser && (
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="flex items-center space-x-1.5 p-1 sm:px-2.5 sm:py-1 rounded-xl bg-white/90 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 transition-all shadow-2xs cursor-pointer"
+              className="flex items-center space-x-1 p-1 sm:px-2 sm:py-1 rounded-xl bg-white/95 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 transition-all shadow-2xs cursor-pointer"
               title={currentUser.name || 'User Account'}
             >
               {currentUser.avatarType === 'guest' && currentUser.avatar?.startsWith('http') ? (
@@ -306,10 +306,10 @@ export default function Header({
                   {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}
-              <span className="text-xs font-bold text-slate-800 hidden sm:inline max-w-[80px] truncate">
+              <span className="text-xs font-bold text-slate-800 hidden md:inline max-w-[70px] truncate">
                 {currentUser.name?.split(' ')[0] || 'User'}
               </span>
-              <ChevronDown className="w-3 h-3 text-slate-400 hidden sm:inline" />
+              <ChevronDown className="w-3 h-3 text-slate-400 hidden md:inline" />
             </button>
 
             {/* Profile Dropdown Menu */}
