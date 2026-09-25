@@ -107,9 +107,9 @@ export default function Header({
       : '');
 
   return (
-    <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/95 backdrop-blur-xl px-2 sm:px-4 py-2 flex items-center justify-between gap-1.5 sm:gap-3 flex-shrink-0 z-30 shadow-2xs">
+    <header className="w-full border-b border-sky-200/70 bg-[#f5f9fd]/95 backdrop-blur-xl px-2 sm:px-4 py-2 flex items-center justify-between gap-1 sm:gap-3 flex-shrink-0 z-30 shadow-2xs">
       {/* Left: Mobile Menu & Location */}
-      <div className="flex items-center space-x-1 sm:space-x-2 min-w-0 flex-shrink">
+      <div className="flex items-center space-x-1 sm:space-x-1.5 min-w-0 flex-shrink">
         <button
           onClick={onOpenSidebar}
           className="p-1.5 sm:p-2 rounded-xl bg-white/95 border border-sky-200/80 text-slate-600 hover:text-slate-900 md:hidden cursor-pointer hover:border-sky-300 flex-shrink-0"
@@ -122,20 +122,20 @@ export default function Header({
         <button
           onClick={() => onOpenLocationModal ? onOpenLocationModal() : onDetectLocation && onDetectLocation(activeLanguage)}
           title={activeLanguage === 'ta' ? 'அனைத்து இடங்களையும் (A-Z) காண்க' : 'Browse All Places Directory (A-Z)'}
-          className="flex items-center space-x-1 sm:space-x-1.5 px-2 py-1 rounded-xl bg-white/95 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group min-w-0 flex-shrink"
+          className="flex items-center space-x-1 sm:space-x-1.5 px-2 py-1.5 rounded-xl bg-white/95 hover:bg-sky-50 border border-sky-200/80 hover:border-sky-400 text-xs font-medium text-slate-800 transition-all shadow-2xs cursor-pointer group min-w-0 max-w-[95px] xs:max-w-[135px] sm:max-w-[200px] flex-shrink"
         >
           <MapPin className="w-3.5 h-3.5 text-sky-600 flex-shrink-0 group-hover:scale-110 transition-transform" />
-          <div className="flex flex-col text-left min-w-0">
+          <div className="flex flex-col text-left min-w-0 truncate">
             <div className="flex items-center space-x-1 min-w-0">
-              <span className="truncate max-w-[75px] xs:max-w-[110px] sm:max-w-[150px] font-extrabold text-slate-900 group-hover:text-sky-700 leading-tight">
+              <span className="truncate font-extrabold text-slate-900 group-hover:text-sky-700 leading-tight">
                 {displayLocationName}
               </span>
-              <span className="text-[9px] text-sky-600 font-bold px-1 py-0.2 rounded bg-sky-100/90 border border-sky-200 flex-shrink-0">
+              <span className="text-[9px] text-sky-600 font-bold px-1 py-0.2 rounded bg-sky-100/90 border border-sky-200 flex-shrink-0 hidden xs:inline">
                 A-Z ▾
               </span>
             </div>
             {displaySpecificName ? (
-              <span className="text-[10px] text-sky-700 font-semibold truncate max-w-[85px] xs:max-w-[120px] sm:max-w-[160px] leading-tight hidden xs:block">
+              <span className="text-[10px] text-sky-700 font-semibold truncate leading-tight hidden sm:block">
                 📍 {displaySpecificName}
               </span>
             ) : null}
@@ -157,7 +157,7 @@ export default function Header({
       </div>
 
       {/* Center: Search City Bar (Tablet/Desktop) */}
-      <div className="relative flex-1 max-w-sm hidden sm:block">
+      <div className="relative flex-1 max-w-sm hidden md:block">
         <form onSubmit={handleSearchSubmit} className="relative">
           <input
             type="text"
@@ -228,7 +228,7 @@ export default function Header({
           <select
             value={activeLanguage}
             onChange={(e) => setActiveLanguage(e.target.value)}
-            className="bg-transparent text-[11px] font-bold text-slate-700 focus:outline-none cursor-pointer max-w-[62px] xs:max-w-[70px] sm:max-w-none"
+            className="bg-transparent text-[11px] font-bold text-slate-700 focus:outline-none cursor-pointer max-w-[56px] xs:max-w-[68px] sm:max-w-none"
             title="Choose Language (10 Languages Supported)"
           >
             {SUPPORTED_LANGUAGES.map((l) => (
@@ -244,21 +244,21 @@ export default function Header({
           <button
             onClick={onOpenVideoDemo}
             title={activeLanguage === 'ta' ? 'வீடியோ செயல்விளக்கம் (Video Demo)' : 'Watch Live Video Demo'}
-            className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 text-white flex items-center space-x-1.5 transition-all shadow-sm hover:shadow-md cursor-pointer hover:scale-105 active:scale-95 flex-shrink-0 animate-pulse hover:animate-none"
+            className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 text-white flex items-center space-x-1 transition-all shadow-sm hover:shadow-md cursor-pointer hover:scale-105 active:scale-95 flex-shrink-0"
           >
             <Play className="w-3.5 h-3.5 fill-white flex-shrink-0" />
-            <span className="text-[11px] font-black tracking-wide">
-              {activeLanguage === 'ta' ? 'வீடியோ டெமோ' : 'Video Demo'}
+            <span className="text-[11px] font-black tracking-wide hidden xs:inline">
+              {activeLanguage === 'ta' ? 'டெமோ' : 'Demo'}
             </span>
           </button>
         )}
 
-        {/* 📲 1-Click Install App (PWA) Button */}
+        {/* 📲 1-Click Install App (PWA) Button (Desktop / Tablet) */}
         {onOpenInstallApp && (
           <button
             onClick={onOpenInstallApp}
             title={activeLanguage === 'ta' ? 'மொபைல் / கம்ப்யூட்டரில் ஆப் ஆக நிறுவுக (PWA Install)' : 'Install WeatherGPT as Native App (PWA)'}
-            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white flex items-center space-x-1 transition-all shadow-2xs hover:shadow-sm cursor-pointer hover:scale-105 active:scale-95 flex-shrink-0"
+            className="hidden sm:flex p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white items-center space-x-1 transition-all shadow-2xs hover:shadow-sm cursor-pointer hover:scale-105 active:scale-95 flex-shrink-0"
           >
             <Download className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="text-[11px] font-bold hidden lg:inline">

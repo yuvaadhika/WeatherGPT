@@ -46,7 +46,7 @@ export default function BottomNavBar({
   ];
 
   return (
-    <nav className="w-full flex-shrink-0 z-40 bg-white/95 backdrop-blur-2xl border-t border-sky-200/80 px-2 py-1.5 md:hidden shadow-lg transition-all">
+    <nav className="w-full flex-shrink-0 z-40 bg-white/95 backdrop-blur-2xl border-t border-sky-200/80 px-2 pt-1.5 pb-2 md:hidden shadow-lg transition-all">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
