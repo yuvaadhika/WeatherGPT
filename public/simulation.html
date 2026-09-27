@@ -907,7 +907,7 @@
         },
         kn: {
           q: 'ನನ್ನ ಗಮ್ಯಸ್ಥಾನದಲ್ಲಿ ಹವಾಮಾನ ಹೇಗಿದೆ?',
-          a: 'ನಿಮ್ಮ ಗಮ್ಯಸ್ಥಾನ ಚೆನ್ನೈ Central. ತಾಪಮಾನವು ಸುಮಾರು 30 ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್, ಮೋಡ ಕವಿದ ವಾತಾವರಣ ಮತ್ತು 70 ಪ್ರತಿಶತ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.'
+          a: 'ನಿಮ್ಮ ಗಮ್ಯಸ್ಥಾನ ಚೆನ್ನೈ ಸೆಂಟ್ರಲ್. ತಾಪಮಾನವು ಸುಮಾರು 30 ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್, ಮೋಡ ಕವಿದ ವಾತಾವರಣ ಮತ್ತು 70 ಪ್ರತಿಶತ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.'
         },
         ml: {
           q: 'എന്റെ ലക്ഷ്യസ്ഥാനത്തെ കാലാവസ്ഥ എങ്ങനെയുണ്ട്?',
@@ -1376,6 +1376,34 @@
     }
 
     // --- SCREEN 4: VOICE ASSISTANT & SPEECH SYNTHESIS (TAMIL & 10 LANGUAGES) ---
+    function speakModule4Voice() {
+      const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
+      const statusBadge = document.getElementById('voiceLiveStatusBadge');
+      if (statusBadge) {
+        statusBadge.innerText = '🔊 Speaking Live...';
+        statusBadge.className = 'text-[10px] bg-teal-100 text-teal-900 px-2 py-0.5 rounded font-bold animate-pulse';
+      }
+
+      speakSimulationText(vm.a, currentLang, () => {
+        // This callback ONLY triggers when the speech has completely finished!
+        if (currentModuleIndex === 4) {
+          const badge = document.getElementById('voiceLiveStatusBadge');
+          if (badge) {
+            badge.innerText = '✓ Speech Completed';
+            badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold';
+          }
+          if (isPlaying) {
+            clearTimeout(stepTimer);
+            stepTimer = setTimeout(() => {
+              if (isPlaying && currentModuleIndex === 4) {
+                nextModule();
+              }
+            }, Math.max(500, Math.round(1200 / playbackSpeed)));
+          }
+        }
+      });
+    }
+
     function renderScreen4_Voice(c) {
       const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
       c.innerHTML = `
@@ -1387,7 +1415,7 @@
                 <span class="text-[10px] sm:text-xs font-black text-teal-700 uppercase">Voice Assistant & Audio Streamer</span>
                 <h2 class="font-black text-sm sm:text-base md:text-lg text-slate-900 leading-tight">Multilingual High-Fidelity Speech Engine</h2>
               </div>
-              <button onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.voiceModule[currentLang]?.a || SIMULATION_DATA.voiceModule.en.a, currentLang)" class="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[11px] sm:text-xs font-bold flex items-center space-x-1 sm:space-x-1.5 cursor-pointer shadow-sm flex-shrink-0">
+              <button onclick="getAudioContext(); speakModule4Voice()" class="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[11px] sm:text-xs font-bold flex items-center space-x-1 sm:space-x-1.5 cursor-pointer shadow-sm flex-shrink-0">
                 <i data-lucide="volume-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                 <span>Replay Voice</span>
               </button>
@@ -1395,7 +1423,7 @@
 
             <!-- Pulsing Mic Visualizer -->
             <div class="py-1 sm:py-2 space-y-3 max-w-md mx-auto">
-              <div onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.voiceModule[currentLang]?.a || SIMULATION_DATA.voiceModule.en.a, currentLang)" class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer hover:scale-105 transition-all" title="Click to Speak">
+              <div onclick="getAudioContext(); speakModule4Voice()" class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-tr from-teal-500 to-sky-600 flex items-center justify-center text-white shadow-xl shadow-teal-500/30 animate-pulse cursor-pointer hover:scale-105 transition-all" title="Click to Speak">
                 <i data-lucide="mic" class="w-7 h-7 sm:w-9 sm:h-9"></i>
               </div>
 
@@ -1416,13 +1444,13 @@
               </div>
 
               <!-- WeatherGPT Spoken Output Card -->
-              <div onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.voiceModule[currentLang]?.a || SIMULATION_DATA.voiceModule.en.a, currentLang)" class="p-3.5 sm:p-4 rounded-2xl bg-white border-2 border-teal-200 text-left space-y-1.5 shadow-sm cursor-pointer hover:border-teal-400 transition-all">
+              <div onclick="getAudioContext(); speakModule4Voice()" class="p-3.5 sm:p-4 rounded-2xl bg-white border-2 border-teal-200 text-left space-y-1.5 shadow-sm cursor-pointer hover:border-teal-400 transition-all">
                 <div class="flex items-center justify-between text-xs font-bold text-teal-800">
                   <div class="flex items-center space-x-1.5">
                     <i data-lucide="volume-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                     <span>WeatherGPT Spoken Audio:</span>
                   </div>
-                  <span class="text-[10px] bg-teal-100 text-teal-900 px-2 py-0.5 rounded font-bold">🔊 Speaking Live</span>
+                  <span id="voiceLiveStatusBadge" class="text-[10px] bg-teal-100 text-teal-900 px-2 py-0.5 rounded font-bold">🔊 Speaking Live</span>
                 </div>
                 <p class="text-xs sm:text-sm text-slate-800 leading-relaxed font-semibold">
                   "${vm.a}"
@@ -1434,7 +1462,7 @@
       `;
 
       if (isPlaying) {
-        speakSimulationText(vm.a, currentLang);
+        speakModule4Voice();
       }
     }
 
@@ -2069,7 +2097,18 @@
       clearTimeout(stepTimer);
       if (!isPlaying) return;
 
-      const baseDurationMs = (currentModuleIndex === 3 || currentModuleIndex === 4 || currentModuleIndex === 7 || currentModuleIndex === 17 || currentModuleIndex === 18) ? 8000 : 5500;
+      // Module 4 ONLY advances AFTER voice completes speaking!
+      if (currentModuleIndex === 4 && soundEnabled) {
+        // Set a 35-second safety watchdog timer in case browser autoplay blocks audio
+        stepTimer = setTimeout(() => {
+          if (isPlaying && currentModuleIndex === 4) {
+            nextModule();
+          }
+        }, Math.max(10000, Math.round(35000 / playbackSpeed)));
+        return;
+      }
+
+      const baseDurationMs = (currentModuleIndex === 3 || currentModuleIndex === 7 || currentModuleIndex === 17 || currentModuleIndex === 18) ? 8000 : 5500;
       const effectiveDuration = Math.max(1500, Math.round(baseDurationMs / playbackSpeed));
 
       stepTimer = setTimeout(() => {
@@ -2106,8 +2145,7 @@
         scheduleNextStep();
 
         if (currentModuleIndex === 4) {
-          const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
-          speakSimulationText(vm.a, currentLang);
+          speakModule4Voice();
         } else if (currentModuleIndex === 18) {
           const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
           speakSimulationText(dr, currentLang);
@@ -2229,8 +2267,7 @@
 
       if (isPlaying) {
         if (currentModuleIndex === 4) {
-          const vm = SIMULATION_DATA.voiceModule[currentLang] || SIMULATION_DATA.voiceModule.en;
-          speakSimulationText(vm.a, currentLang);
+          speakModule4Voice();
         } else if (currentModuleIndex === 18) {
           const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
           speakSimulationText(dr, currentLang);
