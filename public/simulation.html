@@ -2037,13 +2037,39 @@
     }
 
     // --- SCREEN 18: DESTINATION REACHED & 100M GEOFENCE ALARM ---
+    function speakModule18Voice() {
+      const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
+      const statusBadge = document.getElementById('voiceLiveStatusBadge18');
+      if (statusBadge) {
+        statusBadge.innerText = '🔊 Speaking Alert...';
+        statusBadge.className = 'text-[10px] bg-rose-100 text-rose-900 px-2 py-0.5 rounded font-bold animate-pulse';
+      }
+      startSirenAlarm();
+      speakSimulationText(dr, currentLang, () => {
+        // Voice has finished speaking completely!
+        if (currentModuleIndex === 18) {
+          const badge = document.getElementById('voiceLiveStatusBadge18');
+          if (badge) {
+            badge.innerText = '✓ Destination Reached';
+            badge.className = 'text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold';
+          }
+          // Stop siren 2 seconds after voice finishes
+          setTimeout(() => {
+            stopSirenAlarm();
+          }, 2000);
+          // STOP simulation completely. Do NOT automatically restart from module 1!
+          finishSimulation();
+        }
+      });
+    }
+
     function renderScreen18_DestinationReached(c) {
       const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
       c.innerHTML = `
         <div class="space-y-3 sm:space-y-4">
           <div class="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 border-4 border-rose-500 shadow-2xl space-y-4 sm:space-y-5 text-center bg-rose-50/40">
             
-            <div onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en, currentLang)" class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-rose-600 flex items-center justify-center text-white shadow-xl shadow-rose-600/40 animate-bounce cursor-pointer hover:scale-105 transition-all" title="Click to Hear Arrival Alert">
+            <div onclick="getAudioContext(); speakModule18Voice()" class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-rose-600 flex items-center justify-center text-white shadow-xl shadow-rose-600/40 animate-bounce cursor-pointer hover:scale-105 transition-all" title="Click to Hear Arrival Alert">
               <i data-lucide="bell-ring" class="w-8 h-8 sm:w-10 sm:h-10 animate-spin"></i>
             </div>
 
@@ -2059,13 +2085,13 @@
               </p>
             </div>
 
-            <div onclick="getAudioContext(); speakSimulationText(SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en, currentLang)" class="p-3.5 sm:p-4 rounded-2xl bg-white border-2 border-rose-300 max-w-md mx-auto space-y-1.5 cursor-pointer shadow-sm text-left">
+            <div onclick="getAudioContext(); speakModule18Voice()" class="p-3.5 sm:p-4 rounded-2xl bg-white border-2 border-rose-300 max-w-md mx-auto space-y-1.5 cursor-pointer shadow-sm text-left">
               <div class="flex items-center justify-between text-rose-700 font-bold text-xs">
                 <div class="flex items-center space-x-1.5">
                   <i data-lucide="volume-2" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                   <span>Voice Alert Speaking:</span>
                 </div>
-                <span class="text-[10px] bg-rose-100 px-2 py-0.5 rounded font-bold">🔊 Click to Hear</span>
+                <span id="voiceLiveStatusBadge18" class="text-[10px] bg-rose-100 text-rose-900 px-2 py-0.5 rounded font-bold">🔊 Click to Hear</span>
               </div>
               <p class="text-xs sm:text-sm text-slate-900 font-semibold leading-relaxed">
                 "${dr}"
@@ -2076,8 +2102,9 @@
               <button onclick="stopSirenAlarm(); stopCurrentSpeaking();" class="px-5 sm:px-6 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-lg shadow-rose-600/30 cursor-pointer active:scale-95 transition-all">
                 🛑 Stop Siren Alarm
               </button>
-              <button onclick="restartSimulation()" class="px-4 sm:px-5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs cursor-pointer">
-                🔄 Restart Demo
+              <button onclick="restartSimulation()" class="px-5 sm:px-6 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs shadow-lg shadow-emerald-600/30 cursor-pointer active:scale-95 transition-all flex items-center space-x-1.5">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                <span>Restart Demo</span>
               </button>
             </div>
           </div>
@@ -2085,21 +2112,42 @@
       `;
 
       if (isPlaying) {
-        startSirenAlarm();
-        speakSimulationText(dr, currentLang);
+        speakModule18Voice();
       }
     }
 
     // ============================================================================
     // CONTROLS & TIMING
     // ============================================================================
+    function finishSimulation() {
+      isPlaying = false;
+      clearTimeout(stepTimer);
+      stopCurrentSpeaking();
+
+      const btn = document.getElementById('playPauseBtn');
+      const icon = document.getElementById('playPauseIcon');
+      const text = document.getElementById('playPauseText');
+      const statusPill = document.getElementById('simStatusPill');
+
+      if (btn && icon && text) {
+        btn.className = 'px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-extrabold text-xs flex items-center space-x-1 sm:space-x-1.5 transition-all shadow-md cursor-pointer active:scale-95';
+        icon.setAttribute('data-lucide', 'rotate-ccw');
+        text.innerText = 'Restart';
+      }
+      if (statusPill) {
+        statusPill.innerText = 'COMPLETED';
+        statusPill.className = 'px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hidden xs:inline';
+      }
+      lucide.createIcons();
+    }
+
     function scheduleNextStep() {
       clearTimeout(stepTimer);
       if (!isPlaying) return;
 
       // Module 4 ONLY advances AFTER voice completes speaking!
       if (currentModuleIndex === 4 && soundEnabled) {
-        // Set a 35-second safety watchdog timer in case browser autoplay blocks audio
+        // Safety watchdog timer only if audio is blocked
         stepTimer = setTimeout(() => {
           if (isPlaying && currentModuleIndex === 4) {
             nextModule();
@@ -2108,7 +2156,18 @@
         return;
       }
 
-      const baseDurationMs = (currentModuleIndex === 3 || currentModuleIndex === 7 || currentModuleIndex === 17 || currentModuleIndex === 18) ? 8000 : 5500;
+      // Module 18 is the FINAL module. It stops once speech completes and NEVER automatically loops!
+      if (currentModuleIndex === 18) {
+        // Safety watchdog timer if audio is blocked to complete cleanly
+        stepTimer = setTimeout(() => {
+          if (currentModuleIndex === 18) {
+            finishSimulation();
+          }
+        }, Math.max(12000, Math.round(40000 / playbackSpeed)));
+        return;
+      }
+
+      const baseDurationMs = (currentModuleIndex === 3 || currentModuleIndex === 7 || currentModuleIndex === 17) ? 8000 : 5500;
       const effectiveDuration = Math.max(1500, Math.round(baseDurationMs / playbackSpeed));
 
       stepTimer = setTimeout(() => {
@@ -2116,9 +2175,7 @@
           if (currentModuleIndex < TOTAL_MODULES) {
             nextModule();
           } else {
-            currentModuleIndex = 1;
-            renderActiveModuleScreen();
-            scheduleNextStep();
+            finishSimulation();
           }
         }
       }, effectiveDuration);
@@ -2126,6 +2183,13 @@
 
     function togglePlayPause() {
       getAudioContext();
+
+      // If already at Module 18 and completed/stopped, clicking Start/Restart restarts from Module 1
+      if (!isPlaying && currentModuleIndex === 18) {
+        restartSimulation();
+        return;
+      }
+
       isPlaying = !isPlaying;
 
       const btn = document.getElementById('playPauseBtn');
@@ -2147,9 +2211,7 @@
         if (currentModuleIndex === 4) {
           speakModule4Voice();
         } else if (currentModuleIndex === 18) {
-          const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
-          speakSimulationText(dr, currentLang);
-          startSirenAlarm();
+          speakModule18Voice();
         }
       } else {
         btn.className = 'px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-extrabold text-xs flex items-center space-x-1 sm:space-x-1.5 transition-all shadow-md cursor-pointer active:scale-95';
@@ -2200,19 +2262,25 @@
       clearTimeout(stepTimer);
       stopSirenAlarm();
       stopCurrentSpeaking();
-      if (currentModuleIndex < TOTAL_MODULES) currentModuleIndex++;
-      else currentModuleIndex = 1;
-      playSynthesizedChime();
-      renderActiveModuleScreen();
-      if (isPlaying) scheduleNextStep();
+      if (currentModuleIndex < TOTAL_MODULES) {
+        currentModuleIndex++;
+        playSynthesizedChime();
+        renderActiveModuleScreen();
+        if (isPlaying) scheduleNextStep();
+      } else {
+        finishSimulation();
+      }
     }
 
     function previousModule() {
       clearTimeout(stepTimer);
       stopSirenAlarm();
       stopCurrentSpeaking();
-      if (currentModuleIndex > 1) currentModuleIndex--;
-      else currentModuleIndex = TOTAL_MODULES;
+      if (currentModuleIndex > 1) {
+        currentModuleIndex--;
+      } else {
+        currentModuleIndex = TOTAL_MODULES;
+      }
       playSynthesizedChime();
       renderActiveModuleScreen();
       if (isPlaying) scheduleNextStep();
@@ -2231,7 +2299,29 @@
     }
 
     function restartSimulation() {
-      jumpToModule(1);
+      stopSirenAlarm();
+      stopCurrentSpeaking();
+      currentModuleIndex = 1;
+      playSynthesizedChime();
+      renderActiveModuleScreen();
+      if (!isPlaying) {
+        isPlaying = true;
+        const btn = document.getElementById('playPauseBtn');
+        const icon = document.getElementById('playPauseIcon');
+        const text = document.getElementById('playPauseText');
+        const statusPill = document.getElementById('simStatusPill');
+        if (btn && icon && text) {
+          btn.className = 'px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs flex items-center space-x-1 sm:space-x-1.5 transition-all shadow-md cursor-pointer active:scale-95';
+          icon.setAttribute('data-lucide', 'pause');
+          text.innerText = 'Pause';
+        }
+        if (statusPill) {
+          statusPill.innerText = 'RUNNING';
+          statusPill.className = 'px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hidden xs:inline';
+        }
+        lucide.createIcons();
+      }
+      scheduleNextStep();
     }
 
     function toggleModuleDrawer() {
@@ -2269,8 +2359,7 @@
         if (currentModuleIndex === 4) {
           speakModule4Voice();
         } else if (currentModuleIndex === 18) {
-          const dr = SIMULATION_DATA.destinationReached[currentLang] || SIMULATION_DATA.destinationReached.en;
-          speakSimulationText(dr, currentLang);
+          speakModule18Voice();
         }
       }
     }
