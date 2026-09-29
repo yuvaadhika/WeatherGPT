@@ -585,37 +585,42 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
       {/* ========================================================================= */}
       {chartMode === 'calendar' && (
         <div className="space-y-4 animate-fadeIn">
-          {/* Era / Century Fast Jump Toolbar */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-md space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold">
-              <span className="flex items-center space-x-1.5 text-sky-400 font-mono">
-                <Globe className="w-3.5 h-3.5" />
+          {/* Era / Century Fast Jump Toolbar (Mild & Soft Palette) */}
+          <div className="relative overflow-hidden p-3.5 rounded-2xl bg-gradient-to-r from-sky-50/90 via-indigo-50/70 to-teal-50/80 text-slate-800 border border-sky-200/90 shadow-2xs space-y-2.5">
+            <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-sky-200/40 rounded-full blur-xl pointer-events-none"></div>
+            <div className="absolute -left-6 -top-6 w-24 h-24 bg-emerald-200/30 rounded-full blur-xl pointer-events-none"></div>
+
+            <div className="relative z-10 flex items-center justify-between text-xs font-bold">
+              <span className="flex items-center space-x-1.5 text-sky-800 font-bold">
+                <Globe className="w-3.5 h-3.5 text-sky-600" />
                 <span>{activeLanguage === 'ta' ? 'நூற்றாண்டு விரைவுத் தாவல் (1800 – 2999 Eras):' : 'Century & Era Jump Station (1800 – 2999):'}</span>
               </span>
-              <span className="text-[10px] text-slate-400 font-mono">Full 1800 – 2999 Active</span>
+              <span className="text-[10px] text-sky-700 font-mono font-bold px-2 py-0.5 rounded-full bg-white/90 border border-sky-200 shadow-2xs">
+                Full 1800 – 2999 Active
+              </span>
             </div>
 
-            <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+            <div className="relative z-10 flex items-center space-x-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
               <button
                 type="button"
                 onClick={() => setHistoricalEra(1850, 7, 15)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0 flex items-center space-x-1"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 flex items-center space-x-1 shadow-2xs active:scale-95"
                 title="19th Century (1850)"
               >
-                <History className="w-3 h-3 text-amber-400" />
+                <History className="w-3 h-3 text-amber-600" />
                 <span>📜 1850 (19th C)</span>
               </button>
               <button
                 type="button"
                 onClick={() => setHistoricalEra(1900, 10, 15)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
               >
                 🏛️ 1900
               </button>
               <button
                 type="button"
                 onClick={() => setHistoricalEra(1947, 8, 15)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
                 title="Indian Independence (15 Aug 1947)"
               >
                 🇮🇳 1947
@@ -623,56 +628,56 @@ export default function ClimateAnalyticsChart({ activeLanguage = 'en', weatherDa
               <button
                 type="button"
                 onClick={() => setHistoricalEra(1975, 11, 20)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
               >
                 📻 1975
               </button>
               <button
                 type="button"
                 onClick={() => setHistoricalEra(1999, 12, 31)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
               >
                 💾 1999 (Y2K)
               </button>
               <button
                 type="button"
                 onClick={() => setQuickDate(0)}
-                className="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-black shadow-md transition-all cursor-pointer flex-shrink-0"
+                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-black shadow-xs transition-all cursor-pointer flex-shrink-0 flex items-center space-x-1 active:scale-95 border border-sky-500/30"
               >
                 ⭐ Today (Live)
               </button>
               <button
                 type="button"
                 onClick={() => setHistoricalEra(2030, 5, 1)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
               >
                 🌱 2030
               </button>
               <button
                 type="button"
                 onClick={() => setHistoricalEra(2050, 6, 1)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
               >
                 🚀 2050
               </button>
               <button
                 type="button"
                 onClick={() => setHistoricalEra(2100, 1, 1)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
               >
                 🛸 2100
               </button>
               <button
                 type="button"
                 onClick={() => setHistoricalEra(2500, 8, 15)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold transition-all cursor-pointer flex-shrink-0"
+                className="px-2.5 py-1.5 rounded-xl bg-white/90 hover:bg-sky-50 border border-slate-200/90 hover:border-sky-300 text-slate-700 font-bold transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
               >
                 🌌 2500
               </button>
               <button
                 type="button"
                 onClick={() => setHistoricalEra(2999, 12, 31)}
-                className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 border border-purple-400 text-white font-black transition-all cursor-pointer flex-shrink-0"
+                className="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200/80 border border-purple-300/80 text-purple-900 font-black transition-all cursor-pointer flex-shrink-0 shadow-2xs active:scale-95"
               >
                 ✨ 2999 (Year 2999)
               </button>
