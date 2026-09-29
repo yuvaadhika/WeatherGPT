@@ -216,33 +216,37 @@ export default function MobileDashboard({
         </div>
       )}
 
-      {/* 🎮 FEATURED: 18-Module Interactive Live Simulation Banner */}
+      {/* 🎮 FEATURED: 18-Module Interactive Live Simulation Banner (Mild, Soft & Modern Palette) */}
       <div
         onClick={onOpenSimulation || (() => { window.location.href = '/simulation/'; })}
-        className="relative overflow-hidden rounded-3xl p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 text-white border-2 border-emerald-500/50 shadow-xl shadow-sky-950/40 cursor-pointer hover:border-emerald-400 transition-all group active:scale-[0.99]"
+        className="relative overflow-hidden rounded-3xl p-4 sm:p-5 bg-gradient-to-r from-sky-50/90 via-teal-50/80 to-emerald-50/90 text-slate-800 border border-emerald-200/90 hover:border-emerald-300 shadow-sm hover:shadow-md cursor-pointer transition-all group active:scale-[0.99]"
       >
-        <div className="absolute -right-8 -bottom-8 w-36 h-36 bg-emerald-500/20 rounded-full blur-2xl group-hover:scale-125 transition-transform pointer-events-none"></div>
+        <div className="absolute -right-8 -bottom-8 w-36 h-36 bg-emerald-200/30 rounded-full blur-2xl group-hover:scale-125 transition-transform pointer-events-none"></div>
+        <div className="absolute -left-8 -top-8 w-32 h-32 bg-sky-200/30 rounded-full blur-2xl group-hover:scale-110 transition-transform pointer-events-none"></div>
         <div className="relative z-10 flex items-center justify-between gap-3">
-          <div className="space-y-1 min-w-0">
+          <div className="space-y-1.5 min-w-0">
             <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-black tracking-wider border border-emerald-500/40 animate-pulse">
-                🎮 LIVE SIMULATION
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100/90 text-emerald-800 font-mono text-[10px] font-black tracking-wider border border-emerald-300/80 shadow-2xs flex items-center space-x-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>🎮 LIVE SIMULATION</span>
               </span>
-              <span className="text-[10px] font-bold text-sky-300">18 Modules • 10 Languages</span>
+              <span className="text-[10px] font-bold text-sky-800 bg-sky-100/80 px-2 py-0.5 rounded-full border border-sky-200/70">
+                18 Modules • 10 Languages
+              </span>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-white leading-snug">
+            <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug group-hover:text-emerald-900 transition-colors">
               {activeLanguage === 'ta'
                 ? 'செங்கல்பட்டு ➔ சென்னை சென்ட்ரல் 18-தொகுதி நேரலை சிமுலேஷன்'
                 : 'Chengalpattu ➔ Chennai Central 18-Module Interactive Demo'}
             </h3>
-            <p className="text-[11px] text-slate-300 line-clamp-1">
+            <p className="text-[11px] font-semibold text-slate-600 line-clamp-1">
               {activeLanguage === 'ta'
                 ? 'தமிழ் குரல், நேரலை டாப்ளர் ரேடார் & 100மீ ஜியோஃபென்ஸ் எச்சரிக்கை'
                 : 'Tamil Spoken Voice, Live Radar, Crop Advisory & 100m Arrival Alarm'}
             </p>
           </div>
 
-          <button className="flex-shrink-0 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black text-xs shadow-lg shadow-emerald-900/40 flex items-center space-x-1.5 transition-transform group-hover:scale-105 active:scale-95 border border-emerald-300/40">
+          <button className="flex-shrink-0 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-sm hover:shadow flex items-center space-x-1.5 transition-all group-hover:scale-105 active:scale-95 border border-emerald-500/20">
             <Play className="w-3.5 h-3.5 fill-current text-white" />
             <span className="hidden xs:inline">{activeLanguage === 'ta' ? 'இயக்கு' : 'Start'}</span>
           </button>
